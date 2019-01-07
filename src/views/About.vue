@@ -1,5 +1,17 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div>
+   <draggable @start="drag=true" @end="drag=false">
+     <h1>hh</h1>
+   </draggable>
   </div>
 </template>
+<script>
+ import draggable from 'vuedraggable'
+
+export default {
+  components: {
+    
+    draggable,
+  }
+}
+</script>
