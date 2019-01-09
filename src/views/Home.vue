@@ -1,33 +1,54 @@
 <template>
-  <div class="home">
-    <h1>Welcome to CPSwarm!</h1>
-    <div style="padding-left: 40%">
+        <div class="row h-100">
+            <div style="width:55px; background-color: #ececec">
+                <nav id="nav" class="navbar navbar-light flex-grow-1">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <router-link class="navbar-brand" to="/home">
+                                <img src="../assets/devices.png" width="30" height="30" alt="">
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link class="navbar-brand" to="/home/deployment">
+                                <img src="../assets/deployment.png" width="30" height="30" alt="">
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link class="navbar-brand" to="/home/setting">
+                                <img src="../assets/settings.png" width="30" height="30" alt="">
+                            </router-link>
+                        </li>                  
+                    </ul>    
+                </nav>
+            </div>
+    
+            <div class="col-11">
+                <router-view></router-view>
+            </div>
+        </div>
 
-       <div style="text-align: right; float: left; padding: 2%" >
-      <label for="login">Name:</label><br> <br>
-       <label>Role:</label>    <br> <br>
-    <label>Password:</label> <br> <br>
- </div>
-    <div style="text-align: left; float: left; padding: 2%" >
-    <input id="login" type="text">   <br> <br>
-      <input type="radio" name="developer">developer
-      <input type="radio" name="manager">manager <br><br>
-      <input type="text"> <br><br>
-      <input type="submit" @click="handleSubmit"> 
-
-    </div>
-    </div>
-  </div>
 </template>
-<script>
-export default {
-  methods:{
-    handleSubmit(){
-      this.$router.push({ path: '/about' })
-    }
 
-  }
-}
+<script>
+    import draggable from 'vuedraggable'
+
+    export default {
+        data() {
+            return {
+                devices: "../assets/devices.png",
+                deployment: "../assets/deployment.png",
+                setting: "../assets/settings.png",
+            }
+        },
+        components: {
+            draggable,
+        },
+    }
+    
 </script>
 
-
+<style>
+.navbar-brand{
+    padding: 5px;
+}
+</style>
