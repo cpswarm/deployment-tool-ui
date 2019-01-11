@@ -211,7 +211,7 @@
     components: {
       draggable,
     },
-  }
+  }  
 </script>
 
 <style>
@@ -258,4 +258,5 @@
     padding: 0
   }
 </style>
+
 
