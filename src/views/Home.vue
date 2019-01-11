@@ -22,7 +22,7 @@
                 </nav>
             </div>
     
-            <div class="col-11">
+            <div style="width:95%">
                 <router-view></router-view>
             </div>
         </div>
