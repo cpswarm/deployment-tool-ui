@@ -1,28 +1,26 @@
 <template>
-        <div class="row h-100">
-            <div style="width:55px; background-color: #ececec">
-                <nav id="nav" class="navbar navbar-light flex-grow-1">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <router-link class="navbar-brand" to="/home">
+    <div id="container">
+            <div id="navbar">
+                    <ul id='navitems'>
+                        <li class="navitem">
+                            <router-link class="" to="/home">
                                 <img src="../assets/devices.png" width="30" height="30" alt="">
                             </router-link>
                         </li>
-                        <li class="nav-item">
-                            <router-link class="navbar-brand" to="/home/deployment">
+                        <li class="navitem">
+                            <router-link class="" to="/home/deployment">
                                 <img src="../assets/deployment.png" width="30" height="30" alt="">
                             </router-link>
                         </li>
-                        <li class="nav-item">
-                            <router-link class="navbar-brand" to="/home/setting">
+                        <li class="navitem">
+                            <router-link class="" to="/home/setting">
                                 <img src="../assets/settings.png" width="30" height="30" alt="">
                             </router-link>
                         </li>                  
-                    </ul>    
-                </nav>
+                    </ul>      
             </div>
     
-            <div style="width:95%">
+            <div id="mappanel">
                 <router-view></router-view>
             </div>
         </div>
@@ -48,7 +46,26 @@
 </script>
 
 <style>
-.navbar-brand{
+#container {
+display: flex;
+flex-direction: row;
+}
+#navbar{
+flex-grow: 1
+}
+#mappanel{
+    flex-grow: 11;
+    display: flex;
+}
+#navitems{
+    text-decoration: none;
+    padding: 0
+}
+.navitem{
     padding: 5px;
 }
+.navitem:hover{
+    background-color: black
+}
+
 </style>
