@@ -143,7 +143,12 @@
       <td>Otto@example.com</td>
       <td>********</td>
       <td></td>
-      <td></td>
+      <td>
+        <div class="custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="customSwitch1">
+  <label class="custom-control-label" for="customSwitch1"></label>
+</div>
+      </td>
       <td><button class="btn btn-primary">Edit</button>
       <button class="btn btn-primary">Delete</button>
       </td>
@@ -154,7 +159,10 @@
       <td>Otto@example.com</td>
       <td>********</td>
       <td></td>
-      <td></td>
+      <td><div class="custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="customSwitch2">
+  <label class="custom-control-label" for="customSwitch2"></label>
+</div></td>
       <td><button class="btn btn-primary">Edit</button>
       <button class="btn btn-primary">Delete</button>
       </td>
@@ -165,7 +173,10 @@
       <td>Otto@example.com</td>
       <td>********</td>
       <td></td>
-      <td></td>
+      <td><div class="custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="customSwitch3">
+  <label class="custom-control-label" for="customSwitch3"></label>
+</div></td>
       <td><button class="btn btn-primary">Edit</button>
       <button class="btn btn-primary">Delete</button>
       </td>
@@ -176,7 +187,10 @@
       <td>Otto@example.com</td>
       <td>********</td>
       <td></td>
-      <td></td>
+      <td><div class="custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="customSwitch4">
+  <label class="custom-control-label" for="customSwitch4"></label>
+</div></td>
       <td><button class="btn btn-primary">Edit</button>
       <button class="btn btn-primary">Delete</button>
       </td>
@@ -187,19 +201,16 @@
       <td>Otto@example.com</td>
       <td>********</td>
       <td></td>
-      <td></td>
+      <td><div class="custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="1">
+  <label class="custom-control-label" for="1"></label>
+</div></td>
       <td><button class="btn btn-primary">Edit</button>
       <button class="btn btn-primary">Delete</button>
       </td>
     </tr>
   </tbody>
 </table>
-
-
-
-
-
-
 
 
   </div>

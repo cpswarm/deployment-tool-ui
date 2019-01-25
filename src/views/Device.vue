@@ -1,7 +1,6 @@
 <template>
  <div class="mappanelContainer">
-    <div id="map">
-      <img src="../assets/map.png" style="width: 100%">
+    <div id="map" style="width:1000px">
     </div>
     <div class="panel" style="width:500px">
       <div id="title"> 
@@ -189,7 +188,7 @@
 
 <script>
   import draggable from 'vuedraggable'
-  
+
   export default {
     data() {
       return {
@@ -199,6 +198,12 @@
     components: {
       draggable,
     },
+    mounted() {
+    const map = L.map('map').setView([37.4501001, -121.9107704], 11)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    }
   }  
 </script>
 
