@@ -1,15 +1,17 @@
 <template>
  <div class="mappanelContainer">
-    <div id="map" style="width:1000px">
+    <div id="map" style="width:800px" ref="map">
     </div>
-    <div class="panel" style="width:500px">
+    <div class="panel" style="width:400px">
       <div id="title"> 
         <img src="../assets/devices.png" style="width:30px" alt="">
         <h5 style="display: inline-block; margin-left:5px">Device Management</h5>
       </div>
-      <div id="search">     
-          <form class="form-inline">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tags</button>
+      <div class="accordion" id="accordionExample" >
+        <div class="card">
+          <div id="search">     
+          <form class="form-inline" >
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:90px">Tags</button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="#">Type</a>
                             <a class="dropdown-item" href="#">Hardware Architecture</a>
@@ -17,35 +19,63 @@
                             <div role="separator" class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#">Location</a>
                         </div>
-                    <input class="form-control" placeholder="Search" >
-                    <a class="btn" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Search</a> 
+                    <input class="form-control">
+                    <a class="btn btn-primary" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Search</a> 
             </form>
       </div>
-      <div class="accordion" id="accordionExample">
-        <div class="card">
-          <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample">
-            <div class="card-body"> 
+          <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" ref="collapseOne">
+            <div class="my-card-body"> 
               <div id="deviceList">
-                <div class="card card-body">   
-                    <h5 class="card-title">Card title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link">Another link</a>
+                <div class="mycard my-card-body">   
+                    <div class="mycard-title">Name:</div>
+                    <div class="mycard-content">drone-1</div>
+                    <div class="mycard-title">Tags:</div>
+                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-title">Current Task:</div>
+                    <div class="mycard-content">operationA-v01</div>
+                    <div class="mycard-title">Status:</div>
+                    <div></div>
+                    <div class="mycard-title">Current Logs:</div>
+                    <div></div>
+                    <div class="mycard-title">Terminal:</div>
+                    <div></div>
+                    <div class="mycard-title">Current Logs:</div>
+                    <div></div>
+                    <div class="mycard-title">History Tasks:</div>
                 </div>
-                <div class="card card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link">Another link</a>
+                <div class="mycard my-card-body">
+                   <div class="mycard-title">Name:</div>
+                    <div class="mycard-content">drone-2</div>
+                    <div class="mycard-title">Tags:</div>
+                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-title">Current Task:</div>
+                    <div class="mycard-content">operationA-v01</div>
+                    <div class="mycard-title">Status:</div>
+                    <div></div>
+                    <div class="mycard-title">Current Logs:</div>
+                    <div></div>
+                    <div class="mycard-title">Terminal:</div>
+                    <div></div>
+                    <div class="mycard-title">Current Logs:</div>
+                    <div></div>
+                    <div class="mycard-title">History Tasks:</div>
               </div>
-              <div class="card card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Card link</a>
-                  <a href="#" class="card-link">Another link</a>
+              <div class="mycard my-card-body">
+                 <div class="mycard-title">Name:</div>
+                    <div class="mycard-content">drone-2</div>
+                    <div class="mycard-title">Tags:</div>
+                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-title">Current Task:</div>
+                    <div class="mycard-content">operationA-v01</div>
+                    <div class="mycard-title">Status:</div>
+                    <div></div>
+                    <div class="mycard-title">Current Logs:</div>
+                    <div></div>
+                    <div class="mycard-title">Terminal:</div>
+                    <div></div>
+                    <div class="mycard-title">Current Logs:</div>
+                    <div></div>
+                    <div class="mycard-title">History Tasks:</div>
               </div>
             </div> 
           </div>
@@ -55,8 +85,8 @@
           <div class="card-header" id="headingTwo">
             <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Batch Update Devices Tags</button>
           </div>
-          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-            <div class="card-body">
+          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample" ref="collapseTwo">
+            <div class="my-card-body">
                 <h6>This update settings will apply to all selected deivces.</h6>
                 <form id="updateTags" action="">
                     <div style="text-align:right"> Name Base: </div>
@@ -73,17 +103,11 @@
                       <label class="form-check-label" for="exampleCheck1">- a/b/c...</label>
                    
                       </div>
-                      <div class="form-check input-group">
-                      <input class="form-check-input" type="radio" name="radio">
-                      <input type="text" class="form-control form-control-sm">-
-                      <input type="text" class="form-control form-control-sm">
-                   
-                      </div>
                     </div>
-                    <div style="text-align:right">Tgas:</div>
+                    <div style="text-align:right">Tags:</div>
                     <div>
                       <div class="form-check input-group">
-                         <input type="checkbox" class="form-check-input">
+                        
                           <label for="">Type:</label>
                           <ul style="display:inline-block">
                             <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
@@ -92,7 +116,6 @@
                           </ul>
                       </div>
                        <div class="form-check input-group">
-                         <input type="checkbox" class="form-check-input">
                           <label for="">HW Arch:</label>
                           <ul style="display:inline-block">
                             <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
@@ -101,7 +124,6 @@
                           </ul>
                       </div>
                        <div class="form-check input-group">
-                         <input type="checkbox" class="form-check-input">
                           <label for="">OS:</label>
                           <ul style="display:inline-block">
                             <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
@@ -118,8 +140,8 @@
           <div class="card-header" id="headingThree">
             <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">Add New Device</button>
           </div>
-          <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
-            <div class="card-body">
+          <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" ref="collapseThree">
+            <div class="my-card-body">
                 <form id="newDevice" action="">
                     <div style="text-align:right">#Devices:</div>
                     <div>
@@ -139,16 +161,11 @@
                       <label class="form-check-label" for="exampleCheck1">- a/b/c...</label>
                    
                       </div>
-                      <div class="form-check input-group">
-                      <input class="form-check-input" type="radio" name="radio">
-                      <input type="text" class="form-control form-control-sm">-
-                      <input type="text" class="form-control form-control-sm">
-                      </div>
                     </div>
                     <div style="text-align:right">Tgas:</div>
                     <div>
                       <div class="form-check input-group">
-                         <input type="checkbox" class="form-check-input">
+                       
                           <label for="">Type:</label>
                           <ul style="display:inline-block">
                             <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
@@ -157,7 +174,7 @@
                           </ul>
                       </div>
                        <div class="form-check input-group">
-                         <input type="checkbox" class="form-check-input">
+                        
                           <label for="">HW Arch:</label>
                           <ul style="display:inline-block">
                             <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
@@ -166,7 +183,7 @@
                           </ul>
                       </div>
                        <div class="form-check input-group">
-                         <input type="checkbox" class="form-check-input">
+                       
                           <label for="">OS:</label>
                           <ul style="display:inline-block">
                             <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
@@ -188,22 +205,58 @@
 
 <script>
   import draggable from 'vuedraggable'
+  import axios from 'axios'
 
   export default {
     data() {
       return {
         devices: "../assets/devices.png",
+        devicesData:null
       }
     },
     components: {
       draggable,
     },
     mounted() {
-    const map = L.map('map').setView([37.4501001, -121.9107704], 11)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    
+    this.$refs.map.style.height = window.innerHeight + 'px';
+
+
+    axios.get('https://petstore.swagger.io/v2/swagger.json')
+    .then(response => {
+
+      this.devicesData = response.data;
+      
+    })
+    .catch(error => {
+      console.log(error);
+    })
+
+    const map = L.map('map').setView([50.749523,7.20143], 16)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    }).addTo(map); 
+  
+       
+      console.log(this.devicesData);
+
+      var markers = L.markerClusterGroup();
+
+		/** 
+		  for (var i = 0; i < this.devicesData.length; i++) {
+			var a = response.data[i];
+			var title = a['tags'];
+			var marker = L.marker(L.latLng(a['tags'][3][0], a['tags'][3][1]), { title: title });
+			marker.bindPopup(title);
+			markers.addLayer(marker);
     }
+    	map.addLayer(markers);
+   
+    */
+    }
+   
+
+	
   }  
 </script>
 
@@ -213,6 +266,12 @@
     flex-direction: row;
   }
 
+  .my-card-body{
+    -webkit-box-flex: 1;
+    flex: 1 1 auto;
+    padding: 5px;
+    margin-bottom: 5px
+  }
   .panel{
     width: 100%;
     display: flex;
@@ -222,50 +281,39 @@
   #updateTags, #newDevice, #newDeployment{
     display: grid;
     grid-template-columns: 1fr 4fr;
-    grid-gap: 5px
+    grid-gap: 2.5px
   }
-  
-  .mybtn {
-    float: left;
+  .mycard{
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-gap: 2.5px;
+    border: 1px solid rgba(0,0,0,.125);
   }
-  
-  .min-100 {
-    min-height: 100%
+  .collapse{
+     overflow: scroll;
+     height: 550px;
   }
-  
-  .my-card-header {
-    padding: 0px
-  }
-  
-  .my-card-body {
-    padding: 5px;
-    margin: 2.5px
-  }
-  
-  .my-label {
-    display: block;
+  .mycard-title{
     text-align: right;
   }
-  
-  .my-input {
-    display: inline-block;
-    margin: 2.5px
+  .mycard-content{
+    text-align: left;
+  }
+  #deviceList{
+    overflow: scroll
+  }
+
+  .card-header{
+    width:400px
   }
   
-  .my-row {
-    margin: 2.5px 0
-  }
-  
-  .my-li {
-    list-style: none;
-    margin: 2.5px
-  }
   
   #headingOne,
   #headingTwo,
   #headingThree {
     padding: 0
   }
+ 
 </style>
 
 

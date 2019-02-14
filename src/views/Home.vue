@@ -1,25 +1,27 @@
 <template>
-    <div id="container">
-            <div id="navbar">
-                    <ul id='navitems'>
-                        <li class="navitem">
+    <div id="container" ref="container">
+            <div id="navbar">              
+                <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-light active">
+                        <input type="radio" name="options" id="option1" autocomplete="off" checked>
                             <router-link class="" to="/home">
                                 <img src="../assets/devices.png" width="30" height="30" alt="">
                             </router-link>
-                        </li>
-                        <li class="navitem">
+                    </label>
+                    <label class="btn btn-light">
+                        <input type="radio" name="options" id="option2" autocomplete="off">  
                             <router-link class="" to="/home/deployment">
                                 <img src="../assets/deployment.png" width="30" height="30" alt="">
                             </router-link>
-                        </li>
-                        <li class="navitem">
+                    </label>
+                    <label class="btn btn-light">
+                        <input type="radio" name="options" id="option3" autocomplete="off">  
                             <router-link class="" to="/home/setting">
                                 <img src="../assets/settings.png" width="30" height="30" alt="">
                             </router-link>
-                        </li>                  
-                    </ul>      
+                    </label>
+                </div>
             </div>
-    
             <div id="mappanel">
                 <router-view></router-view>
             </div>
@@ -29,8 +31,8 @@
 
 <script>
     import draggable from 'vuedraggable'
-
     export default {
+        
         data() {
             return {
                 devices: "../assets/devices.png",
@@ -41,6 +43,9 @@
         components: {
             draggable,
         },
+        mounted(){
+           
+        }
     }
     
 </script>
@@ -57,15 +62,9 @@ flex-grow: 1
     flex-grow: 11;
     display: flex;
 }
-#navitems{
-    text-decoration: none;
-    padding: 0
+#navbar label{
+   border-radius: 0
 }
-.navitem{
-    padding: 5px;
-}
-.navitem:hover{
-    background-color: black
-}
+
 
 </style>

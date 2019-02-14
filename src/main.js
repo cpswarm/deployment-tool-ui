@@ -6,6 +6,7 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "leaflet/dist/leaflet.css";
 import 'leaflet'
+import 'leaflet.markercluster'
 
 
 

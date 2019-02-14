@@ -1,9 +1,9 @@
 <template>
  <div class="mappanelContainer">
-    <div id="map" style="width:1000px">
+    <div id="map" style="width:800px" ref="map">
      
     </div>
-    <div class="panel" style="width:500px">
+    <div class="panel" style="width:400px">
       <div id="title"> 
         <img src="../assets/deployment.png" style="width:30px" alt="">
         <h5 style="display: inline-block; margin-left:5px">Deployment Management</h5>
@@ -27,26 +27,48 @@
           <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample">
             <div class="card-body"> 
               <div id="deviceList">
-                <div class="card card-body">   
-                    <h5 class="card-title">Card title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link">Another link</a>
-                </div>
-                <div class="card card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link">Another link</a>
+               <div class="mycard card-body">
+                 <div class="mycard-title">Name:</div>
+                    <div class="mycard-content">operation-v01</div>
+                    <div class="mycard-title">Devices:</div>
+                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-title">Created Time:</div>
+                    <div class="mycard-content">2018-12-06 15:27:58 </div>
+                    <div class="mycard-title">Finished Time:</div>
+                   <div class="mycard-content">2018-12-06 15:27:58 </div>
+                    <div class="mycard-title">Commands:</div>
+                    <div></div>
+                    <div class="mycard-title">Debug:</div>
+                    <div></div>
               </div>
-              <div class="card card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Card link</a>
-                  <a href="#" class="card-link">Another link</a>
+                <div class="mycard card-body">
+                  <div class="mycard-title">Name:</div>
+                    <div class="mycard-content">operation-v01</div>
+                    <div class="mycard-title">Devices:</div>
+                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-title">Created Time:</div>
+                    <div class="mycard-content">2018-12-06 15:27:58 </div>
+                    <div class="mycard-title">Finished Time:</div>
+                   <div class="mycard-content">2018-12-06 15:27:58 </div>
+                    <div class="mycard-title">Commands:</div>
+                    <div></div>
+                    <div class="mycard-title">Debug:</div>
+                    <div></div>
+              </div>
+            
+             <div class="mycard card-body">
+                 <div class="mycard-title">Name:</div>
+                    <div class="mycard-content">operation-v01</div>
+                    <div class="mycard-title">Devices:</div>
+                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-title">Created Time:</div>
+                    <div class="mycard-content">2018-12-06 15:27:58 </div>
+                    <div class="mycard-title">Finished Time:</div>
+                   <div class="mycard-content">2018-12-06 15:27:58 </div>
+                    <div class="mycard-title">Commands:</div>
+                    <div></div>
+                    <div class="mycard-title">Debug:</div>
+                    <div></div>
               </div>
             </div> 
           </div>
@@ -97,21 +119,18 @@
                     <div style="text-align:right">Target:</div>
                     <div style="grid-column: 1/3; border: 1px solid grey">
                         <div style="height:500px"></div>
-                        <form action="">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                            <div role="separator" class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Separated link</a>
-                                        </div>
-                                 </div>
-                                <input type="text" class="form-control">
-                            </div>
-                        </form>
+                         <form class="form-inline" >
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:90px">Tags</button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#">Type</a>
+                            <a class="dropdown-item" href="#">Hardware Architecture</a>
+                            <a class="dropdown-item" href="#">Opeartion System</a>
+                            <div role="separator" class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Location</a>
+                        </div>
+                    <input class="form-control">
+                    <a class="btn btn-primary" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Search</a> 
+                  </form>
                     </div>
                 </form>
             </div>
@@ -137,6 +156,7 @@
       draggable,
     },
      mounted() {
+           this.$refs.map.style.height = window.innerHeight + 'px';
     const map = L.map('map').setView([37.4501001, -121.9107704], 11)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
