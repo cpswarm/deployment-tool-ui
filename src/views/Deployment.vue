@@ -118,9 +118,9 @@
                     </div>
                     <div style="text-align:right">Target:</div>
                     <div style="grid-column: 1/3; border: 1px solid grey">
-                        <div style="height:500px"></div>
+                     
                          <form class="form-inline" >
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:90px">Tags</button>
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >Tags</button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="#">Type</a>
                             <a class="dropdown-item" href="#">Hardware Architecture</a>
@@ -128,9 +128,10 @@
                             <div role="separator" class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#">Location</a>
                         </div>
-                    <input class="form-control">
-                    <a class="btn btn-primary" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Search</a> 
+                    <input class="form-control" style="width:150px">
+                    <a class="btn btn-primary" aria-expanded="true">Search</a> 
                   </form>
+                  <div style="height:350px"></div>
                     </div>
                 </form>
             </div>
@@ -157,7 +158,7 @@
     },
      mounted() {
            this.$refs.map.style.height = window.innerHeight + 'px';
-    const map = L.map('map').setView([37.4501001, -121.9107704], 11)
+    const map = L.map('map').setView([50.749523,7.20143], 16)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);

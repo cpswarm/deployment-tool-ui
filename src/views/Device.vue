@@ -30,7 +30,13 @@
                     <div class="mycard-title">Name:</div>
                     <div class="mycard-content">drone-1</div>
                     <div class="mycard-title">Tags:</div>
-                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-content">
+                      <span>
+                        <div class="badge badge-pill badge-primary">tag1</div>
+                        <div class="badge badge-pill badge-danger">tag2</div>
+                        <div class="badge badge-pill badge-success">tag3</div>
+                      </span>
+                      </div>
                     <div class="mycard-title">Current Task:</div>
                     <div class="mycard-content">operationA-v01</div>
                     <div class="mycard-title">Status:</div>
@@ -47,7 +53,13 @@
                    <div class="mycard-title">Name:</div>
                     <div class="mycard-content">drone-2</div>
                     <div class="mycard-title">Tags:</div>
-                    <div class="mycard-content">tag1 tag2 tag3</div>
+                     <div class="mycard-content">
+                      <span>
+                        <div class="badge badge-pill badge-primary">tag1</div>
+                        <div class="badge badge-pill badge-danger">tag2</div>
+                        <div class="badge badge-pill badge-success">tag3</div>
+                      </span>
+                      </div>
                     <div class="mycard-title">Current Task:</div>
                     <div class="mycard-content">operationA-v01</div>
                     <div class="mycard-title">Status:</div>
@@ -64,7 +76,13 @@
                  <div class="mycard-title">Name:</div>
                     <div class="mycard-content">drone-2</div>
                     <div class="mycard-title">Tags:</div>
-                    <div class="mycard-content">tag1 tag2 tag3</div>
+                    <div class="mycard-content">
+                      <span>
+                        <div class="badge badge-pill badge-primary">tag1</div>
+                        <div class="badge badge-pill badge-danger">tag2</div>
+                        <div class="badge badge-pill badge-success">tag3</div>
+                      </span>
+                      </div>
                     <div class="mycard-title">Current Task:</div>
                     <div class="mycard-content">operationA-v01</div>
                     <div class="mycard-title">Status:</div>
@@ -106,29 +124,29 @@
                     </div>
                     <div style="text-align:right">Tags:</div>
                     <div>
-                      <div class="form-check input-group">
+                      <div class="input-group">
                         
                           <label for="">Type:</label>
-                          <ul style="display:inline-block">
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
+                          <ul style="display:inline-block;padding-left:5px">
+                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">drone</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">sensor</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">robot</button></li>
                           </ul>
                       </div>
-                       <div class="form-check input-group">
+                       <div class="input-group">
                           <label for="">HW Arch:</label>
-                          <ul style="display:inline-block">
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
+                          <ul style="display:inline-block;padding-left:5px">
+                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM64</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM32</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">8051</button></li>
                           </ul>
                       </div>
-                       <div class="form-check input-group">
+                       <div class="input-group">
                           <label for="">OS:</label>
-                          <ul style="display:inline-block">
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
+                          <ul style="display:inline-block;padding-left:5px">
+                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">FreeBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">NetBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">Darwin</button></li>
                           </ul>
                       </div>
                     </div>
@@ -164,31 +182,29 @@
                     </div>
                     <div style="text-align:right">Tgas:</div>
                     <div>
-                      <div class="form-check input-group">
-                       
-                          <label for="">Type:</label>
-                          <ul style="display:inline-block">
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
-                          </ul>
-                      </div>
-                       <div class="form-check input-group">
+                      <div class="input-group">
                         
-                          <label for="">HW Arch:</label>
-                          <ul style="display:inline-block">
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
+                          <label for="">Type:</label>
+                          <ul style="display:inline-block;padding-left:5px">
+                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">drone</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">sensor</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">robot</button></li>
                           </ul>
                       </div>
-                       <div class="form-check input-group">
-                       
+                       <div class="input-group">
+                          <label for="">HW Arch:</label>
+                          <ul style="display:inline-block;padding-left:5px">
+                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM64</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM32</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">8051</button></li>
+                          </ul>
+                      </div>
+                       <div class="input-group">
                           <label for="">OS:</label>
-                          <ul style="display:inline-block">
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
+                          <ul style="display:inline-block;padding-left:5px">
+                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">FreeBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">NetBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">Darwin</button></li>
                           </ul>
                       </div>
                     </div>
@@ -209,9 +225,20 @@
 
   export default {
     data() {
-      return {
+
+    var devicesData;
+    fetch('/data.json').then(response => {
+     
+    devicesData = response.data
+    
+    })
+    .catch(error => {
+      console.log(error);
+    })
+ 
+    return {
         devices: "../assets/devices.png",
-        devicesData:[]
+        devicesData
       }
     },
     components: {
@@ -221,8 +248,29 @@
     
     this.$refs.map.style.height = window.innerHeight + 'px';
 
+    const map = L.map('map').setView([50.749523,7.20143], 16)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
 
-    /**
+    console.log(this.devicesData)
+    if(this.devicesData){
+
+     
+      var markers = L.markerClusterGroup();
+      for (var i = 0; i < this.devicesData.length; i++) {
+			var a = response.data[i];
+			var title = a['tags'];
+			var marker = L.marker(L.latLng(a['tags'][3][0], a['tags'][3][1]), { title: title });
+			marker.bindPopup(title);
+			markers.addLayer(marker);
+    }
+    }
+
+    //map.addLayer(markers);
+  }
+    /** get json from api
      * 
      * axios.get('https://petstore.swagger.io/v2/swagger.json')
     .then(response => {
@@ -244,38 +292,6 @@
      * 
      *
      *  */
-    var markers = L.markerClusterGroup();
-      axios.get('/data.json').then(response => {
-
-      this.devicesData = JSON.parse(JSON.stringify(response.data));
-      console.log(this.devicesData);
-      for (var i = 0; i < this.devicesData.length; i++) {
-			var a = response.data[i];
-			var title = a['tags'];
-      var marker = L.marker(L.latLng(a['tags'][3][0], a['tags'][3][1]), { title: title });
-      
-      console.log(marker);
-			markers.addLayer(marker);
-    }
-      
-    })
-    .catch(error => {
-      console.log(error);
-    })
-    
-
-    const map = L.map('map').setView([50.749523,7.20143], 16)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    map.addLayer(markers);
-   
-  
-    }
-   
-
-	
   }  
 </script>
 

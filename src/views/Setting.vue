@@ -64,14 +64,14 @@
               </div>
               <div></div>
              <div>Types:</div>
-             <div>
-                 <ul style="display:inline-block">
-                        <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
+             <div style="text-align:left">
+               <ul style="display:inline-block;padding-left:5px">
+                        <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">drone</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">sensor</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">robot</button></li>
+                           <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">drone</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">sensor</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">robot</button></li>
                       
                           </ul>
                           <div class="input-group">
@@ -82,15 +82,14 @@
                         
              </div>
              <div>Hardware Architecture:</div>
-                <div>
-                 <ul style="display:inline-block">
-                        <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
-                      
+                <div style="text-align:left">
+                 <ul style="display:inline-block;padding-left:5px">
+                         <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM64</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM32</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">8051</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM64</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">ARM32</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">8051</button></li>
                           </ul>
                           <div class="input-group">
                                 <input type="checkbox" name="" id="">
@@ -99,15 +98,14 @@
                         
              </div>
               <div>Operation System:</div>
-                <div>
-                 <ul style="display:inline-block">
-                        <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
-                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary">A</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">B</button></li>
-                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary">C</button></li>
-                      
+                <div style="text-align:left">
+                <ul style="display:inline-block;padding-left:5px">
+                        <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">FreeBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">NetBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">Darwin</button></li>
+                            <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">FreeBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">NetBSD</button></li>
+                          <li class="my-li" style="display:inline-block"><button class="btn btn-primary btn-sm">Darwin</button></li>
                           </ul>
                           <div class="input-group">
                                 <input type="checkbox" name="" id="">
@@ -115,9 +113,9 @@
                           </div>
              </div>
             <div>
-                <input type="text" name="" id="" placeholder="Other Prefix">:
+                <input type="text" name="" id="" placeholder="Other Tags">:
             </div>
-            <div><input type="text" name="" id="" placeholder="customize"></div>
+            <div style="text-align:left"><input type="text" name="" id=""></div>
             <div style="height:500px"></div>
           </div>
 
