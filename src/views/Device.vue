@@ -211,7 +211,7 @@
     data() {
       return {
         devices: "../assets/devices.png",
-        devicesData:null
+        devicesData:[]
       }
     },
     components: {
@@ -222,37 +222,56 @@
     this.$refs.map.style.height = window.innerHeight + 'px';
 
 
-    axios.get('https://petstore.swagger.io/v2/swagger.json')
+    /**
+     * 
+     * axios.get('https://petstore.swagger.io/v2/swagger.json')
     .then(response => {
 
       this.devicesData = response.data;
-      
-    })
-    .catch(error => {
-      console.log(error);
-    })
-
-    const map = L.map('map').setView([50.749523,7.20143], 16)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map); 
-  
-       
-      console.log(this.devicesData);
-
       var markers = L.markerClusterGroup();
-
-		/** 
-		  for (var i = 0; i < this.devicesData.length; i++) {
+      for (var i = 0; i < this.devicesData.length; i++) {
 			var a = response.data[i];
 			var title = a['tags'];
 			var marker = L.marker(L.latLng(a['tags'][3][0], a['tags'][3][1]), { title: title });
 			marker.bindPopup(title);
 			markers.addLayer(marker);
     }
-    	map.addLayer(markers);
+      
+    })
+    .catch(error => {
+      console.log(error);
+    })
+     * 
+     *
+     *  */
+    var markers = L.markerClusterGroup();
+      axios.get('/data.json').then(response => {
+
+      this.devicesData = JSON.parse(JSON.stringify(response.data));
+      console.log(this.devicesData);
+      for (var i = 0; i < this.devicesData.length; i++) {
+			var a = response.data[i];
+			var title = a['tags'];
+      var marker = L.marker(L.latLng(a['tags'][3][0], a['tags'][3][1]), { title: title });
+      
+      console.log(marker);
+			markers.addLayer(marker);
+    }
+      
+    })
+    .catch(error => {
+      console.log(error);
+    })
+    
+
+    const map = L.map('map').setView([50.749523,7.20143], 16)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    map.addLayer(markers);
    
-    */
+  
     }
    
 
