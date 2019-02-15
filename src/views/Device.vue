@@ -1,6 +1,17 @@
 <template>
  <div class="mappanelContainer">
     <div id="map" style="width:800px" ref="map">
+ <v-map :zoom=10 :center="initialLocation">
+    <v-icondefault></v-icondefault>
+    <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+    <v-marker-cluster :options="clusterOptions">
+      <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latlng" :icon="icon">
+        <v-popup :content="l.text"></v-popup>
+      </v-marker>
+    </v-marker-cluster>
+  </v-map>
+
+
     </div>
     <div class="panel" style="width:400px">
       <div id="title"> 
@@ -222,54 +233,84 @@
 <script>
   import draggable from 'vuedraggable'
   import axios from 'axios'
+  import * as Vue2Leaflet from 'vue2-leaflet'
+  import Vue2LeafletMarkercluster from 'vue2-leaflet-markercluster'
+  import iconUrl from 'leaflet/dist/images/marker-icon.png'
+  import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
+
+  function rand(n) {
+    let max = n + 0.1
+    let min = n - 0.1
+    return Math.random() * (max - min) + min;
+  }
 
   export default {
     data() {
 
-    var devicesData;
+       let locations = []
+      for (let i = 0; i < 100; i++) {
+        locations.push({
+          id: i,
+          latlng: L.latLng(rand(-34.9205), rand(-57.953646)),
+          text: 'Hola ' + i
+        })
+      }
+       let icon = Vue2Leaflet.L.icon(Object.assign({},
+        Vue2Leaflet.L.Icon.Default.prototype.options,
+         {iconUrl, shadowUrl}
+      ))
+       return {
+        locations,
+        icon,
+        clusterOptions: {},
+        initialLocation: L.latLng(-34.9205, -57.953646)
+      }
+/**
+ *  var devicesData;
     fetch('/data.json').then(response => {
      
-    devicesData = response.data
+    devicesData = response.data;
     
-    })
-    .catch(error => {
-      console.log(error);
-    })
- 
     return {
         devices: "../assets/devices.png",
         devicesData
       }
+    })
+    .catch(error => {
+      console.log(error);
+    })
+ * 
+ * 
+ * 
+ */
+   
+ 
     },
-    components: {
-      draggable,
+     components: {
+      'v-map': Vue2Leaflet.LMap,
+      'v-tilelayer': Vue2Leaflet.LTileLayer,
+      'v-icondefault': Vue2Leaflet.LIconDefault,
+      'v-marker': Vue2Leaflet.LMarker,
+      'v-popup': Vue2Leaflet.LPopup,
+      'v-marker-cluster': Vue2LeafletMarkercluster
     },
     mounted() {
     
     this.$refs.map.style.height = window.innerHeight + 'px';
 
-    const map = L.map('map').setView([50.749523,7.20143], 16)
+   /**
+    *  const map = L.map('map').setView([50.749523,7.20143], 16)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+    * 
+    *  */
     
 
     console.log(this.devicesData)
-    if(this.devicesData){
-
-     
-      var markers = L.markerClusterGroup();
-      for (var i = 0; i < this.devicesData.length; i++) {
-			var a = response.data[i];
-			var title = a['tags'];
-			var marker = L.marker(L.latLng(a['tags'][3][0], a['tags'][3][1]), { title: title });
-			marker.bindPopup(title);
-			markers.addLayer(marker);
-    }
-    }
-
+   
     //map.addLayer(markers);
-  }
+    }
     /** get json from api
      * 
      * axios.get('https://petstore.swagger.io/v2/swagger.json')
@@ -296,6 +337,9 @@
 </script>
 
 <style>
+  @import "~leaflet/dist/leaflet.css";
+  @import "~leaflet.markercluster/dist/MarkerCluster.css";
+  @import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
   .mappanelContainer{
     display: flex;
     flex-direction: row;
