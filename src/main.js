@@ -1,11 +1,16 @@
+
 import Vue from 'vue'
 import App from './App.vue'
+import 'leaflet'
 import router from './router'
 import store from './store'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'vue2-leaflet'
-import 'vue2-leaflet-markercluster'
+
+import 'leaflet.markercluster'
+import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
 
 Vue.config.productionTip = false
