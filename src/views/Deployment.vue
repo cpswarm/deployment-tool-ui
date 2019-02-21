@@ -1,10 +1,8 @@
 <template>
   <div class="mappanelContainer">
-    <div id="map" style="width:800px" ref="map"></div>
     <div class="panel" style="width:400px">
       <div id="title">
-        <img src="../assets/deployment.png" style="width:30px" alt>
-        <h5 style="display: inline-block; margin-left:5px">Deployment Management</h5>
+        <h5 draggable="true" style="display: inline-block; margin-left:5px">Deployment Management</h5>
       </div>
       <div id="search">
         <form class="form-inline">
@@ -51,9 +49,9 @@
                   <div class="mycard-content">2018-12-06 15:27:58</div>
                   <div class="mycard-title">Finished Time:</div>
                   <div class="mycard-content">2018-12-06 15:27:58</div>
-                  <div class="mycard-title">Commands:</div>
-                  <div></div>
                   <div class="mycard-title">Debug:</div>
+                  <div></div>
+                  <div class="mycard-title">Commands:</div>
                   <div></div>
                 </div>
                 <div class="mycard card-body">
@@ -122,25 +120,69 @@
                     <label class="custom-file-label" for="customFile">Choose file</label>
                   </div>
                 </div>
-                <div style="text-align:right">Stages:</div>
-                <div style="background: #ececec">
-                  <div class="input-group">
-                    <label for>transfer:</label>
-                    <input type="text" class="form-control form-control-sm">
-                  </div>
-                  <div class="input-group">
-                    <label for>install:</label>
-                    <input type="text" class="form-control form-control-sm">
-                  </div>
-                  <div class="input-group">
-                    <label for>run:</label>
-                    <input type="text" class="form-control form-control-sm">
-                  </div>
-                </div>
                 <div style="text-align:right">Debug:</div>
                 <div>
                   <div class="form-check input-group">
                     <input type="checkbox" class="form-check-input">
+                  </div>
+                </div>
+                <div style="text-align:right">Build:(optional)</div>
+                <div style="text-align:left">
+                  <div style="background: #ececec;">
+                    <div>
+                      <label for>commands:</label>
+                      <editor
+                        v-model="build_c"
+                        @init="editorInit"
+                        lang="html"
+                        theme="chrome"
+                        width="250"
+                        height="100"
+                      ></editor>
+                    </div>
+                    <div>
+                      <label for>artifacts:</label>
+                      <editor
+                        v-model="build_a"
+                        @init="editorInit"
+                        lang="html"
+                        theme="chrome"
+                        width="250"
+                        height="100"
+                      ></editor>
+                    </div>
+                  </div>
+                  <div class="input-group" style="border: 1px solid #C4C4C4">
+                    <label for>host:</label>
+                    <input type="text" class="form-control form-control-sm" placeholder="-">
+                  </div>
+                </div>
+                <div style="text-align:right">Install:(optional)</div>
+                <div style="background: #ececec;text-align:left">
+                  <div>
+                    <label for>commands:</label>
+                    <editor
+                      v-model="install_c"
+                      @init="editorInit"
+                      lang="html"
+                      theme="chrome"
+                      width="250"
+                      height="100"
+                    ></editor>
+                  </div>
+                </div>
+                <div style="text-align:right">Run:</div>
+                <div style="background: #ececec;text-align:left">
+                  <div>
+                    <label for>commands:</label>
+                    <editor
+                      v-model="run_c"
+                      @init="editorInit"
+                      lang="html"
+                      theme="chrome"
+                      width="250"
+                      height="100"
+                    ></editor>
                   </div>
                 </div>
                 <div style="text-align:right">Target:</div>
@@ -163,7 +205,20 @@
                     <input class="form-control" style="width:150px">
                     <a class="btn btn-primary" aria-expanded="true">Search</a>
                   </form>
-                  <div style="height:350px"></div>
+                  <div style="height:350px">
+                    <div v-for="device in devices" class="simpleDeviceCard">
+                      <span class="input-group">Name:
+                        <div>{{device.name}}</div>
+                      </span>
+                      <span class="input-group">Tags:
+                        <div v-for="tag in device.tags">{{tag}}</div>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div></div>
+                <div style="text-align:right">
+                  <button class="btn btn-primary">Deploy</button>
                 </div>
               </form>
             </div>
@@ -171,6 +226,7 @@
         </div>
       </div>
     </div>
+    <div id="map" style="width:800px" ref="map"></div>
   </div>
 </template>
 
@@ -185,10 +241,26 @@ function rand(n) {
 
 export default {
   data() {
-    return {};
+    return {
+      build_c: [],
+      build_a: [],
+      install_c: [],
+      run_c: [],
+      devices: []
+    };
   },
   components: {
-    draggable
+    editor: require("vue2-ace-editor")
+  },
+  methods: {
+    editorInit: function() {
+      require("brace/ext/language_tools"); //language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/javascript"); //language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); //snippet
+    }
   },
   mounted() {
     this.$refs.map.style.height = window.innerHeight + "px";
@@ -201,24 +273,43 @@ export default {
 
     var markers = L.markerClusterGroup();
     for (var i = 0; i < 100; i++) {
-      var marker = L.marker(L.latLng(rand(50.749523), rand(7.20143)),{
-        draggable: true,
+      var marker = L.marker(L.latLng(rand(50.749523), rand(7.20143)), {
+        //draggable: true,
         icon: L.icon({
-        iconUrl: '/devices.png',
-        iconSize: [38, 38],
-}),
-
+          iconUrl: "/devices.png",
+          iconSize: [38, 38]
+        }),
+        title: "my-laptop"
       });
       //marker.bindPopup(title);
+      //console.log(this.build_c);
+      marker.on("click", event => {
+        //console.log(this.$refs.devices);
+        //this.$refs.devices.placeholder = event.target.options.title;
+        //console.log(this.devices);
+        if (this.devices) {
+          this.devices.push({
+            id: this.devices.length,
+            name: event.target.options.title,
+            tags: ["tag1", "tag2", "tag3"]
+          });
+          //console.log(this.devices);
+        }
+      });
       markers.addLayer(marker);
     }
     map.addLayer(markers);
+    //console.log(this.build_c);
+
+    function test(e, _this) {
+      //
+      // event.target.options.title = 'jjjj';
+    }
   }
 };
 </script>
 
 <style>
-
 </style>
 
 

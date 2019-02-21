@@ -1,16 +1,5 @@
 <template>
   <div class="mappanelContainer">
-    <div id="map" style="width:800px" ref="map">
-      <v-map :zoom="10" :center="initialLocation">
-        <v-icondefault></v-icondefault>
-        <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-        <v-marker-cluster :options="clusterOptions">
-          <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latlng" :icon="icon">
-          <!--  <v-popup :content="l.text"></v-popup>   -->
-          </v-marker>
-        </v-marker-cluster>
-      </v-map>
-    </div>
     <div class="panel" style="width:400px">
       <div id="title">
         <img src="../assets/devices.png" style="width:30px" alt>
@@ -297,6 +286,17 @@
           </div>
         </div>
       </div>
+    </div>
+    <div id="map" style="width:800px" ref="map">
+      <v-map :zoom="10" :center="initialLocation">
+        <v-icondefault></v-icondefault>
+        <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+        <v-marker-cluster :options="clusterOptions">
+          <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latlng" :icon="icon">
+          <!--  <v-popup :content="l.text"></v-popup>   -->
+          </v-marker>
+        </v-marker-cluster>
+      </v-map>
     </div>
   </div>
 </template>
