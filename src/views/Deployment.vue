@@ -109,29 +109,29 @@
                 <a href>Duplicate one exsiting deployment</a>
               </h6>
               <form id="newDeployment" action>
-                <div style="text-align:right">Name:</div>
-                <div>
-                  <input type="text" class="form-control form-control-sm">
+                <div class="mycard-title" style="text-align:right">Name:</div>
+                <div class="mycard-content">
+                  <input v-model="deployName" type="text" class="form-control form-control-sm">
                 </div>
-                <div style="text-align:right">Source:</div>
+                <div class="mycard-title" style="text-align:right">Source:</div>
                 <div>
                   <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile">
                     <label class="custom-file-label" for="customFile">Choose file</label>
                   </div>
                 </div>
-                <div style="text-align:right">Debug:</div>
-                <div>
+                <div class="mycard-title" style="text-align:right">Debug:</div>
+                <div class="mycard-content">
                   <div class="form-check input-group">
-                    <input type="checkbox" class="form-check-input">
+                    <input v-model="deployDebug" type="checkbox" class="form-check-input">
                   </div>
                 </div>
-                <div style="text-align:right">Build:(optional)</div>
-                <div style="text-align:left">
+                <div class="mycard-title" style="text-align:right">Build:(optional)</div>
+                <div class="mycard-content" style="text-align:left">
                   <div style="background: #ececec;">
                     <div>
-                      <label for>commands:</label>
                       <editor
+                        ref="editor_build_c"
                         v-model="build_c"
                         @init="editorInit"
                         lang="html"
@@ -141,8 +141,8 @@
                       ></editor>
                     </div>
                     <div>
-                      <label for>artifacts:</label>
                       <editor
+                        ref="editor_build_a"
                         v-model="build_a"
                         @init="editorInit"
                         lang="html"
@@ -157,11 +157,11 @@
                     <input type="text" class="form-control form-control-sm" placeholder="-">
                   </div>
                 </div>
-                <div style="text-align:right">Install:(optional)</div>
-                <div style="background: #ececec;text-align:left">
+                <div class="mycard-title" style="text-align:right">Install:(optional)</div>
+                <div class="mycard-content" style="background: #ececec;text-align:left">
                   <div>
-                    <label for>commands:</label>
                     <editor
+                      ref="editor_install_c"
                       v-model="install_c"
                       @init="editorInit"
                       lang="html"
@@ -171,11 +171,11 @@
                     ></editor>
                   </div>
                 </div>
-                <div style="text-align:right">Run:</div>
-                <div style="background: #ececec;text-align:left">
+                <div class="mycard-title" style="text-align:right">Run:</div>
+                <div class="mycard-content" style="background: #ececec;text-align:left">
                   <div>
-                    <label for>commands:</label>
                     <editor
+                      ref="editor_run_c"
                       v-model="run_c"
                       @init="editorInit"
                       lang="html"
@@ -185,8 +185,8 @@
                     ></editor>
                   </div>
                 </div>
-                <div style="text-align:right">Target:</div>
-                <div style="grid-column: 1/3; border: 1px solid grey">
+                <div class="mycard-title" style="text-align:right">Target:</div>
+                <div class="mycard-content" style="grid-column: 1/3; border: 1px solid grey">
                   <form class="form-inline">
                     <button
                       class="btn btn-outline-secondary dropdown-toggle"
@@ -207,18 +207,24 @@
                   </form>
                   <div style="height:350px">
                     <div v-for="device in devices" class="simpleDeviceCard">
-                      <span class="input-group">Name:
-                        <div>{{device.name}}</div>
+                      <span class="input-group" style="padding:2.5px">Name:
+                        <div style="padding:2.5px">{{device.name}}</div>
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          style="padding:0 2.5px"
+                          @click="removeDevice(device.name)"
+                        >D</button>
                       </span>
-                      <span class="input-group">Tags:
-                        <div v-for="tag in device.tags">{{tag}}</div>
+                      <span class="input-group" style="padding:2.5px">Tags:
+                        <div v-for="tag in device.tags" style="padding:2.5px">{{tag}}</div>
                       </span>
                     </div>
                   </div>
                 </div>
                 <div></div>
                 <div style="text-align:right">
-                  <button class="btn btn-primary">Deploy</button>
+                  <button class="btn btn-primary" @click="submitDeploy" type="button">Deploy</button>
                 </div>
               </form>
             </div>
@@ -242,11 +248,7 @@ function rand(n) {
 export default {
   data() {
     return {
-      build_c: [],
-      build_a: [],
-      install_c: [],
-      run_c: [],
-      devices: []
+      devices: [],
     };
   },
   components: {
@@ -256,60 +258,83 @@ export default {
     editorInit: function() {
       require("brace/ext/language_tools"); //language extension prerequsite...
       require("brace/mode/html");
-      require("brace/mode/javascript"); //language
+      require("brace/mode/javascript"); 
       require("brace/mode/less");
       require("brace/theme/chrome");
-      require("brace/snippets/javascript"); //snippet
+      require("brace/snippets/javascript"); 
+    },
+    submitDeploy: function() {
+      let taskDer = '';
+     
+      taskDer =
+        this.deployName.value +
+        this.deployDebug.value +
+        this.$refs.editor_build_c.editor.getValue().toString();
+      console.log(taskDer);
+    },
+    removeDevice: function(name) {
+      for (var i = 0; i < this.devices.length - 1; i++) {
+        if (this.devices[i].name === name) {
+          this.devices.splice(i, 1);
+        }
+      }
     }
   },
   mounted() {
+
     this.$refs.map.style.height = window.innerHeight + "px";
 
     const map = L.map("map").setView([50.749523, 7.20143], 16);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    this.$refs.editor_build_c.editor.setValue("commands: \n -");
+    this.$refs.editor_build_c.editor.setOption('highlightActiveLine',false);
+    this.$refs.editor_build_c.editor.setOption("highlightSelectedWord", false);
+    this.$refs.editor_build_a.editor.setValue("artifacts: \n -");
+    this.$refs.editor_build_a.editor.setOption('highlightActiveLine',false);
+
+    this.$refs.editor_install_c.editor.setValue("commands: \n -");
+    this.$refs.editor_install_c.editor.setOption('highlightActiveLine',false);
+    this.$refs.editor_run_c.editor.setValue("commands: \n -");
+    this.$refs.editor_run_c.editor.setOption('highlightActiveLine',false);
 
     var markers = L.markerClusterGroup();
     for (var i = 0; i < 100; i++) {
       var marker = L.marker(L.latLng(rand(50.749523), rand(7.20143)), {
-        //draggable: true,
         icon: L.icon({
           iconUrl: "/devices.png",
-          iconSize: [38, 38]
+          iconSize: [28, 28]
         }),
         title: "my-laptop"
       });
-      //marker.bindPopup(title);
-      //console.log(this.build_c);
       marker.on("click", event => {
-        //console.log(this.$refs.devices);
-        //this.$refs.devices.placeholder = event.target.options.title;
-        //console.log(this.devices);
+        
         if (this.devices) {
           this.devices.push({
             id: this.devices.length,
-            name: event.target.options.title,
+            name: event.target.options.title + this.devices.length,
             tags: ["tag1", "tag2", "tag3"]
           });
-          //console.log(this.devices);
         }
       });
       markers.addLayer(marker);
     }
     map.addLayer(markers);
-    //console.log(this.build_c);
-
-    function test(e, _this) {
-      //
-      // event.target.options.title = 'jjjj';
-    }
+  
   }
 };
 </script>
 
 <style>
+.simpleDeviceCard {
+  border: 1px solid #999999;
+  padding: 2.5px;
+  margin: 2.5px;
+  font-size: 14px;
+  text-align: right;
+}
 </style>
 
 

@@ -2,7 +2,6 @@
   <div class="mappanelContainer">
     <div class="panel" style="width:400px">
       <div id="title">
-        <img src="../assets/devices.png" style="width:30px" alt>
         <h5 style="display: inline-block; margin-left:5px">Device Management</h5>
       </div>
       <div class="accordion" id="accordionExample">
@@ -427,12 +426,12 @@ export default {
 #newDevice,
 #newDeployment {
   display: grid;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: 1fr 3.5fr;
   grid-gap: 2.5px;
 }
 .mycard {
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr 2fr;
   grid-gap: 2.5px;
   border: 1px solid rgba(0, 0, 0, 0.125);
 }
@@ -442,9 +441,11 @@ export default {
 }
 .mycard-title {
   text-align: right;
+  font-size: 15px;
 }
 .mycard-content {
   text-align: left;
+  font-size: 14px;
 }
 #deviceList {
   overflow: scroll;
