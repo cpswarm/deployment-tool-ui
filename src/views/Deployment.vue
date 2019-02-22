@@ -188,21 +188,19 @@
                 <div class="mycard-title" style="text-align:right">Target:</div>
                 <div class="mycard-content" style="grid-column: 1/3; border: 1px solid grey">
                   <form class="form-inline">
-                    <button
-                      class="btn btn-outline-secondary dropdown-toggle"
-                      type="button"
+                    <input
+                      class="dropdown-toggle"
+                      v-model="searchText"
+                      type="text"
                       data-toggle="dropdown"
                       aria-haspopup="true"
                       aria-expanded="false"
-                    >Tags</button>
+                      @keyup="filterDevice"
+                    >
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#">Type</a>
-                      <a class="dropdown-item" href="#">Hardware Architecture</a>
-                      <a class="dropdown-item" href="#">Opeartion System</a>
-                      <div role="separator" class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Location</a>
+                      <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)">{{tag.tag}}</a>
                     </div>
-                    <input class="form-control" style="width:150px">
+                   
                     <a class="btn btn-primary" aria-expanded="true">Search</a>
                   </form>
                   <div style="height:350px">
@@ -249,10 +247,26 @@ export default {
   data() {
     return {
       devices: [],
+      tags: [
+        {
+          tag:"dev",
+          isActive: true
+        },
+        {
+          tag:"macOS",
+          isActive: true
+
+        },
+        {
+          tag:"test",
+          isActive: true
+
+        },
+      ],
     };
   },
   components: {
-    editor: require("vue2-ace-editor")
+    editor: require("vue2-ace-editor"),
   },
   methods: {
     editorInit: function() {
@@ -278,7 +292,23 @@ export default {
           this.devices.splice(i, 1);
         }
       }
+    },
+    filterDevice: function(){    
+      var value = this.searchText.toLowerCase();
+        this.tags.forEach(function(tag) {
+        if(!(tag.tag.toLowerCase().indexOf(value) > -1)){
+          tag.isActive = false
+        }else{
+          tag.isActive = true
+        };
+    });  
+    },
+    selectItem: function(tag){
+    
+      this.searchText = tag;
+      console.log(this.searchText)
     }
+    
   },
   mounted() {
 
@@ -289,15 +319,15 @@ export default {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    this.$refs.editor_build_c.editor.setValue("commands: \n -");
+    this.$refs.editor_build_c.editor.setValue("commands: \n-",1);
     this.$refs.editor_build_c.editor.setOption('highlightActiveLine',false);
     this.$refs.editor_build_c.editor.setOption("highlightSelectedWord", false);
-    this.$refs.editor_build_a.editor.setValue("artifacts: \n -");
+    this.$refs.editor_build_a.editor.setValue("artifacts: \n-",1);
     this.$refs.editor_build_a.editor.setOption('highlightActiveLine',false);
 
-    this.$refs.editor_install_c.editor.setValue("commands: \n -");
+    this.$refs.editor_install_c.editor.setValue("commands: \n-",1);
     this.$refs.editor_install_c.editor.setOption('highlightActiveLine',false);
-    this.$refs.editor_run_c.editor.setValue("commands: \n -");
+    this.$refs.editor_run_c.editor.setValue("commands: \n-",1);
     this.$refs.editor_run_c.editor.setOption('highlightActiveLine',false);
 
     var markers = L.markerClusterGroup();
