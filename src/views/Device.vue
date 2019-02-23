@@ -1,6 +1,6 @@
 <template>
   <div class="mappanelContainer">
-    <div class="panel" style="width:400px">
+    <div ref="panel" class="panel" style="width:400px;overflow: scroll;">
       <div id="title">
         <h5 style="display: inline-block; margin-left:5px">Device Management</h5>
       </div>
@@ -292,7 +292,7 @@
         <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
         <v-marker-cluster :options="clusterOptions">
           <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latlng" :icon="icon">
-          <!--  <v-popup :content="l.text"></v-popup>   -->
+            <!--  <v-popup :content="l.text"></v-popup>   -->
           </v-marker>
         </v-marker-cluster>
       </v-map>
@@ -365,6 +365,7 @@ export default {
   },
   mounted() {
     this.$refs.map.style.height = window.innerHeight + "px";
+    this.$refs.panel.style.height = window.innerHeight + "px";
 
     /**
     *  const map = L.map('map').setView([50.749523,7.20143], 16)
@@ -426,18 +427,18 @@ export default {
 #newDevice,
 #newDeployment {
   display: grid;
-  grid-template-columns: 1fr 3.5fr;
+  grid-template-columns: 1fr 4.5fr;
   grid-gap: 2.5px;
 }
 .mycard {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 2.5fr;
   grid-gap: 2.5px;
   border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 2px
 }
 .collapse {
   overflow: scroll;
-  height: 550px;
 }
 .mycard-title {
   text-align: right;
