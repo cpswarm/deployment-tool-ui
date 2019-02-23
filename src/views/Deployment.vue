@@ -55,8 +55,9 @@
                   <div class="mycard-title">Name:</div>
                   <div class="mycard-content">operation-v01</div>
                   <div class="mycard-title">Devices:</div>
-                  <div class="mycard-content"> <img src="../assets/search.png" style="width:16px">
-                 </div>
+                  <div class="mycard-content">
+                    <img src="../assets/search.png" style="width:16px">
+                  </div>
                   <div class="mycard-title">Created Time:</div>
                   <div class="mycard-content">2018-12-06 15:27:58</div>
                   <div class="mycard-title">Finished Time:</div>
@@ -420,10 +421,13 @@ export default {
     this.$refs.panel.style.height = window.innerHeight + "px";
 
     const map = L.map("map").setView([50.749523, 7.20343], 17);
-    L.tileLayer("https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    L.tileLayer(
+      "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }
+    ).addTo(map);
 
     this.$refs.editor_build_c.editor.setValue("commands: \n-", 1);
     this.$refs.editor_build_c.editor.setOption("highlightActiveLine", false);
@@ -436,7 +440,25 @@ export default {
     this.$refs.editor_run_c.editor.setValue("commands: \n-", 1);
     this.$refs.editor_run_c.editor.setOption("highlightActiveLine", false);
 
-    var markers = L.markerClusterGroup();
+    var markers = L.markerClusterGroup({
+      spiderLegPolylineOptions: {
+        weight: 1,
+        color: "#222",
+        opacity: 0.1
+      },
+      iconCreateFunction: function(cluster) {
+        //var markers = cluster.getAllChildMarkers();
+        var childCount = cluster.getChildCount();
+        //console.log(cluster)
+        //cluster.unspiderfy();
+
+        return L.divIcon({
+          html: "<div><span>" + childCount + "</span></div>",
+          className: "myCluster",
+          iconSize: new L.Point(40, 40)
+        });
+      }
+    });
     for (var i = 0; i < 100; i++) {
       var marker = L.marker(L.latLng(rand(50.749523), rand(7.20143)), {
         icon: L.icon({
@@ -462,6 +484,24 @@ export default {
 </script>
 
 <style>
+.myCluster {
+  background-color: rgba(181, 226, 140, 0.6);
+  background-clip: padding-box;
+  border-radius: 20px;
+}
+.myCluster div {
+  width: 30px;
+  height: 30px;
+  margin-left: 5px;
+  margin-top: 5px;
+  background-color: rgba(110, 204, 57, 0.6);
+  text-align: center;
+  border-radius: 15px;
+  font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.myCluster span {
+  line-height: 30px;
+}
 .simpleDeviceCard {
   border: 1px solid #999999;
   border-radius: 1px;
