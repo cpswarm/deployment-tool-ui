@@ -2,35 +2,45 @@
   <div class="mappanelContainer">
     <div ref="panel" class="panel" style="width:400px;overflow: scroll;">
       <div id="title">
-        <h5 style="display: inline-block; margin-left:5px">Device Management</h5>
+        <h5 style="display: inline-block; margin:5px">Device Management</h5>
       </div>
-      <div class="accordion" id="accordionExample">
+      <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
         <div class="card">
           <div id="search">
             <form class="form-inline">
-              <button
-                class="btn btn-outline-secondary dropdown-toggle"
-                type="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                style="width:90px"
-              >Tags</button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">Type</a>
-                <a class="dropdown-item" href="#">Hardware Architecture</a>
-                <a class="dropdown-item" href="#">Opeartion System</a>
-                <div role="separator" class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Location</a>
+              <div id="searchOrder" class="input-group" style="text-align:left;width:100%">
+                <input
+                  class="dropdown-toggle form-control form-control-sm"
+                  v-model="searchText"
+                  type="text"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  @keyup="filterDevice"
+                  style="font-size: 14px;height: 26px;padding: 5px;"
+                >
+                <div class="input-group-append">
+                  <a
+                    class="btn btn-outline-secondary"
+                    data-toggle="collapse"
+                    data-target="#collapseOne"
+                    aria-expanded="true"
+                    style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                  >
+                    <img src="../assets/search.png" style="height:20px">
+                  </a>
+                </div>
+
+                <div class="dropdown-menu" style="padding:2.5px">
+                  <a
+                    v-for="order in orders"
+                    class="dropdown-item"
+                    v-show="order.isActive"
+                    @click="selectItem(order.order)"
+                    style="font-size:14px;padding:0px 15px"
+                  >{{order.order}}</a>
+                </div>
               </div>
-              <input class="form-control">
-              <a
-                class="btn btn-primary"
-                data-toggle="collapse"
-                data-target="#collapseOne"
-                aria-expanded="true"
-                aria-controls="collapseOne"
-              >Search</a>
             </form>
           </div>
           <div
@@ -40,9 +50,9 @@
             data-parent="#accordionExample"
             ref="collapseOne"
           >
-            <div class="my-card-body">
+            <div style="padding:5px">
               <div id="deviceList">
-                <div class="mycard my-card-body">
+                <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                   <div class="mycard-title">Name:</div>
                   <div class="mycard-content">drone-1</div>
                   <div class="mycard-title">Tags:</div>
@@ -55,15 +65,17 @@
                   </div>
                   <div class="mycard-title">Current Task:</div>
                   <div class="mycard-content">operationA-v01</div>
-                  <div class="mycard-title">Status:</div>
-                  <div></div>
-                  <div class="mycard-title">Current Logs:</div>
-                  <div></div>
-                  <div class="mycard-title">Terminal:</div>
-                  <div></div>
+
                   <div class="mycard-title">Current Logs:</div>
                   <div></div>
                   <div class="mycard-title">History Tasks:</div>
+                  <div></div>
+                  <div></div>
+                  <div style="text-align:right">
+                    <img src="../assets/terminal.png" style="width:20px;margin-right:5px">
+                    <img src="../assets/edit.png" style="width:20px;margin-right:5px">
+                    <img src="../assets/delete.png" style="width:20px;margin-right:5px">
+                  </div>
                 </div>
                 <div class="mycard my-card-body">
                   <div class="mycard-title">Name:</div>
@@ -118,13 +130,16 @@
         <div class="card">
           <div class="card-header" id="headingTwo">
             <button
-              class="btn btn-link collapsed"
+              class="btn btn-light collapsed"
               type="button"
               data-toggle="collapse"
               data-target="#collapseTwo"
               aria-expanded="false"
               aria-controls="collapseTwo"
-            >Batch Update Devices Tags</button>
+              style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500"
+            >
+            <img src="../assets/edit.png" style="width:20px">
+            Update Devices</button>
           </div>
           <div
             id="collapseTwo"
@@ -133,81 +148,130 @@
             data-parent="#accordionExample"
             ref="collapseTwo"
           >
-            <div class="my-card-body">
-              <h6>This update settings will apply to all selected deivces.</h6>
-              <form id="updateTags" action>
-                <div style="text-align:right">Name Base:</div>
-                <div class>
+            <div class="card-body" style="text-align:left;padding:7.5px">
+              <p style="margin-bottom:5px;font-size:14px">Updating Targets:</p>
+              <div
+                style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px"
+              ></div>
+              <p
+                style="margin-bottom:5px;font-size:14px"
+              >This update settings will apply to all selected deivces.</p>
+              <form id="updateTags">
+                <div class="mycard-title">Name Base:</div>
+                <div class="mycard-content">
                   <div class="form-check input-group">
                     <input class="form-check-input" type="radio" name="radio">
-                    <input type="text" class="form-control form-control-sm">
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      style="font-size: 14px;height: 22px;padding: 5px;"
+                    >
                     <label>- 1/2/3...</label>
                   </div>
                   <div class="form-check input-group">
                     <input class="form-check-input" type="radio" name="radio">
-                    <input type="text" class="form-control form-control-sm">
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      style="font-size: 14px;height: 22px;padding: 5px;"
+                    >
                     <label class="form-check-label" for="exampleCheck1">- a/b/c...</label>
                   </div>
                 </div>
-                <div style="text-align:right">Tags:</div>
-                <div>
+                <div class="mycard-title">Tags:</div>
+                <div class="mycard-content">
                   <div class="input-group">
-                    <label for>Type:</label>
-                    <ul style="display:inline-block;padding-left:5px">
+                    <label style="margin-top:2.5px">Type:</label>
+                    <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">drone</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >drone</button>
                       </li>
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">sensor</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >sensor</button>
                       </li>
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">robot</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >robot</button>
                       </li>
                     </ul>
                   </div>
                   <div class="input-group">
-                    <label for>HW Arch:</label>
-                    <ul style="display:inline-block;padding-left:5px">
+                    <label style="margin-top:2.5px">HW Arch:</label>
+                    <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">ARM64</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >ARM64</button>
                       </li>
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">ARM32</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >ARM32</button>
                       </li>
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">8051</button>
+                        <button class="btn btn-primary btn-sm" style="margin:5px;padding:0 5px">8051</button>
                       </li>
                     </ul>
                   </div>
                   <div class="input-group">
-                    <label for>OS:</label>
-                    <ul style="display:inline-block;padding-left:5px">
+                    <label style="margin-top:2.5px">OS:</label>
+                    <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">FreeBSD</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >FreeBSD</button>
                       </li>
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">NetBSD</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >NetBSD</button>
                       </li>
                       <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">Darwin</button>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          style="margin:5px;padding:0 5px"
+                        >Darwin</button>
                       </li>
                     </ul>
                   </div>
                 </div>
               </form>
+              <div style="text-align:right;margin-top:5px">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  style="font-size:14px;padding: 2.5px 5px;"
+                >Update</button>
+              </div>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="card-header" id="headingThree">
             <button
-              class="btn btn-link collapsed"
+              class="btn btn-light collapsed"
               type="button"
               data-toggle="collapse"
               data-target="#collapseThree"
               aria-expanded="false"
               aria-controls="collapseThree"
-            >Add New Device</button>
+              style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500"
+            >
+              <img src="../assets/add.png" style="height:20px">
+              Add New Tokens
+            </button>
           </div>
           <div
             id="collapseThree"
@@ -216,71 +280,47 @@
             data-parent="#accordionExample"
             ref="collapseThree"
           >
-            <div class="my-card-body">
-              <form id="newDevice" action>
-                <div style="text-align:right">#Devices:</div>
-                <div>
-                  <input type="text" class="form-control form-control-sm">
-                </div>
-                <div style="text-align:right">Name Base:</div>
-                <div class>
-                  <div class="form-check input-group">
-                    <input class="form-check-input" type="radio" name="radio">
-                    <input type="text" class="form-control form-control-sm">
-                    <label>- 1/2/3...</label>
-                  </div>
-                  <div class="form-check input-group">
-                    <input class="form-check-input" type="radio" name="radio">
-                    <input type="text" class="form-control form-control-sm">
-                    <label class="form-check-label" for="exampleCheck1">- a/b/c...</label>
-                  </div>
-                </div>
-                <div style="text-align:right">Tgas:</div>
-                <div>
-                  <div class="input-group">
-                    <label for>Type:</label>
-                    <ul style="display:inline-block;padding-left:5px">
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">drone</button>
-                      </li>
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">sensor</button>
-                      </li>
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">robot</button>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="input-group">
-                    <label for>HW Arch:</label>
-                    <ul style="display:inline-block;padding-left:5px">
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">ARM64</button>
-                      </li>
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">ARM32</button>
-                      </li>
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">8051</button>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="input-group">
-                    <label for>OS:</label>
-                    <ul style="display:inline-block;padding-left:5px">
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">FreeBSD</button>
-                      </li>
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">NetBSD</button>
-                      </li>
-                      <li class="my-li" style="display:inline-block">
-                        <button class="btn btn-primary btn-sm">Darwin</button>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+            <div style="margin:10px 12.5px 5px">
+              <form id="newDevice" class="form-inline">
+                <h6 style="font-size:15px;margin:0">#Tokens:</h6> 
+                <input class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
+                <a>
+                  <img src="../assets/add.png" style="width:20px; margin-left:10px">
+                </a>
               </form>
+            </div>
+            <div style="padding:5px">
+              <table id="mytable" class="table" style="text-align:left;font-size:15px">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Token</th>
+                    <th scope="col">Remaining Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>djksie3juuh</td>
+                    <td>6 days</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>ndsi48dujhrz</td>
+                    <td>3 days 2 hours</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>hdsk33kxoplsc</td>
+                    <td>expired</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">4</th>
+                    <td>33jdueufoplsc</td>
+                    <td>expired</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -289,7 +329,7 @@
     <div id="map" style="width:800px" ref="map">
       <v-map :zoom="10" :center="initialLocation">
         <v-icondefault></v-icondefault>
-        <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+        <v-tilelayer url="https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g"></v-tilelayer>
         <v-marker-cluster :options="clusterOptions">
           <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latlng" :icon="icon">
             <!--  <v-popup :content="l.text"></v-popup>   -->
@@ -305,8 +345,8 @@ import draggable from "vuedraggable";
 import axios from "axios";
 import * as Vue2Leaflet from "vue2-leaflet";
 import Vue2LeafletMarkercluster from "vue2-leaflet-markercluster";
-import iconUrl from "../assets/devices.png";
-import shadowUrl from "../assets/devices.png";
+import iconUrl from "../assets/done.png";
+import shadowUrl from "../assets/done.png";
 
 function rand(n) {
   let max = n + 0.1;
@@ -411,31 +451,35 @@ export default {
   flex-direction: row;
 }
 
-.my-card-body {
-  -webkit-box-flex: 1;
-  flex: 1 1 auto;
-  padding: 5px;
-  margin-bottom: 5px;
-}
 .panel {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
-#updateTags,
-#newDevice,
+#mytable th,
+#mytable td{
+  padding: 7.5px
+}
 #newDeployment {
   display: grid;
   grid-template-columns: 1fr 4.5fr;
   grid-gap: 2.5px;
+}
+#updateTags {
+  display: grid;
+  grid-template-columns: 1fr 3.5fr;
+  grid-gap: 2.5px;
+  border: 1px solid #e4e4e4;
+  border-radius: 2px;
+  padding: 5px 2.5px;
 }
 .mycard {
   display: grid;
   grid-template-columns: 1fr 2.5fr;
   grid-gap: 2.5px;
   border: 1px solid rgba(0, 0, 0, 0.125);
-  border-radius: 2px
+  border-radius: 2px;
 }
 .collapse {
   overflow: scroll;
