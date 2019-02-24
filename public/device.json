@@ -1,182 +1,73 @@
 {
-    "my-laptop1": {
+  "total": 5,
+  "items": [
+    {
+      "id": "my-laptop",
       "tags": [
         "dev",
         "macOS",
-        "test",
-        [50.749523,7.20143]
+        "amd64",
+        "farshid"
       ],
-      "logs": {
-        "ddaae585-f841-4d8c-9e82-0cfe9cac664e": {
-          "transfer": {
-            "SYS": [
-              {
-                "output": "STAGE-START",
-                "time": 1544106477311587000
-              },
-              {
-                "output": "subscribed to task",
-                "time": 1544106477311675000
-              },
-              {
-                "output": "received task",
-                "time": 1544106478314774000
-              },
-              {
-                "output": "STAGE-END",
-                "time": 1544106478318157000
-              }
-            ]
-          },
-          "install": {
-            "SYS": [
-              {
-                "output": "STAGE-START",
-                "time": 1544106478318182000
-              },
-              {
-                "output": "STAGE-END",
-                "time": 1544106479781004000
-              }
-            ],
-            "go build count_to_three.go": [
-              {
-                "output": "EXEC-START",
-                "time": 1544106478318376000
-              },
-              {
-                "output": "EXEC-END",
-                "time": 1544106479780976000
-              }
-            ]
-          },
-          "run": {
-            "./count_to_three": [
-              {
-                "output": "EXEC-START",
-                "time": 1544106479783301000
-              },
-              {
-                "output": "hello 1",
-                "time": 1544106479794130000
-              },
-              {
-                "output": "hello 2",
-                "time": 1544106480795342000
-              },
-              {
-                "output": "hello 3",
-                "time": 1544106481796647000
-              },
-              {
-                "output": "EXEC-END",
-                "time": 1544106482797779000
-              }
-            ],
-            "SYS": [
-              {
-                "output": "STAGE-START",
-                "time": 1544106479783228000
-              },
-              {
-                "output": "STAGE-END",
-                "time": 1544106482797874000
-              }
-            ]
-          },
-          "updated": 1544106485902352000
-        }
-      },
-      "lastLogRequest": 1544096015201259000
+      "location": [
+        50.749523,
+        7.20343
+      ],
+      "updatedAt": 1550835141247,
+      "logRequestAt": 1550767086546
     },
-    "my-laptop2": {
+    {
+      "id": "my-laptop2",
       "tags": [
-        "dev",
-        "macOS",
-        "test",
-        [50.749563,7.20153]
+        "dev"
+     
       ],
-      "logs": {
-        "ddaae585-f841-4d8c-9e82-0cfe9cac664e": {
-          "transfer": {
-            "SYS": [
-              {
-                "output": "STAGE-START",
-                "time": 1544106477311587000
-              },
-              {
-                "output": "subscribed to task",
-                "time": 1544106477311675000
-              },
-              {
-                "output": "received task",
-                "time": 1544106478314774000
-              },
-              {
-                "output": "STAGE-END",
-                "time": 1544106478318157000
-              }
-            ]
-          },
-          "install": {
-            "SYS": [
-              {
-                "output": "STAGE-START",
-                "time": 1544106478318182000
-              },
-              {
-                "output": "STAGE-END",
-                "time": 1544106479781004000
-              }
-            ],
-            "go build count_to_three.go": [
-              {
-                "output": "EXEC-START",
-                "time": 1544106478318376000
-              },
-              {
-                "output": "EXEC-END",
-                "time": 1544106479780976000
-              }
-            ]
-          },
-          "run": {
-            "./count_to_three": [
-              {
-                "output": "EXEC-START",
-                "time": 1544106479783301000
-              },
-              {
-                "output": "hello 1",
-                "time": 1544106479794130000
-              },
-              {
-                "output": "hello 2",
-                "time": 1544106480795342000
-              },
-              {
-                "output": "hello 3",
-                "time": 1544106481796647000
-              },
-              {
-                "output": "EXEC-END",
-                "time": 1544106482797779000
-              }
-            ],
-            "SYS": [
-              {
-                "output": "STAGE-START",
-                "time": 1544106479783228000
-              },
-              {
-                "output": "STAGE-END",
-                "time": 1544106482797874000
-              }
-            ]
-          },
-          "updated": 1544106485902352000
-        }
-      },
-      "lastLogRequest": 1544096015201259000
+      "location": [
+        50.748523,
+        7.20483
+      ],
+      "updatedAt": 1550835141247,
+      "logRequestAt": 1550767086546
+    },
+    {
+      "id": "my-laptop3",
+      "tags": [
+      
+        "farshid"
+      ],
+      "location": [
+        50.749423,
+        7.20343
+      ],
+      "updatedAt": 1550835141247,
+      "logRequestAt": 1550767086546
+    },
+    {
+      "id": "my-laptop4",
+      "tags": [
+      
+        "amd64",
+        "farshid"
+      ],
+      "location": [
+        50.748523,
+        7.20243
+      ],
+      "updatedAt": 1550835141247,
+      "logRequestAt": 1550767086546
+    },
+    {
+      "id": "my-laptop5",
+      "tags": [
+        "dev"
+      
+      ],
+      "location": [
+        50.749543,
+        7.20223
+      ],
+      "updatedAt": 1550835141247,
+      "logRequestAt": 1550767086546
     }
+  ]
 }

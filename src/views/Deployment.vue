@@ -147,13 +147,21 @@
                 <div class="mycard-title" style="text-align:right">Source:</div>
                 <div>
                   <div class="custom-file" style="height:22px">
-                    <input type="file" class="custom-file-input" id="customFile">
+                    <input
+                      type="file"
+                      class="custom-file-input"
+                      id="customFile"
+                      multiple
+                      webkitdirectory
+                      @change="handleFileSelect"
+                    >
                     <label
                       id="mySourcelabel"
                       class="custom-file-label"
                       for="customFile"
                       style="text-align: left;height: 22px;padding: 0px; font-size: 14px;"
                     >Choose file</label>
+                    <div id="uploadFiles"></div>
                   </div>
                 </div>
                 <div class="mycard-title" style="text-align:right">Debug:</div>
@@ -194,10 +202,23 @@
                     >host:</label>
                     <input
                       type="text"
-                      class="form-control form-control-sm"
+                      v-model="host"
+                      class="dropdown-toggle form-control form-control-sm"
                       style="border-radius: .2rem; height:22px"
-                      placeholder="-"
+                      data-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      @keyup="filterHost"
                     >
+                    <div class="dropdown-menu" style="padding:2.5px">
+                      <a
+                        v-for="device in devices"
+                        class="dropdown-item"
+                        v-show="device.hostActive"
+                        @click=" host = device.name "
+                        style="font-size:14px;padding:0px 15px"
+                      >{{device.name}}</a>
+                    </div>
                   </div>
                 </div>
                 <div class="mycard-title" style="text-align:right">Install:(optional)</div>
@@ -237,8 +258,8 @@
                     <div id="searchTarget" class="input-group" style="width:100%">
                       <input
                         class="dropdown-toggle form-control form-control-sm"
-                        v-model="searchText"
                         type="text"
+                        v-model="searchText"
                         data-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
@@ -259,15 +280,15 @@
                         <a
                           v-for="tag in tags"
                           class="dropdown-item"
-                          v-show="tag.isActive"
-                          @click="selectItem(tag.tag)"
+                          v-if="tag.isActive"
+                          @click="selectItem(tag)"
                           style="font-size:14px;padding:0px 15px"
                         >{{tag.tag}}</a>
                       </div>
                     </div>
                   </form>
                   <div style="height:350px;overflow: scroll">
-                    <div v-for="device in devices" class="simpleDeviceCard">
+                    <div v-for="device in targetDevices" class="simpleDeviceCard">
                       <div class="input-group" style="padding:2.5px;">Name:
                         <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.name}}</div>
                         <a @click="removeDevice(device.name)" style="text-align:right">
@@ -305,6 +326,8 @@
 
 <script>
 import draggable from "vuedraggable";
+import JSZip from "jszip";
+import Axios from "axios";
 
 function rand(n) {
   let max = n + 0.001;
@@ -315,59 +338,11 @@ function rand(n) {
 export default {
   data() {
     return {
+      searchText: "",
+      host: "",
       devices: [],
-      orders: [
-        {
-          tag: "dev",
-          isActive: true
-        },
-        {
-          tag: "darwin",
-          isActive: true
-        },
-        {
-          tag: "linux",
-          isActive: true
-        },
-        {
-          tag: "drone",
-          isActive: true
-        },
-        {
-          tag: "hover",
-          isActive: true
-        },
-        {
-          tag: "test",
-          isActive: true
-        }
-      ],
-      tags: [
-        {
-          tag: "dev",
-          isActive: true
-        },
-        {
-          tag: "darwin",
-          isActive: true
-        },
-        {
-          tag: "linux",
-          isActive: true
-        },
-        {
-          tag: "drone",
-          isActive: true
-        },
-        {
-          tag: "hover",
-          isActive: true
-        },
-        {
-          tag: "test",
-          isActive: true
-        }
-      ]
+      targetDevices: [],
+      tags: []
     };
   },
   components: {
@@ -399,6 +374,16 @@ export default {
       }
       console.log(this.devices);
     },
+    filterHost: function() {
+      var value = this.host.toLowerCase();
+      this.devices.forEach(function(device) {
+        if (!(device.name.toLowerCase().indexOf(value) > -1)) {
+          device.hostActive = false;
+        } else {
+          device.hostActive = true;
+        }
+      });
+    },
     filterDevice: function() {
       var value = this.searchText.toLowerCase();
       this.tags.forEach(function(tag) {
@@ -414,6 +399,61 @@ export default {
       badge.innerHTML = tag;
       badge.setAttribute("class", "my-badge badge badge-primary");
       document.getElementById("searchTarget").appendChild(badge);
+    },
+    handleFileSelect: function(event) {
+      var files = event.target.files;
+      // FileList object
+      var output = [];
+
+      new Promise(function(resolve, reject) {
+        // too many files may cause problems
+        // console.log("Selected files:", files.length);
+        var archive = new JSZip().folder("archive");
+        var pending = files.length;
+        for (var i = 0, f; (f = files[i]); i++) {
+          output.push(
+            "<li><strong>",
+            escape(f.name),
+            "</strong> (",
+            f.type || "n/a",
+            ") - ",
+            f.size,
+            " bytes, last modified: ",
+            f.lastModifiedDate
+              ? f.lastModifiedDate.toLocaleDateString()
+              : "n/a",
+            "</li>"
+          );
+          console.log(f);
+          var reader = new FileReader();
+          // Closure to capture the file information.
+          reader.onload = (function(file) {
+            return function(e) {
+              // console.log("e:", e.target.result);
+              // console.log("loaded:", file.webkitRelativePath);
+              // parent directory name is in the path
+              archive.file(file.webkitRelativePath, e.target.result);
+              // count down and resolve promise
+              pending--;
+              if (pending == 0) {
+                resolve(archive);
+              }
+            };
+          })(f);
+          // Read in the image file as a data URL.
+          reader.readAsArrayBuffer(f); // bytes array
+          // reader.readAsDataURL(f); // header + base64_encoded
+        }
+        document.getElementById("uploadFiles").innerHTML =
+          "<ul>" + output.join("") + "</ul>";
+      })
+        .then(function(archive) {
+          return archive.generateAsync({ type: "base64" });
+        })
+        .then(function(z) {
+          //console.log("zip", z);
+          //add post function
+        });
     }
   },
   mounted() {
@@ -459,25 +499,69 @@ export default {
         });
       }
     });
-    for (var i = 0; i < 100; i++) {
-      var marker = L.marker(L.latLng(rand(50.749523), rand(7.20143)), {
-        icon: L.icon({
-          iconUrl: "/done.png",
-          iconSize: [20, 20]
-        }),
-        title: "my-laptop"
+
+    Axios.get("/device.json")
+      .then(response => {
+        for (let i = 0; i < response.data.total; i++) {
+          let a = response.data.items[i];
+          let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+            icon: L.icon({
+              iconUrl: "/done.png",
+              iconSize: [20, 20]
+            }),
+            title: a.id,
+            alt: a.tags
+          });
+          this.devices.push({
+            name: a.id,
+            tags: a.tags,
+            targetActive: true,
+            hostActive: true
+          });
+
+          //console.log(a.tags.length);
+          for (let j = 0; j < a.tags.length; j++) {
+            if (!this.tags.some(e => e.tag === a.tags[j])) {
+              this.tags.push({
+                isActive: true,
+                tag: a.tags[j]
+              });
+            }
+          }
+
+          console.log(this.tags);
+
+          marker.on("click", event => {
+            if (this.targetDevices) {
+              this.targetDevices.push({
+                name: event.target.options.title,
+                tags: event.target.options.alt
+              });
+            }
+          });
+          markers.addLayer(marker);
+        }
+      })
+      .catch(error => {
+        console.log(error);
       });
+
+    /**
+    * for (var i = 0; i < 100; i++) {
       marker.on("click", event => {
         if (this.devices) {
           this.devices.push({
             id: this.devices.length,
             name: event.target.options.title + this.devices.length,
-            tags: ["macOS", "dev", "test"]
+            tags: ["macOS", "dev", "test"],
+            isActive: true
           });
         }
       });
       markers.addLayer(marker);
     }
+    *  */
+
     map.addLayer(markers);
   }
 };
