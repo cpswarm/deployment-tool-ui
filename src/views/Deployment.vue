@@ -255,7 +255,11 @@
                   style="grid-column: 1/3; border: 1px solid grey;border-style:dashed"
                 >
                   <form class="form-inline">
-                    <div id="searchTarget" class="input-group" style="width:100%">
+                    <div
+                      class="input-group"
+                      style="width:100%;border: 1px solid #ced4da;border-radius:.25rem;"
+                    >
+                      <div id="searchTarget"></div>
                       <input
                         class="dropdown-toggle form-control form-control-sm"
                         type="text"
@@ -264,13 +268,14 @@
                         aria-haspopup="true"
                         aria-expanded="false"
                         @keyup="filterDevice"
-                        style="font-size: 14px;height: 26px;padding: 5px;"
+                        style="font-size: 14px;height: 26px;padding: 5px; border:none"
                       >
                       <div class="input-group-append">
                         <a
                           class="btn btn-outline-secondary"
                           aria-expanded="true"
                           style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                          @click="searchTarget"
                         >
                           <img src="../assets/search.png" style="height:20px">
                         </a>
@@ -281,7 +286,7 @@
                           v-for="tag in tags"
                           class="dropdown-item"
                           v-if="tag.isActive"
-                          @click="selectItem(tag)"
+                          @click="selectItem(tag.tag)"
                           style="font-size:14px;padding:0px 15px"
                         >{{tag.tag}}</a>
                       </div>
@@ -338,6 +343,10 @@ function rand(n) {
 export default {
   data() {
     return {
+      build_c: "",
+      build_a: "",
+      instal_c: "",
+      run_c: "",
       searchText: "",
       host: "",
       devices: [],
@@ -364,15 +373,16 @@ export default {
         this.deployName.value +
         this.deployDebug.value +
         this.$refs.editor_build_c.editor.getValue().toString();
-      console.log(taskDer);
+      //console.log(taskDer);
     },
     removeDevice: function(name) {
-      for (var i = 0; i < this.devices.length - 1; i++) {
-        if (this.devices[i].name === name) {
-          this.devices.splice(i, 1);
+      for (var i = 0; i < this.targetDevices.length; i++) {
+        console.log(this.targetDevices[i].name,name);
+        if (this.targetDevices[i].name == name) {
+          this.targetDevices.splice(i, 1);
         }
       }
-      console.log(this.devices);
+     //console.log(this.targetDevices);
     },
     filterHost: function() {
       var value = this.host.toLowerCase();
@@ -394,10 +404,38 @@ export default {
         }
       });
     },
+    searchTarget: function() {
+      var tagsNodes = document.getElementById("searchTarget").childNodes;
+
+      for (var i = 0; i < tagsNodes.length; i++) {
+        if (tagsNodes[i].style.display != "none") {
+          for (var j = 0; j < this.devices.length; j++) {
+            //console.log(this.devices)
+            for (var m = 0; m < this.devices[j].tags.length; m++) {
+              //console.log(this.devices[j].tags[m],tagsNodes[i].innerHTML)
+
+              if (this.devices[j].tags[m] == tagsNodes[i].innerHTML) {
+                if (!this.targetDevices.some(e => e.name === this.devices[j].name)) {
+                  this.targetDevices.push({
+                    name: this.devices[j].name,
+                    tags: this.devices[j].tags
+                  });
+                  //console.log(i, j, m);
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+    },
     selectItem: function(tag) {
       var badge = document.createElement("span");
       badge.innerHTML = tag;
-      badge.setAttribute("class", "my-badge badge badge-primary");
+      badge.setAttribute("class", "btn btn-primary btn-sm");
+      badge.onclick = function() {
+        this.style.display = "none";
+      };
       document.getElementById("searchTarget").appendChild(badge);
     },
     handleFileSelect: function(event) {
@@ -491,7 +529,6 @@ export default {
         var childCount = cluster.getChildCount();
         //console.log(cluster)
         //cluster.unspiderfy();
-
         return L.divIcon({
           html: "<div><span>" + childCount + "</span></div>",
           className: "myCluster",
@@ -529,15 +566,16 @@ export default {
             }
           }
 
-          console.log(this.tags);
+          //console.log(this.tags);
 
           marker.on("click", event => {
-            if (this.targetDevices) {
-              this.targetDevices.push({
-                name: event.target.options.title,
-                tags: event.target.options.alt
-              });
-            }
+              if (!this.targetDevices.some(e => e.name === event.target.options.title)) {
+                this.targetDevices.push({
+                  name: event.target.options.title,
+                  tags: event.target.options.alt
+                });
+              }
+            
           });
           markers.addLayer(marker);
         }
@@ -592,10 +630,6 @@ export default {
   padding: 2.5px;
   margin: 2.5px;
   font-size: 14px;
-}
-.my-badge {
-  z-index: 100;
-  position: relative;
 }
 
 #mySourcelabel::after {
