@@ -11,7 +11,7 @@
               <div id="searchOrder" class="input-group" style="width:100%">
                 <input
                   class="dropdown-toggle form-control form-control-sm"
-                  v-model="searchText"
+                  v-model="deployText"
                   type="text"
                   data-toggle="dropdown"
                   aria-haspopup="true"
@@ -343,15 +343,19 @@ function rand(n) {
 export default {
   data() {
     return {
+      deployName: "",
+      deployDebug: "",
+      source: "",
       build_c: "",
       build_a: "",
-      instal_c: "",
+      install_c: "",
       run_c: "",
       searchText: "",
       host: "",
       devices: [],
       targetDevices: [],
-      tags: []
+      tags: [],
+      orders: []
     };
   },
   components: {
@@ -368,21 +372,24 @@ export default {
     },
     submitDeploy: function() {
       let taskDer = "";
+      let ids=[];
+      let tags="";
+      for(let i=0;i<this.targetDevices.length; i++){
+        ids.push(this.targetDevices[i].name)
+      }
 
-      taskDer =
-        this.deployName.value +
-        this.deployDebug.value +
-        this.$refs.editor_build_c.editor.getValue().toString();
-      //console.log(taskDer);
+      taskDer =  this.source.value +this.deployDebug.value +
+        this.build_c + this.build_a + this.host+ this.install_c+this.run_c +ids;
+      console.log(taskDer);
     },
     removeDevice: function(name) {
       for (var i = 0; i < this.targetDevices.length; i++) {
-        console.log(this.targetDevices[i].name,name);
+        console.log(this.targetDevices[i].name, name);
         if (this.targetDevices[i].name == name) {
           this.targetDevices.splice(i, 1);
         }
       }
-     //console.log(this.targetDevices);
+      //console.log(this.targetDevices);
     },
     filterHost: function() {
       var value = this.host.toLowerCase();
@@ -415,7 +422,9 @@ export default {
               //console.log(this.devices[j].tags[m],tagsNodes[i].innerHTML)
 
               if (this.devices[j].tags[m] == tagsNodes[i].innerHTML) {
-                if (!this.targetDevices.some(e => e.name === this.devices[j].name)) {
+                if (
+                  !this.targetDevices.some(e => e.name === this.devices[j].name)
+                ) {
                   this.targetDevices.push({
                     name: this.devices[j].name,
                     tags: this.devices[j].tags
@@ -441,57 +450,13 @@ export default {
     handleFileSelect: function(event) {
       var files = event.target.files;
       // FileList object
-      var output = [];
+      var archive = new JSZip().folder("archive");
+      for (var i = 0, f; (f = files[i]); i++) {
+        archive.file(f.webkitRelativePath, f);
+      }
+      this.source = archive.generateAsync({ type: "base64" });
 
-      new Promise(function(resolve, reject) {
-        // too many files may cause problems
-        // console.log("Selected files:", files.length);
-        var archive = new JSZip().folder("archive");
-        var pending = files.length;
-        for (var i = 0, f; (f = files[i]); i++) {
-          output.push(
-            "<li><strong>",
-            escape(f.name),
-            "</strong> (",
-            f.type || "n/a",
-            ") - ",
-            f.size,
-            " bytes, last modified: ",
-            f.lastModifiedDate
-              ? f.lastModifiedDate.toLocaleDateString()
-              : "n/a",
-            "</li>"
-          );
-          console.log(f);
-          var reader = new FileReader();
-          // Closure to capture the file information.
-          reader.onload = (function(file) {
-            return function(e) {
-              // console.log("e:", e.target.result);
-              // console.log("loaded:", file.webkitRelativePath);
-              // parent directory name is in the path
-              archive.file(file.webkitRelativePath, e.target.result);
-              // count down and resolve promise
-              pending--;
-              if (pending == 0) {
-                resolve(archive);
-              }
-            };
-          })(f);
-          // Read in the image file as a data URL.
-          reader.readAsArrayBuffer(f); // bytes array
-          // reader.readAsDataURL(f); // header + base64_encoded
-        }
-        document.getElementById("uploadFiles").innerHTML =
-          "<ul>" + output.join("") + "</ul>";
-      })
-        .then(function(archive) {
-          return archive.generateAsync({ type: "base64" });
-        })
-        .then(function(z) {
-          //console.log("zip", z);
-          //add post function
-        });
+      //console.log(this.source)
     }
   },
   mounted() {
@@ -569,13 +534,16 @@ export default {
           //console.log(this.tags);
 
           marker.on("click", event => {
-              if (!this.targetDevices.some(e => e.name === event.target.options.title)) {
-                this.targetDevices.push({
-                  name: event.target.options.title,
-                  tags: event.target.options.alt
-                });
-              }
-            
+            if (
+              !this.targetDevices.some(
+                e => e.name === event.target.options.title
+              )
+            ) {
+              this.targetDevices.push({
+                name: event.target.options.title,
+                tags: event.target.options.alt
+              });
+            }
           });
           markers.addLayer(marker);
         }
