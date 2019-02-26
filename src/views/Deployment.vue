@@ -333,16 +333,23 @@
 import draggable from "vuedraggable";
 import JSZip from "jszip";
 import Axios from "axios";
+import yaml from "js-yaml";
 
 function rand(n) {
   let max = n + 0.001;
   let min = n - 0.001;
   return Math.random() * (max - min) + min;
 }
+function setCommands(arr) {
+  var newarr = arr.split("\n");
+
+  return newarr;
+}
 
 export default {
   data() {
     return {
+      deployText: "",
       deployName: "",
       deployDebug: "",
       source: "",
@@ -371,20 +378,58 @@ export default {
       require("brace/snippets/javascript");
     },
     submitDeploy: function() {
-      let taskDer = "";
-      let ids=[];
-      let tags="";
-      for(let i=0;i<this.targetDevices.length; i++){
-        ids.push(this.targetDevices[i].name)
+      let ids = [];
+      let tags = [];
+      for (let i = 0; i < this.targetDevices.length; i++) {
+        ids.push(this.targetDevices[i].name);
+        this.targetDevices[i].tags.forEach(function(el) {
+          if (!tags.some(e => e == el)) {
+            tags.push(el);
+          }
+        });
       }
+      var myYaml;
+      var taskDer = {
+        source: {
+          zip: ""
+        },
+        build: {
+          commands: setCommands(this.build_c.substring(12)),
+          artifacts: setCommands(this.build_a.substring(13)),
+          host: this.host
+        },
+        deploy: {
+          install: {
+            commands: setCommands(this.install_c.substring(12))
+          },
+          run: {
+            commands: setCommands(this.run_c.substring(12))
+          },
+          target: {
+            ids: ids,
+            tags: tags
+          }
+        },
+        debug: this.deployDebug
+      };
+      if (this.source) {
+        this.source.then(function(data) {
+          taskDer.source.zip = data;
+          myYaml = yaml.safeDump(taskDer);
+          //console.log(myYaml);
+          Axios.post('http://reely.fit.fraunhofer.de:8080/orders').then(function(response){
+            console.log(response);
+          })
+        });
+      }
+      myYaml = yaml.safeDump(taskDer);
+      //console.log(myYaml);
 
-      taskDer =  this.source.value +this.deployDebug.value +
-        this.build_c + this.build_a + this.host+ this.install_c+this.run_c +ids;
-      console.log(taskDer);
+      //"source:\nzip:"+ this.source.value + "\n"this.deployDebug.value + this.build_c + this.build_a + this.host+ this.install_c+this.run_c +ids;
     },
     removeDevice: function(name) {
       for (var i = 0; i < this.targetDevices.length; i++) {
-        console.log(this.targetDevices[i].name, name);
+        //console.log(this.targetDevices[i].name, name);
         if (this.targetDevices[i].name == name) {
           this.targetDevices.splice(i, 1);
         }
@@ -420,7 +465,6 @@ export default {
             //console.log(this.devices)
             for (var m = 0; m < this.devices[j].tags.length; m++) {
               //console.log(this.devices[j].tags[m],tagsNodes[i].innerHTML)
-
               if (this.devices[j].tags[m] == tagsNodes[i].innerHTML) {
                 if (
                   !this.targetDevices.some(e => e.name === this.devices[j].name)
@@ -452,8 +496,13 @@ export default {
       // FileList object
       var archive = new JSZip().folder("archive");
       for (var i = 0, f; (f = files[i]); i++) {
+        //console.log(f)
+        // if set webkitdirectory
         archive.file(f.webkitRelativePath, f);
+        // if only set multiple
+        //archive.file(f.name, f);
       }
+      //console.log(archive);
       this.source = archive.generateAsync({ type: "base64" });
 
       //console.log(this.source)
@@ -530,9 +579,7 @@ export default {
               });
             }
           }
-
           //console.log(this.tags);
-
           marker.on("click", event => {
             if (
               !this.targetDevices.some(
