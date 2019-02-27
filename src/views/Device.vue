@@ -6,42 +6,19 @@
       </div>
       <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
         <div class="card">
-          <div id="search">
-            <form class="form-inline">
-              <div id="searchOrder" class="input-group" style="text-align:left;width:100%">
-                <input
-                  class="dropdown-toggle form-control form-control-sm"
-                  v-model="searchText"
-                  type="text"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                  @keyup="filterDevice"
-                  style="font-size: 14px;height: 26px;padding: 5px;"
-                >
-                <div class="input-group-append">
-                  <a
-                    class="btn btn-outline-secondary"
-                    data-toggle="collapse"
-                    data-target="#collapseOne"
-                    aria-expanded="true"
-                    style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
-                  >
-                    <img src="../assets/search.png" style="height:20px">
-                  </a>
-                </div>
-
-                <div class="dropdown-menu" style="padding:2.5px">
-                  <a
-                    v-for="order in orders"
-                    class="dropdown-item"
-                    v-show="order.isActive"
-                    @click="selectItem(order.order)"
-                    style="font-size:14px;padding:0px 15px"
-                  >{{order.order}}</a>
-                </div>
-              </div>
-            </form>
+          <div class="card-header" id="headingOne">
+            <button
+              class="btn btn-light collapsed"
+              type="button"
+              data-toggle="collapse"
+              data-target="#collapseOne"
+              aria-expanded="false"
+              aria-controls="collapseOne"
+              style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500"
+            >
+              <img src="../assets/edit.png" style="width:20px">
+              Devices List
+            </button>
           </div>
           <div
             id="collapseOne"
@@ -51,16 +28,58 @@
             ref="collapseOne"
           >
             <div style="padding:5px">
+              <div id="search" style="margin-bottom:5px">
+                <form class="form-inline">
+                  <div
+                    class="input-group"
+                    style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;"
+                  >
+                    <div id="searchTarget"></div>
+                    <input
+                      class="dropdown-toggle form-control form-control-sm"
+                      type="text"
+                      v-model="searchText"
+                      data-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      @keyup="filterDevice"
+                      style="font-size: 14px;height: 26px;padding: 5px; border:none"
+                    >
+                    <div class="input-group-append">
+                      <a
+                        class="btn btn-outline-secondary"
+                        aria-expanded="true"
+                        style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                        @click="searchTarget"
+                      >
+                        <img src="../assets/search.png" style="height:20px">
+                      </a>
+                    </div>
+                    <div class="dropdown-menu" style="padding:2.5px">
+                      <a
+                        v-for="tag in tags"
+                        class="dropdown-item"
+                        v-show="tag.isActive"
+                        @click="selectItem(tag.tag)"
+                        style="font-size:14px;padding:0px 15px"
+                      >{{tag.tag}}</a>
+                    </div>
+                  </div>
+                </form>
+              </div>
               <div id="deviceList">
-                <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
+                <div
+                  v-for="device in devices"
+                  class="mycard my-card-body"
+                  v-show="device.isActive"
+                  style="padding:5px;margin-bottom:5px"
+                >
                   <div class="mycard-title">Name:</div>
-                  <div class="mycard-content">drone-1</div>
+                  <div class="mycard-content">{{device.name}}</div>
                   <div class="mycard-title">Tags:</div>
                   <div class="mycard-content">
                     <span>
-                      <div class="badge badge-pill badge-primary">tag1</div>
-                      <div class="badge badge-pill badge-danger">tag2</div>
-                      <div class="badge badge-pill badge-success">tag3</div>
+                      <div v-for="tag in device.tags" class="badge badge-pill badge-primary">{{tag}}</div>
                     </span>
                   </div>
                   <div class="mycard-title">Current Task:</div>
@@ -77,52 +96,6 @@
                     <img src="../assets/delete.png" style="width:20px;margin-right:5px">
                   </div>
                 </div>
-                <div class="mycard my-card-body">
-                  <div class="mycard-title">Name:</div>
-                  <div class="mycard-content">drone-2</div>
-                  <div class="mycard-title">Tags:</div>
-                  <div class="mycard-content">
-                    <span>
-                      <div class="badge badge-pill badge-primary">tag1</div>
-                      <div class="badge badge-pill badge-danger">tag2</div>
-                      <div class="badge badge-pill badge-success">tag3</div>
-                    </span>
-                  </div>
-                  <div class="mycard-title">Current Task:</div>
-                  <div class="mycard-content">operationA-v01</div>
-                  <div class="mycard-title">Status:</div>
-                  <div></div>
-                  <div class="mycard-title">Current Logs:</div>
-                  <div></div>
-                  <div class="mycard-title">Terminal:</div>
-                  <div></div>
-                  <div class="mycard-title">Current Logs:</div>
-                  <div></div>
-                  <div class="mycard-title">History Tasks:</div>
-                </div>
-                <div class="mycard my-card-body">
-                  <div class="mycard-title">Name:</div>
-                  <div class="mycard-content">drone-2</div>
-                  <div class="mycard-title">Tags:</div>
-                  <div class="mycard-content">
-                    <span>
-                      <div class="badge badge-pill badge-primary">tag1</div>
-                      <div class="badge badge-pill badge-danger">tag2</div>
-                      <div class="badge badge-pill badge-success">tag3</div>
-                    </span>
-                  </div>
-                  <div class="mycard-title">Current Task:</div>
-                  <div class="mycard-content">operationA-v01</div>
-                  <div class="mycard-title">Status:</div>
-                  <div></div>
-                  <div class="mycard-title">Current Logs:</div>
-                  <div></div>
-                  <div class="mycard-title">Terminal:</div>
-                  <div></div>
-                  <div class="mycard-title">Current Logs:</div>
-                  <div></div>
-                  <div class="mycard-title">History Tasks:</div>
-                </div>
               </div>
             </div>
           </div>
@@ -138,8 +111,9 @@
               aria-controls="collapseTwo"
               style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500"
             >
-            <img src="../assets/edit.png" style="width:20px">
-            Update Devices</button>
+              <img src="../assets/edit.png" style="width:20px">
+              Update Devices
+            </button>
           </div>
           <div
             id="collapseTwo"
@@ -151,8 +125,63 @@
             <div class="card-body" style="text-align:left;padding:7.5px">
               <p style="margin-bottom:5px;font-size:14px">Updating Targets:</p>
               <div
-                style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px"
-              ></div>
+                style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: scroll"
+              >
+                <div>
+                  <form class="form-inline">
+                    <div
+                      class="input-group"
+                      style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;"
+                    >
+                      <div id="searchTarget2"></div>
+                      <input
+                        class="dropdown-toggle form-control form-control-sm"
+                        type="text"
+                        v-model="searchText"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        @keyup="filterDevice"
+                        style="font-size: 14px;height: 26px;padding: 5px; border:none"
+                      >
+                      <div class="input-group-append">
+                        <a
+                          class="btn btn-outline-secondary"
+                          aria-expanded="true"
+                          style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                          @click="searchTarget2"
+                        >
+                          <img src="../assets/search.png" style="height:20px">
+                        </a>
+                      </div>
+                      <div class="dropdown-menu" style="padding:2.5px">
+                        <a
+                          v-for="tag in tags"
+                          class="dropdown-item"
+                          v-show="tag.isActive"
+                          @click="selectItem2(tag.tag)"
+                          style="font-size:14px;padding:0px 15px"
+                        >{{tag.tag}}</a>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div v-for="device in targetDevices" class="simpleDeviceCard">
+                  <div class="input-group" style="padding:2.5px;">Name:
+                    <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.name}}</div>
+                    <a @click="removeDevice(device.name)" style="text-align:right">
+                      <img src="../assets/close.png" style="width:20px">
+                    </a>
+                  </div>
+                  <div class="input-group" style="padding:2.5px">Tags:
+                    <div
+                      v-for="tag in device.tags"
+                      style="padding: 2.5px; margin: 0 2.5px;line-height: 1.5;"
+                      class="badge badge-secondary"
+                    >{{tag}}</div>
+                  </div>
+                </div>
+              </div>
               <p
                 style="margin-bottom:5px;font-size:14px"
               >This update settings will apply to all selected deivces.</p>
@@ -282,8 +311,12 @@
           >
             <div style="margin:10px 12.5px 5px">
               <form id="newDevice" class="form-inline">
-                <h6 style="font-size:15px;margin:0">#Tokens:</h6> 
-                <input class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
+                <h6 style="font-size:15px;margin:0">#Tokens:</h6>
+                <input
+                  class="form-control form-control-sm"
+                  type="text"
+                  style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;"
+                >
                 <a>
                   <img src="../assets/add.png" style="width:20px; margin-left:10px">
                 </a>
@@ -326,27 +359,13 @@
         </div>
       </div>
     </div>
-    <div id="map" style="width:800px" ref="map">
-      <v-map :zoom="10" :center="initialLocation">
-        <v-icondefault></v-icondefault>
-        <v-tilelayer url="https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g"></v-tilelayer>
-        <v-marker-cluster :options="clusterOptions">
-          <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latlng" :icon="icon">
-            <!--  <v-popup :content="l.text"></v-popup>   -->
-          </v-marker>
-        </v-marker-cluster>
-      </v-map>
-    </div>
+    <div id="map" style="width:800px" ref="map"></div>
   </div>
 </template>
 
 <script>
 import draggable from "vuedraggable";
-import axios from "axios";
-import * as Vue2Leaflet from "vue2-leaflet";
-import Vue2LeafletMarkercluster from "vue2-leaflet-markercluster";
-import iconUrl from "../assets/done.png";
-import shadowUrl from "../assets/done.png";
+import Axios from "axios";
 
 function rand(n) {
   let max = n + 0.1;
@@ -356,96 +375,225 @@ function rand(n) {
 
 export default {
   data() {
-    let locations = [];
-    for (let i = 0; i < 100; i++) {
-      locations.push({
-        id: i,
-        latlng: L.latLng(rand(-34.9205), rand(-57.953646)),
-        text: "Hola " + i
-      });
-    }
-    let icon = Vue2Leaflet.L.icon(
-      Object.assign({}, Vue2Leaflet.L.Icon.Default.prototype.options, {
-        iconUrl,
-        shadowUrl
-      })
-    );
     return {
-      locations,
-      icon,
-      clusterOptions: {},
-      initialLocation: L.latLng(-34.9205, -57.953646)
+      devices: [],
+      tags: [],
+      targetDevices: [],
+      searchText: ""
     };
-    /**
- *  var devicesData;
-    fetch('/data.json').then(response => {
-     
-    devicesData = response.data;
-    
-    return {
-        devices: "../assets/devices.png",
-        devicesData
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    })
- * 
- * 
- * 
- */
   },
   components: {
-    "v-map": Vue2Leaflet.LMap,
-    "v-tilelayer": Vue2Leaflet.LTileLayer,
-    "v-icondefault": Vue2Leaflet.LIconDefault,
-    "v-marker": Vue2Leaflet.LMarker,
-    "v-popup": Vue2Leaflet.LPopup,
-    "v-marker-cluster": Vue2LeafletMarkercluster
+    editor: require("vue2-ace-editor")
+  },
+  methods: {
+    filterDevice: function() {
+      var value = this.searchText.toLowerCase();
+      this.tags.forEach(function(tag) {
+        if (!(tag.tag.toLowerCase().indexOf(value) > -1)) {
+          tag.isActive = false;
+        } else {
+          tag.isActive = true;
+        }
+      });
+    },
+    removeDevice: function(name) {
+      for (var i = 0; i < this.targetDevices.length; i++) {
+        //console.log(this.targetDevices[i].name, name);
+        if (this.targetDevices[i].name == name) {
+          this.targetDevices.splice(i, 1);
+        }
+      }
+      //console.log(this.targetDevices);
+    },
+    selectItem: function(tag) {
+      var badge = document.createElement("span");
+      badge.innerHTML = tag;
+      badge.setAttribute("class", "btn btn-primary btn-sm");
+      badge.onclick = function() {
+        this.style.display = "none";
+      };
+      document.getElementById("searchTarget").appendChild(badge);
+    },
+    selectItem2: function(tag) {
+      var badge = document.createElement("span");
+      badge.innerHTML = tag;
+      badge.setAttribute("class", "btn btn-primary btn-sm");
+      badge.onclick = function() {
+        this.style.display = "none";
+      };
+      document.getElementById("searchTarget2").appendChild(badge);
+    },
+    searchTarget: function() {
+      var tagsNodes = document.getElementById("searchTarget").childNodes;
+
+      //console.log(tagsNodes);
+
+      for (var i = 0; i < tagsNodes.length; i++) {
+        if (tagsNodes[i].style.display != "none") {
+          for (var j = 0; j < this.devices.length; j++) {
+            if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+              //console.log(this.devices[j].tags, tagsNodes[i].innerHTML)
+              this.devices[j].isActive = true;
+            } else {
+              this.devices[j].isActive = false;
+            }
+            /*  for (var m = 0; m < this.devices[j].tags.length; m++) {
+              //console.log(this.devices[j].tags[m],tagsNodes[i].innerHTML)
+              if (this.devices[j].tags[m] == tagsNodes[i].innerHTML) {
+                if (
+                  !this.devices[j].some(e => e.name === this.devices[j].name)
+                ) {
+                  this.targetDevices.push({
+                    name: this.devices[j].name,
+                    tags: this.devices[j].tags
+                  });
+                  //console.log(i, j, m);
+                }
+                this.devices[j].isActive = false;
+                //console.log(this.devices)
+                break;
+              }
+            } */
+          }
+        }
+      }
+    },
+    searchTarget2: function() {
+      var tagsNodes = document.getElementById("searchTarget2").childNodes;
+
+      for (var i = 0; i < tagsNodes.length; i++) {
+        if (tagsNodes[i].style.display != "none") {
+          for (var j = 0; j < this.devices.length; j++) {
+            //console.log(this.devices)
+
+            if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+              if (
+                !this.targetDevices.some(e => e.name === this.devices[j].name)
+              ) {
+                this.targetDevices.push({
+                  name: this.devices[j].name,
+                  tags: this.devices[j].tags
+                });
+                //console.log(i, j, m);
+              }
+            }
+
+            // implement Array.some() manually
+            /*  for (var m = 0; m < this.devices[j].tags.length; m++) {
+              //console.log(this.devices[j].tags[m],tagsNodes[i].innerHTML)
+              if (this.devices[j].tags[m] == tagsNodes[i].innerHTML) {
+                if (
+                  !this.targetDevices.some(e => e.name === this.devices[j].name)
+                ) {
+                  this.targetDevices.push({
+                    name: this.devices[j].name,
+                    tags: this.devices[j].tags
+                  });
+                  //console.log(i, j, m);
+                }
+                break;
+              }
+            } */
+          }
+        }
+      }
+    },
+    closeSearch: function() {
+      //console.log(document.getElementById("collapseTwo").className)
+      if (document.getElementById("collapseTwo").className == "collapse") {
+        document.getElementById("search").style.display = "none";
+      } else {
+        document.getElementById("search").style.display = "inline";
+      }
+    }
   },
   mounted() {
     this.$refs.map.style.height = window.innerHeight + "px";
     this.$refs.panel.style.height = window.innerHeight + "px";
 
-    /**
-    *  const map = L.map('map').setView([50.749523,7.20143], 16)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    * 
-    *  */
+    const map = L.map("map").setView([50.749523, 7.20343], 17);
+    L.tileLayer(
+      "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }
+    ).addTo(map);
+    var markers = L.markerClusterGroup({
+      spiderLegPolylineOptions: {
+        weight: 1,
+        color: "#222",
+        opacity: 0.1
+      },
+      iconCreateFunction: function(cluster) {
+        var childCount = cluster.getChildCount();
 
-    //map.addLayer(markers);
+        //console.log(cluster)
+        //cluster.unspiderfy();
+        return L.divIcon({
+          html: "<div><span>" + childCount + "</span></div>",
+          className: "myCluster",
+          iconSize: new L.Point(40, 40)
+        });
+      }
+    });
+    Axios.defaults.headers.get["Content-Type"] =
+      "application/x-www-form-urlencoded";
+    Axios.get("/device.json")
+      .then(response => {
+        //console.log(response.data);
+        for (let i = 0; i < response.data.total; i++) {
+          let a = response.data.items[i];
+          let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+            icon: L.icon({
+              iconUrl: "/done.png",
+              iconSize: [20, 20]
+            }),
+            title: a.id,
+            alt: a.tags
+          });
+          this.devices.push({
+            name: a.id,
+            tags: a.tags,
+            isActive: true
+          });
+
+          //console.log(a.tags.length);
+          for (let j = 0; j < a.tags.length; j++) {
+            if (!this.tags.some(e => e.tag === a.tags[j])) {
+              this.tags.push({
+                isActive: true,
+                tag: a.tags[j]
+              });
+            }
+          }
+          //console.log(this.tags);
+          //Markers click function
+          marker.on("click", event => {
+            if (
+              !this.targetDevices.some(
+                e => e.name === event.target.options.title
+              )
+            ) {
+              this.targetDevices.push({
+                name: event.target.options.title,
+                tags: event.target.options.alt
+              });
+            }
+          });
+
+          markers.addLayer(marker);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    map.addLayer(markers);
   }
-  /** get json from api
-     * 
-     * axios.get('https://petstore.swagger.io/v2/swagger.json')
-    .then(response => {
-
-      this.devicesData = response.data;
-      var markers = L.markerClusterGroup();
-      for (var i = 0; i < this.devicesData.length; i++) {
-			var a = response.data[i];
-			var title = a['tags'];
-			var marker = L.marker(L.latLng(a['tags'][3][0], a['tags'][3][1]), { title: title });
-			marker.bindPopup(title);
-			markers.addLayer(marker);
-    }
-      
-    })
-    .catch(error => {
-      console.log(error);
-    })
-     * 
-     *
-     *  */
 };
 </script>
 
 <style>
-@import "~leaflet/dist/leaflet.css";
-@import "~leaflet.markercluster/dist/MarkerCluster.css";
-@import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
 .mappanelContainer {
   display: flex;
   flex-direction: row;
@@ -458,8 +606,8 @@ export default {
   align-items: flex-start;
 }
 #mytable th,
-#mytable td{
-  padding: 7.5px
+#mytable td {
+  padding: 7.5px;
 }
 #newDeployment {
   display: grid;

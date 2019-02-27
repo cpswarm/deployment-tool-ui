@@ -285,7 +285,7 @@
                         <a
                           v-for="tag in tags"
                           class="dropdown-item"
-                          v-if="tag.isActive"
+                          v-show="tag.isActive"
                           @click="selectItem(tag.tag)"
                           style="font-size:14px;padding:0px 15px"
                         >{{tag.tag}}</a>
