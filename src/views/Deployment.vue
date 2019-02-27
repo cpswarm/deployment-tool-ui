@@ -417,8 +417,11 @@ export default {
           taskDer.source.zip = data;
           myYaml = yaml.safeDump(taskDer);
           //console.log(myYaml);
-          Axios.post('http://reely.fit.fraunhofer.de:8080/orders').then(function(response){
+          Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+          Axios.post('http://reely.fit.fraunhofer.de:8080/orders',myYaml).then(function(response){
             console.log(response);
+          }).catch(function(error){
+            console.log(error);
           })
         });
       }
@@ -504,7 +507,7 @@ export default {
       }
       //console.log(archive);
       this.source = archive.generateAsync({ type: "base64" });
-
+      document.getElementById('mySourcelabel').innerHTML = files[0].name +'...';
       //console.log(this.source)
     }
   },
@@ -527,7 +530,7 @@ export default {
     this.$refs.editor_build_a.editor.setValue("artifacts: \n-", 1);
     this.$refs.editor_build_a.editor.setOption("highlightActiveLine", false);
 
-    this.$refs.editor_install_c.editor.setValue("commands: \n-", 1);
+    this.$refs.editor_install_c.editor.setValue("commands: \n-", 1);;
     this.$refs.editor_install_c.editor.setOption("highlightActiveLine", false);
     this.$refs.editor_run_c.editor.setValue("commands: \n-", 1);
     this.$refs.editor_run_c.editor.setOption("highlightActiveLine", false);
@@ -550,9 +553,10 @@ export default {
         });
       }
     });
-
-    Axios.get("/device.json")
+    Axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';  
+    Axios.get("http://reely.fit.fraunhofer.de:8080/targets")
       .then(response => {
+        console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
           let a = response.data.items[i];
           let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
