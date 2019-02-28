@@ -32,13 +32,14 @@
                 </div>
 
                 <div class="dropdown-menu" style="padding:2.5px">
-                  <a
+                  <!-- how to search -->
+                  <!--  <a
                     v-for="order in orders"
                     class="dropdown-item"
                     v-show="order.isActive"
                     @click="selectItem(order.order)"
                     style="font-size:14px;padding:0px 15px"
-                  >{{order.order}}</a>
+                  >{{order.order}}</a>-->
                 </div>
               </div>
             </form>
@@ -51,58 +52,42 @@
           >
             <div style="padding:5px">
               <div id="deviceList">
-                <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
+                <div
+                  v-for="order in orders"
+                  class="mycard card-body"
+                  style="padding:5px;margin-bottom:5px"
+                >
                   <div class="mycard-title">Name:</div>
-                  <div class="mycard-content">operation-v01</div>
+                  <div class="mycard-content">{{order.name}}</div>
                   <div class="mycard-title">Devices:</div>
                   <div class="mycard-content">
                     <img src="../assets/search.png" style="width:16px">
                   </div>
                   <div class="mycard-title">Created Time:</div>
-                  <div class="mycard-content">2018-12-06 15:27:58</div>
+                  <div class="mycard-content">{{Date(order.createdAt)}}</div>
                   <div class="mycard-title">Finished Time:</div>
-                  <div class="mycard-content">2018-12-06 15:27:58</div>
-                  <div class="mycard-title">Debug:</div>
-                  <div class="mycard-content">
-                    <input type="checkbox">
-                  </div>
+                  <div class="mycard-content"></div>
                   <div class="mycard-title">Commands:</div>
                   <div class="mycard-content">
-                    <img src="../assets/search.png" style="width:16px">
+                    <button
+                      type="button"
+                      class="btn btn-light btn-sm"
+                      style="padding: 0 2px;"
+                      @click="order.commands.isAcitve ? order.commands.isAcitve= false: order.commands.isAcitve=true"
+                    >
+                      <img src="../assets/search.png" style="width:16px">
+                    </button>
+                  </div>
+                  <div style="grid-column:1/3" v-show="order.commands.isAcitve">
+                    <div v-for="(key, value) in order.commands.c">
+                     <div style="text-align:left">{{ value }}:</div> 
+                     <div v-for="(key, value) in key">{{value}}: {{key}}</div>
+                    </div>
                   </div>
                   <div></div>
                   <div style="text-align: right">
                     <img src="../assets/duplicate.png" style="width:20px">
                   </div>
-                </div>
-                <div class="mycard card-body">
-                  <div class="mycard-title">Name:</div>
-                  <div class="mycard-content">operation-v01</div>
-                  <div class="mycard-title">Devices:</div>
-                  <div class="mycard-content">tag1 tag2 tag3</div>
-                  <div class="mycard-title">Created Time:</div>
-                  <div class="mycard-content">2018-12-06 15:27:58</div>
-                  <div class="mycard-title">Finished Time:</div>
-                  <div class="mycard-content">2018-12-06 15:27:58</div>
-                  <div class="mycard-title">Commands:</div>
-                  <div></div>
-                  <div class="mycard-title">Debug:</div>
-                  <div></div>
-                </div>
-
-                <div class="mycard card-body">
-                  <div class="mycard-title">Name:</div>
-                  <div class="mycard-content">operation-v01</div>
-                  <div class="mycard-title">Devices:</div>
-                  <div class="mycard-content">tag1 tag2 tag3</div>
-                  <div class="mycard-title">Created Time:</div>
-                  <div class="mycard-content">2018-12-06 15:27:58</div>
-                  <div class="mycard-title">Finished Time:</div>
-                  <div class="mycard-content">2018-12-06 15:27:58</div>
-                  <div class="mycard-title">Commands:</div>
-                  <div></div>
-                  <div class="mycard-title">Debug:</div>
-                  <div></div>
                 </div>
               </div>
             </div>
@@ -334,7 +319,7 @@ import draggable from "vuedraggable";
 import JSZip from "jszip";
 import Axios from "axios";
 import yaml from "js-yaml";
-
+import editor from "vue2-ace-editor";
 function rand(n) {
   let max = n + 0.001;
   let min = n - 0.001;
@@ -365,9 +350,9 @@ export default {
       orders: []
     };
   },
-  components: {
+ components: {
     editor: require("vue2-ace-editor")
-  },
+  }, 
   methods: {
     editorInit: function() {
       require("brace/ext/language_tools"); //language extension prerequsite...
@@ -376,6 +361,7 @@ export default {
       require("brace/mode/less");
       require("brace/theme/github");
       require("brace/snippets/javascript");
+  
     },
     submitDeploy: function() {
       let ids = [];
@@ -417,12 +403,14 @@ export default {
           taskDer.source.zip = data;
           myYaml = yaml.safeDump(taskDer);
           //console.log(myYaml);
-          Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-          Axios.post('http://reely.fit.fraunhofer.de:8080/orders',myYaml).then(function(response){
-            console.log(response);
-          }).catch(function(error){
-            console.log(error);
-          })
+          //Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+          Axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml)
+            .then(function(response) {
+              console.log(response);
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
         });
       }
       myYaml = yaml.safeDump(taskDer);
@@ -507,9 +495,10 @@ export default {
       }
       //console.log(archive);
       this.source = archive.generateAsync({ type: "base64" });
-      document.getElementById('mySourcelabel').innerHTML = files[0].name +'...';
+      document.getElementById("mySourcelabel").innerHTML =
+        files[0].name + "...";
       //console.log(this.source)
-    }
+    },
   },
   mounted() {
     this.$refs.map.style.height = window.innerHeight + "px";
@@ -530,7 +519,7 @@ export default {
     this.$refs.editor_build_a.editor.setValue("artifacts: \n-", 1);
     this.$refs.editor_build_a.editor.setOption("highlightActiveLine", false);
 
-    this.$refs.editor_install_c.editor.setValue("commands: \n-", 1);;
+    this.$refs.editor_install_c.editor.setValue("commands: \n-", 1);
     this.$refs.editor_install_c.editor.setOption("highlightActiveLine", false);
     this.$refs.editor_run_c.editor.setValue("commands: \n-", 1);
     this.$refs.editor_run_c.editor.setOption("highlightActiveLine", false);
@@ -553,13 +542,34 @@ export default {
         });
       }
     });
-    Axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';  
+    //Axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
+    Axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+      // console.log(response.data)
+      for (let i = 0; i < response.data.total; i++) {
+        let a = response.data.items[i];
+        console.log(typeof a.deploy)
+        this.orders.push({
+          name: a.id,
+          // devices: a.deploy.target,
+          createdAt: a.createdAt,
+          debug: a.debug,
+          commands: {
+
+            c: a.deploy,
+            isAcitve: false
+          }
+        });
+      }
+    });
+
     Axios.get("http://reely.fit.fraunhofer.de:8080/targets")
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
           let a = response.data.items[i];
-          let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+
+          // the latlng is faked
+          let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
             icon: L.icon({
               iconUrl: "/done.png",
               iconSize: [20, 20]
@@ -567,6 +577,7 @@ export default {
             title: a.id,
             alt: a.tags
           });
+          //console.log(this.devices)
           this.devices.push({
             name: a.id,
             tags: a.tags,

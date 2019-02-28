@@ -1,0 +1,79 @@
+{
+    "total": 2,
+    "items": [
+        {
+            "id": "86d7932b-ef25-49ca-a1a6-1b48e85a64a9",
+            "debug": true,
+            "createdAt": 1551110454626,
+            "build": null,
+            "deploy": {
+                "install": {
+                    "commands": [
+                        "go build package/count_to_three.go"
+                    ]
+                },
+                "run": {
+                    "commands": [
+                        "./count_to_three"
+                    ],
+                    "autoRestart": false
+                },
+                "target": {
+                    "ids": null,
+                    "tags": [
+                        "swarm"
+                    ]
+                },
+                "match": {
+                    "ids": null,
+                    "tags": [
+                        "swarm",
+                        "swarm"
+                    ],
+                    "list": [
+                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
+                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "e4d91115-6875-49f5-8328-157d4dfc1990",
+            "debug": true,
+            "createdAt": 1551201838582,
+            "build": null,
+            "deploy": {
+                "install": {
+                    "commands": [
+                        "go build package/count_to_three.go"
+                    ]
+                },
+                "run": {
+                    "commands": [
+                        "./count_to_three"
+                    ],
+                    "autoRestart": false
+                },
+                "target": {
+                    "ids": null,
+                    "tags": [
+                        "swarm"
+                    ]
+                },
+                "match": {
+                    "ids": null,
+                    "tags": [
+                        "swarm",
+                        "swarm"
+                    ],
+                    "list": [
+                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
+                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                    ]
+                }
+            }
+        }
+    ],
+    "page": 1,
+    "perPage": 100
+}

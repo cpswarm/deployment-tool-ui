@@ -544,7 +544,10 @@ export default {
         //console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
           let a = response.data.items[i];
-          let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+          //This the correct latlng
+          //let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+          //The latlng is faked
+          let marker = L.marker(L.latLng(rand(50.749523),rand(7.20343)), {
             icon: L.icon({
               iconUrl: "/done.png",
               iconSize: [20, 20]
