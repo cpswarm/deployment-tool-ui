@@ -78,11 +78,23 @@
                       <img src="../assets/search.png" style="width:16px">
                     </button>
                   </div>
-                  <div style="grid-column:1/3" v-show="order.commands.isAcitve">
-                    <div v-for="(key, value) in order.commands.c">
-                     <div style="text-align:left">{{ value }}:</div> 
-                     <div v-for="(key, value) in key">{{value}}: {{key}}</div>
-                    </div>
+                  <div class="myCommand" v-show="order.commands.isAcitve">
+                    <div class="mycom-title" >Install: </div>
+                    <div class="mycom-content" style="color:#00AE31">commands:</div>
+                    <div></div>
+                    <div v-for="c in order.commands.c.install.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                    <div class="mycom-title" >Run:</div>
+                    <div class="mycom-content" style="color:#00AE31">commands:</div>
+                    <div></div>
+                    <div v-for="c in order.commands.c.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                    <div class="mycom-title" >Target:</div>
+                    <div class="mycom-content" style="color:#00AE31">ids:</div>
+                      <div v-for="t in order.commands.c.target.ids" class="mycom-content" style="color:#2E51AB">{{t}}</div>
+                    <div></div>
+                    <div class="mycom-content" style="color:#00AE31">tags: <div v-for="t in order.commands.c.target.tags" style="display:inline-block;color:#2E51AB">{{t}}</div></div>
+                 
+                     
+                    
                   </div>
                   <div></div>
                   <div style="text-align: right">
@@ -350,9 +362,9 @@ export default {
       orders: []
     };
   },
- components: {
+  components: {
     editor: require("vue2-ace-editor")
-  }, 
+  },
   methods: {
     editorInit: function() {
       require("brace/ext/language_tools"); //language extension prerequsite...
@@ -361,7 +373,6 @@ export default {
       require("brace/mode/less");
       require("brace/theme/github");
       require("brace/snippets/javascript");
-  
     },
     submitDeploy: function() {
       let ids = [];
@@ -404,7 +415,7 @@ export default {
           myYaml = yaml.safeDump(taskDer);
           //console.log(myYaml);
           //Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-          Axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml)
+          Axios.post("/deployment.json", myYaml)
             .then(function(response) {
               console.log(response);
             })
@@ -498,7 +509,7 @@ export default {
       document.getElementById("mySourcelabel").innerHTML =
         files[0].name + "...";
       //console.log(this.source)
-    },
+    }
   },
   mounted() {
     this.$refs.map.style.height = window.innerHeight + "px";
@@ -543,18 +554,17 @@ export default {
       }
     });
     //Axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
-    Axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+    Axios.get("/deployment.json").then(response => {
       // console.log(response.data)
       for (let i = 0; i < response.data.total; i++) {
         let a = response.data.items[i];
-        console.log(typeof a.deploy)
+        console.log(typeof a.deploy);
         this.orders.push({
           name: a.id,
           // devices: a.deploy.target,
           createdAt: a.createdAt,
           debug: a.debug,
           commands: {
-
             c: a.deploy,
             isAcitve: false
           }
@@ -562,7 +572,7 @@ export default {
       }
     });
 
-    Axios.get("http://reely.fit.fraunhofer.de:8080/targets")
+    Axios.get("/device.json")
       .then(response => {
         // console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
@@ -665,6 +675,21 @@ export default {
 #mySourcelabel::after {
   height: 20px;
   padding: 0;
+}
+.myCommand{
+  grid-column:1/3; 
+  background-color: #e9e9e9;
+  display: grid;
+  grid-template-columns: 1fr 4.5fr;
+  font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+.mycom-title {
+  text-align: right;
+  font-size: 11px;
+}
+.mycom-content {
+  text-align: left;
+  font-size: 11px;
 }
 </style>
 
