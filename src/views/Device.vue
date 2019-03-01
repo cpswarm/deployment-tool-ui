@@ -368,8 +368,8 @@ import draggable from "vuedraggable";
 import Axios from "axios";
 
 function rand(n) {
-  let max = n + 0.1;
-  let min = n - 0.1;
+  let max = n + 0.001;
+  let min = n - 0.001;
   return Math.random() * (max - min) + min;
 }
 
@@ -423,6 +423,7 @@ export default {
       };
       document.getElementById("searchTarget2").appendChild(badge);
     },
+    // All device -> search devices
     searchTarget: function() {
       var tagsNodes = document.getElementById("searchTarget").childNodes;
 
@@ -458,6 +459,7 @@ export default {
         }
       }
     },
+    //Update device -> search devices
     searchTarget2: function() {
       var tagsNodes = document.getElementById("searchTarget2").childNodes;
 
@@ -537,9 +539,10 @@ export default {
         });
       }
     });
-    Axios.defaults.headers.get["Content-Type"] =
-      "application/x-www-form-urlencoded";
-    Axios.get("/device.json")
+    //Axios.defaults.headers.get["Content-Type"] = "application/x-www-form-urlencoded";
+    //http://reely.fit.fraunhofer.de:8080/targets
+    // /device.json
+    Axios.get("http://reely.fit.fraunhofer.de:8080/targets")
       .then(response => {
         //console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
@@ -547,7 +550,7 @@ export default {
           //This the correct latlng
           //let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
           //The latlng is faked
-          let marker = L.marker(L.latLng(rand(50.749523),rand(7.20343)), {
+          let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
             icon: L.icon({
               iconUrl: "/done.png",
               iconSize: [20, 20]
@@ -591,6 +594,7 @@ export default {
       .catch(error => {
         console.log(error);
       });
+    
     map.addLayer(markers);
   }
 };

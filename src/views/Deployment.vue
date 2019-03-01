@@ -79,22 +79,60 @@
                     </button>
                   </div>
                   <div class="myCommand" v-show="order.commands.isAcitve">
-                    <div class="mycom-title" >Install: </div>
+                    <div class="mycom-title">Build:</div>
                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                     <div></div>
-                    <div v-for="c in order.commands.c.install.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
-                    <div class="mycom-title" >Run:</div>
+                    <div>
+                      <div v-if="order.commands.b.commands">
+                        <div
+                          v-for="c in order.commands.b.commands"
+                          class="mycom-content"
+                          style="color:#2E51AB"
+                        >-{{c}}</div>
+                      </div>
+                    </div>
+                    <div class="mycom-title">Install:</div>
                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                     <div></div>
-                    <div v-for="c in order.commands.c.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
-                    <div class="mycom-title" >Target:</div>
+                    <div v-if="order.commands.c.install.commands">
+                      <div
+                        v-for="c in order.commands.c.install.commands"
+                        class="mycom-content"
+                        style="color:#2E51AB"
+                      >-{{c}}</div>
+                    </div>
+
+                    <div class="mycom-title">Run:</div>
+                    <div class="mycom-content" style="color:#00AE31">commands:</div>
+                    <div></div>
+                    <div v-if="order.commands.c.run.commands">
+                      <div
+                        v-for="c in order.commands.c.run.commands"
+                        class="mycom-content"
+                        style="color:#2E51AB"
+                      >-{{c}}</div>
+                    </div>
+                    <div class="mycom-title">Target:</div>
                     <div class="mycom-content" style="color:#00AE31">ids:</div>
-                      <div v-for="t in order.commands.c.target.ids" class="mycom-content" style="color:#2E51AB">{{t}}</div>
                     <div></div>
-                    <div class="mycom-content" style="color:#00AE31">tags: <div v-for="t in order.commands.c.target.tags" style="display:inline-block;color:#2E51AB">{{t}}</div></div>
-                 
-                     
-                    
+                    <div>
+                      <div
+                        v-for="t in order.commands.c.target.ids"
+                        class="mycom-content"
+                        style="color:#2E51AB"
+                      >{{t}}</div>
+                    </div>
+
+                    <div></div>
+                    <div class="mycom-content" style="color:#00AE31">tags:</div>
+                    <div></div>
+                    <div>
+                      <div
+                        v-for="t in order.commands.c.target.tags"
+                        class="mycom-content"
+                        style="color:#2E51AB"
+                      >{{t}}</div>
+                    </div>
                   </div>
                   <div></div>
                   <div style="text-align: right">
@@ -388,7 +426,8 @@ export default {
       var myYaml;
       var taskDer = {
         source: {
-          zip: ""
+          zip:
+            "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
         },
         build: {
           commands: setCommands(this.build_c.substring(12)),
@@ -409,11 +448,12 @@ export default {
         },
         debug: this.deployDebug
       };
-      if (this.source) {
+      /*  if (this.source) {
         this.source.then(function(data) {
           taskDer.source.zip = data;
           myYaml = yaml.safeDump(taskDer);
           //console.log(myYaml);
+          //http://reely.fit.fraunhofer.de:8080/targets
           //Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
           Axios.post("/deployment.json", myYaml)
             .then(function(response) {
@@ -423,7 +463,17 @@ export default {
               console.log(error);
             });
         });
-      }
+      } */
+      myYaml = yaml.safeDump(taskDer);
+      console.log(myYaml);
+      Axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml)
+        .then(function(response) {
+          console.log(response);
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+
       myYaml = yaml.safeDump(taskDer);
       //console.log(myYaml);
 
@@ -465,7 +515,19 @@ export default {
         if (tagsNodes[i].style.display != "none") {
           for (var j = 0; j < this.devices.length; j++) {
             //console.log(this.devices)
-            for (var m = 0; m < this.devices[j].tags.length; m++) {
+
+            if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+              if (
+                !this.targetDevices.some(e => e.name === this.devices[j].name)
+              ) {
+                this.targetDevices.push({
+                  name: this.devices[j].name,
+                  tags: this.devices[j].tags
+                });
+                //console.log(i, j, m);
+              }
+            }
+            /* for (var m = 0; m < this.devices[j].tags.length; m++) {
               //console.log(this.devices[j].tags[m],tagsNodes[i].innerHTML)
               if (this.devices[j].tags[m] == tagsNodes[i].innerHTML) {
                 if (
@@ -479,7 +541,7 @@ export default {
                 }
                 break;
               }
-            }
+            } */
           }
         }
       }
@@ -554,30 +616,35 @@ export default {
       }
     });
     //Axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
-    Axios.get("/deployment.json").then(response => {
+    //http://reely.fit.fraunhofer.de:8080/orders
+    // /deployment.json
+    Axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
       // console.log(response.data)
       for (let i = 0; i < response.data.total; i++) {
         let a = response.data.items[i];
-        console.log(typeof a.deploy);
+        //console.log(typeof a.deploy);
         this.orders.push({
           name: a.id,
           // devices: a.deploy.target,
           createdAt: a.createdAt,
           debug: a.debug,
           commands: {
-            c: a.deploy,
+            b: a.build ? a.build : "",
+            c: a.deploy ? a.deploy : "",
             isAcitve: false
           }
         });
       }
     });
-
-    Axios.get("/device.json")
+    //http://reely.fit.fraunhofer.de:8080/targets
+    // /device.json
+    Axios.get("http://reely.fit.fraunhofer.de:8080/targets")
       .then(response => {
         // console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
           let a = response.data.items[i];
 
+          //let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
           // the latlng is faked
           let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
             icon: L.icon({
@@ -639,7 +706,7 @@ export default {
       markers.addLayer(marker);
     }
     *  */
-
+    // console.log(markers);
     map.addLayer(markers);
   }
 };
@@ -676,12 +743,13 @@ export default {
   height: 20px;
   padding: 0;
 }
-.myCommand{
-  grid-column:1/3; 
+.myCommand {
+  grid-column: 1/3;
   background-color: #e9e9e9;
   display: grid;
   grid-template-columns: 1fr 4.5fr;
-  font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
+    "source-code-pro", monospace;
 }
 .mycom-title {
   text-align: right;
