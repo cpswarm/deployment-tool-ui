@@ -209,6 +209,7 @@
                 <div class="mycard-content" style="text-align:left">
                   <div>
                     <div>
+                      <div class="myfont">commands:</div>
                       <editor
                         ref="editor_build_c"
                         v-model="build_c"
@@ -220,6 +221,7 @@
                       ></editor>
                     </div>
                     <div>
+                      <div class="myfont">artifacts:</div>
                       <editor
                         ref="editor_build_a"
                         v-model="build_a"
@@ -257,8 +259,9 @@
                   </div>
                 </div>
                 <div class="mycard-title" style="text-align:right">Install:(optional)</div>
-                <div class="mycard-content" style="background: #ececec;text-align:left">
+                <div class="mycard-content" style="text-align:left">
                   <div>
+                    <div class="myfont">commands:</div>
                     <editor
                       ref="editor_install_c"
                       v-model="install_c"
@@ -271,8 +274,9 @@
                   </div>
                 </div>
                 <div class="mycard-title" style="text-align:right">Run:</div>
-                <div class="mycard-content" style="background: #ececec;text-align:left">
+                <div class="mycard-content" style="text-align:left">
                   <div>
+                    <div class="myfont">commands:</div>
                     <editor
                       ref="editor_run_c"
                       v-model="run_c"
@@ -397,7 +401,8 @@ export default {
       devices: [],
       targetDevices: [],
       tags: [],
-      orders: []
+      orders: [],
+      tree: []
     };
   },
   components: {
@@ -430,24 +435,25 @@ export default {
             "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
         },
         build: {
-          commands: setCommands(this.build_c.substring(12)),
-          artifacts: setCommands(this.build_a.substring(13)),
+          commands: this.build_c.split('\n'),
+          artifacts: this.build_a.split('\n'),
           host: this.host
         },
         deploy: {
           install: {
-            commands: setCommands(this.install_c.substring(12))
+            commands: this.install_c ? this.install_c : null ,
           },
           run: {
-            commands: setCommands(this.run_c.substring(12))
+            commands: this.run_c.split('\n'),
           },
           target: {
             ids: ids,
             tags: tags
           }
         },
-        debug: this.deployDebug
+        debug: this.deployDebug ? this.deployDebug : false
       };
+      console.log(typeof this.install_c)
       /*  if (this.source) {
         this.source.then(function(data) {
           taskDer.source.zip = data;
@@ -474,7 +480,6 @@ export default {
           console.log(error);
         });
 
-      myYaml = yaml.safeDump(taskDer);
       //console.log(myYaml);
 
       //"source:\nzip:"+ this.source.value + "\n"this.deployDebug.value + this.build_c + this.build_a + this.host+ this.install_c+this.run_c +ids;
@@ -586,9 +591,14 @@ export default {
       }
     ).addTo(map);
 
-    this.$refs.editor_build_c.editor.setValue("commands: \n-", 1);
-    this.$refs.editor_build_c.editor.setOption("highlightActiveLine", false);
-    this.$refs.editor_build_c.editor.setOption("highlightSelectedWord", false);
+    /* this.$refs.editor_build_t.editor.setValue("commands:", 1);
+    this.$refs.editor_build_t.editor.setOption("highlightActiveLine", false);
+    this.$refs.editor_build_t.editor.renderer.setOption("showLineNumbers", false);
+    */
+
+    /* this.$refs.editor_build_c.editor.setOption("highlightActiveLine", false);
+    //this.$refs.editor_build_c.editor.setOption("highlightSelectedWord", false);
+
     this.$refs.editor_build_a.editor.setValue("artifacts: \n-", 1);
     this.$refs.editor_build_a.editor.setOption("highlightActiveLine", false);
 
@@ -596,7 +606,7 @@ export default {
     this.$refs.editor_install_c.editor.setOption("highlightActiveLine", false);
     this.$refs.editor_run_c.editor.setValue("commands: \n-", 1);
     this.$refs.editor_run_c.editor.setOption("highlightActiveLine", false);
-
+ */
     var markers = L.markerClusterGroup({
       spiderLegPolylineOptions: {
         weight: 1,
@@ -618,7 +628,7 @@ export default {
     //Axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
     //http://reely.fit.fraunhofer.de:8080/orders
     // /deployment.json
-    Axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+    Axios.get("/deployment.json").then(response => {
       // console.log(response.data)
       for (let i = 0; i < response.data.total; i++) {
         let a = response.data.items[i];
@@ -638,7 +648,7 @@ export default {
     });
     //http://reely.fit.fraunhofer.de:8080/targets
     // /device.json
-    Axios.get("http://reely.fit.fraunhofer.de:8080/targets")
+    Axios.get("/device.json")
       .then(response => {
         // console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
@@ -758,6 +768,10 @@ export default {
 .mycom-content {
   text-align: left;
   font-size: 11px;
+}
+.myfont {
+  font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
+    "source-code-pro", monospace;
 }
 </style>
 

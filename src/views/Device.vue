@@ -542,7 +542,7 @@ export default {
     //Axios.defaults.headers.get["Content-Type"] = "application/x-www-form-urlencoded";
     //http://reely.fit.fraunhofer.de:8080/targets
     // /device.json
-    Axios.get("http://reely.fit.fraunhofer.de:8080/targets")
+    Axios.get("/device.json")
       .then(response => {
         //console.log(response.data);
         for (let i = 0; i < response.data.total; i++) {
