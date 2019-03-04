@@ -113,9 +113,9 @@
                             <div v-for="device in targetDevices" class="simpleDeviceCard">
                                 <div class="input-group" style="padding:2.5px;">Name:
                                     <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.name}}</div>
-                                    <a @click="removeDevice(device.name)" style="text-align:right">
-                                        <img src="../assets/close.png" style="width:20px">
-                                    </a>
+                                    <button type="button" class="close" aria-label="Close" @click="removeDevice(device.name)" style="height:20px">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
                                 <div class="input-group" style="padding:2.5px">Tags:
                                     <div v-for="tag in device.tags"

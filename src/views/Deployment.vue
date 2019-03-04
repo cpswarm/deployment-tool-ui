@@ -218,9 +218,10 @@
                                         <div class="input-group" style="padding:2.5px;">Name:
                                             <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.name}}
                                             </div>
-                                            <a @click="removeDevice(device.name)" style="text-align:right">
-                                                <img src="../assets/close.png" style="width:20px">
-                                            </a>
+                                           
+                                            <button type="button" class="close" aria-label="Close" @click="removeDevice(device.name)" style="height:20px">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
                                         </div>
                                         <div class="input-group" style="padding:2.5px">Tags:
                                             <div v-for="tag in device.tags"
@@ -242,6 +243,20 @@
         </div>
     </div>
     <div id="map" style="width:800px" ref="map"></div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog  alert alert-danger" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Error Message</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="mymodal-body" class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 </template>
 
@@ -250,6 +265,7 @@ import jsZip from "jszip";
 import axios from "axios";
 import yaml from "js-yaml";
 import editor from "vue2-ace-editor";
+import $ from 'jquery'
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -314,16 +330,16 @@ export default {
                         "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
                 },
                 build: {
-                    commands: this.build_c.split('\n'),
-                    artifacts: this.build_a.split('\n'),
-                    host: this.host
+                    commands: this.build_c? this.build_c.split('\n') : null,
+                    artifacts:this.build_a? this.build_a.split('\n') : null,
+                    host: this.host? this.host:null
                 },
                 deploy: {
                     install: {
-                        commands: this.install_c ? this.install_c : null,
+                        commands: this.install_c ? this.install_c.split('\n') : null,
                     },
                     run: {
-                        commands: this.run_c.split('\n'),
+                        commands: this.run_c? this.run_c.split('\n'): null,
                     },
                     target: {
                         ids: ids,
@@ -357,7 +373,11 @@ export default {
                     console.log(response);
                 })
                 .catch(function (error) {
-                    console.log(error);
+                    //console.log(error.response);
+                    //alert(error.response);
+                    $('#mymodal-body').html('<div class="modal-body" style="text-align:left">' + error.response.data.error + '</div>');
+                    $('#myModal').modal();
+
                 });
         },
         removeDevice: function (name) {
@@ -474,7 +494,7 @@ export default {
         //axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
         //http://reely.fit.fraunhofer.de:8080/orders
         // /deployment.json
-        axios.get("/deployment.json").then(response => {
+        axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
             // console.log(response.data)
             for (let i = 0; i < response.data.total; i++) {
 
@@ -494,7 +514,7 @@ export default {
         });
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
-        axios.get("/device.json")
+        axios.get("http://reely.fit.fraunhofer.de:8080/targets")
             .then(response => {
                 // console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
