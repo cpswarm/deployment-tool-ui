@@ -42,7 +42,17 @@
                                 <div class="mycard-content">{{order.name}}</div>
                                 <div class="mycard-title">Devices:</div>
                                 <div class="mycard-content">
-                                    <img src="../assets/search.png" style="width:16px">
+                                    <img src="../assets/done.png" style="width:16px">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name)">
+                                            <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p> 
+                                    </button> 
+                                     <img src="../assets/error.png" style="width:16px">
+                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name)">
+                                            <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p> 
+                                    </button>
+                                    
+                                     
+                                
                                 </div>
                                 <div class="mycard-title">Created Time:</div>
                                 <div class="mycard-content">{{new Date(order.createdAt).toLocaleString()}}</div>
@@ -265,20 +275,37 @@
         </div>
     </div>
     <div id="map" style="width:800px" ref="map"></div>
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog  alert alert-danger" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Error Message</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div id="mymodal-body" class="modal-body">
-      </div>
+    <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog  alert alert-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Error Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="mymodal-body" class="modal-body">
+            </div>
+        </div>
+        </div>
     </div>
-  </div>
-</div>
+    <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Process Tree</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="mytree-body" class="modal-body">
+                <div id="mytree">My Tree View</div>
+                <div id="mylog"></div>
+             
+            </div>
+        </div>
+        </div>
+    </div>
 </div>
 </template>
 
@@ -304,6 +331,23 @@ function setCommands(arr) {
 
 // Check device status
 function checkStatus(id){
+
+    return [Math.floor(Math.random() * 31) , Math.floor(Math.random() * 11)]
+}
+
+// Generate tree 
+function generateTree(id){
+
+    //add websocket here
+    axios.get("http://reely.fit.fraunhofer.de:8080/logs?task="+id).then(function(response){
+        if(response.data.items){
+            $('#mylog').html('<div id="mylog">'+ response.data.items +'</div>')
+        }else{
+            $('#mylog').html('<div id="mylog">No log sent back!</div>')
+        }
+    }).then(function(){
+         $('#myTree').modal();
+    });
 
 }
 
@@ -339,6 +383,21 @@ export default {
             require("brace/theme/github");
             require("brace/snippets/javascript");
         },
+generateTree: function(id) {
+
+    //add websocket here
+    axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id).then(function (response) {
+        console.log(response.data);
+        if (response.data.items) {
+            $('#mylog').html('<div id="mylog">' + response.data.items[0].output + '</div>')
+        } else {
+            $('#mylog').html('<div id="mylog">No log sent back!</div>')
+        }
+    }).then(function () {
+        $('#myTree').modal();
+    });
+
+},
         duplicateOrder: function(order){
 
                 $('#collapseThree').collapse('show');
@@ -354,22 +413,19 @@ export default {
                         this.targetDevices.push({
                                 name: order.targets[i],
                                 tags:"", //check how can get a devices tag
-                            });
-                }
-                   
-            
-
+                    });
+                }           
         },
         submitDeploy: function () {
             let ids = [];
             let tags = [];
             for (let i = 0; i < this.targetDevices.length; i++) {
                 ids.push(this.targetDevices[i].name);
-                this.targetDevices[i].tags.forEach(function (el) {
+             /*    this.targetDevices[i].tags.forEach(function (el) {
                     if (!tags.some(e => e == el)) {
                         tags.push(el);
                     }
-                });
+                }); */
             }
             var myYaml;
             var taskDer = {
@@ -414,17 +470,18 @@ export default {
               });
             } */
             myYaml = yaml.safeDump(taskDer);
-            console.log(myYaml);
-            axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml)
-                .then(function (response) {
-                    //console.log(response);
-
+            //console.log(myYaml);
+            // Hard coded source deployment
+            axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
+                     //console.log(response);
+                     generateTree(response.data.id);
+                    
                 })
                 .catch(function (error) {
                     //console.log(error.response);
                     //alert(error.response);
                     $('#mymodal-body').html('<div class="modal-body" style="text-align:left">' + error.response.data.error + '</div>');
-                    $('#myModal').modal();
+                    $('#myAlert').modal();
 
                 });
         },
@@ -545,12 +602,13 @@ export default {
         axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
             
             //console.log(response.data)
-            for (let i = 0; i < response.data.total; i++) {
+            for (let i = 0; i < response.data.total; i++) {        
 
-                let a = response.data.items[i];            
+                let a = response.data.items[i];                           
                 this.orders.push({
                     name: a.id,
                     targets: a.deploy.match.list,
+                    status: checkStatus(a.id), //conut how many devices success and how many failed
                     createdAt: a.createdAt, 
                     debug: a.debug,
                     commands: {
@@ -561,6 +619,7 @@ export default {
                         isAcitve: false
                     }
                 });
+
             }
         });
         //http://reely.fit.fraunhofer.de:8080/targets
@@ -653,6 +712,11 @@ export default {
 #mySourcelabel::after {
   height: 20px;
   padding: 0;
+}
+#mytree-body{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-gap: 5px
 }
 .myCommand {
   grid-column: 1/3;

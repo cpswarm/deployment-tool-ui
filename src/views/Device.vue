@@ -512,7 +512,7 @@ export default {
 }
 .mycard {
   display: grid;
-  grid-template-columns: 1fr 2.5fr;
+  grid-template-columns: 1fr 2fr;
   grid-gap: 2.5px;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 2px;
