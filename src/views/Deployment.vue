@@ -45,7 +45,7 @@
                                     <img src="../assets/search.png" style="width:16px">
                                 </div>
                                 <div class="mycard-title">Created Time:</div>
-                                <div class="mycard-content">{{Date(order.createdAt)}}</div>
+                                <div class="mycard-content">{{new Date(order.createdAt).toLocaleString()}}</div>
                                 <div class="mycard-title">Finished Time:</div>
                                 <div class="mycard-content"></div>
                                 <div class="mycard-title">Commands:</div>
@@ -60,9 +60,26 @@
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                                     <div></div>
                                     <div>
-                                        <div v-if="order.commands.b.commands">
-                                            <div v-for="c in order.commands.b.commands" class="mycom-content"
+                                        <div v-if="order.commands.b_c">
+                                            <div v-for="c in order.commands.b_c" class="mycom-content"
                                                 style="color:#2E51AB">-{{c}}</div>
+                                        </div>
+                                    </div>
+                                    <div></div>
+                                    <div class="mycom-content" style="color:#00AE31">artifacts:</div>
+                                    <div></div>
+                                    <div>
+                                        <div v-if="order.commands.b_a">
+                                            <div v-for="a in order.commands.b_a" class="mycom-content"
+                                                style="color:#2E51AB">-{{a}}</div>
+                                        </div>
+                                    </div>
+                                     <div></div>
+                                    <div class="mycom-content" style="color:#00AE31">hosts:</div>
+                                    <div></div>
+                                    <div>
+                                        <div v-if="order.commands.h">
+                                            <div class="mycom-content" style="color:#2E51AB">-{{order.commands.h}}</div>
                                         </div>
                                     </div>
                                     <div class="mycom-title">Install:</div>
@@ -85,7 +102,7 @@
                                     <div></div>
                                     <div>
                                         <div v-for="t in order.commands.c.target.ids" class="mycom-content"
-                                            style="color:#2E51AB">{{t}}</div>
+                                            style="color:#2E51AB">-{{t}}</div>
                                     </div>
 
                                     <div></div>
@@ -93,12 +110,14 @@
                                     <div></div>
                                     <div>
                                         <div v-for="t in order.commands.c.target.tags" class="mycom-content"
-                                            style="color:#2E51AB">{{t}}</div>
+                                            style="color:#2E51AB">-{{t}}</div>
                                     </div>
                                 </div>
                                 <div></div>
                                 <div style="text-align: right">
-                                    <img src="../assets/duplicate.png" style="width:20px">
+                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="duplicateOrder(order)">
+                                        <img src="../assets/duplicate.png" style="width:20px">
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -117,7 +136,10 @@
                 <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
                     <div class="card-body" style="padding:7.5px">
                         <h6 style="text-align:left">
-                            <img src="../assets/duplicate.png" style="width:20px;margin-right:5px">
+                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px"  data-toggle="collapse" data-target="#collapseOne">
+                                        <img src="../assets/duplicate.png" style="width:20px">
+                                    </button>
+                         
                             <a style="font-size:15px">Duplicate one exsiting deployment</a>
                         </h6>
                         <form id="newDeployment">
@@ -280,6 +302,11 @@ function setCommands(arr) {
     return newarr;
 }
 
+// Check device status
+function checkStatus(id){
+
+}
+
 export default {
     data() {
         return {
@@ -312,6 +339,27 @@ export default {
             require("brace/theme/github");
             require("brace/snippets/javascript");
         },
+        duplicateOrder: function(order){
+
+                $('#collapseThree').collapse('show');
+                this.deployName = order.name;
+                this.deployDebug = order.debug; 
+                this.build_c = order.commands.b_c ? order.commands.b_c.join("\n") : "";
+               
+                this.build_a =order.commands.b_a? order.commands.b_a.join("\n") : "";
+                this.host = order.commands.h ? order.commands.h : "";
+                this.install_c = order.commands.c ? order.commands.c.install.commands.join("\n"):"";
+                this.run_c= order.commands.c ? order.commands.c.run.commands.join("\n"):"";
+                for (var i =0; i<order.targets.length;i++){
+                        this.targetDevices.push({
+                                name: order.targets[i],
+                                tags:"", //check how can get a devices tag
+                            });
+                }
+                   
+            
+
+        },
         submitDeploy: function () {
             let ids = [];
             let tags = [];
@@ -328,7 +376,7 @@ export default {
                 source: {
                     zip:
                         "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
-                },
+                        },
                 build: {
                     commands: this.build_c? this.build_c.split('\n') : null,
                     artifacts:this.build_a? this.build_a.split('\n') : null,
@@ -343,7 +391,6 @@ export default {
                     },
                     target: {
                         ids: ids,
-                        tags: tags
                     }
                 },
                 debug: this.deployDebug ? this.deployDebug : false
@@ -367,10 +414,11 @@ export default {
               });
             } */
             myYaml = yaml.safeDump(taskDer);
-            //console.log(myYaml);
+            console.log(myYaml);
             axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml)
                 .then(function (response) {
-                    console.log(response);
+                    //console.log(response);
+
                 })
                 .catch(function (error) {
                     //console.log(error.response);
@@ -495,17 +543,20 @@ export default {
         //http://reely.fit.fraunhofer.de:8080/orders
         // /deployment.json
         axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
-            // console.log(response.data)
+            
+            //console.log(response.data)
             for (let i = 0; i < response.data.total; i++) {
 
                 let a = response.data.items[i];            
                 this.orders.push({
                     name: a.id,
-                    // devices: a.deploy.target,
-                    createdAt: a.createdAt,
+                    targets: a.deploy.match.list,
+                    createdAt: a.createdAt, 
                     debug: a.debug,
                     commands: {
-                        b: a.build ? a.build : "",
+                        b_a: a.build ? a.build.commands : "",
+                        b_c: a.build ? a.build.artifacts : "",
+                        h:  a.build ? a.build.host : "",
                         c: a.deploy ? a.deploy : "",
                         isAcitve: false
                     }
