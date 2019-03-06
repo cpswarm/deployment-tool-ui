@@ -273,9 +273,16 @@
                 </button>
             </div>
             <div id="mytree-body" class="modal-body">
+                <div id="stage">
+                    <div>Build</div>
+                    <div>Install</div>
+                    <div>Run</div>
+              </div>
                 <div id="mytree">
+                   
                     <svg width="400" height="220">
                         <g transform="translate(5, 5)">
+                         
                             <g class="links"></g>
                             <g class="nodes"></g>
                         </g>
@@ -351,9 +358,9 @@ function listen(id, close) {
         ws.onmessage = function (event) {
             //console.log(event.data);
             var obj = JSON.parse(event.data);
-            var json = JSON.stringify(obj, null, 2);
+            //var json = JSON.stringify(obj, null, 2);
             //console.log(json);
-            return json;
+            return obj;
             /* $("#mylog").prepend("<pre>" + json + "</pre>"); */
         };
         ws.onclose = function () {
@@ -404,7 +411,6 @@ function generateTree(id, close, targets) {
 
     }
     var treeLayout = d3.tree().size([400, 200])
-
     var root = d3.hierarchy(myTree)
 
     treeLayout(root)
@@ -478,11 +484,41 @@ export default {
         generateTree: function (id, close, targets) {
 
             //console.log(id, close)
-
             // deal with the response data
-            listen(id, close);
-
+            var logs = listen(id, close);
             var myTree = {
+                name: "Build",
+                value: targets.length + 1,
+                class: "node-s",
+                children: [
+                    {
+                        name: "Install_s",
+                        value: 0,
+                        class: "node-s",
+                        children: [
+                            {
+                                value: 0,
+                                class: "node-s",
+                            },
+                        ]
+                    }
+                ]
+            }
+            targets.forEach(function(el){
+                
+                var oneTargetlog = logs.filter(log=> log.target == el);
+                if(logs[0].stage == "transfer" && logs[0].commnad=='$manager'){
+                    if(logs[1].error){
+
+                    }
+                    switch(logs[1][stage]){
+                        case 'transfer': 
+
+                    }
+                } 
+            })
+ 
+            /* var myTree = {
                 "name": "Build",
                 "value": 1,
                 "class": "node-s",
@@ -514,14 +550,11 @@ export default {
                         "value": 2,
                         "class": "node-f",
                     },
-
                 ]
-
-            }
-            var treeLayout = d3.tree().size([400, 200])
-            var root = d3.hierarchy(myTree)
-            treeLayout(root)
-
+            } */
+            var treeLayout = d3.tree().size([400, 200]);
+            var root = d3.hierarchy(myTree);
+            treeLayout(root);
             // Nodes
             d3.select('svg g.nodes')
                 .selectAll('circle.node')
@@ -530,9 +563,9 @@ export default {
                 .append('circle')
                 .attr('class', function (d) { return d.data.class })
                 .attr('cx', function (d) { return d.x; })
-                .attr('cy', function (d) { return d.y; })
+                .attr('cy', function (d) { return d.y+5; })
                 .attr('r', function (d) {
-                    console.log(d);
+                    //console.log(d);
                     return d.value * 3
                 });
 
@@ -875,8 +908,12 @@ export default {
 }
 #mytree-body {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 3fr 6fr;
   grid-gap: 5px;
+}
+#stage{
+    display: grid;
+    grid-template-rows: 1.3fr 1.3fr 0.5fr;
 }
 .myCommand {
   grid-column: 1/3;
