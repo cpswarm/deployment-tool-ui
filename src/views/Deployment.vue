@@ -41,18 +41,18 @@
                                 <div class="mycard-title">Devices:</div>
                                 <div class="mycard-content">
                                     <img src="../assets/done.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name,false,order.targets)">
                                         <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
                                     </button>
                                     <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name,false,order.targets)">
                                         <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
                                     </button>
                                 </div>
                                 <div class="mycard-title">Created Time:</div>
                                 <div class="mycard-content">{{new Date(order.createdAt).toLocaleString()}}</div>
                                 <div class="mycard-title">Finished Time:</div>
-                                <div class="mycard-content"></div>
+                                <div class="mycard-content">{{order.finishedAt}}</div>
                                 <div class="mycard-title">Commands:</div>
                                 <div class="mycard-content">
                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.commands.isAcitve ? order.commands.isAcitve= false: order.commands.isAcitve=true">
@@ -137,7 +137,6 @@
                                 data-target="#collapseOne">
                                 <img src="../assets/duplicate.png" style="width:20px">
                             </button>
-
                             <a style="font-size:15px">Duplicate one exsiting deployment</a>
                         </h6>
                         <form id="newDeployment">
@@ -151,8 +150,7 @@
                                     <input type="file" class="custom-file-input" id="customFile" multiple
                                         webkitdirectory @change="handleFileSelect">
                                     <label id="mySourcelabel" class="custom-file-label" for="customFile" style="text-align: left;height: 22px;padding: 0px; font-size: 14px;">
-                                        Choose
-                                        file
+                                        Choose file
                                     </label>
                                     <div id="uploadFiles"></div>
                                 </div>
@@ -218,7 +216,6 @@
                                                 <img src="../assets/search.png" style="height:20px">
                                             </a>
                                         </div>
-
                                         <div class="dropdown-menu" style="padding:2.5px">
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)"
                                                 style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
@@ -229,7 +226,6 @@
                                     <div v-for="device in targetDevices" class="simpleDeviceCard">
                                         <div class="input-group" style="padding:2.5px;">Name:
                                             <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.name}}</div>
-
                                             <button type="button" class="close" aria-label="Close" @click="removeDevice(device.name)"
                                                 style="height:20px">
                                                 <span aria-hidden="true">&times;</span>
@@ -267,21 +263,30 @@
         </div>
     </div>
     <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Process Tree</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div id="mytree-body" class="modal-body">
-                    <div id="mytree">My Tree View</div>
-                    <div id="mylog"></div>
+    <div class="modal-dialog" role="document"   style="margin: 50px 100px;">
+        <div class="modal-content" style="width:200%">
+            <div class="modal-header">
+                <h5 class="modal-title">Process Tree</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    @click="generateTree(1, true)">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="mytree-body" class="modal-body">
+                <div id="mytree">
+                    <svg width="400" height="220">
+                        <g transform="translate(5, 5)">
+                            <g class="links"></g>
+                            <g class="nodes"></g>
+                        </g>
+                    </svg></div>
+                <div id="mylog">
+
                 </div>
             </div>
         </div>
     </div>
+</div>
 </div>
 </template>
 
@@ -291,6 +296,9 @@ import axios from "axios";
 import yaml from "js-yaml";
 import editor from "vue2-ace-editor";
 import $ from "jquery";
+import * as d3 from "d3";
+
+var ws;
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -298,62 +306,141 @@ function rand(n) {
     let min = n - 0.001;
     return Math.random() * (max - min) + min;
 }
-
 // Split user input commands line by line
 function setCommands(arr) {
     var newarr = arr.split("\n");
     return newarr;
 }
-
 // Check device status
-function checkStatus(id) {
+function checkStatus(id, total) {
+    //fake status count 
     return [Math.floor(Math.random() * 31), Math.floor(Math.random() * 11)];
+    /*  var des = 'task=' + id +'&error=true&output=STAGE-END'
+     var logs = getOneTasklog(id);
+     return [total - logs.length,logs.length] */
 }
-function listen() {
+// Get one order finish time
+function getFinishTime(id) {
+    // fake finish time
+    return new Date(1551800395755).toLocaleString();
+    /*  var des = 'task=' + 'id';
+     var logs = getOneTasklog(des);
+     return new Date(logs[logs.length].time).toLocaleString() */
+}
+// Get logs of one task
+function getOneTasklog(des) {
+    axios.get('reely.fit.fraunhofer.de:8080/logs?' + des).then(function (response) {
+        return response.data.items
+    });
+}
+// Websocket
+function listen(id, close) {
+
     if (!("WebSocket" in window)) {
         alert("WebSocket is not supported by your Browser!");
         return;
     }
-    var ws = new WebSocket(
-        "ws://reely.fit.fraunhofer.de:8080/events?topics=logs,targetAdded,targetUpdated"
-    );
-    ws.onopen = function () {
-        console.log("Socket connected.");
-        // document.body.style.backgroundColor = "#fff";
-        /*   $("#mylog").prepend("<p>Connected!</p>"); */
-    };
-    ws.onmessage = function (event) {
-        // console.log(event.data);
-        var obj = JSON.parse(event.data);
-        var json = JSON.stringify(obj, null, 2);
-        console.log(json);
-        /*   $("#mylog").prepend("<pre>" + json + "</pre>"); */
-    };
-    ws.onclose = function () {
-        console.log("Socket disconnected.");
-        //  document.body.style.backgroundColor = "#fcc";
-        /*   $("#mylog").prepend("<p>Disconnected!</p>"); */
-        setTimeout(function () {
-            listen();
-        }, 5000);
-    };
+    if (close && ws) {
+        console.log(ws)
+        ws.close();
+    } else {
+        ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&from=0&topics=logs"); ws.onopen = function () {
+            console.log("Socket connected.");
+            $("#mylog").prepend("<p>Connected!</p>");
+        };
+        ws.onmessage = function (event) {
+            //console.log(event.data);
+            var obj = JSON.parse(event.data);
+            var json = JSON.stringify(obj, null, 2);
+            //console.log(json);
+            return json;
+            /* $("#mylog").prepend("<pre>" + json + "</pre>"); */
+        };
+        ws.onclose = function () {
+            console.log("Socket disconnected.");
+            $("#mylog").prepend("<p>Disconnected!</p>");
+            // If socket disconnected, try to connect again after 5s.
+            /* setTimeout(function () {
+                listen(1, true);
+            }, 5000); */
+        };
+    }
+
+
 }
 // Generate tree
-function generateTree(id) {
-    listen();
-    //add websocket here
-    /*   axios
-        .get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id)
-        .then(function(response) {
-          if (response.data.items) {
-            $("#mylog").html('<div id="mylog">' + response.data.items + "</div>");
-          } else {
-            $("#mylog").html('<div id="mylog">No log sent back!</div>');
-          }
-        })
-        .then(function() {
-          $("#myTree").modal();
-        }); */
+function generateTree(id, close, targets) {
+
+    //console.log(id, close);
+
+    //deal with the response data
+    listen(id, close);
+
+    var myTree = {
+        "name": "A1",
+        "children": [
+            {
+                "name": "B1",
+                "children": [
+                    {
+                        "name": "C1",
+                        "value": 100
+                    },
+                    {
+                        "name": "C2",
+                        "value": 300
+                    },
+                    {
+                        "name": "C3",
+                        "value": 200
+                    }
+                ]
+            },
+            {
+                "name": "B2",
+                "value": 200
+            }
+        ]
+
+    }
+    var treeLayout = d3.tree().size([400, 200])
+
+    var root = d3.hierarchy(myTree)
+
+    treeLayout(root)
+
+    // Nodes
+    d3.select('svg g.nodes')
+        .selectAll('circle.node')
+        .data(root.descendants())
+        .enter()
+        .append('circle')
+        .classed(function (d) { return d.class })
+        .attr('cx', function (d) { return d.x; })
+        .attr('cy', function (d) { return d.y; })
+        .attr('r', 4);
+
+    // Links
+    d3.select('svg g.links')
+        .selectAll('line.link')
+        .data(root.links())
+        .enter()
+        .append('line')
+        .classed('link', true)
+        .attr('x1', function (d) { return d.source.x; })
+        .attr('y1', function (d) { return d.source.y; })
+        .attr('x2', function (d) { return d.target.x; })
+        .attr('y2', function (d) { return d.target.y; });
+
+    //fake data
+    /*  axios.get('/logs.json').then(function (response) {
+         targets.forEach(function (el) {
+ 
+         })
+     }) */
+
+    $("#myTree").modal();
+
 }
 
 export default {
@@ -388,27 +475,90 @@ export default {
             require("brace/theme/github");
             require("brace/snippets/javascript");
         },
-        generateTree: function (id) {
-            //add websocket here
-            axios
-                .get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id)
-                .then(function (response) {
-                    //console.log(response.data);
-                    if (response.data.items) {
-                        $("#mylog").html(
-                            '<div id="mylog" v-for="l in"' +
-                            response.data.items +
-                            ">{{}l.output}</div>"
-                        );
-                    } else {
-                        $("#mylog").html('<div id="mylog">No log sent back!</div>');
-                    }
-                })
-                .then(function () {
-                    $("#myTree").modal();
+        generateTree: function (id, close, targets) {
+
+            //console.log(id, close)
+
+            // deal with the response data
+            listen(id, close);
+
+            var myTree = {
+                "name": "Build",
+                "value": 1,
+                "class": "node-s",
+                "children": [
+                    {
+                        "name": "Install_s",
+                        "value": 4,
+                        "class": "node-s",
+                        "children": [
+                            {
+                                "name": "Run_s",
+                                "value": 1,
+                                "class": "node-s",
+                            },
+                            {
+                                "name": "Run_f1",
+                                "value": 3,
+                                "class": "node-f",
+                            },
+                        ]
+                    },
+                    {
+                        "name": "Install_f1",
+                        "value": 2,
+                        "class": "node-f",
+                    },
+                    {
+                        "name": "Install_f2",
+                        "value": 2,
+                        "class": "node-f",
+                    },
+
+                ]
+
+            }
+            var treeLayout = d3.tree().size([400, 200])
+            var root = d3.hierarchy(myTree)
+            treeLayout(root)
+
+            // Nodes
+            d3.select('svg g.nodes')
+                .selectAll('circle.node')
+                .data(root.descendants())
+                .enter()
+                .append('circle')
+                .attr('class', function (d) { return d.data.class })
+                .attr('cx', function (d) { return d.x; })
+                .attr('cy', function (d) { return d.y; })
+                .attr('r', function (d) {
+                    console.log(d);
+                    return d.value * 3
                 });
+
+            // Links
+            d3.select('svg g.links')
+                .selectAll('line.link')
+                .data(root.links())
+                .enter()
+                .append('line')
+                .classed('link', true)
+                .attr('x1', function (d) { return d.source.x; })
+                .attr('y1', function (d) { return d.source.y; })
+                .attr('x2', function (d) { return d.target.x; })
+                .attr('y2', function (d) { return d.target.y; });
+
+            //fake data
+            /*  axios.get('/logs.json').then(function (response) {
+            targets.forEach(function (el) {
+            
+            })
+            }) */
+
+            $("#myTree").modal();
         },
         duplicateOrder: function (order) {
+
             $("#collapseThree").collapse("show");
             this.deployName = order.name;
             this.deployDebug = order.debug;
@@ -416,18 +566,31 @@ export default {
 
             this.build_a = order.commands.b_a ? order.commands.b_a.join("\n") : "";
             this.host = order.commands.h ? order.commands.h : "";
-            this.install_c = order.commands.c
-                ? order.commands.c.install.commands.join("\n")
-                : "";
-            this.run_c = order.commands.c
-                ? order.commands.c.run.commands.join("\n")
-                : "";
+            this.install_c = order.commands.c ? order.commands.c.install.commands.join("\n") : "";
+            this.run_c = order.commands.c ? order.commands.c.run.commands.join("\n") : "";
             for (var i = 0; i < order.targets.length; i++) {
                 this.targetDevices.push({
                     name: order.targets[i],
                     tags: "" //check how can get a devices tag
                 });
             }
+        },
+        handleFileSelect: function (event) {
+            var files = event.target.files;
+            // FileList object
+            var archive = new jsZip().folder("archive");
+            for (var i = 0, f; (f = files[i]); i++) {
+                //console.log(f)
+                // if set webkitdirectory
+                archive.file(f.webkitRelativePath, f);
+                // if only set multiple
+                //archive.file(f.name, f);
+            }
+            //console.log(archive);
+            this.source = archive.generateAsync({ type: "base64" });
+            document.getElementById("mySourcelabel").innerHTML =
+                files[0].name + "...";
+            //console.log(this.source)
         },
         submitDeploy: function () {
             let ids = [];
@@ -482,25 +645,23 @@ export default {
                         });
                     });
                   } */
+
             myYaml = yaml.safeDump(taskDer);
             console.log(myYaml);
             // Hard coded source deployment
-            axios
-                .post("http://reely.fit.fraunhofer.de:8080/orders", myYaml)
-                .then(function (response) {
-                    //console.log(response);
-                    generateTree(response.data.id);
-                })
-                .catch(function (error) {
-                    //console.log(error.response);
-                    //alert(error.response);
-                    $("#mymodal-body").html(
-                        '<div class="modal-body" style="text-align:left">' +
-                        error.response.data.error +
-                        "</div>"
-                    );
-                    $("#myAlert").modal();
-                });
+            axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
+                //console.log(response);
+                generateTree(response.data.id, true, response.data.deploy.match.list);
+            }).catch(function (error) {
+                //console.log(error.response);
+                //alert(error.response);
+                $("#mymodal-body").html(
+                    '<div class="modal-body" style="text-align:left">' +
+                    error.response.data.error +
+                    "</div>"
+                );
+                $("#myAlert").modal();
+            });
         },
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
@@ -563,25 +724,9 @@ export default {
             };
             document.getElementById("searchTarget").appendChild(badge);
         },
-        handleFileSelect: function (event) {
-            var files = event.target.files;
-            // FileList object
-            var archive = new jsZip().folder("archive");
-            for (var i = 0, f; (f = files[i]); i++) {
-                //console.log(f)
-                // if set webkitdirectory
-                archive.file(f.webkitRelativePath, f);
-                // if only set multiple
-                //archive.file(f.name, f);
-            }
-            //console.log(archive);
-            this.source = archive.generateAsync({ type: "base64" });
-            document.getElementById("mySourcelabel").innerHTML =
-                files[0].name + "...";
-            //console.log(this.source)
-        }
     },
     mounted() {
+
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.panel.style.height = window.innerHeight + "px";
 
@@ -599,12 +744,13 @@ export default {
             */
 
         var markers = L.markerClusterGroup({
+
+            // Change the spiderLeg style
             spiderLegPolylineOptions: {
                 weight: 1,
                 color: "#222",
                 opacity: 0.1
             },
-
             // Customize marker cluster style
             iconCreateFunction: function (cluster) {
                 var childCount = cluster.getChildCount();
@@ -618,81 +764,78 @@ export default {
         //axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
         //http://reely.fit.fraunhofer.de:8080/orders
         // /deployment.json
-        axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+        axios.get("/deployment.json").then(response => {
             //console.log(response.data)
             for (let i = 0; i < response.data.total; i++) {
                 let a = response.data.items[i];
+
+                //this.orders is the list of all deployment saved on the server
                 this.orders.push({
                     name: a.id,
-                    targets: a.deploy.match.list,
-                    status: checkStatus(a.id), //conut how many devices success and how many failed
+                    targets: a.deploy.match.list, //the targets
+                    status: checkStatus(a.id, a.deploy.match.list.length), //TODO: conut how many devices success and how many failed
                     createdAt: a.createdAt,
+                    finishedAt: getFinishTime(a.id),             //TODO: get the latest update time 
                     debug: a.debug,
                     commands: {
                         b_a: a.build ? a.build.commands : "",
                         b_c: a.build ? a.build.artifacts : "",
                         h: a.build ? a.build.host : "",
                         c: a.deploy ? a.deploy : "",
-                        isAcitve: false
+                        isAcitve: false //
                     }
                 });
             }
         });
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
-        axios
-            .get("http://reely.fit.fraunhofer.de:8080/targets")
-            .then(response => {
-                // console.log(response.data);
-                for (let i = 0; i < response.data.total; i++) {
-                    let a = response.data.items[i];
+        axios.get("/device.json").then(response => {
+            //console.log(response.data);
+            for (let i = 0; i < response.data.total; i++) {
 
-                    // let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
-                    // the latlng is faked
-                    let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: a.id,
-                        alt: a.tags
-                    });
-                    //console.log(this.devices)
-                    this.devices.push({
-                        name: a.id,
-                        tags: a.tags,
-                        targetActive: true,
-                        hostActive: true
-                    });
-
-                    //console.log(a.tags.length);
-                    for (let j = 0; j < a.tags.length; j++) {
-                        if (!this.tags.some(e => e.tag === a.tags[j])) {
-                            this.tags.push({
-                                isActive: true,
-                                tag: a.tags[j]
-                            });
-                        }
+                let a = response.data.items[i];
+                // let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+                // Generate a (lat, lng) randomly for each device
+                let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
+                    icon: L.icon({
+                        iconUrl: "/done.png",
+                        iconSize: [20, 20]
+                    }),
+                    title: a.id,
+                    alt: a.tags
+                });
+                // this.devices is the list of all devices registered on the server
+                this.devices.push({
+                    name: a.id,
+                    tags: a.tags,
+                    targetActive: true,
+                    hostActive: true
+                });
+                //console.log(this.devices)
+                //this.tags is the list of all tags of the devices, no duplicated 
+                for (let j = 0; j < a.tags.length; j++) {
+                    if (!this.tags.some(e => e.tag === a.tags[j])) {
+                        this.tags.push({
+                            isActive: true,
+                            tag: a.tags[j]
+                        });
                     }
-                    //console.log(this.tags);
-                    marker.on("click", event => {
-                        if (
-                            !this.targetDevices.some(
-                                e => e.name === event.target.options.title
-                            )
-                        ) {
-                            this.targetDevices.push({
-                                name: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
-                    });
-                    markers.addLayer(marker);
                 }
-            })
-            .catch(error => {
-                console.log(error);
-            });
+                //console.log(this.tags);
+                //this.targetDevices is the list of devices selected in 'deployment target'
+                marker.on("click", event => {
+                    if (!this.targetDevices.some(e => e.name === event.target.options.title)) {
+                        this.targetDevices.push({
+                            name: event.target.options.title,
+                            tags: event.target.options.alt
+                        });
+                    }
+                });
+                markers.addLayer(marker);
+            }
+        }).catch(error => {
+            console.log(error);
+        });
         // console.log(markers);
         map.addLayer(markers);
     }
@@ -755,6 +898,19 @@ export default {
   font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
     "source-code-pro", monospace;
   color: rgb(0, 174, 49);
+}
+.node-s {
+  fill: rgb(0, 174, 49);
+  stroke: none;
+}
+.node-f {
+  fill: #D80027;
+  stroke: none;
+}
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1px;
 }
 </style>
 
