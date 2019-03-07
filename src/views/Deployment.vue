@@ -37,7 +37,7 @@
                         <div id="deviceList">
                             <div v-for="order in orders" class="mycard card-body" style="padding:5px;margin-bottom:5px">
                                 <div class="mycard-title">Name:</div>
-                                <div class="mycard-content">{{order.name}}</div>
+                                <div class="mycard-content">{{order.id}}</div>
                                 <div class="mycard-title">Devices:</div>
                                 <div class="mycard-content">
                                     <img src="../assets/done.png" style="width:16px">
@@ -55,60 +55,60 @@
                                 <div class="mycard-content">{{order.finishedAt}}</div>
                                 <div class="mycard-title">Commands:</div>
                                 <div class="mycard-content">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.commands.isAcitve ? order.commands.isAcitve= false: order.commands.isAcitve=true">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isAcitve ? order.isAcitve= false: order.isAcitve=true">
                                         <img src="../assets/search.png" style="width:16px">
                                     </button>
                                 </div>
-                                <div class="myCommand" v-show="order.commands.isAcitve">
+                                <div class="myCommand" v-show="order.isAcitve">
                                     <div class="mycom-title">Build:</div>
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                                     <div></div>
                                     <div>
-                                        <div v-if="order.commands.b_c">
-                                            <div v-for="c in order.commands.b_c" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                                        <div v-if="order.build.commands">
+                                            <div v-for="c in order.build.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
                                         </div>
                                     </div>
                                     <div></div>
                                     <div class="mycom-content" style="color:#00AE31">artifacts:</div>
                                     <div></div>
                                     <div>
-                                        <div v-if="order.commands.b_a">
-                                            <div v-for="a in order.commands.b_a" class="mycom-content" style="color:#2E51AB">-{{a}}</div>
+                                        <div v-if="order.build.artifacts">
+                                            <div v-for="a in order.build.artifacts" class="mycom-content" style="color:#2E51AB">-{{a}}</div>
                                         </div>
                                     </div>
                                     <div></div>
                                     <div class="mycom-content" style="color:#00AE31">hosts:</div>
                                     <div></div>
                                     <div>
-                                        <div v-if="order.commands.h">
-                                            <div class="mycom-content" style="color:#2E51AB">-{{order.commands.h}}</div>
+                                        <div v-if="order.build.host">
+                                            <div class="mycom-content" style="color:#2E51AB">-{{order.build.host}}</div>
                                         </div>
                                     </div>
                                     <div class="mycom-title">Install:</div>
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                                     <div></div>
-                                    <div v-if="order.commands.c.install.commands">
-                                        <div v-for="c in order.commands.c.install.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                                    <div v-if="order.deploy.install.commands">
+                                        <div v-for="c in order.deploy.install.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
                                     </div>
 
                                     <div class="mycom-title">Run:</div>
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                                     <div></div>
-                                    <div v-if="order.commands.c.run.commands">
-                                        <div v-for="c in order.commands.c.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                                    <div v-if="order.deploy.run.commands">
+                                        <div v-for="c in order.deploy.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
                                     </div>
                                     <div class="mycom-title">Target:</div>
                                     <div class="mycom-content" style="color:#00AE31">ids:</div>
                                     <div></div>
                                     <div>
-                                        <div v-for="t in order.commands.c.target.ids" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
+                                        <div v-for="t in order.deploy.target.ids" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
                                     </div>
 
                                     <div></div>
                                     <div class="mycom-content" style="color:#00AE31">tags:</div>
                                     <div></div>
                                     <div>
-                                        <div v-for="t in order.commands.c.target.tags" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
+                                        <div v-for="t in order.deploy.target.tags" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
                                     </div>
                                 </div>
                                 <div></div>
@@ -321,25 +321,41 @@ function setCommands(arr) {
 // Check device status
 function checkStatus(id, total) {
     //fake status count 
-    return [Math.floor(Math.random() * 31), Math.floor(Math.random() * 11)];
-    /*  var des = 'task=' + id +'&error=true&output=STAGE-END'
-     var logs = getOneTasklog(id);
-     return [total - logs.length,logs.length] */
+    //return [Math.floor(Math.random() * 31), Math.floor(Math.random() * 11)];
+    var des = 'task=' + id + '&error=true&output=STAGE-END';
+    let logs;
+    try {
+        (async () => {
+            logs = await axios.get('http://reely.fit.fraunhofer.de:8080/logs?' + des);
+            if (!logs.data.items) {
+                //console.log(0)
+                return [total, 0]
+            } else {
+                return [total - logs.data.items, logs.data.items]
+            }
+        })()
+    } catch (error) {
+        console.log(error)
+    }
+    return [0, 0]
+
 }
 // Get one order finish time
 function getFinishTime(id) {
     // fake finish time
+    //return new Date(1551800395755).toLocaleString();
+    var des = 'task=' + id;
+    try {
+        (async () => {
+            let logs = await axios.get('http://reely.fit.fraunhofer.de:8080/logs?' + des);
+            return new Date(logs.data.items[logs.data.total - 1].time).toLocaleString()
+        })()
+    } catch (error) {
+        console.log(error)
+    }
     return new Date(1551800395755).toLocaleString();
-    /*  var des = 'task=' + 'id';
-     var logs = getOneTasklog(des);
-     return new Date(logs[logs.length].time).toLocaleString() */
 }
-// Get logs of one task
-function getOneTasklog(des) {
-    axios.get('reely.fit.fraunhofer.de:8080/logs?' + des).then(function (response) {
-        return response.data.items
-    });
-}
+
 // Websocket
 function listen(id, close) {
 
@@ -777,7 +793,6 @@ export default {
             */
 
         var markers = L.markerClusterGroup({
-
             // Change the spiderLeg style
             spiderLegPolylineOptions: {
                 weight: 1,
@@ -797,16 +812,22 @@ export default {
         //axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
         //http://reely.fit.fraunhofer.de:8080/orders
         // /deployment.json
-        axios.get("/deployment.json").then(response => {
-            //console.log(response.data)
+        axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+
             for (let i = 0; i < response.data.total; i++) {
+
                 let a = response.data.items[i];
+                a.status = checkStatus(a.id, a.deploy.match.list.length);
+                a.finishedAt = getFinishTime(a.id);
+                a.isActive = false;
 
                 //this.orders is the list of all deployment saved on the server
-                this.orders.push({
+                this.orders.push(a);
+                //console.log(this.orders)
+                /* this.orders.push({
                     name: a.id,
-                    targets: a.deploy.match.list, //the targets
-                    status: checkStatus(a.id, a.deploy.match.list.length), //TODO: conut how many devices success and how many failed
+                    targets: a.deploy.match.list,                //the targets
+                    status: [0,0],                               //TODO: conut how many devices success and how many failed
                     createdAt: a.createdAt,
                     finishedAt: getFinishTime(a.id),             //TODO: get the latest update time 
                     debug: a.debug,
@@ -817,12 +838,12 @@ export default {
                         c: a.deploy ? a.deploy : "",
                         isAcitve: false //
                     }
-                });
+                }); */            
             }
         });
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
-        axios.get("/device.json").then(response => {
+        axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
             //console.log(response.data);
             for (let i = 0; i < response.data.total; i++) {
 
