@@ -39,15 +39,17 @@
                                 <div class="mycard-title">Name:</div>
                                 <div class="mycard-content">{{order.id}}</div>
                                 <div class="mycard-title">Devices:</div>
-                                <div class="mycard-content">
-                                    <img src="../assets/done.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name,false,order.targets)">
+                                <div class="mycard-content" >
+                                 
+                                         <img src="../assets/done.png" style="width:16px">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false,order.deploy.match.list,order.build.host)">
                                         <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
                                     </button>
                                     <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="generateTree(order.name,false,order.targets)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false,order.deploy.match.list,order.build.host)">
                                         <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
                                     </button>
+                                  
                                 </div>
                                 <div class="mycard-title">Created Time:</div>
                                 <div class="mycard-content">{{new Date(order.createdAt).toLocaleString()}}</div>
@@ -55,16 +57,16 @@
                                 <div class="mycard-content">{{order.finishedAt}}</div>
                                 <div class="mycard-title">Commands:</div>
                                 <div class="mycard-content">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isAcitve ? order.isAcitve= false: order.isAcitve=true">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isActive? order.isActive= false: order.isActive=true">
                                         <img src="../assets/search.png" style="width:16px">
                                     </button>
                                 </div>
-                                <div class="myCommand" v-show="order.isAcitve">
+                                <div class="myCommand" v-show="order.isActive">
                                     <div class="mycom-title">Build:</div>
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                                     <div></div>
                                     <div>
-                                        <div v-if="order.build.commands">
+                                        <div v-if="order.build">
                                             <div v-for="c in order.build.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
                                         </div>
                                     </div>
@@ -72,7 +74,7 @@
                                     <div class="mycom-content" style="color:#00AE31">artifacts:</div>
                                     <div></div>
                                     <div>
-                                        <div v-if="order.build.artifacts">
+                                        <div v-if="order.build">
                                             <div v-for="a in order.build.artifacts" class="mycom-content" style="color:#2E51AB">-{{a}}</div>
                                         </div>
                                     </div>
@@ -80,34 +82,34 @@
                                     <div class="mycom-content" style="color:#00AE31">hosts:</div>
                                     <div></div>
                                     <div>
-                                        <div v-if="order.build.host">
+                                        <div v-if="order.build">
                                             <div class="mycom-content" style="color:#2E51AB">-{{order.build.host}}</div>
                                         </div>
                                     </div>
                                     <div class="mycom-title">Install:</div>
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                                     <div></div>
-                                    <div v-if="order.deploy.install.commands">
+                                    <div v-if="order.deploy">
                                         <div v-for="c in order.deploy.install.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
                                     </div>
 
                                     <div class="mycom-title">Run:</div>
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
                                     <div></div>
-                                    <div v-if="order.deploy.run.commands">
+                                    <div v-if="order.deploy">
                                         <div v-for="c in order.deploy.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
                                     </div>
                                     <div class="mycom-title">Target:</div>
                                     <div class="mycom-content" style="color:#00AE31">ids:</div>
                                     <div></div>
-                                    <div>
+                                    <div v-if="order.deploy">
                                         <div v-for="t in order.deploy.target.ids" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
                                     </div>
 
                                     <div></div>
                                     <div class="mycom-content" style="color:#00AE31">tags:</div>
                                     <div></div>
-                                    <div>
+                                    <div v-if="order.deploy">
                                         <div v-for="t in order.deploy.target.tags" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
                                     </div>
                                 </div>
@@ -355,9 +357,8 @@ function getFinishTime(id) {
     }
     return new Date(1551800395755).toLocaleString();
 }
-
 // Websocket
-function listen(id, close) {
+function listen(id, close, target) {
 
     if (!("WebSocket" in window)) {
         alert("WebSocket is not supported by your Browser!");
@@ -367,7 +368,9 @@ function listen(id, close) {
         console.log(ws)
         ws.close();
     } else {
-        ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&from=0&topics=logs"); ws.onopen = function () {
+
+        ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&topics=logs");
+        ws.onopen = function () {
             console.log("Socket connected.");
             $("#mylog").prepend("<p>Connected!</p>");
         };
@@ -375,9 +378,11 @@ function listen(id, close) {
             //console.log(event.data);
             var obj = JSON.parse(event.data);
             //var json = JSON.stringify(obj, null, 2);
-            //console.log(json);
-            return obj;
-            /* $("#mylog").prepend("<pre>" + json + "</pre>"); */
+            console.log(obj);
+            generateTree(obj, target);
+            //console.log(obj);
+            //return obj;
+            // $("#mylog").prepend("<pre>" + json + "</pre>"); 
         };
         ws.onclose = function () {
             console.log("Socket disconnected.");
@@ -392,55 +397,112 @@ function listen(id, close) {
 
 }
 // Generate tree
-function generateTree(id, close, targets) {
+function generateTree(logs, targets) {
 
     //console.log(id, close);
-
     //deal with the response data
-    listen(id, close);
 
+    //console.log(id, close)
+    // deal with the response data
     var myTree = {
-        "name": "A1",
+        name: "Build",
+        value: targets.length + 1,
+        class: "node-s",
+        commands: "",
+        children: [
+            {
+                name: "Install_s",
+                value: 0,
+                class: "node-s",
+                commands: "",
+                children: [
+                    {
+                        name: "Run_s",
+                        value: 0,
+                        class: "node-s",
+                        commands: "",
+                    },
+                    // insert failed run nodes
+                    /* {
+                        name:"Run_s",
+                        value: 0,
+                        class: "node-s",
+                        commands: "",
+                    }, */
+                ]
+            },
+            // insert failed install nodes
+            /* {
+                name:"Install_f",
+                value: 0,
+                class: "node-f",
+                commands:"",
+            } */
+        ]
+    }
+    targets.forEach(function (el) {
+        var oneTargetlog = logs.filter(log => log.target == el);
+        if (logs[0].stage == "transfer" && logs[0].commnad == '$manager') {
+            if (logs[1].error) {
+
+            }
+            switch (logs[1][stage]) {
+                case 'transfer':
+
+            }
+        }
+    })
+
+    /* var myTree = {
+        "name": "Build",
+        "value": 1,
+        "class": "node-s",
         "children": [
             {
-                "name": "B1",
+                "name": "Install_s",
+                "value": 4,
+                "class": "node-s",
                 "children": [
                     {
-                        "name": "C1",
-                        "value": 100
+                        "name": "Run_s",
+                        "value": 1,
+                        "class": "node-s",
                     },
                     {
-                        "name": "C2",
-                        "value": 300
+                        "name": "Run_f1",
+                        "value": 3,
+                        "class": "node-f",
                     },
-                    {
-                        "name": "C3",
-                        "value": 200
-                    }
                 ]
             },
             {
-                "name": "B2",
-                "value": 200
-            }
+                "name": "Install_f1",
+                "value": 2,
+                "class": "node-f",
+            },
+            {
+                "name": "Install_f2",
+                "value": 2,
+                "class": "node-f",
+            },
         ]
-
-    }
-    var treeLayout = d3.tree().size([400, 200])
-    var root = d3.hierarchy(myTree)
-
-    treeLayout(root)
-
+    } */
+    var treeLayout = d3.tree().size([400, 200]);
+    var root = d3.hierarchy(myTree);
+    treeLayout(root);
     // Nodes
     d3.select('svg g.nodes')
         .selectAll('circle.node')
         .data(root.descendants())
         .enter()
         .append('circle')
-        .classed(function (d) { return d.class })
+        .attr('class', function (d) { return d.data.class })
         .attr('cx', function (d) { return d.x; })
-        .attr('cy', function (d) { return d.y; })
-        .attr('r', 4);
+        .attr('cy', function (d) { return d.y + 5; })
+        .attr('r', function (d) {
+            //console.log(d);
+            return d.value * 3
+        });
 
     // Links
     d3.select('svg g.links')
@@ -454,14 +516,12 @@ function generateTree(id, close, targets) {
         .attr('x2', function (d) { return d.target.x; })
         .attr('y2', function (d) { return d.target.y; });
 
-    //fake data
-    /*  axios.get('/logs.json').then(function (response) {
-         targets.forEach(function (el) {
- 
-         })
-     }) */
-
-    $("#myTree").modal();
+            //fake data
+            /*  axios.get('/logs.json').then(function (response) {
+            targets.forEach(function (el) {
+            
+            })
+            }) */ $("#myTree").modal();
 
 }
 
@@ -482,7 +542,7 @@ export default {
             targetDevices: [],
             tags: [],
             orders: [],
-            tree: []
+            tree: [],
         };
     },
     components: {
@@ -497,129 +557,115 @@ export default {
             require("brace/theme/github");
             require("brace/snippets/javascript");
         },
-        generateTree: function (id, close, targets) {
+        listen: function (id, close, targets, host) {
+            axios.get('http://reely.fit.fraunhofer.de:8080/logs?task=' + id + '&sortOrder=desc').then(function (response) {
+                //console.log(response.data)
+                var myTree = {
+                    name: "Build",
+                    value: 1,
+                    class: "node-s",
+                    commands: "",
+                    children: [
+                        {
+                            name: "Install_s",
+                            value: targets.length,
+                            class: "node-s",
+                            commands: "",
+                            children: [
+                                {
+                                    name: "Run_s",
+                                    value: 0,
+                                    class: "node-s",
+                                    commands: "",
+                                },
+                                // insert failed run nodes
+                                /* {
+                                    name:"Run_s",
+                                    value: 0,
+                                    class: "node-s",
+                                    commands: "",
+                                }, */
+                            ]
+                        },
+                        // insert failed install nodes
+                        /* {
+                            name:"Install_f",
+                            value: 0,
+                            class: "node-f",
+                            commands:"",
+                        } */
+                    ]
+                }
 
-            //console.log(id, close)
-            // deal with the response data
-            var logs = listen(id, close);
-            var myTree = {
-                name: "Build",
-                value: targets.length + 1,
-                class: "node-s",
-                children: [
-                    {
-                        name: "Install_s",
-                        value: 0,
-                        class: "node-s",
-                        children: [
-                            {
-                                value: 0,
-                                class: "node-s",
-                            },
-                        ]
-                    }
-                ]
-            }
-            targets.forEach(function(el){
-                
-                var oneTargetlog = logs.filter(log=> log.target == el);
-                if(logs[0].stage == "transfer" && logs[0].commnad=='$manager'){
-                    if(logs[1].error){
 
+                targets.forEach(function (el) {
+                    var oneTargetlog = response.data.items.filter(log => log.target == el);
+                    //console.log(oneTargetlog);
+                    switch (oneTargetlog[1].stage) {
+                        case 'transfer': myTree.value++;
+                            break;
+                        case 'install': oneTargetlog[1].error ? myTree.children.push({
+                            name: "Install_f",
+                            value: 1,
+                            class: "node-f",
+                            commands: "",
+                        }) : myTree.children[0].value++;
+                            break;
+                        case 'run': oneTargetlog[1].error ? myTree.children[0].push({
+                            name: "Run_s",
+                            value: 1,
+                            class: "node-s",
+                            commands: "",
+                        }) : myTree.children[0].children[0].value++;
+                            break;
                     }
-                    switch(logs[1][stage]){
-                        case 'transfer': 
-
-                    }
-                } 
-            })
- 
-            /* var myTree = {
-                "name": "Build",
-                "value": 1,
-                "class": "node-s",
-                "children": [
-                    {
-                        "name": "Install_s",
-                        "value": 4,
-                        "class": "node-s",
-                        "children": [
-                            {
-                                "name": "Run_s",
-                                "value": 1,
-                                "class": "node-s",
-                            },
-                            {
-                                "name": "Run_f1",
-                                "value": 3,
-                                "class": "node-f",
-                            },
-                        ]
-                    },
-                    {
-                        "name": "Install_f1",
-                        "value": 2,
-                        "class": "node-f",
-                    },
-                    {
-                        "name": "Install_f2",
-                        "value": 2,
-                        "class": "node-f",
-                    },
-                ]
-            } */
-            var treeLayout = d3.tree().size([400, 200]);
-            var root = d3.hierarchy(myTree);
-            treeLayout(root);
-            // Nodes
-            d3.select('svg g.nodes')
-                .selectAll('circle.node')
-                .data(root.descendants())
-                .enter()
-                .append('circle')
-                .attr('class', function (d) { return d.data.class })
-                .attr('cx', function (d) { return d.x; })
-                .attr('cy', function (d) { return d.y+5; })
-                .attr('r', function (d) {
-                    //console.log(d);
-                    return d.value * 3
                 });
+                console.log(myTree)
+                var treeLayout = d3.tree().size([400, 200]);
+                var root = d3.hierarchy(myTree);
+                treeLayout(root);
+                // Nodes
+                d3.select('svg g.nodes')
+                    .selectAll('circle.node')
+                    .data(root.descendants())
+                    .enter()
+                    .append('circle')
+                    .attr('class', function (d) { return d.data.class })
+                    .attr('cx', function (d) { return d.x; })
+                    .attr('cy', function (d) { return d.y + 5; })
+                    .attr('r', function (d) {
+                        //console.log(d);
+                        return d.value * 3
+                    });
 
-            // Links
-            d3.select('svg g.links')
-                .selectAll('line.link')
-                .data(root.links())
-                .enter()
-                .append('line')
-                .classed('link', true)
-                .attr('x1', function (d) { return d.source.x; })
-                .attr('y1', function (d) { return d.source.y; })
-                .attr('x2', function (d) { return d.target.x; })
-                .attr('y2', function (d) { return d.target.y; });
+                // Links
+                d3.select('svg g.links')
+                    .selectAll('line.link')
+                    .data(root.links())
+                    .enter()
+                    .append('line')
+                    .classed('link', true)
+                    .attr('x1', function (d) { return d.source.x; })
+                    .attr('y1', function (d) { return d.source.y; })
+                    .attr('x2', function (d) { return d.target.x; })
+                    .attr('y2', function (d) { return d.target.y; });
+                $("#myTree").modal();
+            });
 
-            //fake data
-            /*  axios.get('/logs.json').then(function (response) {
-            targets.forEach(function (el) {
-            
-            })
-            }) */
-
-            $("#myTree").modal();
         },
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
-            this.deployName = order.name;
+            this.deployName = order.id;
             this.deployDebug = order.debug;
-            this.build_c = order.commands.b_c ? order.commands.b_c.join("\n") : "";
-
-            this.build_a = order.commands.b_a ? order.commands.b_a.join("\n") : "";
-            this.host = order.commands.h ? order.commands.h : "";
-            this.install_c = order.commands.c ? order.commands.c.install.commands.join("\n") : "";
-            this.run_c = order.commands.c ? order.commands.c.run.commands.join("\n") : "";
-            for (var i = 0; i < order.targets.length; i++) {
+            this.build_c = order.build ? order.build.commands.join("\n") : "";
+            this.build_a = order.build ? order.build.artifacts.join("\n") : "";
+            this.host = order.build ? order.build.host : "";
+            this.install_c = order.deploy.install.commands ? order.deploy.install.commands.join("\n") : "";
+            this.run_c = order.deploy.run.commands ? order.deploy.run.commands.join("\n") : "";
+            for (var i = 0; i < order.deploy.match.list.length; i++) {
                 this.targetDevices.push({
-                    name: order.targets[i],
+                    name: order.deploy.match.list[i],
                     tags: "" //check how can get a devices tag
                 });
             }
@@ -656,7 +702,7 @@ export default {
             var taskDer = {
                 source: {
                     zip:
-                        "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
+                        "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWhjYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
                 },
                 build: {
                     commands: this.build_c ? this.build_c.split("\n") : null,
@@ -700,15 +746,11 @@ export default {
             // Hard coded source deployment
             axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
                 //console.log(response);
-                generateTree(response.data.id, true, response.data.deploy.match.list);
+                listen(response.data.id, true, response.data.deploy.match.list);
             }).catch(function (error) {
                 //console.log(error.response);
                 //alert(error.response);
-                $("#mymodal-body").html(
-                    '<div class="modal-body" style="text-align:left">' +
-                    error.response.data.error +
-                    "</div>"
-                );
+                $("#mymodal-body").append(error.response)
                 $("#myAlert").modal();
             });
         },
@@ -743,7 +785,6 @@ export default {
         },
         searchTarget: function () {
             var tagsNodes = document.getElementById("searchTarget").childNodes;
-
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.devices.length; j++) {
@@ -817,7 +858,10 @@ export default {
             for (let i = 0; i < response.data.total; i++) {
 
                 let a = response.data.items[i];
-                a.status = checkStatus(a.id, a.deploy.match.list.length);
+
+                a.build ? a.build : a.build= "";
+                a.deploy ? a.deploy : a.deploy = "";            
+                a.status = a.deploy? checkStatus(a.id, a.deploy.match.list.length) : checkStatus(a.id, 1);
                 a.finishedAt = getFinishTime(a.id);
                 a.isActive = false;
 
@@ -838,8 +882,9 @@ export default {
                         c: a.deploy ? a.deploy : "",
                         isAcitve: false //
                     }
-                }); */            
+                }); */
             }
+            console.log(this.orders)
         });
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
