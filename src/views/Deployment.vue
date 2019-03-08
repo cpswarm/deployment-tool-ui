@@ -269,8 +269,7 @@
         <div class="modal-content" style="width:200%">
             <div class="modal-header">
                 <h5 class="modal-title">Process Tree</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                    @click="generateTree(1, true)">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"  @click="listen(1, true)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -358,7 +357,7 @@ function getFinishTime(id) {
     return new Date(1551800395755).toLocaleString();
 }
 // Websocket
-function listen(id, close, target) {
+function listen(id, close, target, host) {
 
     if (!("WebSocket" in window)) {
         alert("WebSocket is not supported by your Browser!");
@@ -379,7 +378,7 @@ function listen(id, close, target) {
             var obj = JSON.parse(event.data);
             //var json = JSON.stringify(obj, null, 2);
             console.log(obj);
-            generateTree(obj, target);
+            generateTree(obj.payload, target, host);
             //console.log(obj);
             //return obj;
             // $("#mylog").prepend("<pre>" + json + "</pre>"); 
@@ -397,132 +396,151 @@ function listen(id, close, target) {
 
 }
 // Generate tree
-function generateTree(logs, targets) {
+function generateTree(logs, targets, host) {
 
-    //console.log(id, close);
-    //deal with the response data
-
-    //console.log(id, close)
-    // deal with the response data
+    d3.selectAll('circle').remove();
+    d3.selectAll('line').remove();
     var myTree = {
-        name: "Build",
-        value: targets.length + 1,
-        class: "node-s",
-        commands: "",
-        children: [
-            {
-                name: "Install_s",
-                value: 0,
-                class: "node-s",
-                commands: "",
-                children: [
-                    {
-                        name: "Run_s",
-                        value: 0,
-                        class: "node-s",
-                        commands: "",
-                    },
-                    // insert failed run nodes
-                    /* {
-                        name:"Run_s",
-                        value: 0,
-                        class: "node-s",
-                        commands: "",
-                    }, */
-                ]
-            },
-            // insert failed install nodes
-            /* {
-                name:"Install_f",
-                value: 0,
-                class: "node-f",
-                commands:"",
-            } */
-        ]
-    }
-    targets.forEach(function (el) {
-        var oneTargetlog = logs.filter(log => log.target == el);
-        if (logs[0].stage == "transfer" && logs[0].commnad == '$manager') {
-            if (logs[1].error) {
-
+                /*   name: "Build",
+                  value: 1,
+                  class: "node-s",
+                  commands: "",
+                  children: [ */
+                /* {
+                    name: "Install_s",
+                    value: targets.length,
+                    class: "node-s",
+                    commands: "",
+                    children: [
+                        {
+                            name: "Run_s",
+                            value: 0,
+                            class: "node-s",
+                            commands: "",
+                        },
+                        // insert failed run nodes
+                         {
+                            name:"Run_s",
+                            value: 0,
+                            class: "node-s",
+                            commands: "",
+                        }, 
+                    ]
+                }, */
+                // insert failed install nodes
+                /* {
+                    name:"Install_f",
+                    value: 0,
+                    class: "node-f",
+                    commands:"",
+                }
+            ] */
             }
-            switch (logs[1][stage]) {
-                case 'transfer':
-
+            // Tree for Build process
+            if (host) {
+                var hostLog =logs.filter(log => log.target == host);
+                //console.log("host log", hostLog)
+                if (hostLog.find(el => el.error == true)) {
+                    myTree.name = "Build";
+                    myTree.value = 1;
+                    myTree.class = "node-f";
+                    myTree.commands = hostLog.filter(log => log.error == true);
+                } else {
+                    myTree.name = "Build";
+                    myTree.value = 1;
+                    myTree.class = "node-s";
+                    myTree.commands = hostLog,
+                        myTree.children = []
+                }
             }
-        }
-    })
+            // Tree for Deploy process
+            if (targets) {
+                myTree.children = [{
+                    name: "",
+                    value: 0,
+                    class: "",
+                    commands: "",
+                    children: [{
+                        name: "",
+                        value: 0,
+                        class: "",
+                        commands: "",
+                    }]
+                }]
+                targets.forEach(function (el) {
 
-    /* var myTree = {
-        "name": "Build",
-        "value": 1,
-        "class": "node-s",
-        "children": [
-            {
-                "name": "Install_s",
-                "value": 4,
-                "class": "node-s",
-                "children": [
-                    {
-                        "name": "Run_s",
-                        "value": 1,
-                        "class": "node-s",
-                    },
-                    {
-                        "name": "Run_f1",
-                        "value": 3,
-                        "class": "node-f",
-                    },
-                ]
-            },
-            {
-                "name": "Install_f1",
-                "value": 2,
-                "class": "node-f",
-            },
-            {
-                "name": "Install_f2",
-                "value": 2,
-                "class": "node-f",
-            },
-        ]
-    } */
-    var treeLayout = d3.tree().size([400, 200]);
-    var root = d3.hierarchy(myTree);
-    treeLayout(root);
-    // Nodes
-    d3.select('svg g.nodes')
-        .selectAll('circle.node')
-        .data(root.descendants())
-        .enter()
-        .append('circle')
-        .attr('class', function (d) { return d.data.class })
-        .attr('cx', function (d) { return d.x; })
-        .attr('cy', function (d) { return d.y + 5; })
-        .attr('r', function (d) {
-            //console.log(d);
-            return d.value * 3
-        });
+                    var oneTargetlog = logs.filter(log => log.target == el);
+                    console.log("Target log", oneTargetlog);
+                    var i=0
+                    oneTargetlog[i] ? i=0 : i=1;
+                    if (oneTargetlog[i].error) {
+                        switch (oneTargetlog[i].stage) {
+                            case 'transfer' && 'install': myTree.children.push({
+                                name: "Install",
+                                class: "node-f",
+                                value: 1,
+                                commands: oneTargetlog[i].output,
+                            });
+                                break;
+                            case 'run': myTree.children[0].push({
+                                name: "Run",
+                                class: "node-f",
+                                value: 1,
+                                commands: oneTargetlog[i].output,
+                            });
+                                break;
+                        }
+                    } else {
+                        switch (oneTargetlog[i].stage) {
+                            case 'transfer' && 'install': myTree.children[0].value++;
+                                myTree.children[0].name = "Install";
+                                myTree.children[0].class = "node-s"
+                                myTree.children[0].commands = oneTargetlog[i].output;
+                                break;
+                            case 'run':
+                                myTree.children[0].children[0].name = "Run";
+                                myTree.children[0].children[0].value++;
+                                myTree.children[0].children[0].class = "node-s";
+                                myTree.children[0].children[0].commands = oneTargetlog[i].output;
 
-    // Links
-    d3.select('svg g.links')
-        .selectAll('line.link')
-        .data(root.links())
-        .enter()
-        .append('line')
-        .classed('link', true)
-        .attr('x1', function (d) { return d.source.x; })
-        .attr('y1', function (d) { return d.source.y; })
-        .attr('x2', function (d) { return d.target.x; })
-        .attr('y2', function (d) { return d.target.y; });
+                                break;
+                        }
+                    }  
+                });
+                //console.log(myTree)
+            }
+          
+            var treeLayout = d3.tree().size([400, 200]);
+            var root = d3.hierarchy(myTree);
+            treeLayout(root);
 
-            //fake data
-            /*  axios.get('/logs.json').then(function (response) {
-            targets.forEach(function (el) {
-            
-            })
-            }) */ $("#myTree").modal();
+            // Nodes
+            d3.select('svg g.nodes')
+                .selectAll('circle.node')
+                .data(root.descendants())
+                .enter()
+                .append('circle')
+                .attr('class', function (d) { return d.data.class })
+                .attr('cx', function (d) { return d.x; })
+                .attr('cy', function (d) { return d.y + 5; })
+                .attr('r', function (d) {
+                    console.log(d);
+                    return d.data.value * 3
+                });
 
+            // Links
+            d3.select('svg g.links')
+                .selectAll('line.link')
+                .data(root.links())
+                .enter()
+                .append('line')
+                .classed('link', true)
+                .attr('x1', function (d) { return d.source.x; })
+                .attr('y1', function (d) { return d.source.y; })
+                .attr('x2', function (d) { return d.target.x; })
+                .attr('y2', function (d) { return d.target.y; });
+            $("#myTree").modal();
+     
 }
 
 export default {
@@ -558,101 +576,161 @@ export default {
             require("brace/snippets/javascript");
         },
         listen: function (id, close, targets, host) {
-            axios.get('http://reely.fit.fraunhofer.de:8080/logs?task=' + id + '&sortOrder=desc').then(function (response) {
-                //console.log(response.data)
-                var myTree = {
-                    name: "Build",
-                    value: 1,
+
+        //console.log(targets, host)
+        if (!close) {
+        axios.get('http://reely.fit.fraunhofer.de:8080/logs?task=' + id + '&sortOrder=desc').then(function (response) {
+            //console.log(response.data)
+            var myTree = {
+                /*   name: "Build",
+                  value: 1,
+                  class: "node-s",
+                  commands: "",
+                  children: [ */
+                /* {
+                    name: "Install_s",
+                    value: targets.length,
                     class: "node-s",
                     commands: "",
                     children: [
                         {
-                            name: "Install_s",
-                            value: targets.length,
-                            class: "node-s",
-                            commands: "",
-                            children: [
-                                {
-                                    name: "Run_s",
-                                    value: 0,
-                                    class: "node-s",
-                                    commands: "",
-                                },
-                                // insert failed run nodes
-                                /* {
-                                    name:"Run_s",
-                                    value: 0,
-                                    class: "node-s",
-                                    commands: "",
-                                }, */
-                            ]
-                        },
-                        // insert failed install nodes
-                        /* {
-                            name:"Install_f",
-                            value: 0,
-                            class: "node-f",
-                            commands:"",
-                        } */
-                    ]
-                }
-
-
-                targets.forEach(function (el) {
-                    var oneTargetlog = response.data.items.filter(log => log.target == el);
-                    //console.log(oneTargetlog);
-                    switch (oneTargetlog[1].stage) {
-                        case 'transfer': myTree.value++;
-                            break;
-                        case 'install': oneTargetlog[1].error ? myTree.children.push({
-                            name: "Install_f",
-                            value: 1,
-                            class: "node-f",
-                            commands: "",
-                        }) : myTree.children[0].value++;
-                            break;
-                        case 'run': oneTargetlog[1].error ? myTree.children[0].push({
                             name: "Run_s",
-                            value: 1,
+                            value: 0,
                             class: "node-s",
                             commands: "",
-                        }) : myTree.children[0].children[0].value++;
-                            break;
-                    }
+                        },
+                        // insert failed run nodes
+                         {
+                            name:"Run_s",
+                            value: 0,
+                            class: "node-s",
+                            commands: "",
+                        }, 
+                    ]
+                }, */
+                // insert failed install nodes
+                /* {
+                    name:"Install_f",
+                    value: 0,
+                    class: "node-f",
+                    commands:"",
+                }
+            ] */
+            }
+            // Tree for Build process
+            if (host) {
+                var hostLog = response.data.items.filter(log => log.target == host);
+                //console.log("host log", hostLog)
+                if (hostLog.find(el => el.error == true)) {
+                    myTree.name = "Build";
+                    myTree.value = 1;
+                    myTree.class = "node-f";
+                    myTree.commands = hostLog.filter(log => log.error == true);
+                } else {
+                    myTree.name = "Build";
+                    myTree.value = 1;
+                    myTree.class = "node-s";
+                    myTree.commands = hostLog,
+                        myTree.children = []
+                }
+            }
+            // Tree for Deploy process
+            if (targets) {
+                myTree.children = [{
+                    name: "",
+                    value: 0,
+                    class: "",
+                    commands: "",
+                    children: [{
+                        name: "",
+                        value: 0,
+                        class: "",
+                        commands: "",
+                    }]
+                }]
+                targets.forEach(function (el) {
+
+                    var oneTargetlog = response.data.items.filter(log => log.target == el);
+                    console.log("Target log", oneTargetlog);
+
+                    if (oneTargetlog[1].error) {
+                        switch (oneTargetlog[1].stage) {
+                            case 'transfer' && 'install': myTree.children.push({
+                                name: "Install",
+                                class: "node-f",
+                                value: 1,
+                                commands: oneTargetlog[1].output,
+                            });
+                                break;
+                            case 'run': myTree.children[0].push({
+                                name: "Run",
+                                class: "node-f",
+                                value: 1,
+                                commands: oneTargetlog[1].output,
+                            });
+                                break;
+                        }
+                    } else {
+                        switch (oneTargetlog[1].stage) {
+                            case 'transfer' && 'install': myTree.children[0].value++;
+                                myTree.children[0].name = "Install";
+                                myTree.children[0].class = "node-s"
+                                myTree.children[0].commands = oneTargetlog[1].output;
+                                break;
+                            case 'run':
+                                myTree.children[0].children[0].name = "Run";
+                                myTree.children[0].children[0].value++;
+                                myTree.children[0].children[0].class = "node-s";
+                                myTree.children[0].children[0].commands = oneTargetlog[1].output;
+
+                                break;
+                        }
+                    }  
                 });
-                console.log(myTree)
-                var treeLayout = d3.tree().size([400, 200]);
-                var root = d3.hierarchy(myTree);
-                treeLayout(root);
-                // Nodes
-                d3.select('svg g.nodes')
-                    .selectAll('circle.node')
-                    .data(root.descendants())
-                    .enter()
-                    .append('circle')
-                    .attr('class', function (d) { return d.data.class })
-                    .attr('cx', function (d) { return d.x; })
-                    .attr('cy', function (d) { return d.y + 5; })
-                    .attr('r', function (d) {
-                        //console.log(d);
-                        return d.value * 3
-                    });
+                //console.log(myTree)
+            }
+          
+            var treeLayout = d3.tree().size([400, 200]);
+            var root = d3.hierarchy(myTree);
+            treeLayout(root);
 
-                // Links
-                d3.select('svg g.links')
-                    .selectAll('line.link')
-                    .data(root.links())
-                    .enter()
-                    .append('line')
-                    .classed('link', true)
-                    .attr('x1', function (d) { return d.source.x; })
-                    .attr('y1', function (d) { return d.source.y; })
-                    .attr('x2', function (d) { return d.target.x; })
-                    .attr('y2', function (d) { return d.target.y; });
-                $("#myTree").modal();
-            });
+            // Nodes
+            d3.select('svg g.nodes')
+                .selectAll('circle.node')
+                .data(root.descendants())
+                .enter()
+                .append('circle')
+                .attr('class', function (d) { return d.data.class })
+                .attr('cx', function (d) { return d.x; })
+                .attr('cy', function (d) { return d.y + 5; })
+                .attr('r', function (d) {
+                    console.log(d);
+                    return d.data.value * 3
+                });
 
-        },
+            // Links
+            d3.select('svg g.links')
+                .selectAll('line.link')
+                .data(root.links())
+                .enter()
+                .append('line')
+                .classed('link', true)
+                .attr('x1', function (d) { return d.source.x; })
+                .attr('y1', function (d) { return d.source.y; })
+                .attr('x2', function (d) { return d.target.x; })
+                .attr('y2', function (d) { return d.target.y; });
+            $("#myTree").modal();
+        });
+
+    }else{
+          
+          d3.selectAll('circle').remove();
+          d3.selectAll('line').remove();
+         
+    }
+
+
+},
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
@@ -746,7 +824,9 @@ export default {
             // Hard coded source deployment
             axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
                 //console.log(response);
-                listen(response.data.id, true, response.data.deploy.match.list);
+                response.data.deploy? response.data.deploy: response.data.deploy ="";
+                response.data.build? response.data.deploy: response.data.build ="";
+                listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
             }).catch(function (error) {
                 //console.log(error.response);
                 //alert(error.response);
@@ -884,7 +964,7 @@ export default {
                     }
                 }); */
             }
-            console.log(this.orders)
+            //console.log(this.orders)
         });
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
