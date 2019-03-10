@@ -6,9 +6,9 @@
         <h1>Welcome to CPSwarm!</h1>
       </div>
       <div class="form-group row">
-        <label for="inputPassword" class="col-sm-3 col-form-label">User Name:</label>
+        <label for="usrname" class="col-sm-3 col-form-label">User Name:</label>
         <div class="col-sm-9">
-          <input type="password" class="form-control" id="inputPassword" placeholder="User Name">
+          <input type="password" class="form-control" id="usrname" placeholder="User Name">
         </div>
       </div>
       <div class="form-group row">
