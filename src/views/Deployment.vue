@@ -273,7 +273,7 @@
     </div>
     <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document" style="margin: 50px 100px;">
-            <div class="modal-content" style="width:150%">
+            <div class="modal-content" style="width:170%">
                 <div class="modal-header">
                     <h5 class="modal-title">Process Tree</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="listen(1, true)">
@@ -395,8 +395,13 @@ function listen(id, close, target, host) {
 }
 // Generate tree
 function generateTree(logs, targets, host) {
+
+    $("#mylog").empty();
     d3.selectAll("circle").remove();
     d3.selectAll("line").remove();
+
+    console.log('targets', targets, 'host',host);
+    console.log('all logs', logs)
     var myTree = {};
     // Tree for Build process
     if (host) {
@@ -411,7 +416,8 @@ function generateTree(logs, targets, host) {
             myTree.name = "Build";
             myTree.value = 1;
             myTree.class = "node-s";
-            (myTree.commands = hostLog), (myTree.children = []);
+            myTree.commands = hostLog;
+            //myTree.children = [];
         }
     }
     // Tree for Deploy process
@@ -434,15 +440,16 @@ function generateTree(logs, targets, host) {
         ];
         targets.forEach(function (el) {
             var oneTargetlog = logs.filter(log => log.target == el);
-            console.log("Target log", oneTargetlog);
-            if (oneTargetlog[0].error) {
+            console.log("Target log", oneTargetlog); 
+            if(oneTargetlog.length>0){
+                  if (oneTargetlog[0].error) {
                 switch (oneTargetlog[0].stage) {
                     case "transfer" && "install":
                         myTree.children.push({
                             name: "Install",
                             class: "node-f",
                             value: 1,
-                            commands: oneTargetlog[0].output
+                            commands: oneTargetlog[0]
                         });
                         break;
                     case "run":
@@ -450,7 +457,7 @@ function generateTree(logs, targets, host) {
                             name: "Run",
                             class: "node-f",
                             value: 1,
-                            commands: oneTargetlog[0].output
+                            commands: oneTargetlog[0]
                         });
                         break;
                 }
@@ -460,21 +467,23 @@ function generateTree(logs, targets, host) {
                         myTree.children[0].value++;
                         myTree.children[0].name = "Install";
                         myTree.children[0].class = "node-s";
-                        myTree.children[0].commands = oneTargetlog[0].output;
+                        myTree.children[0].commands = oneTargetlog[0];
                         break;
                     case "run":
                         myTree.children[0].children[0].name = "Run";
                         myTree.children[0].children[0].value++;
                         myTree.children[0].children[0].class = "node-s";
-                        myTree.children[0].children[0].commands = oneTargetlog[0].output;
+                        myTree.children[0].children[0].commands = oneTargetlog[0];
                         break;
                 }
             }
+            }
+          
         });
         //console.log(myTree)
     }
 
-    var treeLayout = d3.tree().size([400, 200]);
+    var treeLayout = d3.tree().size([200, 200]);
     var root = d3.hierarchy(myTree);
     treeLayout(root);
 
@@ -484,19 +493,20 @@ function generateTree(logs, targets, host) {
         .data(root.descendants())
         .enter()
         .append("circle")
-        .attr("class", function (d) {
-            return d.data.class;
-        })
-        .attr("cx", function (d) {
-            return d.x;
-        })
-        .attr("cy", function (d) {
-            return d.y + 5;
-        })
-        .attr("r", function (d) {
-            console.log(d);
-            return d.data.value * 3;
-        });
+        .attr("class", function (d) { return d.data.class; })
+        .attr("cx", function (d) { return d.x; })
+        .attr("cy", function (d) { return d.y; });
+
+        if (d.data.commands.length > 1) {
+                //console.log(d.data.class[5])
+                var code = "";
+                d.data.commands.forEach(function (el) {
+                    code += new Date(el.time).toLocaleString() + "  " + el.output + "<br>"
+                }),
+                $('#mylog').append('<div class="myfont_' + d.data.class[5] + ' myCommandCard">' + code + '</div>');
+            } else {
+                $('#mylog').append('<div class="myfont_' + d.data.class[5] + new Date().toLocaleString() + "  " + d.data.commands.output + '</div>');
+            }
 
     // Links
     d3.select("svg g.links")
@@ -505,18 +515,11 @@ function generateTree(logs, targets, host) {
         .enter()
         .append("line")
         .classed("link", true)
-        .attr("x1", function (d) {
-            return d.source.x;
-        })
-        .attr("y1", function (d) {
-            return d.source.y;
-        })
-        .attr("x2", function (d) {
-            return d.target.x;
-        })
-        .attr("y2", function (d) {
-            return d.target.y;
-        });
+        .attr("x1", function (d) { return d.source.x; })
+        .attr("y1", function (d) { return d.source.y; })
+        .attr("x2", function (d) { return d.target.x; })
+        .attr("y2", function (d) { return d.target.y; });
+
     $("#myTree").modal();
 }
 
@@ -561,7 +564,7 @@ export default {
                         var myTree = {};
                         // Tree for Build process
                         if (host) {
-                            var hostLog = response.data.items.filter(log => log.target == host);
+                            var hostLog = response.data.items.filter(log => log.stage == "build");
                             console.log("host log", hostLog);
                             if (hostLog.find(el => el.error == true)) {
                                 myTree.name = "Build";
@@ -599,7 +602,8 @@ export default {
                                 console.log("Target log", oneTargetlog);
                                 if (oneTargetlog[0].error) {
                                     switch (oneTargetlog[0].stage) {
-                                        case "transfer" && "install":
+                                        case "build" &&  "install":
+                                        console.log(true)
                                             myTree.children.push({
                                                 name: "Install",
                                                 class: "node-f",
@@ -608,7 +612,7 @@ export default {
                                             });
                                             break;
                                         case "run":
-                                            myTree.children[0].push({
+                                            myTree.children[0].children.push({
                                                 name: "Run",
                                                 class: "node-f",
                                                 value: 1,
@@ -651,21 +655,14 @@ export default {
                             .attr("cy", function (d) { return d.y; })
                             .attr("r", function (d) { return d.data.value * 3; }).on('click', function (d) {
                                 if (d.data.commands.length > 1) {
-                                    if (d.data.class == "node-s") {
-                                        d.data.commands.forEach(function (el) {
-                                            $('#mylog').append('<div class="myfont_s">' + new Date(el.time).toLocaleString() + "  " + el.output + '</div>');
-                                        })
-                                    } else {
-                                        d.data.commands.forEach(function (el) {
-                                            $('#mylog').append('<div class="myfont_f">' + new Date(el.time).toLocaleString() + "  " + el.output + '</div>');
-                                        })
-                                    }
+                                    //console.log(d.data.class[5])
+                                    var code = "";
+                                    d.data.commands.forEach(function (el) {
+                                        code += new Date(el.time).toLocaleString() + "  " + el.stage +"  "+ el.output + "<br>"
+                                    }),
+                                        $('#mylog').prepend('<div class="myfont_' + d.data.class[5] + ' myCommandCard">' + code + '</div>');
                                 } else {
-                                    if (d.data.class == "node-s") {
-                                        $('#mylog').append('<div class="myfont_s">' + new Date().toLocaleString() + "  " + d.data.commands.output + '</div>');
-                                    } else {
-                                        $('#mylog').append('<div class="myfont_f">' + new Date(d.data.commands.time).toLocaleString() + "  " + d.data.commands.output + '</div>');
-                                    }
+                                    $('#mylog').prepend('<div class="myfont_' + d.data.class[5] + new Date().toLocaleString() + "  " + d.data.commands.output + '</div>');
                                 }
                             })
 
@@ -994,6 +991,13 @@ export default {
 }
 .myCluster span {
   line-height: 30px;
+}
+.myCommandCard{
+  border: 1px solid #cccccc;
+  border-radius: 2.5px;
+  background: #fcfcfc;
+  margin-bottom: 5px;
+  padding: 5px
 }
 .simpleDeviceCard {
   border: 1px solid #cccccc;
