@@ -373,6 +373,7 @@ function listen(id, close, target, host) {
         ws.close();
     } else {
         ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&topics=logs");
+        
         ws.onopen = function () {
             console.log("Socket connected.");
             $("#mylog").prepend("<p>Connected!</p>");
@@ -380,6 +381,7 @@ function listen(id, close, target, host) {
         ws.onmessage = function (event) {
             //console.log(event.data);
             var obj = JSON.parse(event.data);
+            
             //var json = JSON.stringify(obj, null, 2);
             //console.log(obj);
             generateTree(obj.payload, target, host);
@@ -400,24 +402,37 @@ function generateTree(logs, targets, host) {
     d3.selectAll("circle").remove();
     d3.selectAll("line").remove();
 
-    console.log('targets', targets, 'host',host);
-    console.log('all logs', logs)
+    //console.log('targets', targets, 'host', host);
+    //console.log('all logs', logs)
+    var code = "";
     var myTree = {};
     // Tree for Build process
     if (host) {
-        var hostLog = logs.filter(log => log.target == host);
-        console.log("host log", hostLog)
-        if (hostLog.find(el => el.error == true)) {
-            myTree.name = "Build";
-            myTree.value = 1;
-            myTree.class = "node-f";
-            myTree.commands = hostLog.filter(log => log.error == true);
-        } else {
-            myTree.name = "Build";
-            myTree.value = 1;
-            myTree.class = "node-s";
-            myTree.commands = hostLog;
-            //myTree.children = [];
+        var hostLog = logs.filter(log => log.stage == "build");
+        //console.log("host log", hostLog)
+        //If there is logs for host
+        if (hostLog.length > 0) {
+            if (hostLog.find(el => el.error == true)) {
+                myTree.name = "Build";
+                myTree.value = 1;
+                myTree.class = "node-f";
+                myTree.commands = hostLog;
+            } else {
+                myTree.name = "Build";
+                myTree.value = 1;
+                myTree.class = "node-s";
+                myTree.commands = hostLog;
+                //myTree.children = [];
+            }
+            if (hostLog.length > 1) {
+                hostLog.forEach(function (el) {
+                    //console.log(el)
+                    code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                });
+            } else {
+                //console.log(hostLog)
+                code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(hostLog[0].time).toLocaleString() + "  " + hostLog[0].stage + "  " + hostLog[0].output + "</div>";
+            }
         }
     }
     // Tree for Deploy process
@@ -439,48 +454,63 @@ function generateTree(logs, targets, host) {
             }
         ];
         targets.forEach(function (el) {
-            var oneTargetlog = logs.filter(log => log.target == el);
-            console.log("Target log", oneTargetlog); 
-            if(oneTargetlog.length>0){
-                  if (oneTargetlog[0].error) {
-                switch (oneTargetlog[0].stage) {
-                    case "transfer" && "install":
-                        myTree.children.push({
-                            name: "Install",
-                            class: "node-f",
-                            value: 1,
-                            commands: oneTargetlog[0]
+            var oneTargetlog = logs.filter(log => log.target == el && log.stage !='build');
+            console.log("Target log", oneTargetlog);
+            if (oneTargetlog.length > 0) {
+                if (oneTargetlog.some( log => log.error === true)) {
+                    console.log(true)
+                    switch (oneTargetlog[0].stage) {
+                        case "install":
+                            myTree.children.push({
+                                name: "Install",
+                                class: "node-f",
+                                value: 1,
+                                commands: oneTargetlog
+                            });
+
+                            break;
+                        case "run":
+                            myTree.children[0].children.push({
+                                name: "Run",
+                                class: "node-f",
+                                value: 1,
+                                commands: oneTargetlog
+                            });
+                            break;
+                    }
+                    if (oneTargetlog.length > 1) {
+                        oneTargetlog.forEach(function (el) {
+                            code += '<div class="myfont_f">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                         });
-                        break;
-                    case "run":
-                        myTree.children[0].push({
-                            name: "Run",
-                            class: "node-f",
-                            value: 1,
-                            commands: oneTargetlog[0]
+                    } else {
+                        code += '<div class="myfont_f">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
+                    }
+                } else {
+                    switch (oneTargetlog[0].stage) {
+                        case "install":
+                            myTree.children[0].name = "Install";
+                            myTree.children[0].value++;
+                            myTree.children[0].class = "node-s";
+                            myTree.children[0].commands = oneTargetlog;
+                            break;
+                        case "run":
+                            myTree.children[0].children[0].name = "Run";
+                            myTree.children[0].children[0].value++;
+                            myTree.children[0].children[0].class = "node-s";
+                            myTree.children[0].children[0].commands = oneTargetlog;
+                            break;
+                    }
+                    if (oneTargetlog.length > 1) {
+                        oneTargetlog.forEach(function (el) {
+                            code += '<div class="myfont_s">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                         });
-                        break;
-                }
-            } else {
-                switch (oneTargetlog[0].stage) {
-                    case "transfer" && "install":
-                        myTree.children[0].value++;
-                        myTree.children[0].name = "Install";
-                        myTree.children[0].class = "node-s";
-                        myTree.children[0].commands = oneTargetlog[0];
-                        break;
-                    case "run":
-                        myTree.children[0].children[0].name = "Run";
-                        myTree.children[0].children[0].value++;
-                        myTree.children[0].children[0].class = "node-s";
-                        myTree.children[0].children[0].commands = oneTargetlog[0];
-                        break;
+                    } else {
+                        code += '<div class="myfont_s">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
+                    }
                 }
             }
-            }
-          
         });
-        //console.log(myTree)
+        console.log(myTree)
     }
 
     var treeLayout = d3.tree().size([200, 200]);
@@ -495,31 +525,21 @@ function generateTree(logs, targets, host) {
         .append("circle")
         .attr("class", function (d) { return d.data.class; })
         .attr("cx", function (d) { return d.x; })
-        .attr("cy", function (d) { return d.y; });
+        .attr("cy", function (d) { return d.y; })
+        .attr("r", function (d) { return d.data.value * 3; });
+        // Links
+        d3.select("svg g.links")
+            .selectAll("line.link")
+            .data(root.links())
+            .enter()
+            .append("line")
+            .classed("link", true)
+            .attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; });
 
-        if (d.data.commands.length > 1) {
-                //console.log(d.data.class[5])
-                var code = "";
-                d.data.commands.forEach(function (el) {
-                    code += new Date(el.time).toLocaleString() + "  " + el.output + "<br>"
-                }),
-                $('#mylog').append('<div class="myfont_' + d.data.class[5] + ' myCommandCard">' + code + '</div>');
-            } else {
-                $('#mylog').append('<div class="myfont_' + d.data.class[5] + new Date().toLocaleString() + "  " + d.data.commands.output + '</div>');
-            }
-
-    // Links
-    d3.select("svg g.links")
-        .selectAll("line.link")
-        .data(root.links())
-        .enter()
-        .append("line")
-        .classed("link", true)
-        .attr("x1", function (d) { return d.source.x; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; });
-
+    $('#mylog').append('<div class="myCommandCard">' + code + '</div>');
     $("#myTree").modal();
 }
 
@@ -561,11 +581,13 @@ export default {
                 axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc")
                     .then(function (response) {
                         //console.log(response.data)
-                        var myTree = {};
+                        var myTree = {
+                            value:0
+                        };
                         // Tree for Build process
                         if (host) {
                             var hostLog = response.data.items.filter(log => log.stage == "build");
-                            console.log("host log", hostLog);
+                            //console.log("host log", hostLog);
                             if (hostLog.find(el => el.error == true)) {
                                 myTree.name = "Build";
                                 myTree.value = 1;
@@ -576,7 +598,7 @@ export default {
                                 myTree.value = 1;
                                 myTree.class = "node-s";
                                 myTree.commands = hostLog;
-                                // myTree.children = [];
+                                //myTree.children = [];
                             }
                         }
                         // Tree for Deploy process
@@ -597,13 +619,12 @@ export default {
                                     ]
                                 }
                             ];
-                            targets.forEach(function (el) {
-                                var oneTargetlog = response.data.items.filter(log => log.target == el);
-                                console.log("Target log", oneTargetlog);
-                                if (oneTargetlog[0].error) {
+                            targets.forEach(function (el) {    
+                                var oneTargetlog = response.data.items.filter(log => log.target == el && log.stage !='build' );
+                                //console.log("Target log", oneTargetlog);
+                                if (oneTargetlog.some( log => log.error === true)) {
                                     switch (oneTargetlog[0].stage) {
-                                        case "build" &&  "install":
-                                        console.log(true)
+                                        case "install":
                                             myTree.children.push({
                                                 name: "Install",
                                                 class: "node-f",
@@ -653,7 +674,8 @@ export default {
                             .attr("class", function (d) { return d.data.class; })
                             .attr("cx", function (d) { return d.x; })
                             .attr("cy", function (d) { return d.y; })
-                            .attr("r", function (d) { return d.data.value * 3; }).on('click', function (d) {
+                            .attr("r", function (d) { return d.data.value * 3; })
+                            .on('click', function (d) {
                                 if (d.data.commands.length > 1) {
                                     //console.log(d.data.class[5])
                                     var code = "";
@@ -662,7 +684,7 @@ export default {
                                     }),
                                         $('#mylog').prepend('<div class="myfont_' + d.data.class[5] + ' myCommandCard">' + code + '</div>');
                                 } else {
-                                    $('#mylog').prepend('<div class="myfont_' + d.data.class[5] + new Date().toLocaleString() + "  " + d.data.commands.output + '</div>');
+                                    $('#mylog').prepend('<div class="myfont_' + d.data.class[5] + new Date(d.data.commands.time).toLocaleString() + "  " + d.data.commands.output + '</div>');
                                 }
                             })
 
@@ -676,7 +698,25 @@ export default {
                             .attr("x1", function (d) { return d.source.x; })
                             .attr("y1", function (d) { return d.source.y; })
                             .attr("x2", function (d) { return d.target.x; })
-                            .attr("y2", function (d) { return d.target.y; });
+                            .attr("y2", function (d) { return d.target.y; })
+                            .style("stroke-width", function (d){
+                                
+                              if(d.target.data.value==0 && d.source.data.value==0)
+                              {
+                                  return 0;
+                              }else if(d.target.data.value==0 && d.source.data.value !=0 && d.source.children && !d.target.children){
+                                  
+                                  return 0;
+                             
+                            }else if(d.target.data.value==0 && d.source.data.value !=0 && d.source.children && d.target.children){
+                                  if(d.source.children[0].value==0 && d.source.children.length >1 &&d.target.children[0].value==0){
+                                      return 0;
+                                  }else{return 1}
+                            }else{
+                                    //console.log(d);
+                                    return 1;
+                                    }
+                            })
 
                         $("#myTree").modal();
                     });
@@ -1013,7 +1053,7 @@ export default {
 }
 #mytree-body {
   display: grid;
-  grid-template-columns: 1fr 3fr 6fr;
+  grid-template-columns: 0.5fr 2.6fr 6fr;
   grid-gap: 5px;
 }
 #stage {
