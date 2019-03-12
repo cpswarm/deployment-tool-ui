@@ -43,13 +43,13 @@
                         </div>
                         <div id="deviceList">
                             <div v-for="device in devices" class="mycard my-card-body" v-show="device.isActive"
-                                style="padding:5px;margin-bottom:5px">
+                                style="padding:5px;margin-bottom:5px" @click="clickCard(device.marker)">
                                 <div class="mycard-title">Name:</div>
                                 <div class="mycard-content">{{device.name}}</div>
                                 <div class="mycard-title">Tags:</div>
                                 <div class="mycard-content">
                                     <span>
-                                        <div v-for="tag in device.tags" class="badge badge-pill" :class="tag">{{tag}}
+                                        <div v-for="tag in device.tags" class="badge badge-pill" :class="tag" @click="device.relations=showRelationship(tag,device)">{{tag}}
                                         </div>
                                     </span>
                                 </div>
@@ -267,6 +267,10 @@
 
 <script>
 import axios from "axios";
+import "leaflet.smooth_marker_bouncing";
+
+var map;
+var polyline;
 
 function rand(n) {
     let max = n + 0.001;
@@ -287,6 +291,49 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+        clickCard: function (marker) {
+            //L.Marker.stopAllBouncingMarkers();
+            //console.log("card");
+            //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
+        },
+        showRelationship: function(tag, device) {
+            //console.log()
+            
+    device.marker.bounce(4);
+    if (polyline) {
+        polyline.remove();
+        polyline = "";
+    }
+    if (device.relations == true) {
+
+        var latlngs = [];
+        this.devices.forEach(function (target) {
+            if (target.tags.some(el => el == tag)) {
+                latlngs.push([
+                    [target.location.lon, target.location.lat],
+                    [device.location.lon, device.location.lat]])
+            }
+        });
+        let color;
+        switch (tag) {
+            case 'amd64':
+                color = "#DFABFF";
+                break;
+            case 'swarm':
+                color = "#FF8A8A";
+                break;
+        }
+        polyline = L.polyline(latlngs,
+            {
+                color: color,
+                weight: 2,
+            }).addTo(map);
+        map.fitBounds(polyline.getBounds());
+
+        //console.log(polyline)
+    }
+    return device.relations ? false : true;
+},
         filterDevice: function () {
             var value = this.searchText.toLowerCase();
             this.tags.forEach(function (tag) {
@@ -391,7 +438,7 @@ export default {
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.panel.style.height = window.innerHeight + "px";
 
-        const map = L.map("map").setView([50.749523, 7.20343], 17);
+        map = L.map("map").setView([50.749523, 7.20343], 17);
         L.tileLayer(
             "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
             {
@@ -399,6 +446,7 @@ export default {
                     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }
         ).addTo(map);
+
         var markers = L.markerClusterGroup({
             spiderLegPolylineOptions: {
                 weight: 1,
@@ -420,14 +468,16 @@ export default {
         //axios.defaults.headers.get["Content-Type"] = "application/x-www-form-urlencoded";
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
-        axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
+        axios.get("/device.json").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
                     //This the correct latlng
                     //let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
                     //The latlng is faked
-                    let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
+                    // let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
+                    //This the correct latlng
+                    let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
                         icon: L.icon({
                             iconUrl: "/done.png",
                             iconSize: [20, 20]
@@ -436,9 +486,12 @@ export default {
                         alt: a.tags? a.tags: []
                     });
                     this.devices.push({
+                        marker:marker,
                         name: a.id,
                         tags: a.tags? a.tags:[],
-                        isActive: true
+                        location: a.location,
+                        isActive: true,
+                        relations: true
                     });
 
                     //console.log(a.tags.length);
@@ -514,6 +567,10 @@ export default {
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 2px;
 }
+.mycard:active{
+  border: 1px solid #007bff;
+  border-radius: 2px;
+}
 .collapse {
   overflow: scroll;
 }
@@ -547,7 +604,10 @@ export default {
     color: #fff;
     background-color: #FF8A8A;
     margin-right:2.5px;
-} 
+}
+.swarm:hover, .amd64:hover{
+    cursor: pointer;
+}
 </style>
 
 
