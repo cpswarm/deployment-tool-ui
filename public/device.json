@@ -1,73 +1,42 @@
 {
-  "total": 5,
+  "total": 4,
   "items": [
     {
-      "id": "my-laptop",
+      "id": "builder",
       "tags": [
-        "dev",
-        "macOS",
-        "amd64",
-        "farshid"
+        "amd64"
       ],
-      "location": [
-        50.749523,
-        7.20343
-      ],
-      "updatedAt": 1550835141247,
-      "logRequestAt": 1550767086546
+      "updatedAt": 1552395717431
     },
     {
-      "id": "my-laptop2",
+      "id": "device1",
       "tags": [
-        "dev"
-     
+        "swarm",
+        "amd64"
       ],
-      "location": [
-        50.748523,
-        7.20483
-      ],
-      "updatedAt": 1550835141247,
-      "logRequestAt": 1550767086546
+      "location": {
+        "lat": 7.203973,
+        "lon": 50.749548
+      },
+      "updatedAt": 1552395715944
     },
     {
-      "id": "my-laptop3",
+      "id": "device2",
       "tags": [
-      
-        "farshid"
+        "swarm",
+        "amd64"
       ],
-      "location": [
-        50.749423,
-        7.20343
-      ],
-      "updatedAt": 1550835141247,
-      "logRequestAt": 1550767086546
+      "location": {
+        "lat": 7.203556,
+        "lon": 50.74958
+      },
+      "updatedAt": 1552395716418
     },
     {
-      "id": "my-laptop4",
-      "tags": [
-      
-        "amd64",
-        "farshid"
-      ],
-      "location": [
-        50.748523,
-        7.20243
-      ],
-      "updatedAt": 1550835141247,
-      "logRequestAt": 1550767086546
-    },
-    {
-      "id": "my-laptop5",
-      "tags": [
-        "dev"
-      
-      ],
-      "location": [
-        50.749543,
-        7.20223
-      ],
-      "updatedAt": 1550835141247,
-      "logRequestAt": 1550767086546
+      "id": "lonely",
+      "updatedAt": 1552395739968
     }
-  ]
+  ],
+  "page": 1,
+  "perPage": 100
 }

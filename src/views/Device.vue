@@ -49,13 +49,12 @@
                                 <div class="mycard-title">Tags:</div>
                                 <div class="mycard-content">
                                     <span>
-                                        <div v-for="tag in device.tags" class="badge badge-pill badge-primary">{{tag}}
+                                        <div v-for="tag in device.tags" class="badge badge-pill" :class="tag">{{tag}}
                                         </div>
                                     </span>
                                 </div>
                                 <div class="mycard-title">Current Task:</div>
                                 <div class="mycard-content">operationA-v01</div>
-
                                 <div class="mycard-title">Current Logs:</div>
                                 <div></div>
                                 <div class="mycard-title">History Tasks:</div>
@@ -350,11 +349,8 @@ export default {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.devices.length; j++) {
                         //console.log(this.devices)
-
                         if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
-                            if (
-                                !this.targetDevices.some(e => e.name === this.devices[j].name)
-                            ) {
+                            if (!this.targetDevices.some(e => e.name === this.devices[j].name)) {
                                 this.targetDevices.push({
                                     name: this.devices[j].name,
                                     tags: this.devices[j].tags
@@ -362,7 +358,6 @@ export default {
                                 //console.log(i, j, m);
                             }
                         }
-
                         // implement Array.some() manually
                         /*  for (var m = 0; m < this.devices[j].tags.length; m++) {
                           //console.log(this.devices[j].tags[m],tagsNodes[i].innerHTML)
@@ -425,8 +420,7 @@ export default {
         //axios.defaults.headers.get["Content-Type"] = "application/x-www-form-urlencoded";
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
-        axios.get("/device.json")
-            .then(response => {
+        axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
@@ -439,23 +433,26 @@ export default {
                             iconSize: [20, 20]
                         }),
                         title: a.id,
-                        alt: a.tags
+                        alt: a.tags? a.tags: []
                     });
                     this.devices.push({
                         name: a.id,
-                        tags: a.tags,
+                        tags: a.tags? a.tags:[],
                         isActive: true
                     });
 
                     //console.log(a.tags.length);
-                    for (let j = 0; j < a.tags.length; j++) {
+                    if(a.tags){
+                             for (let j = 0; j < a.tags.length; j++) {
                         if (!this.tags.some(e => e.tag === a.tags[j])) {
                             this.tags.push({
                                 isActive: true,
                                 tag: a.tags[j]
                             });
                         }
+                        }
                     }
+               
                     //console.log(this.tags);
                     //Markers click function
                     marker.on("click", event => {
@@ -541,6 +538,16 @@ export default {
 #headingThree {
   padding: 0;
 }
+.amd64{
+    color: #fff;
+    background-color: #DFABFF;
+    margin-right:2.5px;
+}
+.swarm{
+    color: #fff;
+    background-color: #FF8A8A;
+    margin-right:2.5px;
+} 
 </style>
 
 
