@@ -8,24 +8,7 @@ function listen(id, close, target, host) {
         ws.close();
     } else {
         ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&topics=logs");
-        var myTree = {
-            children: [
-                {
-                    name: "",
-                    value: 0,
-                    class: "",
-                    commands: "",
-                    children: [
-                        {
-                            name: "",
-                            value: 0,
-                            class: "",
-                            commands: ""
-                        }
-                    ]
-                }
-            ]
-        };
+
         ws.onopen = function () {
             console.log("Socket connected.");
             $("#mylog").prepend("<p>Connected!</p>");
@@ -33,7 +16,39 @@ function listen(id, close, target, host) {
         ws.onmessage = function (event) {
             //console.log(event.data);
             var obj = JSON.parse(event.data);
-
+            var myTree = {
+                value: 0,
+                children: [{
+                    name: "Install-s",
+                    value: 0,
+                    class: "node-s",
+                    commands: "",
+                    devices: target,
+                    children: [
+                        {
+                            name: "Run-s",
+                            value: 0,
+                            class: "node-s",
+                            commands: "",
+                            devices: []
+                        },
+                        {
+                            name: "Run-f",
+                            value: 0,
+                            class: "node-f",
+                            commands: "",
+                            devices: []
+                        }
+                    ]
+                },
+                {
+                    name: "Install-f",
+                    value: 0,
+                    class: "node-f",
+                    commands: "",
+                    devices: [],
+                }]
+            };
             //var json = JSON.stringify(obj, null, 2);
             //console.log(obj);
             generateTree(obj.payload, target, host, myTree);
@@ -47,21 +62,24 @@ function listen(id, close, target, host) {
         };
     }
 }
-// Generate tree
+
 function generateTree(logs, targets, host, myTree) {
 
     $("#mylog").empty();
+    // Consider whether all nodes need be removed
     d3.selectAll("circle").remove();
     d3.selectAll("line").remove();
 
     //console.log('targets', targets, 'host', host);
     //console.log('all logs', logs)
     var code = "";
+
     // Tree for Build process
+    // Meaning there is build process.
     if (host) {
-        var hostLog = logs.filter(log => log.target == host);
-        console.log("host log", hostLog)
-        //If there is logs for host
+        var hostLog = logs.filter(log => log.stage == "build");
+        //console.log("host log", hostLog)
+        //If there are logs for build
         if (hostLog.length > 0) {
             if (hostLog.find(el => el.error == true)) {
                 myTree.name = "Build";
@@ -75,39 +93,46 @@ function generateTree(logs, targets, host, myTree) {
                 myTree.commands = hostLog;
                 //myTree.children = [];
             }
-            if (myTree.commands.length > 1) {
-                myTree.commands.forEach(function (el) {
+            if (hostLog.length > 1) {
+                hostLog.forEach(function (el) {
+                    //console.log(el)
                     code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                 });
             } else {
-                console.log(myTree.commands)
-                code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(myTree.commands.time).toLocaleString() + "  " + myTree.commands.stage + "  " + myTree.commands.output + "</div>";
+                //console.log(hostLog)
+                code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(hostLog[0].time).toLocaleString() + "  " + hostLog[0].stage + "  " + hostLog[0].output + "</div>";
             }
+            // When build finish
+        } else {
+            myTree.children[0].value = targets.length;
         }
     }
+
     // Tree for Deploy process
+    // Meaning there is deploy process.
     if (targets) {
         targets.forEach(function (el) {
-            var oneTargetlog = logs.filter(log => log.target == el);
+            var oneTargetlog = logs.filter(log => log.target == el && log.stage != 'build');
             console.log("Target log", oneTargetlog);
+
+            //Meaning the deploy starts
             if (oneTargetlog.length > 0) {
-                if (oneTargetlog[0].error) {
+                if (oneTargetlog.some(log => log.error === true)) {
+
                     switch (oneTargetlog[0].stage) {
-                        case "transfer" && "install":
-                            myTree.children.push({
-                                name: "Install",
-                                class: "node-f",
-                                value: 1,
-                                commands: oneTargetlog
-                            });
+                        case "install":
+                            if (!myTree.children[1].devices.includes(el)) {
+                                myTree.children[1].devices.push(el);
+                                myTree.children[1].value = myTree.children[1].devices.length;
+                                myTree.children[1].commands = oneTargetlog;
+                            }
                             break;
                         case "run":
-                            myTree.children[0].children.push({
-                                name: "Run",
-                                class: "node-f",
-                                value: 1,
-                                commands: oneTargetlog
-                            });
+                            if (!myTree.children[0].children[1].devices.includes(el)) {
+                                myTree.children[0].children[1].devices.push(el);
+                                myTree.children[0].children[1].value = myTree.children[0].children[1].devices.length;
+                                myTree.children[0].children[1].commands = oneTargetlog;
+                            }
                             break;
                     }
                     if (oneTargetlog.length > 1) {
@@ -115,21 +140,23 @@ function generateTree(logs, targets, host, myTree) {
                             code += '<div class="myfont_f">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                         });
                     } else {
-                        code += '<div class="myfont_f">' + new Date(oneTargetlog.time).toLocaleString() + "  " + oneTargetlog.stage + "  " + oneTargetlog.output + "</div>";
+                            code += '<div class="myfont_f">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
                     }
                 } else {
                     switch (oneTargetlog[0].stage) {
-                        case "transfer" && "install":
-                            myTree.children[0].value++;
-                            myTree.children[0].name = "Install";
-                            myTree.children[0].class = "node-s";
-                            myTree.children[0].commands = oneTargetlog[0];
+                        case "install":
+                        if (!myTree.children[0].devices.includes(el)) {
+                            myTree.children[0].devices.push(el);
+                            myTree.children[0].value = myTree.children[0].devices.length;
+                            myTree.children[0].commands = oneTargetlog;
+                        }
                             break;
                         case "run":
-                            myTree.children[0].children[0].name = "Run";
-                            myTree.children[0].children[0].value++;
-                            myTree.children[0].children[0].class = "node-s";
-                            myTree.children[0].children[0].commands = oneTargetlog[0];
+                        if (!myTree.children[0].devices.includes(el)) {
+                            myTree.children[0].devices.push(el);
+                            myTree.children[0].children[0].value = myTree.children[0].devices.length;
+                            myTree.children[0].children[0].commands = oneTargetlog;
+                        }
                             break;
                     }
                     if (oneTargetlog.length > 1) {
@@ -137,11 +164,10 @@ function generateTree(logs, targets, host, myTree) {
                             code += '<div class="myfont_s">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                         });
                     } else {
-                        code += '<div class="myfont_s">' + new Date(oneTargetlog.time).toLocaleString() + "  " + oneTargetlog.stage + "  " + oneTargetlog.output + "</div>";
+                        code += '<div class="myfont_s">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
                     }
                 }
             }
-
         });
         console.log(myTree)
     }
