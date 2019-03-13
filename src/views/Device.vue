@@ -42,28 +42,39 @@
                             </form>
                         </div>
                         <div id="deviceList">
-                            <div v-for="device in devices" class="mycard my-card-body" v-show="device.isActive"
-                                style="padding:5px;margin-bottom:5px" @click="clickCard(device.marker)">
-                                <div class="mycard-title">Name:</div>
-                                <div class="mycard-content">{{device.name}}</div>
-                                <div class="mycard-title">Tags:</div>
-                                <div class="mycard-content">
-                                    <span>
-                                        <div v-for="tag in device.tags" class="badge badge-pill" :class="tag" @click="device.relations=showRelationship(tag,device)">{{tag}}
-                                        </div>
-                                    </span>
+                            <div v-for="device in devices" v-show="device.isActive"
+                                 @click="clickCard(device.marker)">
+                                <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
+                                    <div class="mycard-title">Name:</div>
+                                    <div class="mycard-content">{{device.name}}</div>
+                                    <div class="mycard-title">Tags:</div>
+                                    <div class="mycard-content">
+                                        <span>
+                                            <div v-for="tag in device.tags" class="badge badge-pill" :class="tag" @click="device.relations=showRelationship(tag,device)">{{tag}}
+                                            </div>
+                                        </span>
+                                    </div>
+                                    <div class="mycard-title">Current Task:</div>
+                                    <div class="mycard-content">operationA-v01</div>
+                                    <div class="mycard-title">Current Logs:</div>
+                                    <div></div>
+                                    <div class="mycard-title">History Tasks:</div>
+                                    <div></div>
+                                    <div></div>
+                                    <div style="text-align:right">
+                                        <img src="../assets/terminal.png" style="width:20px;margin-right:5px" @click="showTerminal">
+                                        <img src="../assets/edit.png" style="width:20px;margin-right:5px">
+                                        <img src="../assets/delete.png" style="width:20px;margin-right:5px">
+                                    </div>
                                 </div>
-                                <div class="mycard-title">Current Task:</div>
-                                <div class="mycard-content">operationA-v01</div>
-                                <div class="mycard-title">Current Logs:</div>
-                                <div></div>
-                                <div class="mycard-title">History Tasks:</div>
-                                <div></div>
-                                <div></div>
-                                <div style="text-align:right">
-                                    <img src="../assets/terminal.png" style="width:20px;margin-right:5px">
-                                    <img src="../assets/edit.png" style="width:20px;margin-right:5px">
-                                    <img src="../assets/delete.png" style="width:20px;margin-right:5px">
+                                <div style="display:none">
+                                    <div style="background-color:#dedede;height:22px">
+                                        <div style="font-size:14px; display:inline-block">$agent: {{device.name}}</div>
+                                           <button type="button" class="close" aria-label="Close" style="height:20px" @click="hideTerminal">
+                                                <span style="height:20px">&times;</span>
+                                            </button>
+                                    </div>     
+                                    <textarea v-model="terminal" class="myTerminal" style="width: 100%" rows="10" @input="submitTerminal"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -284,13 +295,28 @@ export default {
             devices: [],
             tags: [],
             targetDevices: [],
-            searchText: ""
+            searchText: "",
+            terminal: new Date().toUTCString() + ':~'
         };
     },
     components: {
         editor: require("vue2-ace-editor")
     },
     methods: {
+       submitTerminal: function () {
+            //Post one line command
+            //console.log(this.terminal.split('\n'));
+        },
+        hideTerminal: function (e) {
+            e.path[4].childNodes[0].style.display='grid';
+            e.path[4].childNodes[1].style.display='none';
+            //console.log(e.path)
+        },
+        showTerminal: function (e) {
+            e.path[2].style.display = 'none';
+            e.path[3].childNodes[1].style.display = 'inline'
+            //console.log(e.path[3].childNodes[1])
+        },
         clickCard: function (marker) {
             //L.Marker.stopAllBouncingMarkers();
             //console.log("card");
@@ -607,6 +633,12 @@ export default {
 }
 .swarm:hover, .amd64:hover{
     cursor: pointer;
+}
+.myTerminal{
+  background-color: black;
+  color: white;
+  font: 11.5px Inconsolata, monospace;
+  text-shadow: 0 0 5px #C8C8C8;
 }
 </style>
 
