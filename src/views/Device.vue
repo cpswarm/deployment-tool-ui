@@ -42,15 +42,15 @@
                             </form>
                         </div>
                         <div id="deviceList">
-                            <div v-for="device in devices" v-show="device.isActive"
-                                 @click="clickCard(device.marker)">
+                            <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)">
                                 <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                     <div class="mycard-title">Name:</div>
                                     <div class="mycard-content">{{device.name}}</div>
                                     <div class="mycard-title">Tags:</div>
                                     <div class="mycard-content">
                                         <span>
-                                            <div v-for="tag in device.tags" class="badge badge-pill" :class="tag" @click="device.relations=showRelationship(tag,device)">{{tag}}
+                                            <div v-for="tag in device.tags" class="badge badge-pill" :class="tag"
+                                                @click="device.relations=showRelationship(tag,device)">{{tag}}
                                             </div>
                                         </span>
                                     </div>
@@ -62,19 +62,99 @@
                                     <div></div>
                                     <div></div>
                                     <div style="text-align:right">
-                                        <img src="../assets/terminal.png" style="width:20px;margin-right:5px" @click="showTerminal">
-                                        <img src="../assets/edit.png" style="width:20px;margin-right:5px">
+                                        <img src="../assets/terminal.png" style="width:20px;margin-right:5px"
+                                            @click="showTerminal">
+                                        <img src="../assets/edit.png" style="width:20px;margin-right:5px"
+                                            @click="showEditForm">
                                         <img src="../assets/delete.png" style="width:20px;margin-right:5px">
                                     </div>
                                 </div>
                                 <div style="display:none">
                                     <div style="background-color:#dedede;height:22px">
                                         <div style="font-size:14px; display:inline-block">$agent: {{device.name}}</div>
-                                           <button type="button" class="close" aria-label="Close" style="height:20px" @click="hideTerminal">
+                                        <button type="button" class="close" aria-label="Close" style="height:20px"
+                                            @click="hideTerminal">
+                                            <span style="height:20px">&times;</span>
+                                        </button>
+                                    </div>
+                                    <textarea v-model="terminal" class="myTerminal" style="width: 100%" rows="10"
+                                        @input="submitTerminal"></textarea>
+                                </div>
+                                <div style="display:none">
+                                    <form id="updateDevice">
+                                        <div style=" grid-column: 1/4;">
+                                            <button type="button" class="close" aria-label="Close" style="height:20px"
+                                                @click="hideEdit">
                                                 <span style="height:20px">&times;</span>
                                             </button>
-                                    </div>     
-                                    <textarea v-model="terminal" class="myTerminal" style="width: 100%" rows="10" @input="submitTerminal"></textarea>
+                                        </div>
+                                        <div class="mycard-title">Name:</div>
+                                        <div class="mycard-content">
+                                            <input type="text" class="form-control form-control-sm"
+                                                style="font-size: 14px;height: 22px;padding: 5px;">
+                                        </div>
+                                        <div></div>
+                                        <div class="mycard-title">Tags:</div>
+                                        <div class="mycard-content">
+                                            <div class="input-group">
+                                                <label style="margin-top:2.5px">Type:</label>
+                                                <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">drone</button>
+                                                    </li>
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">sensor</button>
+                                                    </li>
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">robot</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="input-group">
+                                                <label style="margin-top:2.5px">HW Arch:</label>
+                                                <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">arm64</button>
+                                                    </li>
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">arm32</button>
+                                                    </li>
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">8051</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="input-group">
+                                                <label style="margin-top:2.5px">OS:</label>
+                                                <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">freebsd</button>
+                                                    </li>
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">netbsd</button>
+                                                    </li>
+                                                    <li class="my-li" style="display:inline-block">
+                                                        <button class="btn btn-primary btn-sm"
+                                                            style="margin:5px;padding:0 5px">darwin</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div></div>
+                                        <div style="text-align:right;margin-top:5px;grid-column:1/4">
+                                            <button type="button" class="btn btn-primary btn-sm"
+                                                style="font-size:13px;padding: 2.5px 5px;"
+                                                @click="submitEdit">Update</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -94,8 +174,7 @@
                     ref="collapseTwo">
                     <div class="card-body" style="text-align:left;padding:7.5px">
                         <p style="margin-bottom:5px;font-size:14px">Updating Targets:</p>
-                        <div
-                            style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: scroll">
+                        <div style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: scroll">
                             <div>
                                 <form class="form-inline">
                                     <div class="input-group"
@@ -123,7 +202,8 @@
                             <div v-for="device in targetDevices" class="simpleDeviceCard">
                                 <div class="input-group" style="padding:2.5px;">Name:
                                     <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.name}}</div>
-                                    <button type="button" class="close" aria-label="Close" @click="removeDevice(device.name)" style="height:20px">
+                                    <button type="button" class="close" aria-label="Close"
+                                        @click="removeDevice(device.name)" style="height:20px">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
@@ -207,7 +287,7 @@
                                 </div>
                             </div>
                         </form>
-                        <div style="text-align:right;margin-top:5px">
+                        <div style="text-align:right;margin-top:5px;">
                             <button type="button" class="btn btn-primary"
                                 style="font-size:14px;padding: 2.5px 5px;">Update</button>
                         </div>
@@ -303,13 +383,24 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
-       submitTerminal: function () {
+        submitEdit: function () {
+            // Post one device update
+        },
+        hideEdit: function (e) {
+            e.path[5].childNodes[0].style.display = 'grid';
+            e.path[5].childNodes[2].style.display = 'none';
+        },
+        showEditForm: function (e) {
+            e.path[2].style.display = 'none';
+            e.path[3].childNodes[2].style.display = 'inline'
+        },
+        submitTerminal: function () {
             //Post one line command
             //console.log(this.terminal.split('\n'));
         },
         hideTerminal: function (e) {
-            e.path[4].childNodes[0].style.display='grid';
-            e.path[4].childNodes[1].style.display='none';
+            e.path[4].childNodes[0].style.display = 'grid';
+            e.path[4].childNodes[1].style.display = 'none';
             //console.log(e.path)
         },
         showTerminal: function (e) {
@@ -322,44 +413,42 @@ export default {
             //console.log("card");
             //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
         },
-        showRelationship: function(tag, device) {
+        showRelationship: function (tag, device) {
             //console.log()
-            
-    device.marker.bounce(4);
-    if (polyline) {
-        polyline.remove();
-        polyline = "";
-    }
-    if (device.relations == true) {
-
-        var latlngs = [];
-        this.devices.forEach(function (target) {
-            if (target.tags.some(el => el == tag)) {
-                latlngs.push([
-                    [target.location.lon, target.location.lat],
-                    [device.location.lon, device.location.lat]])
+            device.marker.bounce(4);
+            if (polyline) {
+                polyline.remove();
+                polyline = "";
             }
-        });
-        let color;
-        switch (tag) {
-            case 'amd64':
-                color = "#DFABFF";
-                break;
-            case 'swarm':
-                color = "#FF8A8A";
-                break;
-        }
-        polyline = L.polyline(latlngs,
-            {
-                color: color,
-                weight: 2,
-            }).addTo(map);
-        map.fitBounds(polyline.getBounds());
+            if (device.relations == true) {
 
-        //console.log(polyline)
-    }
-    return device.relations ? false : true;
-},
+                var latlngs = [];
+                this.devices.forEach(function (target) {
+                    if (target.tags.some(el => el == tag)) {
+                        latlngs.push([
+                            [target.location.lon, target.location.lat],
+                            [device.location.lon, device.location.lat]])
+                    }
+                });
+                let color;
+                switch (tag) {
+                    case 'amd64':
+                        color = "#DFABFF";
+                        break;
+                    case 'swarm':
+                        color = "#FF8A8A";
+                        break;
+                }
+                polyline = L.polyline(latlngs,
+                    { color: color,
+                        weight: 2,
+                    }).addTo(map);
+                map.fitBounds(polyline.getBounds());
+
+                //console.log(polyline)
+            }
+            return device.relations ? false : true;
+        },
         filterDevice: function () {
             var value = this.searchText.toLowerCase();
             this.tags.forEach(function (tag) {
@@ -495,61 +584,57 @@ export default {
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
         axios.get("/device.json").then(response => {
-                //console.log(response.data);
-                for (let i = 0; i < response.data.total; i++) {
-                    let a = response.data.items[i];
-                    //This the correct latlng
-                    //let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
-                    //The latlng is faked
-                    // let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
-                    //This the correct latlng
-                    let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: a.id,
-                        alt: a.tags? a.tags: []
-                    });
-                    this.devices.push({
-                        marker:marker,
-                        name: a.id,
-                        tags: a.tags? a.tags:[],
-                        location: a.location,
-                        isActive: true,
-                        relations: true
-                    });
+            //console.log(response.data);
+            for (let i = 0; i < response.data.total; i++) {
+                let a = response.data.items[i];
+                //This the correct latlng
+                //let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+                //The latlng is faked
+                // let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
+                //This the correct latlng
+                let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
+                    icon: L.icon({
+                        iconUrl: "/done.png",
+                        iconSize: [20, 20]
+                    }),
+                    title: a.id,
+                    alt: a.tags ? a.tags : []
+                });
+                this.devices.push({
+                    marker: marker,
+                    name: a.id,
+                    tags: a.tags ? a.tags : [],
+                    location: a.location,
+                    isActive: true,
+                    relations: true
+                });
 
-                    //console.log(a.tags.length);
-                    if(a.tags){
-                             for (let j = 0; j < a.tags.length; j++) {
+                //console.log(a.tags.length);
+                if (a.tags) {
+                    for (let j = 0; j < a.tags.length; j++) {
                         if (!this.tags.some(e => e.tag === a.tags[j])) {
                             this.tags.push({
                                 isActive: true,
                                 tag: a.tags[j]
                             });
                         }
-                        }
                     }
-               
-                    //console.log(this.tags);
-                    //Markers click function
-                    marker.on("click", event => {
-                        if (
-                            !this.targetDevices.some(
-                                e => e.name === event.target.options.title
-                            )
-                        ) {
-                            this.targetDevices.push({
-                                name: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
-                    });
-                    markers.addLayer(marker);
                 }
-            })
-            .catch(error => {
+                //console.log(this.tags);
+                //Markers click function
+                marker.on("click", event => {
+                    if (!this.targetDevices.some(
+                            e => e.name === event.target.options.title
+                        )) {
+                        this.targetDevices.push({
+                            name: event.target.options.title,
+                            tags: event.target.options.alt
+                        });
+                    }
+                });
+                markers.addLayer(marker);
+            }
+        }).catch(error => {
                 console.log(error);
             });
         map.addLayer(markers);
@@ -581,6 +666,14 @@ export default {
 #updateTags {
   display: grid;
   grid-template-columns: 1fr 3.5fr;
+  grid-gap: 2.5px;
+  border: 1px solid #e4e4e4;
+  border-radius: 2px;
+  padding: 5px 2.5px;
+}
+#updateDevice {
+  display: grid;
+  grid-template-columns: 0.7fr 4fr 0.5fr;
   grid-gap: 2.5px;
   border: 1px solid #e4e4e4;
   border-radius: 2px;
