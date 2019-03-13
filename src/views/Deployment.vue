@@ -297,7 +297,6 @@
                     <div style="text-align:left">
                         Logs: <div id="mylog" style="text-align:left" class="myfont_c"></div>
                     </div>
-                  
                 </div>
             </div>
         </div>

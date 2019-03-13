@@ -10,7 +10,7 @@
                     <button class="btn btn-light collapsed" type="button" data-toggle="collapse"
                         data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne"
                         style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
-                        <img src="../assets/edit.png" style="width:20px">
+                        <img src="../assets/device.png" style="width:18px">
                         Devices List
                     </button>
                 </div>
@@ -57,7 +57,14 @@
                                     <div class="mycard-title">Current Task:</div>
                                     <div class="mycard-content">operationA-v01</div>
                                     <div class="mycard-title">Current Logs:</div>
-                                    <div></div>
+                                    <div v-if="device.logs.error" style="text-align:left">
+                                        <img src="../assets/done.png" style="width:20px"
+                                            @click="showlog1(device.logs.log)">
+                                    </div>
+                                    <div v-else style="text-align:left">
+                                        <img src="../assets/error.png" style="width:20px"
+                                            @click="showlog1(device.logs.log)">
+                                    </div>
                                     <div class="mycard-title">History Tasks:</div>
                                     <div></div>
                                     <div></div>
@@ -174,7 +181,8 @@
                     ref="collapseTwo">
                     <div class="card-body" style="text-align:left;padding:7.5px">
                         <p style="margin-bottom:5px;font-size:14px">Updating Targets:</p>
-                        <div style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: scroll">
+                        <div
+                            style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: scroll">
                             <div>
                                 <form class="form-inline">
                                     <div class="input-group"
@@ -353,12 +361,68 @@
         </div>
     </div>
     <div id="map" style="width:800px" ref="map"></div>
+    <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="margin: 50px 100px;">
+            <div class="modal-content" style="width:170%">
+                <div class="modal-header">
+                    <h5 class="modal-title">Logs for Task:</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="mylog-body" class="modal-body">
+                    <div class="accordion" id="accordionLog">
+                        <div class="card" style="background-color:#f1f1f1">
+                            <div id="headingbuild">
+                                <button class="btn btn-link" type="button" data-toggle="collapse"
+                                    data-target="#collapsebuild" aria-expanded="true" aria-controls="collapsebuild"
+                                    style="padding: 0 10px">
+                                    <span>&#9656;</span>
+                                </button>
+                                Build
+                            </div>
+                            <div id="collapsebuild" class="collapse show" aria-labelledby="headingBuild"
+                              style="padding: 0 0px 0px 35px;">
+                            </div>
+                        </div>
+                        <div class="card" style="background-color:#f1f1f1">
+                            <div id="headinginstall">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                    data-target="#collapseinstall" aria-expanded="false" aria-controls="collapseinstall"
+                                    style="padding: 0 10px">
+                                    <span>&#9656;</span>
+                                </button>
+                                Install
+                            </div>
+                            <div id="collapseinstall" class="collapse" aria-labelledby="headinginstall"
+                               style="padding: 0 0px 0px 35px;">
+                            </div>
+                        </div>
+                        <div class="card" style="background-color:#f1f1f1">
+                            <div id="headingrun">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                    data-target="#collapserun" aria-expanded="false" aria-controls="collapserun"
+                                    style="padding: 0 10px">
+                                    <span>&#9656;</span>
+                                </button>
+                                Run
+                            </div>
+                            <div id="collapserun" class="collapse" aria-labelledby="headingrun"
+                                 style="padding: 0 0px 0px 35px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </template>
 
 <script>
 import axios from "axios";
 import "leaflet.smooth_marker_bouncing";
+import $ from "jquery";
 
 var map;
 var polyline;
@@ -367,6 +431,363 @@ function rand(n) {
     let max = n + 0.001;
     let min = n - 0.001;
     return Math.random() * (max - min) + min;
+}
+function checkLogs(target) {
+
+   /*  var des = "target=" + target;
+    try {(async () => {
+            let logs = await axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des);
+            logs.data.items.some( el=>el.error ==true)
+            return {
+                log:logs,
+                error: false
+            };
+        })();
+    } catch (error) {
+        console.log(error);
+    } */
+    return {
+                log: [
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "STAGE-START",
+            "time": 1550760204391,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "compressed to 571 bytes",
+            "time": 1550760204410,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760204424,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760205436,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "received package sized 1025981 bytes",
+            "time": 1550760206077,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "STAGE-START",
+            "time": 1550760206113,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "compressed to 1026008 bytes",
+            "time": 1550760206216,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760206223,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760207241,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760215456,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760216474,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760217260,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760218276,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760226494,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760227513,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760228299,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760229319,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760237538,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760238553,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760239341,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760240364,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760248581,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760249599,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760306604,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760314824,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760315839,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760316624,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "run",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760317643,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760325864,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760326882,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760327659,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760328675,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760336919,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760337940,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760338710,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760339732,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760347966,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760348979,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760349756,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "install",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760350784,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent announcement",
+            "time": 1550760359001,
+            "target": "my-laptop"
+        },
+        {
+            "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
+            "stage": "build",
+            "command": "$manager",
+            "output": "sent task",
+            "time": 1550760360016,
+            "target": "my-laptop"
+        },
+       
+    ],
+                error: false
+            };
 }
 
 export default {
@@ -383,6 +804,17 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+        showlog1: function (log) {
+            log.forEach(function(el) {
+                if(el.error == true){
+                    $("#collapse"+el.stage).append('<div class="myfont_f">'+ new Date(el.time).toLocaleString()+'  <div class="myfont_t" style="display:inline-block">'+ el.command +'</div>  '+el.output + '</div>')
+                }else{
+                    $("#collapse"+el.stage).append('<div class="myfont_s">'+ new Date(el.time).toLocaleString()+'  <div class="myfont_t" style="display:inline-block">'+ el.command +'</div>  '+el.output + '</div>')
+                }
+            }
+            )
+            $("#myLog").modal()
+        },
         submitEdit: function () {
             // Post one device update
         },
@@ -562,6 +994,7 @@ export default {
             }
         ).addTo(map);
 
+        //Custermize the markerCluster style
         var markers = L.markerClusterGroup({
             spiderLegPolylineOptions: {
                 weight: 1,
@@ -602,6 +1035,7 @@ export default {
                 });
                 this.devices.push({
                     marker: marker,
+                    logs: checkLogs(a.id),
                     name: a.id,
                     tags: a.tags ? a.tags : [],
                     location: a.location,
@@ -657,6 +1091,9 @@ export default {
 #mytable th,
 #mytable td {
   padding: 7.5px;
+}
+#mylog-body{
+    text-align: left
 }
 #newDeployment {
   display: grid;
