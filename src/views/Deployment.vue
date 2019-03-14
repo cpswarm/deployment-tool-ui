@@ -329,40 +329,31 @@ function checkStatus(id, total) {
     //fake status count
     //return [Math.floor(Math.random() * 31), Math.floor(Math.random() * 11)];
     var des = "task=" + id + "&error=true&output=STAGE-END";
-    let logs;
-    try {
-        (async () => {
-            logs = await axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des);
-            if (!logs.data.items) {
+    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des).then(response =>{
+
+            if (!response.data.items) {
                 //console.log(0)
                 return [total, 0];
             } else {
-                return [total - logs.data.items, logs.data.items];
+                return [total - response.data.items.length, response.data.items.length];
             }
-        })();
-    } catch (error) {
+
+    }).catch (error => {
         console.log(error);
-    }
-    return [0, 0];
+    });
+   
 }
 // Get one order finish time
 function getFinishTime(id) {
     // fake finish time
     //return new Date(1551800395755).toLocaleString();
     var des = "task=" + id;
-    try {
-        (async () => {
-            let logs = await axios.get(
-                "http://reely.fit.fraunhofer.de:8080/logs?" + des
-            );
-            return new Date(
-                logs.data.items[logs.data.total - 1].time
-            ).toLocaleString();
-        })();
-    } catch (error) {
+    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des).then(response =>{
+                return new Date(response.data.items[response.data.total - 1].time).toLocaleString();
+        }).catch(error=> {
         console.log(error);
-    }
-    return new Date(1551800395755).toLocaleString();
+        })
+    //return new Date(1551800395755).toLocaleString();
 }
 // Websocket
 function listen(id, close, target, host) {
@@ -984,14 +975,27 @@ export default {
 
                 a.build ? a.build : (a.build = "");
                 a.deploy ? a.deploy : (a.deploy = "");
-                a.status = a.deploy
-                    ? checkStatus(a.id, a.deploy.match.list.length)
-                    : checkStatus(a.id, 1);
-                a.finishedAt = getFinishTime(a.id);
                 a.isActive = false;
+                getFinishTime(a.id).then(data =>{
+                    a.finishedAt = data;
+                });   
+                if(a.deploy){
+                    checkStatus(a.id, a.deploy.match.list.length).then(data=>{
+                        a.status = data;
+                        this.orders.push(a);
+                        //console.log(data)
+                    });
+                }else{
+                     a.status =  [0,0]
+                     a.deploy =""; 
+                     this.orders.push(a);
+                }
+
+                 
+               
 
                 //this.orders is the list of all deployment saved on the server
-                this.orders.push(a);
+               
                 //console.log(this.orders)
                 /* this.orders.push({
                             name: a.id,
@@ -1036,7 +1040,8 @@ export default {
                 });
                 //console.log(this.devices)
                 //this.tags is the list of all tags of the devices, no duplicated
-                for (let j = 0; j < a.tags.length; j++) {
+                if(a.tags){
+                     for (let j = 0; j < a.tags.length; j++) {
                     if (!this.tags.some(e => e.tag === a.tags[j])) {
                         this.tags.push({
                             isActive: true,
@@ -1044,6 +1049,8 @@ export default {
                         });
                     }
                 }
+                }
+               
                 //console.log(this.tags);
                 //this.targetDevices is the list of devices selected in 'deployment target'
                 marker.on("click", event => {

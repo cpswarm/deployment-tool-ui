@@ -433,20 +433,33 @@ function rand(n) {
     return Math.random() * (max - min) + min;
 }
 function checkLogs(target) {
-
-   /*  var des = "target=" + target;
-    try {(async () => {
-            let logs = await axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des);
-            logs.data.items.some( el=>el.error ==true)
+   
+   var des = "target=" + target;
+    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?perPage=1000&" + des).then(function (response) {
+   
+    if (response.data.items) {
+        if (response.data.items.some(el => el.error == true)) {
             return {
-                log:logs,
+                log: response.data.items,
                 error: false
             };
-        })();
-    } catch (error) {
-        console.log(error);
-    } */
-    return {
+        } else {
+            return {
+                log: response.data.items,
+                error: true
+            };
+        }
+    } else {
+            return {
+                log: "",
+                error: true
+            };
+    }
+
+}).catch(error => {
+    console.log(error);
+})
+/*     return {
                 log: [
         {
             "task": "0b796aac-30f7-47b5-ad13-0bfe8367be5c",
@@ -787,7 +800,7 @@ function checkLogs(target) {
        
     ],
                 error: false
-            };
+            }; */
 }
 
 export default {
@@ -1013,10 +1026,12 @@ export default {
                 });
             }
         });
+
+
         //axios.defaults.headers.get["Content-Type"] = "application/x-www-form-urlencoded";
         //http://reely.fit.fraunhofer.de:8080/targets
         // /device.json
-        axios.get("/device.json").then(response => {
+        axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
             //console.log(response.data);
             for (let i = 0; i < response.data.total; i++) {
                 let a = response.data.items[i];
@@ -1025,6 +1040,12 @@ export default {
                 //The latlng is faked
                 // let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
                 //This the correct latlng
+                if(!a.location){
+                    a.location={
+                        lon:rand(50.749523),
+                           lat:rand(7.203923),
+                    }
+                }
                 let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
                     icon: L.icon({
                         iconUrl: "/done.png",
@@ -1033,15 +1054,21 @@ export default {
                     title: a.id,
                     alt: a.tags ? a.tags : []
                 });
-                this.devices.push({
+                
+              
+                checkLogs(a.id).then(data => {
+                  
+                    this.devices.push({
                     marker: marker,
-                    logs: checkLogs(a.id),
+                    logs: data,
                     name: a.id,
                     tags: a.tags ? a.tags : [],
                     location: a.location,
                     isActive: true,
                     relations: true
                 });
+                })
+               
 
                 //console.log(a.tags.length);
                 if (a.tags) {
