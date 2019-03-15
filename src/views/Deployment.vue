@@ -35,7 +35,7 @@
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample">
                     <div style="padding:5px">
                         <div id="deviceList">
-                            <div v-for="order in orders" class="mycard card-body" style="padding:5px;margin-bottom:5px">
+                            <div v-for="order in orders" class="mycard card-body" style="padding:5px;margin-bottom:5px" v-show="order">
                                 <div class="mycard-title">Name:</div>
                                 <div class="mycard-content">{{order.id}}</div>
                                 <div class="mycard-title">Devices:</div>
@@ -123,6 +123,12 @@
                                 </div>
                                 <div></div>
                                 <div style="text-align: right">
+                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="stopOrder(order)">
+                                        <img src="../assets/delete.png" style="width:20px">
+                                    </button>
+                                      <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="deleteOrder(order)">
+                                        <img src="../assets/delete.png" style="width:20px">
+                                    </button>
                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="duplicateOrder(order)">
                                         <img src="../assets/duplicate.png" style="width:20px">
                                     </button>
@@ -262,7 +268,7 @@
         <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
             <div class="modal-content" >
                 <div class="modal-header">
-                    <h5 class="modal-title">Error Message</h5>
+                    <h5 id="" class="modal-title">Message</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -611,6 +617,27 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+        deleteOrder: function (order) {
+
+            $('#mymodal-body').empty()
+            axios.delete("http://reely.fit.fraunhofer.de:8080/orders/" + order.id).then(
+                response=>{
+                
+                    this.orders.splice(order.id,1);
+                    //console.log(response);
+                    $('#mymodal-body').append("Delete order with "+ order.id + "  "+ response.statusText)
+                    $('#myAlert').modal();                   
+                    //console.log(this.orders.length)
+                }
+            ).catch(error =>{
+               $('#mymodal-body').append("Delete order with "+ order.id + "  "+ error)
+               $('#myAlert').modal();
+            })
+            
+        },
+        stopOrder: function (order) {
+            
+        },
         editorInit: function () {
             require("brace/ext/language_tools"); //language extension prerequsite...
             require("brace/mode/golang");
@@ -803,6 +830,9 @@ export default {
             //console.log(this.source)
         },
         submitDeploy: function () {
+            
+            $('#mymodal-body').empty();
+
             let ids = [];
             let tags = [];
             for (let i = 0; i < this.targetDevices.length; i++) {
