@@ -100,8 +100,7 @@
                                         <div v-if="order.deploy">
                                         <div v-for="c in order.deploy.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
                                     </div>
-                                    </div>
-                                    
+                                    </div>                                   
                                     <div class="mycom-title">Target:</div>
                                     <div class="mycom-content" style="color:#00AE31">ids:</div>
                                     <div></div>
@@ -109,9 +108,7 @@
                                          <div v-if="order.deploy">
                                         <div v-for="t in order.deploy.target.ids" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
                                     </div>
-
-                                    </div>
-                                   
+                                   </div>                                   
                                     <div></div>
                                     <div class="mycom-content" style="color:#00AE31">tags:</div>
                                     <div></div>
@@ -319,47 +316,54 @@ import $ from "jquery";
 import * as d3 from "d3";
 
 var ws;
+
 // Generate fake latitude and logitude
 function rand(n) {
     let max = n + 0.001;
     let min = n - 0.001;
     return Math.random() * (max - min) + min;
 }
+
+// Get one order finish time 
+function getFinishTime(id) {
+    //Request the latest logs time
+    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+        //console.log(response.data)
+        return new Date(response.data.items[0].time).toLocaleString();
+    }).catch(error => {
+        console.log(error);
+    })
+    //return new Date(1551800395755).toLocaleString();
+}
+// Check device status
+function checkStatus(id, total) {
+    // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
+    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+        console.log(response.data.items)
+        if (!response.data.items) {
+            return [total, 0];
+        } else {
+            if (response.data.items[0].stage == "build") {
+                return [0, 0]
+            } else {
+                return [total - response.data.items.length, response.data.items.length];
+            }
+        }
+    }).catch(error => {
+        console.log(error);
+    });
+}
+
+
+
+
 // Split user input commands line by line
 function setCommands(arr) {
     var newarr = arr.split("\n");
     return newarr;
 }
-// Check device status
-function checkStatus(id, total) {
 
-    var des = "task=" + id + "&error=true&output=STAGE-END";
-    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des).then(response =>{
 
-            if (!response.data.items) {
-                //console.log(0)
-                return [total, 0];
-            } else {
-                return [total - response.data.items.length, response.data.items.length];
-            }
-
-    }).catch (error => {
-        console.log(error);
-    });
-   
-}
-// Get one order finish time
-function getFinishTime(id) {
-    // fake finish time
-    //return new Date(1551800395755).toLocaleString();
-    var des = "task=" + id;
-    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des).then(response =>{
-                return new Date(response.data.items[response.data.total - 1].time).toLocaleString();
-        }).catch(error=> {
-        console.log(error);
-        })
-    //return new Date(1551800395755).toLocaleString();
-}
 // Websocket
 function listen(id, close, target, host) {
     if (!("WebSocket" in window)) {
@@ -660,7 +664,7 @@ export default {
             require("brace/snippets/javascript");
         },
         listen: function (id, close, targets, host) {
-            //console.log(targets, host)
+            //console.log(close,ws);
             if (!close) {
                 axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc&perPage=1000")
                     .then(function (response) {
@@ -708,9 +712,11 @@ export default {
                             ];
                             targets.forEach(function (el) {    
                                 var oneTargetlog = response.data.items.filter(log => log.target == el && log.stage !='build' );
-                                //console.log("Target log", oneTargetlog);
+                                console.log("Target log", oneTargetlog);
                                  if (oneTargetlog.length > 0) {
-                                  if (oneTargetlog[0].error) {
+                                  if (oneTargetlog.some(function (el) {
+                                      return el.error == true && el.output=="STAGE-END" 
+                                  })) {
                                     switch (oneTargetlog[0].stage) {
                                         case "install":
                                             myTree.children.push({
@@ -815,7 +821,9 @@ export default {
                 d3.selectAll("circle").remove();
                 d3.selectAll("line").remove();
                 $("#mylog").empty(); 
-                ws.close();
+                if(ws){
+                    ws.close();
+                };
             }
         },
         duplicateOrder: function (order) {
@@ -914,9 +922,8 @@ export default {
                     $("#myAlert").modal();
                 });
         });
-    }
-
-    /*   myYaml = yaml.safeDump(taskDer);
+    }else{
+         myYaml = yaml.safeDump(taskDer);
       //console.log(myYaml);
       //Hard coded source deployment
       axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
@@ -935,7 +942,10 @@ export default {
               //alert(error.response);
               $("#mymodal-body").append(error.response.data.error);
               $("#myAlert").modal();
-          }); */
+          }); 
+    }
+
+ 
 },
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
