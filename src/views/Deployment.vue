@@ -35,17 +35,17 @@
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample">
                     <div style="padding:5px">
                         <div id="deviceList">
-                            <div v-for="order in orders" class="mycard card-body" style="padding:5px;margin-bottom:5px" v-show="order">
+                            <div v-for="order in orders" class="mycard card-body" style="padding:5px;margin-bottom:5px" v-show="order" :key="order.id">
                                 <div class="mycard-title">Name:</div>
                                 <div class="mycard-content">{{order.id}}</div>
                                 <div class="mycard-title">Devices:</div>
                                 <div class="mycard-content">
                                     <img src="../assets/done.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false,order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,order.deploy.match.list,order.build.host)">
                                         <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
                                     </button>
                                     <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false,order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,order.deploy.match.list,order.build.host)">
                                         <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
                                     </button>
                                 </div>
@@ -279,7 +279,7 @@
             <div class="modal-content" style="width:170%">
                 <div class="modal-header">
                     <h5 class="modal-title">Process Tree</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="listen(1, true)">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -314,8 +314,7 @@ import yaml from "js-yaml";
 import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
-
-var ws;
+import { marker } from 'leaflet';
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -324,281 +323,10 @@ function rand(n) {
     return Math.random() * (max - min) + min;
 }
 
-// Get one order finish time 
-function getFinishTime(id) {
-    //Request the latest logs time
-    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
-        //console.log(response.data)
-        return new Date(response.data.items[0].time).toLocaleString();
-    }).catch(error => {
-        console.log(error);
-    })
-    //return new Date(1551800395755).toLocaleString();
-}
-// Check device status
-function checkStatus(id, total) {
-    // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-    return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
-        console.log(response.data.items)
-        if (!response.data.items) {
-            return [total, 0];
-        } else {
-            if (response.data.items[0].stage == "build") {
-                return [0, 0]
-            } else {
-                return [total - response.data.items.length, response.data.items.length];
-            }
-        }
-    }).catch(error => {
-        console.log(error);
-    });
-}
-
-
-
-
-// Split user input commands line by line
-function setCommands(arr) {
-    var newarr = arr.split("\n");
-    return newarr;
-}
-
-
-// Websocket
-function listen(id, close, target, host) {
-    if (!("WebSocket" in window)) {
-        alert("WebSocket is not supported by your Browser!");
-        return;
-    }
-    if (close && ws) {
-        console.log(ws);
-        ws.close();
-    } else {
-        ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&topics=logs");
-        var myTree = {
-                value: 0,
-                children: [{
-                    name: "Install-s",
-                    value: 0,
-                    class: "node-s",
-                    commands: "",
-                    devices: target,
-                    children: [
-                        {
-                            name: "Run-s",
-                            value: 0,
-                            class: "node-s",
-                            commands: "",
-                            devices: []
-                        },
-                        {
-                            name: "Run-f",
-                            value: 0,
-                            class: "node-f",
-                            commands: "",
-                            devices: []
-                        }
-                    ]
-                },
-                {
-                    name: "Install-f",
-                    value: 0,
-                    class: "node-f",
-                    commands: "",
-                    devices: [],
-                }]
-            };
-        ws.onopen = function () {
-            console.log("Socket connected.");
-            $("#mylog").prepend("<p>Connected!</p>");
-        };
-        ws.onmessage = function (event) {
-            //console.log(event.data);
-            var obj = JSON.parse(event.data);
-          
-            //var json = JSON.stringify(obj, null, 2);
-            //console.log(obj);
-            generateTree(obj.payload, target, host, myTree);
-            // $("#mylog").prepend("<pre>" + json + "</pre>");
-        };
-        ws.onclose = function () {
-            console.log("Socket disconnected.");
-            $("#mylog").prepend("<p>Disconnected!</p>");
-            // If socket disconnected, try to connect again after 5s.
-            /* setTimeout(function () { listen(1, true);}, 5000); */
-        };
-    }
-}
-
-function generateTree(logs, targets, host, myTree) {
-
-    $("#mylog").empty();
-    // Consider whether all nodes need be removed
-    d3.selectAll("circle").remove();
-    d3.selectAll("line").remove();
-
-    //console.log('targets', targets, 'host', host);
-    //console.log('all logs', logs)
-    var code = "";
-
-    // Tree for Build process
-    // Meaning there is build process.
-    if (host) {
-        var hostLog = logs.filter(log => log.stage == "build");
-        //console.log("host log", hostLog)
-        //If there are logs for build
-        if (hostLog.length > 0) {
-            if (hostLog[0].error) {
-                myTree.name = "Build";
-                myTree.value = 1;
-                myTree.class = "node-f";
-                myTree.commands = hostLog;
-            } else {
-                myTree.name = "Build";
-                myTree.value = 1;
-                myTree.class = "node-s";
-                myTree.commands = hostLog;
-                //myTree.children = [];
-            }
-            if (hostLog.length > 1) {
-                hostLog.forEach(function (el) {
-                    //console.log(el)
-                    code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                });
-            } else {
-                //console.log(hostLog)
-                code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(hostLog[0].time).toLocaleString() + "  " + hostLog[0].stage + "  " + hostLog[0].output + "</div>";
-            }
-            // When build finish
-        } else {
-            myTree.children[0].value = targets.length;
-        }
-    }
-
-    // Tree for Deploy process
-    // Meaning there is deploy process.
-    if (targets) {
-        targets.forEach(function (el) {
-            var oneTargetlog = logs.filter(log => log.target == el && log.stage != 'build');
-            console.log("Target log", oneTargetlog);
-
-            //Meaning the deploy starts
-            if (oneTargetlog.length > 0) {
-                if (oneTargetlog[0].error) {
-
-                    switch (oneTargetlog[0].stage) {
-                        case "install":
-                            if (!myTree.children[1].devices.includes(el)) {
-                                   //Remove the node from previous status
-                                myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
-                                myTree.children[0].value = myTree.children[0].devices.length;
-                                   // Add the node to new status
-                                myTree.children[1].devices.push(el);
-                                myTree.children[1].value = myTree.children[1].devices.length;
-                                myTree.children[1].commands = oneTargetlog;
-                            }
-                            break;
-                        case "run":
-                            if (!myTree.children[0].children[1].devices.includes(el)) {
-                                 //Remove the node from previous status
-                                 if(myTree.children[0].devices.indexOf(el) != -1){
-                                        myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
-                                        myTree.children[0].value = myTree.children[0].devices.length;
-                                 }else if(myTree.children[0].children[0].devices.indexOf(el) !=-1){
-                                        myTree.children[0].children[0].devices.splice(myTree.children[0].children[0].devices.indexOf(el), 1);
-                                        myTree.children[0].children[0].value = myTree.children[0].children[0].devices.length;
-                                 }
-                                 // Add the node to new status
-                                myTree.children[0].children[1].devices.push(el);
-                                myTree.children[0].children[1].value = myTree.children[0].children[1].devices.length;
-                                myTree.children[0].children[1].commands = oneTargetlog;
-                            }
-                            break;
-                    }
-                    if (oneTargetlog.length > 1) {
-                        oneTargetlog.forEach(function (el) {
-                            code += '<div class="myfont_f">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                        });
-                    } else {
-                        code += '<div class="myfont_f">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
-                    }
-                } else {
-                    switch (oneTargetlog[0].stage) {
-                        case "install":
-                            if (!myTree.children[0].devices.includes(el)) {
-                                myTree.children[0].devices.push(el);
-                                myTree.children[0].value = myTree.children[0].devices.length;
-                                myTree.children[0].commands = oneTargetlog;
-                            }
-                            break;
-                        case "run":
-                            if (!myTree.children[0].devices.includes(el)) {
-                                myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
-                                myTree.children[0].devices.push(el);
-                                myTree.children[0].children[0].value = myTree.children[0].devices.length;
-                                myTree.children[0].children[0].commands = oneTargetlog;
-                            }
-                            break;
-                    }
-                    if (oneTargetlog.length > 1) {
-                        oneTargetlog.forEach(function (el) {
-                            code += '<div class="myfont_s">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                        });
-                    } else {
-                        code += '<div class="myfont_s">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
-                    }
-                }
-            }
-        });
-        console.log(myTree)
-    }
-
-    var treeLayout = d3.tree().size([200, 200]);
-    var root = d3.hierarchy(myTree);
-    treeLayout(root);
-
-    // Nodes
-    d3.select("svg g.nodes")
-        .selectAll("circle.node")
-        .data(root.descendants())
-        .enter()
-        .append("circle")
-        .attr("class", function (d) { return d.data.class; })
-        .attr("cx", function (d) { return d.x; })
-        .attr("cy", function (d) { return d.y; })
-        .attr("r", function (d) { return d.data.value * 3; });
-    // Links
-    d3.select("svg g.links")
-        .selectAll("line.link")
-        .data(root.links())
-        .enter()
-        .append("line")
-        .classed("link", true)
-        .attr("x1", function (d) { return d.source.x; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; })
-        .style("stroke-width", function (d) {
-            if (d.target.data.value == 0 && d.source.data.value == 0) {
-                return 0;
-            } else if (d.target.data.value == 0 && d.source.data.value != 0 && d.source.children && !d.target.children) {
-                return 0;
-            } else if (d.target.data.value == 0 && d.source.data.value != 0 && d.source.children && d.target.children) {
-                if (d.source.children[0].value == 0 && d.source.children.length > 1 && d.target.children[0].value == 0) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-            } else {
-                return 1;
-            }
-        })
-    $('#mylog').append('<div class="myCommandCard">' + code + '</div>');
-    $("#myTree").modal();
-}
 export default {
     data() {
         return {
+            ws: "",
             orderSearchT: "",
             deployName: "",
             deployDebug: "",
@@ -613,47 +341,39 @@ export default {
             targetDevices: [],
             tags: [],
             orders: [],
-            tree: []
+            tree: [],
+            markers:[]
         };
     },
     components: {
         editor: require("vue2-ace-editor")
     },
     methods: {
-        deleteOrder: function (order) {
-
-            $('#mymodal-body').empty()
-            axios.delete("http://reely.fit.fraunhofer.de:8080/orders/" + order.id).then(
-                response=>{
-                    
-                    //console.log(order.id)
-                    this.orders.splice(order.id,1);
-                    //console.log(response);
-                    $('#mymodal-body').append("Delete order with "+ order.id + "  "+ response.statusText)
-                    $('#myAlert').modal();                   
-                    //console.log(this.orders.length)
-                }
-            ).catch(error =>{
-               $('#mymodal-body').append("Delete order with "+ order.id + "  "+ error)
-               $('#myAlert').modal();
+        getFinishTime: function (id) {
+            //Request the latest logs time
+            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+                //console.log(response.data)
+                return new Date(response.data.items[0].time).toLocaleString();
+            }).catch(error => {
+                console.log(error);
             })
-            
+            //return new Date(1551800395755).toLocaleString();
         },
-        stopOrder: function (order) {
-
-             $('#mymodal-body').empty();
-            axios.put("http://reely.fit.fraunhofer.de:8080/orders/"+order.id+"/stop").then(response=>{
-
-                    //this.orders.splice(order.id,1);
-                    //console.log(response);
-                    $('#mymodal-body').append("Stop order with "+ order.id + "  "+ response.data.message)
-                    $('#myAlert').modal();                   
-                    //console.log(this.orders.length)
-
-            }).catch(error =>{
-               $('#mymodal-body').append("Delete order with "+ order.id + "  "+ error)
-               $('#myAlert').modal();
-            })
+        checkStatus: function (id, total) {
+            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
+            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+                if (!response.data.items) {
+                    return [total, 0];
+                } else {
+                    if (response.data.items[0].stage == "build") {
+                        return [0, 0]
+                    } else {
+                        return [total - response.data.items.length, response.data.items.length];
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
         },
         editorInit: function () {
             require("brace/ext/language_tools"); //language extension prerequsite...
@@ -663,168 +383,40 @@ export default {
             require("brace/theme/github");
             require("brace/snippets/javascript");
         },
-        listen: function (id, close, targets, host) {
-            //console.log(close,ws);
-            if (!close) {
-                axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc&perPage=1000")
-                    .then(function (response) {
-                        //console.log(response.data)
-                        var myTree = {
-                            value:0
-                        };
-                        // Tree for Build process
-                        if (host) {
-                            var hostLog = response.data.items.filter(log => log.stage == "build");
-                            console.log("host log", hostLog);
-                            if (hostLog.length>0){
-                                if (hostLog[0].error) {
-                                myTree.name = "Build";
-                                myTree.value = 1;
-                                myTree.class = "node-f";
-                                myTree.commands = hostLog.filter(log => log.error == true);
-                            } else {
-                                myTree.name = "Build";
-                                myTree.value = 1;
-                                myTree.class = "node-s";
-                                myTree.commands = hostLog;
-                                //myTree.children = [];
-                                }
-                            }
-                            
-                        }
-                        // Tree for Deploy process
-                        if (targets) {
-                            myTree.children = [
-                                {
-                                    name: "",
-                                    value: 0,
-                                    class: "",
-                                    commands: "",
-                                    children: [
-                                        {
-                                            name: "",
-                                            value: 0,
-                                            class: "",
-                                            commands: ""
-                                        }
-                                    ]
-                                }
-                            ];
-                            targets.forEach(function (el) {    
-                                var oneTargetlog = response.data.items.filter(log => log.target == el && log.stage !='build' );
-                                console.log("Target log", oneTargetlog);
-                                 if (oneTargetlog.length > 0) {
-                                  if (oneTargetlog.some(function (el) {
-                                      return el.error == true && el.output=="STAGE-END" 
-                                  })) {
-                                    switch (oneTargetlog[0].stage) {
-                                        case "install":
-                                            myTree.children.push({
-                                                name: "Install",
-                                                class: "node-f",
-                                                value: 1,
-                                                commands: oneTargetlog
-                                            });
-                                            break;
-                                        case "run":
-                                            myTree.children[0].children.push({
-                                                name: "Run",
-                                                class: "node-f",
-                                                value: 1,
-                                                commands: oneTargetlog
-                                            });
-                                            break;
-                                    }
-                                } else {
-                                    
-                                    switch (oneTargetlog[0].stage) {
-                                        case "transfer" && "install":
-                                            myTree.children[0].value++;
-                                            myTree.children[0].name = "Install";
-                                            myTree.children[0].class = "node-s";
-                                            myTree.children[0].commands = oneTargetlog;
-                                            break;
-                                        case "run":
-                                            myTree.children[0].children[0].name = "Run";
-                                            myTree.children[0].children[0].value++;
-                                            myTree.children[0].children[0].class = "node-s";
-                                            myTree.children[0].children[0].commands = oneTargetlog;
-                                            break;
-                                    }
-                                }
-                                }
-                            });
-                            //console.log(myTree)
-                        }
+        deleteOrder: function (order) {
 
-                        var treeLayout = d3.tree().size([200, 200]);
-                        var root = d3.hierarchy(myTree);
-                        treeLayout(root);
+            $('#mymodal-body').empty()
+            axios.delete("http://reely.fit.fraunhofer.de:8080/orders/" + order.id).then(
+                response => {
 
-                        // Nodes
-                        d3.select("svg g.nodes")
-                            .selectAll("circle.node")
-                            .data(root.descendants())
-                            .enter()
-                            .append("circle")
-                            .attr("class", function (d) { return d.data.class; })
-                            .attr("cx", function (d) { return d.x; })
-                            .attr("cy", function (d) { return d.y; })
-                            .attr("r", function (d) { return d.data.value * 3; })
-                            .on('click', function (d) {
-                                if (d.data.commands.length > 1) {
-                                    //console.log(d.data.class[5])
-                                    var code = "";
-                                    d.data.commands.forEach(function (el) {
-                                        code += new Date(el.time).toLocaleString() + "  " + el.stage +"  "+ el.output + "<br>"
-                                    }),
-                                        $('#mylog').prepend('<div class="myfont_' + d.data.class[5] + ' myCommandCard">' + code + '</div>');
-                                } else {
-                                    $('#mylog').prepend('<div class="myfont_' + d.data.class[5] + new Date(d.data.commands.time).toLocaleString() + "  " + d.data.commands.output + '</div>');
-                                }
-                            })
+                    //console.log(order.id)
+                    this.orders.splice(order.id, 1);
+                    //console.log(response);
+                    $('#mymodal-body').append("Delete order with " + order.id + "  " + response.statusText)
+                    $('#myAlert').modal();
+                    //console.log(this.orders.length)
+                }
+            ).catch(error => {
+                $('#mymodal-body').append("Delete order with " + order.id + "  " + error)
+                $('#myAlert').modal();
+            })
 
-                        // Links
-                        d3.select("svg g.links")
-                            .selectAll("line.link")
-                            .data(root.links())
-                            .enter()
-                            .append("line")
-                            .classed("link", true)
-                            .attr("x1", function (d) { return d.source.x; })
-                            .attr("y1", function (d) { return d.source.y; })
-                            .attr("x2", function (d) { return d.target.x; })
-                            .attr("y2", function (d) { return d.target.y; })
-                            .style("stroke-width", function (d){
-                                
-                              if(d.target.data.value==0 && d.source.data.value==0)
-                              {
-                                  return 0;
-                              }else if(d.target.data.value==0 && d.source.data.value !=0 && d.source.children && !d.target.children){
-                                  
-                                  return 0;
-                             
-                            }else if(d.target.data.value==0 && d.source.data.value !=0 && d.source.children && d.target.children){
-                                  if(d.source.children[0].value==0 && d.source.children.length >1 &&d.target.children[0].value==0){
-                                      return 0;
-                                  }else{return 1}
-                            }else{
-                                    //console.log(d);
-                                    return 1;
-                                    }
-                            })
+        },
+        stopOrder: function (order) {
 
-                        $("#myTree").modal();
-                    });
-            } else {
-               
-                d3.selectAll("circle").remove();
-                d3.selectAll("line").remove();
-                $("#mylog").empty(); 
-                if(ws){
-                    ws.close();
-                };
-            }
+            $('#mymodal-body').empty();
+            axios.put("http://reely.fit.fraunhofer.de:8080/orders/" + order.id + "/stop").then(response => {
+
+                //this.orders.splice(order.id,1);
+                //console.log(response);
+                $('#mymodal-body').append("Stop order with " + order.id + "  " + response.data.message)
+                $('#myAlert').modal();
+                //console.log(this.orders.length)
+
+            }).catch(error => {
+                $('#mymodal-body').append("Delete order with " + order.id + "  " + error)
+                $('#myAlert').modal();
+            })
         },
         duplicateOrder: function (order) {
             $("#collapseThree").collapse("show");
@@ -833,120 +425,17 @@ export default {
             this.build_c = order.build ? order.build.commands.join("\n") : "";
             this.build_a = order.build ? order.build.artifacts.join("\n") : "";
             this.host = order.build ? order.build.host : "";
-            this.install_c = order.deploy.install.commands ? order.deploy.install.commands.join("\n") : "";
-            this.run_c = order.deploy.run.commands ? order.deploy.run.commands.join("\n") : "";
-            for (var i = 0; i < order.deploy.match.list.length; i++) {
-                this.targetDevices.push({
-                    name: order.deploy.match.list[i],
-                    tags: "" //check how can get a devices tag
-                });
+            this.install_c = order.deploy.install ? order.deploy.install.commands.join("\n") : "";
+            this.run_c = order.deploy.run ? order.deploy.run.commands.join("\n") : "";
+            if (order.deploy) {
+                for (var i = 0; i < order.deploy.match.list.length; i++) {
+                    this.targetDevices.push({
+                        name: order.deploy.match.list[i],
+                        tags: "" //check how can get a devices tag
+                    });
+                }
             }
         },
-        handleFileSelect: function (event) {
-            var files = event.target.files;
-            // FileList object
-            var archive = new jsZip().folder("archive");
-            for (var i = 0, f; (f = files[i]); i++) {
-                //console.log(f)
-                // if set webkitdirectory
-                archive.file(f.webkitRelativePath, f);
-                // if only set multiple
-                //archive.file(f.name, f);
-            }
-            //console.log(archive);
-            this.source = archive.generateAsync({ type: "base64" });
-            document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
-            //console.log(this.source)
-        },
-        submitDeploy: function () {
-
-    $('#mymodal-body').empty();
-
-    let ids = [];
-    let tags = [];
-    for (let i = 0; i < this.targetDevices.length; i++) {
-        ids.push(this.targetDevices[i].name);
-        /*    this.targetDevices[i].tags.forEach(function (el) {
-                            if (!tags.some(e => e == el)) {
-                                tags.push(el);
-                            }
-                        }); */
-    }
-    var myYaml;
-    var taskDer = {
-        source: {
-            //zip: "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
-            zip: ""
-        },
-        build: {
-            commands: this.build_c ? this.build_c.split("\n") : null,
-            artifacts: this.build_a ? this.build_a.split("\n") : null,
-            host: this.host ? this.host : null
-        },
-        deploy: {
-            install: {
-                commands: this.install_c ? this.install_c.split("\n") : null
-            },
-            run: {
-                commands: this.run_c ? this.run_c.split("\n") : null
-            },
-            target: {
-                ids: ids
-            }
-        },
-        debug: this.deployDebug ? this.deployDebug : false
-    };
-
-
-    if (this.source) {
-        this.source.then(function (data) {
-            taskDer.source.zip = data;
-            myYaml = yaml.safeDump(taskDer);
-            console.log(myYaml);
-
-            axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
-                //console.log(response);
-                response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-                response.data.build ? response.data.deploy : (response.data.build = "");
-                listen(
-                    response.data.id,
-                    false,
-                    response.data.deploy.match.list,
-                    response.data.build.host
-                );
-            })
-                .catch(function (error) {
-                    console.log(error.response);
-                    //alert(error.response);
-                    $("#mymodal-body").append(error.response.data.error);
-                    $("#myAlert").modal();
-                });
-        });
-    }else{
-         myYaml = yaml.safeDump(taskDer);
-      //console.log(myYaml);
-      //Hard coded source deployment
-      axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
-          //console.log(response);
-          response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-          response.data.build ? response.data.deploy : (response.data.build = "");
-          listen(
-              response.data.id,
-              true,
-              response.data.deploy.match.list,
-              response.data.build.host
-          );
-      })
-          .catch(function (error) {
-              console.log(error.response);
-              //alert(error.response);
-              $("#mymodal-body").append(error.response.data.error);
-              $("#myAlert").modal();
-          }); 
-    }
-
- 
-},
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
                 if (this.targetDevices[i].name == name) {
@@ -1001,145 +490,470 @@ export default {
             badge.setAttribute("class", "btn btn-primary btn-sm");
             badge.onclick = function () { this.style.display = "none"; };
             document.getElementById("searchTarget").appendChild(badge);
-        }
-    },
-    mounted() {
-        this.$refs.map.style.height = window.innerHeight + "px";
-        this.$refs.panel.style.height = window.innerHeight + "px";
-
-        const map = L.map("map").setView([50.749523, 7.20343], 17);
-        L.tileLayer(
-            "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
-            {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        },
+        handleFileSelect: function (event) {
+            var files = event.target.files;
+            // FileList object
+            var archive = new jsZip().folder("archive");
+            for (var i = 0, f; (f = files[i]); i++) {
+                //console.log(f)
+                // if set webkitdirectory
+                archive.file(f.webkitRelativePath, f);
+                // if only set multiple
+                //archive.file(f.name, f);
             }
-        ).addTo(map);
+            this.source = archive.generateAsync({ type: "base64" });
+            document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+        },
+        submitDeploy: function () {
 
-        /* this.$refs.editor_build_t.editor.setValue("commands:", 1);
-                this.$refs.editor_build_t.editor.setOption("highlightActiveLine", false);
-                */
+            $('#mymodal-body').empty();
+            let ids = [];
+            let tags = [];
+            for (let i = 0; i < this.targetDevices.length; i++) {
+                ids.push(this.targetDevices[i].name);
+                /*    this.targetDevices[i].tags.forEach(function (el) {
+                                    if (!tags.some(e => e == el)) {
+                                        tags.push(el);
+                                    }
+                                }); */
+            }
+            var myYaml;
+            var taskDer = {
+                source: {
+                    zip: ""
+                },
+                build: {
+                    commands: this.build_c ? this.build_c.split("\n") : null,
+                    artifacts: this.build_a ? this.build_a.split("\n") : null,
+                    host: this.host ? this.host : null
+                },
+                deploy: {
+                    install: {
+                        commands: this.install_c ? this.install_c.split("\n") : null
+                    },
+                    run: {
+                        commands: this.run_c ? this.run_c.split("\n") : null
+                    },
+                    target: {
+                        ids: ids
+                    }
+                },
+                debug: this.deployDebug ? this.deployDebug : false
+            };
+            if (this.source) {
+                this.source.then(data => {
+                    taskDer.source.zip = data;
+                    myYaml = yaml.safeDump(taskDer);
+                    //console.log(myYaml);
+                    axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(response => {
+                        //console.log(response);
+                        response.data.deploy ? response.data.deploy : (response.data.deploy = "");
+                        response.data.build ? response.data.deploy : (response.data.build = "");
 
-        var markers = L.markerClusterGroup({
-            // Change the spiderLeg style
-            spiderLegPolylineOptions: {
-                weight: 1,
-                color: "#222",
-                opacity: 0.1
-            },
-            // Customize marker cluster style
-            iconCreateFunction: function (cluster) {
-                var childCount = cluster.getChildCount();
-                return L.divIcon({
-                    html: "<div><span>" + childCount + "</span></div>",
-                    className: "myCluster",
-                    iconSize: new L.Point(40, 40)
+                        $("#collapseThree").collapse("hide");
+                        $("#collapseOne").collapse("show");
+
+                        this.clearForm();
+                        this.listen(response.data.id, response.data.deploy.match.list, response.data.build.host);
+
+                    }).catch(error => {
+
+                        console.log(error.response);
+                        $("#mymodal-body").append(error.response.data.error);
+                        $("#myAlert").modal();
+                    });
+                });
+            } else {
+
+                myYaml = yaml.safeDump(taskDer);
+                axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(response => {
+                    //console.log(response);
+                    response.data.deploy ? response.data.deploy : (response.data.deploy = "");
+                    response.data.build ? response.data.deploy : (response.data.build = "");
+                    listen(response.data.id, response.data.deploy.match.list, response.data.build.host);
+                }).catch(error => {
+                    console.log(error.response);
+                    //alert(error.response);
+                    $("#mymodal-body").append(error.response.data.error);
+                    $("#myAlert").modal();
                 });
             }
-        });
-        //axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
-        //http://reely.fit.fraunhofer.de:8080/orders
-        // /deployment.json
-        axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
-            for (let i = 0; i < response.data.total; i++) {
-                let a = response.data.items[i];
+        },
+        listen: function (id, target, host) {
 
-                a.build ? a.build : (a.build = "");
-                a.deploy ? a.deploy : (a.deploy = "");
-                a.isActive = false;
-                getFinishTime(a.id).then(data =>{
-                    a.finishedAt = data;
-                });   
-                if(a.deploy){
-                    checkStatus(a.id, a.deploy.match.list.length).then(data=>{
-                        a.status = data;
-                        this.orders.push(a);
-                        //console.log(data)
-                    });
-                }else{
-                     a.status =  [0,0]
-                     a.deploy =""; 
-                     this.orders.push(a);
-                }
+            console.log("listen!!")
 
-                 
-               
-
-                //this.orders is the list of all deployment saved on the server
-               
-                //console.log(this.orders)
-                /* this.orders.push({
-                            name: a.id,
-                            targets: a.deploy.match.list,                //the targets
-                            status: [0,0],                               //TODO: conut how many devices success and how many failed
-                            createdAt: a.createdAt,
-                            finishedAt: getFinishTime(a.id),             //TODO: get the latest update time 
-                            debug: a.debug,
-                            commands: {
-                                b_a: a.build ? a.build.commands : "",
-                                b_c: a.build ? a.build.artifacts : "",
-                                h: a.build ? a.build.host : "",
-                                c: a.deploy ? a.deploy : "",
-                                isAcitve: false //
-                            }
-                        }); */
+            if (!("WebSocket" in window)) {
+                alert("WebSocket is not supported by your Browser!");
+                return;
             }
-            //console.log(this.orders)
-        });
-        //http://reely.fit.fraunhofer.de:8080/targets
-        // /device.json
-        axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
-            //console.log(response.data);
-            for (let i = 0; i < response.data.total; i++) {
-                let a = response.data.items[i];
-                // let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
-                // Generate a (lat, lng) randomly for each device
-                let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
-                    icon: L.icon({
-                        iconUrl: "/done.png",
-                        iconSize: [20, 20]
-                    }),
+            if (this.ws) {
+                //console.log(ws);
+                this.ws.close();
+            } else {
+                this.ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&topics=logs");
+                var myTree = {
+                    value: 0,
+                    children: [{
+                        name: "Install-s",
+                        value: 0,
+                        class: "node-s",
+                        commands: "",
+                        devices: target,
+                        children: [
+                            {
+                                name: "Run-s",
+                                value: 0,
+                                class: "node-s",
+                                commands: "",
+                                devices: []
+                            },
+                            {
+                                name: "Run-f",
+                                value: 0,
+                                class: "node-f",
+                                commands: "",
+                                devices: []
+                            }
+                        ]
+                    },
+                    {
+                        name: "Install-f",
+                        value: 0,
+                        class: "node-f",
+                        commands: "",
+                        devices: [],
+                    }]
+                };
+                this.ws.onopen = function () {
+                    console.log("Socket connected.");
+                    $("#mylog").prepend("<p>Connected!</p>");
+                };
+                this.ws.onmessage = function (event) {
+                    //console.log(event.data);
+                    var obj = JSON.parse(event.data);
+                    generateTree(obj.payload, target, host, myTree);
+
+                };
+                this.ws.onclose = function () {
+                    console.log("Socket disconnected.");
+                    $("#mylog").prepend("<p>Disconnected!</p>");
+                    // If socket disconnected, try to connect again after 5s.
+                    /* setTimeout(function () { listen(1, true);}, 5000); */
+                };
+            }
+        },
+        generateTree: function (logs, targets, host, myTree) {
+
+            $("#mylog").empty();
+            d3.selectAll("circle").remove();
+            d3.selectAll("line").remove();
+
+            //console.log('targets', targets, 'host', host);
+            //console.log('all logs', logs)
+            var code = "";
+
+            // Tree for Build process
+            // Meaning there is build process.
+            if (host) {
+                var hostLog = logs.filter(log => log.stage == "build");
+                //console.log("host log", hostLog)
+                //If there are logs for build
+                if (hostLog.length > 0) {
+                    if (hostLog[0].error) {
+                        myTree.name = "Build";
+                        myTree.value = 1;
+                        myTree.class = "node-f";
+                        myTree.commands = hostLog;
+                    } else {
+                        myTree.name = "Build";
+                        myTree.value = 1;
+                        myTree.class = "node-s";
+                        myTree.commands = hostLog;
+                        //myTree.children = [];
+                    }
+                    if (hostLog.length > 1) {
+                        hostLog.forEach(function (el) {
+                            code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                        });
+                    } else {
+                        code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(hostLog[0].time).toLocaleString() + "  " + hostLog[0].stage + "  " + hostLog[0].output + "</div>";
+                    }
+                    // When build finish
+                } else {
+                    myTree.children[0].value = targets.length;
+                }
+            }
+
+            // Tree for Deploy process
+            // Meaning there is deploy process.
+            if (targets) {
+                targets.forEach(function (el) {
+                    var oneTargetlog = logs.filter(log => log.target == el && log.stage != 'build');
+                    console.log("Target log", oneTargetlog);
+
+                    //Meaning the deploy starts
+                    if (oneTargetlog.length > 0) {
+                        if (oneTargetlog[0].error) {
+
+                            switch (oneTargetlog[0].stage) {
+                                case "install":
+                                    if (!myTree.children[1].devices.includes(el)) {
+                                        //Remove the node from previous status
+                                        myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
+                                        myTree.children[0].value = myTree.children[0].devices.length;
+                                        // Add the node to new status
+                                        myTree.children[1].devices.push(el);
+                                        myTree.children[1].value = myTree.children[1].devices.length;
+                                        myTree.children[1].commands = oneTargetlog;
+                                    }
+                                    break;
+                                case "run":
+                                    if (!myTree.children[0].children[1].devices.includes(el)) {
+                                        //Remove the node from previous status
+                                        if (myTree.children[0].devices.indexOf(el) != -1) {
+                                            myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
+                                            myTree.children[0].value = myTree.children[0].devices.length;
+                                        } else if (myTree.children[0].children[0].devices.indexOf(el) != -1) {
+                                            myTree.children[0].children[0].devices.splice(myTree.children[0].children[0].devices.indexOf(el), 1);
+                                            myTree.children[0].children[0].value = myTree.children[0].children[0].devices.length;
+                                        }
+                                        // Add the node to new status
+                                        myTree.children[0].children[1].devices.push(el);
+                                        myTree.children[0].children[1].value = myTree.children[0].children[1].devices.length;
+                                        myTree.children[0].children[1].commands = oneTargetlog;
+                                    }
+                                    break;
+                            }
+                            if (oneTargetlog.length > 1) {
+                                oneTargetlog.forEach(function (el) {
+                                    code += '<div class="myfont_f">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                                });
+                            } else {
+                                code += '<div class="myfont_f">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
+                            }
+                        } else {
+                            switch (oneTargetlog[0].stage) {
+                                case "install":
+                                    if (!myTree.children[0].devices.includes(el)) {
+                                        myTree.children[0].devices.push(el);
+                                        myTree.children[0].value = myTree.children[0].devices.length;
+                                        myTree.children[0].commands = oneTargetlog;
+                                    }
+                                    break;
+                                case "run":
+                                    if (!myTree.children[0].devices.includes(el)) {
+                                        myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
+                                        myTree.children[0].devices.push(el);
+                                        myTree.children[0].children[0].value = myTree.children[0].devices.length;
+                                        myTree.children[0].children[0].commands = oneTargetlog;
+                                    }
+                                    break;
+                            }
+                            if (oneTargetlog.length > 1) {
+                                oneTargetlog.forEach(function (el) {
+                                    code += '<div class="myfont_s">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                                });
+                            } else {
+                                code += '<div class="myfont_s">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
+                            }
+                        }
+                    }
+                });
+                //console.log(myTree)
+            }
+
+            var treeLayout = d3.tree().size([200, 200]);
+            var root = d3.hierarchy(myTree);
+            treeLayout(root);
+
+            // Nodes
+            d3.select("svg g.nodes")
+                .selectAll("circle.node")
+                .data(root.descendants())
+                .enter()
+                .append("circle")
+                .attr("class", function (d) { return d.data.class; })
+                .attr("cx", function (d) { return d.x; })
+                .attr("cy", function (d) { return d.y; })
+                .attr("r", function (d) { return d.data.value * 3; });
+            // Links
+            d3.select("svg g.links")
+                .selectAll("line.link")
+                .data(root.links())
+                .enter()
+                .append("line")
+                .classed("link", true)
+                .attr("x1", function (d) { return d.source.x; })
+                .attr("y1", function (d) { return d.source.y; })
+                .attr("x2", function (d) { return d.target.x; })
+                .attr("y2", function (d) { return d.target.y; })
+                .style("stroke-width", function (d) {
+                    if (d.target.data.value == 0 && d.source.data.value == 0) {
+                        return 0;
+                    } else if (d.target.data.value == 0 && d.source.data.value != 0 && d.source.children && !d.target.children) {
+                        return 0;
+                    } else if (d.target.data.value == 0 && d.source.data.value != 0 && d.source.children && d.target.children) {
+                        if (d.source.children[0].value == 0 && d.source.children.length > 1 && d.target.children[0].value == 0) {
+                            return 0;
+                        } else {
+                            return 1;
+                        }
+                    } else {
+                        return 1;
+                    }
+                })
+            $('#mylog').append('<div class="myCommandCard">' + code + '</div>');
+            $("#myTree").modal();
+        },
+        clearForm: function () {
+            this.deployName = "";
+            document.getElementById("mySourcelabel").innerHTML = "";
+            this.source = "";
+            this.deployDebug = false
+            this.build_c = "";
+            this.build_a = "";
+            this.host = "";
+            this.install_c = "";
+            this.run_c = "";
+            this.targetDevices = [];
+        },
+        closeModal: function () {
+
+            if (this.ws) {
+                this.ws.close()
+            }
+            this.getOrders();
+
+        },
+        getOrders: function () {
+
+            //http://reely.fit.fraunhofer.de:8080/orders
+            // /deployment.json
+            axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+
+                for (let i = 0; i < response.data.total; i++) {
+                    let a = response.data.items[i];
+
+                    a.build ? a.build : (a.build = "");
+                    a.deploy ? a.deploy : (a.deploy = "");
+                    a.isActive = false;
+                    this.getFinishTime(a.id).then(data => {
+                        a.finishedAt = data;
+                    });
+                    if (a.deploy) {
+                        this.checkStatus(a.id, a.deploy.match.list.length).then(data => {
+                            a.status = data;
+                            this.orders.push(a);
+                            //console.log(data)
+                        });
+                    } else {
+                        a.status = [0, 0]
+                        a.deploy = "";
+                        this.orders.push(a);
+                    }
+                    //this.orders is the list of all deployment saved on the server
+                }
+                //console.log(this.orders)
+            });
+        },
+        getTargets: function () {
+
+            //http://reely.fit.fraunhofer.de:8080/targets
+            // /device.json
+            axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
+                //console.log(response.data);
+                for (let i = 0; i < response.data.total; i++) {
+                    let a = response.data.items[i];
+                    a.targetActive = true;
+                    a.hostActive = true;
+                    // let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
+                    // Generate a (lat, lng) randomly for each device
+
+                    // this.devices is the list of all devices registered on the server
+                    this.devices.push(a);
+                    //console.log(this.devices)
+                    //this.tags is the list of all tags of the devices, no duplicated
+                    if (a.tags) {
+                        for (let j = 0; j < a.tags.length; j++) {
+                            if (!this.tags.some(e => e.tag === a.tags[j])) {
+                                this.tags.push({
+                                    isActive: true,
+                                    tag: a.tags[j]
+                                });
+                            }
+                        }
+                    }
+                     if (!a.location) {
+                        a.location = {
+                            lon: rand(50.749523),
+                            lat: rand(7.203923),
+                        }
+                    }
+                    let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
+                        icon: L.icon({
+                            iconUrl: "/done.png",
+                            iconSize: [20, 20]
+                        }),
                     title: a.id,
                     alt: a.tags
-                });
-                // this.devices is the list of all devices registered on the server
-                this.devices.push({
-                    name: a.id,
-                    tags: a.tags,
-                    targetActive: true,
-                    hostActive: true
-                });
-                //console.log(this.devices)
-                //this.tags is the list of all tags of the devices, no duplicated
-                if(a.tags){
-                     for (let j = 0; j < a.tags.length; j++) {
-                    if (!this.tags.some(e => e.tag === a.tags[j])) {
-                        this.tags.push({
-                            isActive: true,
-                            tag: a.tags[j]
-                        });
-                    }
-                }
-                }
-               
-                //console.log(this.tags);
-                //this.targetDevices is the list of devices selected in 'deployment target'
-                marker.on("click", event => {
-                    if (!this.targetDevices.some(e => e.name === event.target.options.title)) {
-                        this.targetDevices.push({
-                            name: event.target.options.title,
-                            tags: event.target.options.alt
-                        });
-                    }
-                });
-                markers.addLayer(marker);
-            }
-        })
-            .catch(error => {
-                console.log(error);
             });
-        // console.log(markers);
-        map.addLayer(markers);
-    }
+            //this.targetDevices is the list of devices selected in 'deployment target'
+            marker.on("click", event => {
+                if (!this.targetDevices.some(e => e.name === event.target.options.title)) {
+                    this.targetDevices.push({
+                        name: event.target.options.title,
+                        tags: event.target.options.alt
+                    });
+                }
+            });
+            this.markers.addLayer(marker);
+                }
+            }).catch(error => {
+                    console.log(error);
+            });
+        },
+    },
+   mounted() {
+    this.$refs.map.style.height = window.innerHeight + "px";
+    this.$refs.panel.style.height = window.innerHeight + "px";
+
+    /* this.$refs.editor_build_t.editor.setValue("commands:", 1);
+       this.$refs.editor_build_t.editor.setOption("highlightActiveLine", false);
+    */
+    this.markers = L.markerClusterGroup({
+        // Change the spiderLeg style
+        spiderLegPolylineOptions: {
+            weight: 1,
+            color: "#222",
+            opacity: 0.1
+        },
+        // Customize marker cluster style
+        iconCreateFunction: function (cluster) {
+            var childCount = cluster.getChildCount();
+            return L.divIcon({
+                html: "<div><span>" + childCount + "</span></div>",
+                className: "myCluster",
+                iconSize: new L.Point(40, 40)
+            });
+        }
+    });
+
+    this.getOrders();
+    this.getTargets();
+
+    const map = L.map("map").setView([50.749523, 7.20343], 17);
+    L.tileLayer(
+        "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
+        {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }
+    ).addTo(map);
+    // console.log(markers);
+
+    map.addLayer(this.markers);
+}
 };
 </script>
 
