@@ -551,8 +551,8 @@ export default {
                         response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                         response.data.build ? response.data.deploy : (response.data.build = "");
 
-                        $("#collapseThree").collapse("hide");
                         $("#collapseOne").collapse("show");
+                       
 
                         this.clearForm();
                         this.listen(response.data.id, response.data.deploy.match.list, response.data.build.host);
@@ -571,7 +571,7 @@ export default {
                     //console.log(response);
                     response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                     response.data.build ? response.data.deploy : (response.data.build = "");
-                    listen(response.data.id, response.data.deploy.match.list, response.data.build.host);
+                    this.listen(response.data.id, response.data.deploy.match.list, response.data.build.host);
                 }).catch(error => {
                     console.log(error.response);
                     //alert(error.response);
@@ -582,7 +582,7 @@ export default {
         },
         listen: function (id, target, host) {
 
-            console.log("listen!!")
+            //console.log("listen!!")
 
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
@@ -630,10 +630,10 @@ export default {
                     console.log("Socket connected.");
                     $("#mylog").prepend("<p>Connected!</p>");
                 };
-                this.ws.onmessage = function (event) {
+                this.ws.onmessage = event => {
                     //console.log(event.data);
                     var obj = JSON.parse(event.data);
-                    generateTree(obj.payload, target, host, myTree);
+                    this.generateTree(obj.payload, target, host, myTree);
 
                 };
                 this.ws.onclose = function () {
@@ -824,6 +824,7 @@ export default {
             if (this.ws) {
                 this.ws.close()
             }
+            this.orders=[]; //remove all the nodes
             this.getOrders();
 
         },
@@ -832,6 +833,8 @@ export default {
             //http://reely.fit.fraunhofer.de:8080/orders
             // /deployment.json
             axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+
+                console.log(this.orders)
 
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
