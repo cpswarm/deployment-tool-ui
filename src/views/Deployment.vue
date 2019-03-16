@@ -124,13 +124,13 @@
                                 <div></div>
                                 <div style="text-align: right">
                                      <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="stopOrder(order)">
-                                        <img src="../assets/delete.png" style="width:20px">
+                                        <img src="../assets/stop.png" style="width:16px">
                                     </button>
                                       <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="deleteOrder(order)">
-                                        <img src="../assets/delete.png" style="width:20px">
+                                        <img src="../assets/delete.png" style="height:16px">
                                     </button>
                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="duplicateOrder(order)">
-                                        <img src="../assets/duplicate.png" style="width:20px">
+                                        <img src="../assets/duplicate.png" style="width:18px">
                                     </button>
                                 </div>
                             </div>
@@ -332,8 +332,7 @@ function setCommands(arr) {
 }
 // Check device status
 function checkStatus(id, total) {
-    //fake status count
-    //return [Math.floor(Math.random() * 31), Math.floor(Math.random() * 11)];
+
     var des = "task=" + id + "&error=true&output=STAGE-END";
     return axios.get("http://reely.fit.fraunhofer.de:8080/logs?" + des).then(response =>{
 
@@ -445,7 +444,7 @@ function generateTree(logs, targets, host, myTree) {
         //console.log("host log", hostLog)
         //If there are logs for build
         if (hostLog.length > 0) {
-            if (hostLog.find(el => el.error == true)) {
+            if (hostLog[0].error) {
                 myTree.name = "Build";
                 myTree.value = 1;
                 myTree.class = "node-f";
@@ -481,7 +480,7 @@ function generateTree(logs, targets, host, myTree) {
 
             //Meaning the deploy starts
             if (oneTargetlog.length > 0) {
-                if (oneTargetlog.some(log => log.error === true)) {
+                if (oneTargetlog[0].error) {
 
                     switch (oneTargetlog[0].stage) {
                         case "install":
@@ -622,7 +621,8 @@ export default {
             $('#mymodal-body').empty()
             axios.delete("http://reely.fit.fraunhofer.de:8080/orders/" + order.id).then(
                 response=>{
-                
+                    
+                    //console.log(order.id)
                     this.orders.splice(order.id,1);
                     //console.log(response);
                     $('#mymodal-body').append("Delete order with "+ order.id + "  "+ response.statusText)
@@ -636,7 +636,20 @@ export default {
             
         },
         stopOrder: function (order) {
-            
+
+             $('#mymodal-body').empty();
+            axios.put("http://reely.fit.fraunhofer.de:8080/orders/"+order.id+"/stop").then(response=>{
+
+                    //this.orders.splice(order.id,1);
+                    //console.log(response);
+                    $('#mymodal-body').append("Stop order with "+ order.id + "  "+ response.data.message)
+                    $('#myAlert').modal();                   
+                    //console.log(this.orders.length)
+
+            }).catch(error =>{
+               $('#mymodal-body').append("Delete order with "+ order.id + "  "+ error)
+               $('#myAlert').modal();
+            })
         },
         editorInit: function () {
             require("brace/ext/language_tools"); //language extension prerequsite...
@@ -649,7 +662,7 @@ export default {
         listen: function (id, close, targets, host) {
             //console.log(targets, host)
             if (!close) {
-                axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc")
+                axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc&perPage=1000")
                     .then(function (response) {
                         //console.log(response.data)
                         var myTree = {
@@ -658,8 +671,9 @@ export default {
                         // Tree for Build process
                         if (host) {
                             var hostLog = response.data.items.filter(log => log.stage == "build");
-                            //console.log("host log", hostLog);
-                            if (hostLog.find(el => el.error == true)) {
+                            console.log("host log", hostLog);
+                            if (hostLog.length>0){
+                                if (hostLog[0].error) {
                                 myTree.name = "Build";
                                 myTree.value = 1;
                                 myTree.class = "node-f";
@@ -670,7 +684,9 @@ export default {
                                 myTree.class = "node-s";
                                 myTree.commands = hostLog;
                                 //myTree.children = [];
+                                }
                             }
+                            
                         }
                         // Tree for Deploy process
                         if (targets) {
@@ -693,7 +709,8 @@ export default {
                             targets.forEach(function (el) {    
                                 var oneTargetlog = response.data.items.filter(log => log.target == el && log.stage !='build' );
                                 //console.log("Target log", oneTargetlog);
-                                if (oneTargetlog.some( log => log.error === true)) {
+                                 if (oneTargetlog.length > 0) {
+                                  if (oneTargetlog[0].error) {
                                     switch (oneTargetlog[0].stage) {
                                         case "install":
                                             myTree.children.push({
@@ -713,6 +730,7 @@ export default {
                                             break;
                                     }
                                 } else {
+                                    
                                     switch (oneTargetlog[0].stage) {
                                         case "transfer" && "install":
                                             myTree.children[0].value++;
@@ -727,6 +745,7 @@ export default {
                                             myTree.children[0].children[0].commands = oneTargetlog;
                                             break;
                                     }
+                                }
                                 }
                             });
                             //console.log(myTree)
@@ -792,9 +811,11 @@ export default {
                         $("#myTree").modal();
                     });
             } else {
+               
                 d3.selectAll("circle").remove();
                 d3.selectAll("line").remove();
-                $("#mylog").empty();
+                $("#mylog").empty(); 
+                ws.close();
             }
         },
         duplicateOrder: function (order) {
@@ -830,72 +851,58 @@ export default {
             //console.log(this.source)
         },
         submitDeploy: function () {
-            
-            $('#mymodal-body').empty();
 
-            let ids = [];
-            let tags = [];
-            for (let i = 0; i < this.targetDevices.length; i++) {
-                ids.push(this.targetDevices[i].name);
-                /*    this.targetDevices[i].tags.forEach(function (el) {
-                                    if (!tags.some(e => e == el)) {
-                                        tags.push(el);
-                                    }
-                                }); */
+    $('#mymodal-body').empty();
+
+    let ids = [];
+    let tags = [];
+    for (let i = 0; i < this.targetDevices.length; i++) {
+        ids.push(this.targetDevices[i].name);
+        /*    this.targetDevices[i].tags.forEach(function (el) {
+                            if (!tags.some(e => e == el)) {
+                                tags.push(el);
+                            }
+                        }); */
+    }
+    var myYaml;
+    var taskDer = {
+        source: {
+            //zip: "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
+            zip: ""
+        },
+        build: {
+            commands: this.build_c ? this.build_c.split("\n") : null,
+            artifacts: this.build_a ? this.build_a.split("\n") : null,
+            host: this.host ? this.host : null
+        },
+        deploy: {
+            install: {
+                commands: this.install_c ? this.install_c.split("\n") : null
+            },
+            run: {
+                commands: this.run_c ? this.run_c.split("\n") : null
+            },
+            target: {
+                ids: ids
             }
-            var myYaml;
-            var taskDer = {
-                source: {
-                    zip:
-                        "UEsDBAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAcGFja2FnZS9QSwMECgAAAAAA6nxZTsMMtIOLAAAAiwAAABkAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvcGFja2FnZSBtYWluCgppbXBvcnQgKAoJImZtdCIKCSJ0aW1lIgopCgpmdW5jIG1haW4oKSB7Cglmb3IgaSA6PSAxOyBpIDw9IDM7IGkrKyB7CgkJZm10LlByaW50bG4oImhlbGxvIiwgaSkKCQl0aW1lLlNsZWVwKHRpbWUuU2Vjb25kKQoJfQp9ClBLAQIUAAoAAAAAAOp8WU4AAAAAAAAAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAABwYWNrYWdlL1BLAQIUAAoAAAAAAOp8WU7DDLSDiwAAAIsAAAAZAAAAAAAAAAAAAAAAACYAAABwYWNrYWdlL2NvdW50X3RvX3RocmVlLmdvUEsFBgAAAAACAAIAfQAAAOgAAAAAAA=="
-                },
-                build: {
-                    commands: this.build_c ? this.build_c.split("\n") : null,
-                    artifacts: this.build_a ? this.build_a.split("\n") : null,
-                    host: this.host ? this.host : null
-                },
-                deploy: {
-                    install: {
-                        commands: this.install_c ? this.install_c.split("\n") : null
-                    },
-                    run: {
-                        commands: this.run_c ? this.run_c.split("\n") : null
-                    },
-                    target: {
-                        ids: ids
-                    }
-                },
-                debug: this.deployDebug ? this.deployDebug : false
-            };
+        },
+        debug: this.deployDebug ? this.deployDebug : false
+    };
 
-            // console.log(typeof this.install_c)
-            /*  if (this.source) {
-                          this.source.then(function(data) {
-                            taskDer.source.zip = data;
-                            myYaml = yaml.safeDump(taskDer);
-                            //console.log(myYaml);
-                            //http://reely.fit.fraunhofer.de:8080/orders
-                            //axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-                            axios.post("/deployment.json", myYaml)
-                              .then(function(response) {
-                                console.log(response);
-                              })
-                              .catch(function(error) {
-                                console.log(error);
-                              });
-                          });
-                        } */
 
+    if (this.source) {
+        this.source.then(function (data) {
+            taskDer.source.zip = data;
             myYaml = yaml.safeDump(taskDer);
-            //console.log(myYaml);
-            //Hard coded source deployment
+            console.log(myYaml);
+
             axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
                 //console.log(response);
                 response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                 response.data.build ? response.data.deploy : (response.data.build = "");
                 listen(
                     response.data.id,
-                    true,
+                    false,
                     response.data.deploy.match.list,
                     response.data.build.host
                 );
@@ -906,7 +913,30 @@ export default {
                     $("#mymodal-body").append(error.response.data.error);
                     $("#myAlert").modal();
                 });
-        },
+        });
+    }
+
+    /*   myYaml = yaml.safeDump(taskDer);
+      //console.log(myYaml);
+      //Hard coded source deployment
+      axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(function (response) {
+          //console.log(response);
+          response.data.deploy ? response.data.deploy : (response.data.deploy = "");
+          response.data.build ? response.data.deploy : (response.data.build = "");
+          listen(
+              response.data.id,
+              true,
+              response.data.deploy.match.list,
+              response.data.build.host
+          );
+      })
+          .catch(function (error) {
+              console.log(error.response);
+              //alert(error.response);
+              $("#mymodal-body").append(error.response.data.error);
+              $("#myAlert").modal();
+          }); */
+},
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
                 if (this.targetDevices[i].name == name) {
