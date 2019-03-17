@@ -97,7 +97,7 @@
                                         </div>
                                         <div class="mycard-title">Name:</div>
                                         <div class="mycard-content">
-                                            <input type="text" class="form-control form-control-sm"
+                                            <input type="text" v-model="updateOneName" class="form-control form-control-sm"
                                                 style="font-size: 14px;height: 22px;padding: 5px;">
                                         </div>
                                         <div></div>
@@ -108,15 +108,15 @@
                                                 <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">drone</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">drone</button>
                                                     </li>
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">sensor</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">sensor</button>
                                                     </li>
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">robot</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">robot</button>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -125,15 +125,15 @@
                                                 <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">arm64</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">arm64</button>
                                                     </li>
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">arm32</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">arm32</button>
                                                     </li>
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">8051</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">8051</button>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -142,19 +142,23 @@
                                                 <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">freebsd</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">freebsd</button>
                                                     </li>
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">netbsd</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">netbsd</button>
                                                     </li>
                                                     <li class="my-li" style="display:inline-block">
                                                         <button class="btn btn-primary btn-sm"
-                                                            style="margin:5px;padding:0 5px">darwin</button>
+                                                            style="margin:5px;padding:0 5px;font-size:12.5px">darwin</button>
                                                     </li>
                                                 </ul>
                                             </div>
                                         </div>
+                                        <div></div>
+                                        <div class="mycard-title">Location:</div>
+                                        <div><input type="text" class="form-control form-control-sm"
+                                                style="font-size: 14px;height: 22px;padding: 5px;"></div>
                                         <div></div>
                                         <div style="text-align:right;margin-top:5px;grid-column:1/4">
                                             <button type="button" class="btn btn-primary btn-sm"
@@ -247,15 +251,15 @@
                                     <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">drone</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">drone</button>
                                         </li>
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">sensor</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">sensor</button>
                                         </li>
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">robot</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">robot</button>
                                         </li>
                                     </ul>
                                 </div>
@@ -264,15 +268,15 @@
                                     <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">ARM64</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">arm64</button>
                                         </li>
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">ARM32</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">arm32</button>
                                         </li>
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">8051</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">8051</button>
                                         </li>
                                     </ul>
                                 </div>
@@ -281,19 +285,23 @@
                                     <ul style="display:inline-block;padding-left:5px;margin-bottom:0">
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">FreeBSD</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">freebsd</button>
                                         </li>
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">NetBSD</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">netbsd</button>
                                         </li>
                                         <li class="my-li" style="display:inline-block">
                                             <button class="btn btn-primary btn-sm"
-                                                style="margin:5px;padding:0 5px">Darwin</button>
+                                                style="margin:5px;padding:0 5px;font-size:12.5px">darwin</button>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
+                            <div class="mycard-title">Location:</div>
+                            <div class="mycard-content"> <input type="text" class="form-control form-control-sm"
+                                        style="font-size: 14px;height: 22px;padding: 5px;"></div>
+                
                         </form>
                         <div style="text-align:right;margin-top:5px;">
                             <button type="button" class="btn btn-primary"
@@ -464,6 +472,7 @@ function checkLogs(target) {
 export default {
     data() {
         return {
+            updateOneName:"",
             devices: [],
             tags: [],
             targetDevices: [],
@@ -495,7 +504,9 @@ export default {
         },
         showEditForm: function (e) {
             e.path[2].style.display = 'none';
-            e.path[3].childNodes[2].style.display = 'inline'
+            e.path[3].childNodes[2].style.display = 'inline';
+            //console.log(e)
+            this.updateOneName = e.path[2].childNodes[1].innerHTML;
         },
         submitTerminal: function () {
             //Post one line command
