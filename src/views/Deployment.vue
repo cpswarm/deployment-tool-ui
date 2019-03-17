@@ -41,11 +41,11 @@
                                 <div class="mycard-title">Devices:</div>
                                 <div class="mycard-content">
                                     <img src="../assets/done.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false, order.deploy.match.list,order.build.host)">
                                         <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
                                     </button>
                                     <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false, order.deploy.match.list,order.build.host)">
                                         <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
                                     </button>
                                 </div>
@@ -555,7 +555,7 @@ export default {
                        
 
                         this.clearForm();
-                        this.listen(response.data.id, response.data.deploy.match.list, response.data.build.host);
+                        this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
 
                     }).catch(error => {
 
@@ -571,7 +571,7 @@ export default {
                     //console.log(response);
                     response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                     response.data.build ? response.data.deploy : (response.data.build = "");
-                    this.listen(response.data.id, response.data.deploy.match.list, response.data.build.host);
+                    this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
                 }).catch(error => {
                     console.log(error.response);
                     //alert(error.response);
@@ -580,10 +580,56 @@ export default {
                 });
             }
         },
-        listen: function (id, target, host) {
+        listen: function (id, deploy, target, host) {
+            var logs=[];
+            var t =[];
+            var deviceStatus = new Map();
+            //If there is a build process
+            if(host){
+                deviceStatus.set(host, {
+                    build: "STAGE-START",
+                })
+               t.push(host)
+            }
+            //If there is a deploy process
+            if(target){
+                target.forEach(el=>{
+                    if(el!=host){
+                        deviceStatus.set(el, {
+                        install: "",
+                    })
+                    t.push(el)
+                }       
+                })
+            }
+            /* if(target){
+                target.forEach(el=>{
+                    if(el==host){
+                        deviceStatus.set(el, {
+                        build:"STAGE-START",
+                        install: "STAGE-START",
+                        run:""
+                    })
+                    }else{
+                        deviceStatus.set(el, {
+                        install: "STAGE-START",
+                        run:"" })
+                    }        
+                })
+            } */
+            console.log(deviceStatus)
 
-            //console.log("listen!!")
-
+            if(!deploy){
+                axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc")
+                .then(response=>{
+                    response.data.items.forEach(el=>{
+                        logs.push(el);
+                    }); 
+                    this.generateTree(logs,deviceStatus,t);
+                }).catch(error=>{
+                    console.log(error)
+                });
+            }
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
                 return;
@@ -592,49 +638,17 @@ export default {
                 //console.log(ws);
                 this.ws.close();
             } else {
+                
                 this.ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&topics=logs");
-                var myTree = {
-                    value: 0,
-                    children: [{
-                        name: "Install-s",
-                        value: 0,
-                        class: "node-s",
-                        commands: "",
-                        devices: target,
-                        children: [
-                            {
-                                name: "Run-s",
-                                value: 0,
-                                class: "node-s",
-                                commands: "",
-                                devices: []
-                            },
-                            {
-                                name: "Run-f",
-                                value: 0,
-                                class: "node-f",
-                                commands: "",
-                                devices: []
-                            }
-                        ]
-                    },
-                    {
-                        name: "Install-f",
-                        value: 0,
-                        class: "node-f",
-                        commands: "",
-                        devices: [],
-                    }]
-                };
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
-                    $("#mylog").prepend("<p>Connected!</p>");
+                    //$("#mylog").prepend("<p>Connected!</p>");
                 };
                 this.ws.onmessage = event => {
                     //console.log(event.data);
                     var obj = JSON.parse(event.data);
-                    this.generateTree(obj.payload, target, host, myTree);
-
+                    //logs.push(obj.payload);
+                    this.generateTree(obj.payload, deviceStatus,t);
                 };
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
@@ -644,126 +658,119 @@ export default {
                 };
             }
         },
-        generateTree: function (logs, targets, host, myTree) {
+        generateTree: function (logs,devicesStatus, targets) {
+
+            console.log(targets)
 
             $("#mylog").empty();
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
 
-            //console.log('targets', targets, 'host', host);
+            //console.log('targets', targets);
             //console.log('all logs', logs)
             var code = "";
-
-            // Tree for Build process
+            var myTree = {
+                    value: 0,
+                    children: [{
+                        name: "Install-s",
+                        value: 0,
+                        class: "node-s",
+                        commands: "",       
+                        children: [
+                            {
+                                name: "Run-s",
+                                value: 0,
+                                class: "node-s",
+                                commands: ""                         
+                            },
+                            {
+                                name: "Run-f",
+                                value: 0,
+                                class: "node-f",
+                                commands: ""                      
+                            }
+                        ]
+                    },
+                    {
+                        name: "Install-f",
+                        value: 0,
+                        class: "node-f",
+                        commands: "",
+                    }]
+                };
+            
             // Meaning there is build process.
-            if (host) {
-                var hostLog = logs.filter(log => log.stage == "build");
-                //console.log("host log", hostLog)
-                //If there are logs for build
-                if (hostLog.length > 0) {
-                    if (hostLog[0].error) {
-                        myTree.name = "Build";
-                        myTree.value = 1;
-                        myTree.class = "node-f";
-                        myTree.commands = hostLog;
-                    } else {
-                        myTree.name = "Build";
-                        myTree.value = 1;
-                        myTree.class = "node-s";
-                        myTree.commands = hostLog;
-                        //myTree.children = [];
+            // Go through all host + targets
+            targets.forEach(el =>{
+                // Get all logs for one devices, make sure, the logs is in desc order
+                var oneLog = logs.filter(log => log.target==el);
+                console.log(oneLog)
+                // IF there is log on this el device
+                if(oneLog.length > 0){
+                    // Check whether there is a stage ended with error
+                    let e = oneLog.find(el =>{
+                        return el.error == true && el.output == "STAGE-END" && el.stage != "build"
+                    })
+                    let b_e = oneLog.find(el =>{
+                        return el.error == true && el.output == "STAGE-END" && el.stage == "build"
+                    })
+                    let b = oneLog.find(el =>{
+                        return el.stage == "build"
+                    })
+                    // If yes, change the stage status
+                    if(e){
+                        devicesStatus.set(e.target, [e.stage, "STAGE-END-e"]);
+                    }else{
+                        devicesStatus.set(oneLog[0].target, [oneLog[0].stage,oneLog[0].output]);
                     }
-                    if (hostLog.length > 1) {
-                        hostLog.forEach(function (el) {
-                            code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                        });
-                    } else {
-                        code += '<div class="myfont_' + myTree.class[5] + '">' + new Date(hostLog[0].time).toLocaleString() + "  " + hostLog[0].stage + "  " + hostLog[0].output + "</div>";
+                    if(b_e){
+                        devicesStatus.set(b_e.target, [b_e.stage, "STAGE-END-e"]);
+                    }else if(b){
+                           devicesStatus.set("build", ["build", b.output]);
                     }
-                    // When build finish
-                } else {
-                    myTree.children[0].value = targets.length;
                 }
-            }
+            }) 
+            //console.log(devicesStatus)
 
-            // Tree for Deploy process
-            // Meaning there is deploy process.
-            if (targets) {
-                targets.forEach(function (el) {
-                    var oneTargetlog = logs.filter(log => log.target == el && log.stage != 'build');
-                    console.log("Target log", oneTargetlog);
-
-                    //Meaning the deploy starts
-                    if (oneTargetlog.length > 0) {
-                        if (oneTargetlog[0].error) {
-
-                            switch (oneTargetlog[0].stage) {
-                                case "install":
-                                    if (!myTree.children[1].devices.includes(el)) {
-                                        //Remove the node from previous status
-                                        myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
-                                        myTree.children[0].value = myTree.children[0].devices.length;
-                                        // Add the node to new status
-                                        myTree.children[1].devices.push(el);
-                                        myTree.children[1].value = myTree.children[1].devices.length;
-                                        myTree.children[1].commands = oneTargetlog;
-                                    }
-                                    break;
-                                case "run":
-                                    if (!myTree.children[0].children[1].devices.includes(el)) {
-                                        //Remove the node from previous status
-                                        if (myTree.children[0].devices.indexOf(el) != -1) {
-                                            myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
-                                            myTree.children[0].value = myTree.children[0].devices.length;
-                                        } else if (myTree.children[0].children[0].devices.indexOf(el) != -1) {
-                                            myTree.children[0].children[0].devices.splice(myTree.children[0].children[0].devices.indexOf(el), 1);
-                                            myTree.children[0].children[0].value = myTree.children[0].children[0].devices.length;
-                                        }
-                                        // Add the node to new status
-                                        myTree.children[0].children[1].devices.push(el);
-                                        myTree.children[0].children[1].value = myTree.children[0].children[1].devices.length;
-                                        myTree.children[0].children[1].commands = oneTargetlog;
-                                    }
-                                    break;
-                            }
-                            if (oneTargetlog.length > 1) {
-                                oneTargetlog.forEach(function (el) {
-                                    code += '<div class="myfont_f">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                                });
-                            } else {
-                                code += '<div class="myfont_f">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
-                            }
-                        } else {
-                            switch (oneTargetlog[0].stage) {
-                                case "install":
-                                    if (!myTree.children[0].devices.includes(el)) {
-                                        myTree.children[0].devices.push(el);
-                                        myTree.children[0].value = myTree.children[0].devices.length;
-                                        myTree.children[0].commands = oneTargetlog;
-                                    }
-                                    break;
-                                case "run":
-                                    if (!myTree.children[0].devices.includes(el)) {
-                                        myTree.children[0].devices.splice(myTree.children[0].devices.indexOf(el), 1);
-                                        myTree.children[0].devices.push(el);
-                                        myTree.children[0].children[0].value = myTree.children[0].devices.length;
-                                        myTree.children[0].children[0].commands = oneTargetlog;
-                                    }
-                                    break;
-                            }
-                            if (oneTargetlog.length > 1) {
-                                oneTargetlog.forEach(function (el) {
-                                    code += '<div class="myfont_s">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                                });
-                            } else {
-                                code += '<div class="myfont_s">' + new Date(oneTargetlog[0].time).toLocaleString() + "  " + oneTargetlog[0].stage + "  " + oneTargetlog[0].output + "</div>";
-                            }
+            devicesStatus.forEach((value,key) =>{
+                switch(value[0]){
+                    case "build":
+                        switch(value[1]){
+                            case "STAGE-END-e":
+                                myTree.value=1;
+                                myTree.class='node-f';
+                                break;
+                            default:
+                                myTree.value=1;
+                                myTree.class='node-s';                           
                         }
-                    }
-                });
-                //console.log(myTree)
-            }
+                        break;
+                    case "install":
+                        switch(value[1]){
+                            case "STAGE-END-e":
+                                myTree.children[1].value++;
+                                myTree.class='node-f';
+                                break;
+                            default:
+                                myTree.children[0].value++;
+                                myTree.class='node-s';
+                        }
+                        break;
+                    case "run":
+                        switch(value[1]){
+                            case "STAGE-END-e":
+                                myTree.children[0].children[1].value++;
+                                myTree.class='node-f';
+                                break;
+                            default:
+                                myTree.children[0].children[0].value++;
+                                myTree.class='node-s';
+                        }
+                        break;
+                }
+            })
 
+            
             var treeLayout = d3.tree().size([200, 200]);
             var root = d3.hierarchy(myTree);
             treeLayout(root);
@@ -824,7 +831,7 @@ export default {
             if (this.ws) {
                 this.ws.close()
             }
-            this.orders=[]; //remove all the nodes
+            this.orders=[]; 
             this.getOrders();
 
         },
@@ -832,11 +839,12 @@ export default {
 
             //http://reely.fit.fraunhofer.de:8080/orders
             // /deployment.json
-            axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+            axios.get("http://reely.fit.fraunhofer.de:8080/orders?sortOrder=desc").then(response => {
 
-                console.log(this.orders)
+                //console.log(this.orders)
 
                 for (let i = 0; i < response.data.total; i++) {
+
                     let a = response.data.items[i];
 
                     a.build ? a.build : (a.build = "");
@@ -846,6 +854,7 @@ export default {
                         a.finishedAt = data;
                     });
                     if (a.deploy) {
+
                         this.checkStatus(a.id, a.deploy.match.list.length).then(data => {
                             a.status = data;
                             this.orders.push(a);
