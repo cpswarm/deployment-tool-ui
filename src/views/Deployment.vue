@@ -617,7 +617,7 @@ export default {
                     }        
                 })
             } */
-            console.log(deviceStatus)
+            //console.log(deviceStatus)
 
             if(!deploy){
                 axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc")
@@ -659,8 +659,6 @@ export default {
             }
         },
         generateTree: function (logs,devicesStatus, targets) {
-
-            console.log(targets)
 
             $("#mylog").empty();
             d3.selectAll("circle").remove();
@@ -704,7 +702,7 @@ export default {
             targets.forEach(el =>{
                 // Get all logs for one devices, make sure, the logs is in desc order
                 var oneLog = logs.filter(log => log.target==el);
-                console.log(oneLog)
+                //console.log(oneLog)
                 // IF there is log on this el device
                 if(oneLog.length > 0){
                     // Check whether there is a stage ended with error
@@ -719,58 +717,75 @@ export default {
                     })
                     // If yes, change the stage status
                     if(e){
-                        devicesStatus.set(e.target, [e.stage, "STAGE-END-e"]);
-                    }else{
-                        devicesStatus.set(oneLog[0].target, [oneLog[0].stage,oneLog[0].output]);
+                        devicesStatus.set(e.target, [e.stage, "STAGE-END-e", oneLog.filter(el => el.stage == e.stage)]);      
+                    }else{                 
+                        devicesStatus.set(oneLog[0].target, [oneLog[0].stage,oneLog[0].output,oneLog.filter(el => el.stage==oneLog[0].stage)]);
                     }
                     if(b_e){
-                        devicesStatus.set(b_e.target, [b_e.stage, "STAGE-END-e"]);
-                    }else if(b){
-                           devicesStatus.set("build", ["build", b.output]);
+                        devicesStatus.set(b_e.target, ["build", "STAGE-END-e",oneLog.filter(el =>el.stage=="build")]);
+                    }else if(b){         
+                        devicesStatus.set("build", ["build", b.output,oneLog.filter(el =>el.stage=="build")]);
                     }
                 }
+                var c= "Device: " + el;
+                oneLog.forEach(log =>{
+                    let s="";
+                    log.error? s="f": s="s"
+                    c += '<div class="myfont_' +s+'">'+new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.output + "</div>";
+                });
+                code += '<div class="myCommandCard">' + c + '</div>'; 
+               
             }) 
             //console.log(devicesStatus)
-
             devicesStatus.forEach((value,key) =>{
                 switch(value[0]){
                     case "build":
                         switch(value[1]){
                             case "STAGE-END-e":
+                                myTree.name ="build"
                                 myTree.value=1;
                                 myTree.class='node-f';
+                                myTree.commands = value[2];
                                 break;
                             default:
+                                myTree.name ="build"
                                 myTree.value=1;
-                                myTree.class='node-s';                           
+                                myTree.class='node-s';   
+                                myTree.commands = value[2]; 
                         }
                         break;
                     case "install":
                         switch(value[1]){
                             case "STAGE-END-e":
+                                myTree.children[1].name="install";
                                 myTree.children[1].value++;
-                                myTree.class='node-f';
+                                myTree.children[1].class='node-f';
+                                myTree.children[1].commands = value[2];
                                 break;
                             default:
+                                myTree.children[0].name="install"
                                 myTree.children[0].value++;
-                                myTree.class='node-s';
+                                myTree.children[0].class='node-s';
+                                myTree.children[0].commands = value[2];
                         }
                         break;
                     case "run":
                         switch(value[1]){
                             case "STAGE-END-e":
+                                myTree.children[0].children[1].name="run";
                                 myTree.children[0].children[1].value++;
-                                myTree.class='node-f';
+                                myTree.children[0].children[1].class='node-f';
+                                myTree.children[0].children[1].commands = value[2];
                                 break;
                             default:
+                                myTree.children[0].children[0].name="run";
                                 myTree.children[0].children[0].value++;
-                                myTree.class='node-s';
+                                myTree.children[0].children[0].class='node-s';
+                                myTree.children[0].children[0].commands =value[2];
                         }
                         break;
                 }
             })
-
-            
             var treeLayout = d3.tree().size([200, 200]);
             var root = d3.hierarchy(myTree);
             treeLayout(root);
@@ -784,7 +799,15 @@ export default {
                 .attr("class", function (d) { return d.data.class; })
                 .attr("cx", function (d) { return d.x; })
                 .attr("cy", function (d) { return d.y; })
-                .attr("r", function (d) { return d.data.value * 3; });
+                .attr("r", function (d) { return d.data.value * 3; })
+                .on('click', function (d) {
+                   $('#mylog').empty();
+                   code ="";
+                   d.data.commands.forEach( el=>{
+                         code += '<div class="myfont_' +d.data.class[5]+'">'+new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                   }); 
+                   $('#mylog').prepend('<div class="myCommandCard">' + code + '</div>') 
+                });
             // Links
             d3.select("svg g.links")
                 .selectAll("line.link")
@@ -811,7 +834,7 @@ export default {
                         return 1;
                     }
                 })
-            $('#mylog').append('<div class="myCommandCard">' + code + '</div>');
+            $('#mylog').append(code);
             $("#myTree").modal();
         },
         clearForm: function () {
