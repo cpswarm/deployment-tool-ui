@@ -315,7 +315,7 @@ import yaml from "js-yaml";
 import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
-import { marker } from 'leaflet';
+
 
 // Generate fake latitude and logitude
 function rand(n) {
