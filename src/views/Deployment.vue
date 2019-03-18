@@ -52,7 +52,7 @@
                                 <div class="mycard-title">Created Time:</div>
                                 <div class="mycard-content">{{new Date(order.createdAt).toLocaleString()}}</div>
                                 <div class="mycard-title">Finished Time:</div>
-                                <div class="mycard-content">{{order.finishedAt}}</div>
+                                <div class="mycard-content">{{new Date(order.finishedAt).toLocaleString()}}</div>
                                 <div class="mycard-title">Commands:</div>
                                 <div class="mycard-content">
                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isActive? order.isActive= false: order.isActive=true">
@@ -349,11 +349,31 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+        getFinishnStatus: function (id, total) {
+
+             return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+
+                let finishAt = response.data.items[0].time;
+                let logs = response.data.items.filter(el=> el.error && el.output =="STAGE-END")
+                if (logs.length == 0) {
+                    return [finishAt, [total, 0]];
+                } else {  
+                    if (logs[0].stage == "build") {
+                        return [finishAt,[0, 0]]
+                    } else {
+                        return [finishAt,[total - logs.length, logs.length]];
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+            
+        },
         getFinishTime: function (id) {
             //Request the latest logs time
             return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
                 //console.log(response.data)
-                return new Date(response.data.items[0].time).toLocaleString();
+                return response.data.items[0].time;
             }).catch(error => {
                 console.log(error);
             })
@@ -388,10 +408,11 @@ export default {
             $('#mymodal-body').empty()
             axios.delete("http://reely.fit.fraunhofer.de:8080/orders/" + order.id).then(
                 response => {
-
+                     
+                    let index = this.orders.indexOf(this.orders.find(el => el.id == order.id)) 
                     //console.log(order.id)
-                    this.orders.splice(order.id, 1);
-                    //console.log(response);
+                    this.orders.splice(index, 1);
+                    console.log(this.orders);
                     $('#mymodal-body').append("Delete order with " + order.id + "  " + response.statusText)
                     $('#myAlert').modal();
                     //console.log(this.orders.length)
@@ -862,10 +883,9 @@ export default {
 
             //http://reely.fit.fraunhofer.de:8080/orders
             // /deployment.json
-            axios.get("http://reely.fit.fraunhofer.de:8080/orders?sortOrder=desc").then(response => {
+            axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
 
                 //console.log(this.orders)
-
                 for (let i = 0; i < response.data.total; i++) {
 
                     let a = response.data.items[i];
@@ -873,25 +893,30 @@ export default {
                     a.build ? a.build : (a.build = "");
                     a.deploy ? a.deploy : (a.deploy = "");
                     a.isActive = false;
-                    this.getFinishTime(a.id).then(data => {
-                        a.finishedAt = data;
-                    });
+            
                     if (a.deploy) {
-
-                        this.checkStatus(a.id, a.deploy.match.list.length).then(data => {
-                            a.status = data;
+                        this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
+                            a.finishedAt = data[0];
+                            a.status = data[1];
                             this.orders.push(a);
                             //console.log(data)
                         });
                     } else {
+                        this.getFinishTime(a.id).then(data => {
+                        a.finishedAt = data;
+                        });
                         a.status = [0, 0]
                         a.deploy = "";
                         this.orders.push(a);
                     }
                     //this.orders is the list of all deployment saved on the server
                 }
+                
                 //console.log(this.orders)
             });
+            this.orders.sort(function(a,b){
+                    return b.finishedAt - a.finishedAt;
+            })
         },
         getTargets: function () {
 
@@ -957,6 +982,16 @@ export default {
     /* this.$refs.editor_build_t.editor.setValue("commands:", 1);
        this.$refs.editor_build_t.editor.setOption("highlightActiveLine", false);
     */
+    this.getOrders();
+    this.getTargets();
+    const map = L.map("map").setView([50.749523, 7.20343], 17);
+    L.tileLayer(
+        "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
+        {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }
+    ).addTo(map);
+
     this.markers = L.markerClusterGroup({
         // Change the spiderLeg style
         spiderLegPolylineOptions: {
@@ -974,17 +1009,6 @@ export default {
             });
         }
     });
-
-    this.getOrders();
-    this.getTargets();
-
-    const map = L.map("map").setView([50.749523, 7.20343], 17);
-    L.tileLayer(
-        "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
-        {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }
-    ).addTo(map);
     // console.log(markers);
 
     map.addLayer(this.markers);
