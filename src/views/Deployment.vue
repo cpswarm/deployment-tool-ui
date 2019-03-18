@@ -35,7 +35,7 @@
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample">
                     <div style="padding:5px">
                         <div id="deviceList">
-                            <div v-for="order in orders" class="mycard card-body" style="padding:5px;margin-bottom:5px" v-show="order" :key="order.id">
+                            <div v-for="order in orderOrders" class="mycard card-body" style="padding:5px;margin-bottom:5px" v-show="order" :key="order.id">
                                 <div class="mycard-title">Name:</div>
                                 <div class="mycard-content">{{order.id}}</div>
                                 <div class="mycard-title">Devices:</div>
@@ -347,6 +347,13 @@ export default {
     },
     components: {
         editor: require("vue2-ace-editor")
+    },
+    computed:{
+        orderOrders: function () {
+            return this.orders.sort(function (a,b) {
+                return b.finishedAt -a.finishedAt
+            })
+        }
     },
     methods: {
         getFinishnStatus: function (id, total) {
@@ -884,7 +891,6 @@ export default {
             //http://reely.fit.fraunhofer.de:8080/orders
             // /deployment.json
             axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
-
                 //console.log(this.orders)
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -911,12 +917,12 @@ export default {
                     }
                     //this.orders is the list of all deployment saved on the server
                 }
-                
+                console.log(this.orders)
+                this.orders.sort((a,b)=>b.finishedAt - a.finishedAt);
+                console.log(this.orders)
                 //console.log(this.orders)
             });
-            this.orders.sort(function(a,b){
-                    return b.finishedAt - a.finishedAt;
-            })
+           
         },
         getTargets: function () {
 
