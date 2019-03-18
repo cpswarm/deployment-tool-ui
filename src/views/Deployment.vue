@@ -194,7 +194,7 @@
                                         aria-haspopup="true" aria-expanded="false" @keyup="filterHost">
                                     <div class="dropdown-menu" style="padding:2.5px">
                                         <a v-for="device in devices" class="dropdown-item" v-show="device.hostActive"
-                                            @click=" host = device.name " style="font-size:14px;padding:0px 15px">{{device.name}}</a>
+                                            @click=" host = device.id " style="font-size:14px;padding:0px 15px">{{device.id}}</a>
                                     </div>
                                 </div>
                             </div>
@@ -237,8 +237,8 @@
                                 <div style="height:350px;overflow: scroll">
                                     <div v-for="device in targetDevices" class="simpleDeviceCard">
                                         <div class="input-group" style="padding:2.5px;">Name:
-                                            <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.name}}</div>
-                                            <button type="button" class="close" aria-label="Close" @click="removeDevice(device.name)"
+                                            <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
+                                            <button type="button" class="close" aria-label="Close" @click="removeDevice(device.id)"
                                                 style="height:20px">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
@@ -252,6 +252,7 @@
                             </div>
                             <div></div>
                             <div style="text-align:right">
+                                 <button class="btn btn-primary" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px;margin-right:5px">Clear</button>
                                 <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
                             </div>
                         </form>
@@ -342,39 +343,39 @@ export default {
             tags: [],
             orders: [],
             tree: [],
-            markers:[]
+            markers: []
         };
     },
     components: {
         editor: require("vue2-ace-editor")
     },
-    computed:{
+    computed: {
         orderOrders: function () {
-            return this.orders.sort(function (a,b) {
-                return b.finishedAt -a.finishedAt
+            return this.orders.sort(function (a, b) {
+                return b.finishedAt - a.finishedAt
             })
         }
     },
     methods: {
         getFinishnStatus: function (id, total) {
 
-             return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
 
                 let finishAt = response.data.items[0].time;
-                let logs = response.data.items.filter(el=> el.error && el.output =="STAGE-END")
+                let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
                 if (logs.length == 0) {
                     return [finishAt, [total, 0]];
-                } else {  
+                } else {
                     if (logs[0].stage == "build") {
-                        return [finishAt,[0, 0]]
+                        return [finishAt, [0, 0]]
                     } else {
-                        return [finishAt,[total - logs.length, logs.length]];
+                        return [finishAt, [total - logs.length, logs.length]];
                     }
                 }
             }).catch(error => {
                 console.log(error);
             });
-            
+
         },
         getFinishTime: function (id) {
             //Request the latest logs time
@@ -415,11 +416,11 @@ export default {
             $('#mymodal-body').empty()
             axios.delete("http://reely.fit.fraunhofer.de:8080/orders/" + order.id).then(
                 response => {
-                     
-                    let index = this.orders.indexOf(this.orders.find(el => el.id == order.id)) 
+
+                    let index = this.orders.indexOf(this.orders.find(el => el.id == order.id))
                     //console.log(order.id)
                     this.orders.splice(index, 1);
-                    console.log(this.orders);
+                    //console.log(this.orders);
                     $('#mymodal-body').append("Delete order with " + order.id + "  " + response.statusText)
                     $('#myAlert').modal();
                     //console.log(this.orders.length)
@@ -447,26 +448,30 @@ export default {
             })
         },
         duplicateOrder: function (order) {
+
             $("#collapseThree").collapse("show");
             this.deployName = order.id;
             this.deployDebug = order.debug;
+            this.source = "";
             this.build_c = order.build ? order.build.commands.join("\n") : "";
             this.build_a = order.build ? order.build.artifacts.join("\n") : "";
             this.host = order.build ? order.build.host : "";
-            this.install_c = order.deploy.install ? order.deploy.install.commands.join("\n") : "";
-            this.run_c = order.deploy.run ? order.deploy.run.commands.join("\n") : "";
+            this.install_c = order.deploy && order.deploy.install.commands ? order.deploy.install.commands.join("\n") : "";
+            this.run_c = order.deploy && order.deploy.run.commands ? order.deploy.run.commands.join("\n") : "";
+            this.targetDevices = [];
             if (order.deploy) {
                 for (var i = 0; i < order.deploy.match.list.length; i++) {
+
                     this.targetDevices.push({
-                        name: order.deploy.match.list[i],
-                        tags: "" //check how can get a devices tag
+                        id: order.deploy.match.list[i],
+                        tags: this.devices.find(el => el.id == order.deploy.match.list[i]).tags,
                     });
                 }
             }
         },
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
-                if (this.targetDevices[i].name == name) {
+                if (this.targetDevices[i].id == name) {
                     // Array.splice() remove/replace the element at index i
                     this.targetDevices.splice(i, 1);
                 }
@@ -476,7 +481,7 @@ export default {
         filterHost: function () {
             var value = this.host.toLowerCase();
             this.devices.forEach(function (device) {
-                if (!(device.name.toLowerCase().indexOf(value) > -1)) {
+                if (!(device.id.toLowerCase().indexOf(value) > -1)) {
                     device.hostActive = false;
                 } else {
                     device.hostActive = true;
@@ -498,14 +503,17 @@ export default {
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.devices.length; j++) {
-                        //console.log(this.devices)
-                        if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
-                            if (!this.targetDevices.some(e => e.name === this.devices[j].name)) {
-                                this.targetDevices.push({
-                                    name: this.devices[j].name,
-                                    tags: this.devices[j].tags
-                                });
-                                //console.log(i, j, m);
+                        if (this.devices[j].tags) {
+                            if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+                                //console.log(this.targetDevices)
+                                if (!(this.targetDevices.some(e => e.id == this.devices[j].id))) {
+                                    //console.log(this.devices[j].tags)
+                                    this.targetDevices.push({
+                                        id: this.devices[j].id,
+                                        tags: this.devices[j].tags
+                                    });
+                                    //console.log(i, j, m);
+                                }
                             }
                         }
                     }
@@ -539,12 +547,12 @@ export default {
             let ids = [];
             let tags = [];
             for (let i = 0; i < this.targetDevices.length; i++) {
-                ids.push(this.targetDevices[i].name);
+                ids.push(this.targetDevices[i].id);
                 /*    this.targetDevices[i].tags.forEach(function (el) {
                                     if (!tags.some(e => e == el)) {
                                         tags.push(el);
                                     }
-                                }); */
+                }); */
             }
             var myYaml;
             var taskDer = {
@@ -572,6 +580,7 @@ export default {
             if (this.source) {
                 this.source.then(data => {
                     taskDer.source.zip = data;
+                    console.log(taskDer)
                     myYaml = yaml.safeDump(taskDer);
                     //console.log(myYaml);
                     axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(response => {
@@ -580,13 +589,10 @@ export default {
                         response.data.build ? response.data.deploy : (response.data.build = "");
 
                         $("#collapseOne").collapse("show");
-                       
-
                         this.clearForm();
                         this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
 
                     }).catch(error => {
-
                         console.log(error.response);
                         $("#mymodal-body").append(error.response.data.error);
                         $("#myAlert").modal();
@@ -595,98 +601,83 @@ export default {
             } else {
 
                 myYaml = yaml.safeDump(taskDer);
+                //console.log(myYaml);    
                 axios.post("http://reely.fit.fraunhofer.de:8080/orders", myYaml).then(response => {
                     //console.log(response);
                     response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                     response.data.build ? response.data.deploy : (response.data.build = "");
                     this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
+
                 }).catch(error => {
                     console.log(error.response);
-                    //alert(error.response);
                     $("#mymodal-body").append(error.response.data.error);
                     $("#myAlert").modal();
                 });
             }
         },
         listen: function (id, deploy, target, host) {
-            var logs=[];
-            var t =[];
+            $("#myTree").modal();
+            //console.log(this.ws)
+            var logs = [];
+            var t = [];
             var deviceStatus = new Map();
             //If there is a build process
-            if(host){
+            if (host) {
                 deviceStatus.set(host, {
                     build: "STAGE-START",
                 })
-               t.push(host)
+                t.push(host)
             }
             //If there is a deploy process
-            if(target){
-                target.forEach(el=>{
-                    if(el!=host){
+            if (target) {
+                target.forEach(el => {
+                    if (el != host) {
                         deviceStatus.set(el, {
-                        install: "",
-                    })
-                    t.push(el)
-                }       
+                            install: "",
+                        })
+                        t.push(el)
+                    }
                 })
             }
-            /* if(target){
-                target.forEach(el=>{
-                    if(el==host){
-                        deviceStatus.set(el, {
-                        build:"STAGE-START",
-                        install: "STAGE-START",
-                        run:""
-                    })
-                    }else{
-                        deviceStatus.set(el, {
-                        install: "STAGE-START",
-                        run:"" })
-                    }        
-                })
-            } */
             //console.log(deviceStatus)
-
-            if(!deploy){
+            if (!deploy) {
                 axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc")
-                .then(response=>{
-                    response.data.items.forEach(el=>{
-                        logs.push(el);
-                    }); 
-                    this.generateTree(logs,deviceStatus,t);
-                }).catch(error=>{
-                    console.log(error)
-                });
+                    .then(response => {
+                        response.data.items.forEach(el => {
+                            logs.push(el);
+                        });
+                        this.generateTree(logs, deviceStatus, t);
+                    }).catch(error => {
+                        console.log(error)
+                    });
             }
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
                 return;
             }
+            // Clear the WebSocket
             if (this.ws) {
-                //console.log(ws);
                 this.ws.close();
+                this.ws = "";
             } else {
-                
                 this.ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?order=" + id + "&topics=logs");
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
-                    //$("#mylog").prepend("<p>Connected!</p>");
                 };
                 this.ws.onmessage = event => {
                     //console.log(event.data);
                     var obj = JSON.parse(event.data);
-                    //logs.push(obj.payload);
-                    this.generateTree(obj.payload, deviceStatus,t);
+                    this.generateTree(obj.payload, deviceStatus, t);
                 };
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
-                    $("#mylog").prepend("<p>Disconnected!</p>");
+                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
                     // If socket disconnected, try to connect again after 5s.
                     /* setTimeout(function () { listen(1, true);}, 5000); */
                 };
             }
         },
-        generateTree: function (logs,devicesStatus, targets) {
+        generateTree: function (logs, devicesStatus, targets) {
 
             $("#mylog").empty();
             d3.selectAll("circle").remove();
@@ -696,120 +687,120 @@ export default {
             //console.log('all logs', logs)
             var code = "";
             var myTree = {
+                value: 0,
+                children: [{
+                    name: "",
                     value: 0,
-                    children: [{
-                        name: "Install-s",
-                        value: 0,
-                        class: "node-s",
-                        commands: "",       
-                        children: [
-                            {
-                                name: "Run-s",
-                                value: 0,
-                                class: "node-s",
-                                commands: ""                         
-                            },
-                            {
-                                name: "Run-f",
-                                value: 0,
-                                class: "node-f",
-                                commands: ""                      
-                            }
-                        ]
-                    },
-                    {
-                        name: "Install-f",
-                        value: 0,
-                        class: "node-f",
-                        commands: "",
-                    }]
-                };
-            
+                    class: "node-s",
+                    commands: "",
+                    children: [
+                        {
+                            name: "",
+                            value: 0,
+                            class: "node-s",
+                            commands: ""
+                        },
+                        {
+                            name: "",
+                            value: 0,
+                            class: "node-f",
+                            commands: ""
+                        }
+                    ]
+                },
+                {
+                    name: "",
+                    value: 0,
+                    class: "node-f",
+                    commands: "",
+                }]
+            };
+
             // Meaning there is build process.
             // Go through all host + targets
-            targets.forEach(el =>{
+            targets.forEach(el => {
                 // Get all logs for one devices, make sure, the logs is in desc order
-                var oneLog = logs.filter(log => log.target==el);
+                var oneLog = logs.filter(log => log.target == el);
                 //console.log(oneLog)
                 // IF there is log on this el device
-                if(oneLog.length > 0){
+                if (oneLog.length > 0) {
                     // Check whether there is a stage ended with error
-                    let e = oneLog.find(el =>{
+                    let e = oneLog.find(el => {
                         return el.error == true && el.output == "STAGE-END" && el.stage != "build"
                     })
-                    let b_e = oneLog.find(el =>{
+                    let b_e = oneLog.find(el => {
                         return el.error == true && el.output == "STAGE-END" && el.stage == "build"
                     })
-                    let b = oneLog.find(el =>{
+                    let b = oneLog.find(el => {
                         return el.stage == "build"
                     })
                     // If yes, change the stage status
-                    if(e){
-                        devicesStatus.set(e.target, [e.stage, "STAGE-END-e", oneLog.filter(el => el.stage == e.stage)]);      
-                    }else{                 
-                        devicesStatus.set(oneLog[0].target, [oneLog[0].stage,oneLog[0].output,oneLog.filter(el => el.stage==oneLog[0].stage)]);
+                    if (e) {
+                        devicesStatus.set(e.target, [e.stage, "STAGE-END-e", oneLog.filter(el => el.stage == e.stage)]);
+                    } else {
+                        devicesStatus.set(oneLog[0].target, [oneLog[0].stage, oneLog[0].output, oneLog.filter(el => el.stage == oneLog[0].stage)]);
                     }
-                    if(b_e){
-                        devicesStatus.set(b_e.target, ["build", "STAGE-END-e",oneLog.filter(el =>el.stage=="build")]);
-                    }else if(b){         
-                        devicesStatus.set("build", ["build", b.output,oneLog.filter(el =>el.stage=="build")]);
+                    if (b_e) {
+                        devicesStatus.set(b_e.target, ["build", "STAGE-END-e", oneLog.filter(el => el.stage == "build")]);
+                    } else if (b) {
+                        devicesStatus.set("build", ["build", b.output, oneLog.filter(el => el.stage == "build")]);
                     }
                 }
-                var c= "Device: " + el;
-                oneLog.forEach(log =>{
-                    let s="";
-                    log.error? s="f": s="s"
-                    c += '<div class="myfont_' +s+'">'+new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.output + "</div>";
+                var c = "Device: " + el;
+                oneLog.forEach(log => {
+                    let s = "";
+                    log.error ? s = "f" : s = "s"
+                    c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.output + "</div>";
                 });
-                code += '<div class="myCommandCard">' + c + '</div>'; 
-               
-            }) 
+                code += '<div class="myCommandCard">' + c + '</div>';
+
+            })
             //console.log(devicesStatus)
-            devicesStatus.forEach((value,key) =>{
-                switch(value[0]){
+            devicesStatus.forEach((value, key) => {
+                switch (value[0]) {
                     case "build":
-                        switch(value[1]){
+                        switch (value[1]) {
                             case "STAGE-END-e":
-                                myTree.name ="build"
-                                myTree.value=1;
-                                myTree.class='node-f';
+                                myTree.name = "build"
+                                myTree.value = 1;
+                                myTree.class = 'node-f';
                                 myTree.commands = value[2];
                                 break;
                             default:
-                                myTree.name ="build"
-                                myTree.value=1;
-                                myTree.class='node-s';   
-                                myTree.commands = value[2]; 
+                                myTree.name = "build"
+                                myTree.value = 1;
+                                myTree.class = 'node-s';
+                                myTree.commands = value[2];
                         }
                         break;
                     case "install":
-                        switch(value[1]){
+                        switch (value[1]) {
                             case "STAGE-END-e":
-                                myTree.children[1].name="install";
+                                myTree.children[1].name = "install";
                                 myTree.children[1].value++;
-                                myTree.children[1].class='node-f';
+                                myTree.children[1].class = 'node-f';
                                 myTree.children[1].commands = value[2];
                                 break;
                             default:
-                                myTree.children[0].name="install"
+                                myTree.children[0].name = "install"
                                 myTree.children[0].value++;
-                                myTree.children[0].class='node-s';
+                                myTree.children[0].class = 'node-s';
                                 myTree.children[0].commands = value[2];
                         }
                         break;
                     case "run":
-                        switch(value[1]){
+                        switch (value[1]) {
                             case "STAGE-END-e":
-                                myTree.children[0].children[1].name="run";
+                                myTree.children[0].children[1].name = "run";
                                 myTree.children[0].children[1].value++;
-                                myTree.children[0].children[1].class='node-f';
+                                myTree.children[0].children[1].class = 'node-f';
                                 myTree.children[0].children[1].commands = value[2];
                                 break;
                             default:
-                                myTree.children[0].children[0].name="run";
+                                myTree.children[0].children[0].name = "run";
                                 myTree.children[0].children[0].value++;
-                                myTree.children[0].children[0].class='node-s';
-                                myTree.children[0].children[0].commands =value[2];
+                                myTree.children[0].children[0].class = 'node-s';
+                                myTree.children[0].children[0].commands = value[2];
                         }
                         break;
                 }
@@ -829,12 +820,12 @@ export default {
                 .attr("cy", function (d) { return d.y; })
                 .attr("r", function (d) { return d.data.value * 3; })
                 .on('click', function (d) {
-                   $('#mylog').empty();
-                   code ="";
-                   d.data.commands.forEach( el=>{
-                         code += '<div class="myfont_' +d.data.class[5]+'">'+new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                   }); 
-                   $('#mylog').prepend('<div class="myCommandCard">' + code + '</div>') 
+                    $('#mylog').empty();
+                    code = "";
+                    d.data.commands.forEach(el => {
+                        code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                    });
+                    $('#mylog').prepend('<div class="myCommandCard">' + code + '</div>')
                 });
             // Links
             d3.select("svg g.links")
@@ -863,7 +854,7 @@ export default {
                     }
                 })
             $('#mylog').append(code);
-            $("#myTree").modal();
+            
         },
         clearForm: function () {
             this.deployName = "";
@@ -880,9 +871,10 @@ export default {
         closeModal: function () {
 
             if (this.ws) {
-                this.ws.close()
+                this.ws.close();
+                this.ws = "";
             }
-            this.orders=[]; 
+            this.orders = [];
             this.getOrders();
 
         },
@@ -899,7 +891,7 @@ export default {
                     a.build ? a.build : (a.build = "");
                     a.deploy ? a.deploy : (a.deploy = "");
                     a.isActive = false;
-            
+
                     if (a.deploy) {
                         this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
                             a.finishedAt = data[0];
@@ -909,7 +901,7 @@ export default {
                         });
                     } else {
                         this.getFinishTime(a.id).then(data => {
-                        a.finishedAt = data;
+                            a.finishedAt = data;
                         });
                         a.status = [0, 0]
                         a.deploy = "";
@@ -917,12 +909,9 @@ export default {
                     }
                     //this.orders is the list of all deployment saved on the server
                 }
-                console.log(this.orders)
-                this.orders.sort((a,b)=>b.finishedAt - a.finishedAt);
-                console.log(this.orders)
                 //console.log(this.orders)
             });
-           
+
         },
         getTargets: function () {
 
@@ -951,7 +940,7 @@ export default {
                             }
                         }
                     }
-                     if (!a.location) {
+                    if (!a.location) {
                         a.location = {
                             lon: rand(50.749523),
                             lat: rand(7.203923),
@@ -962,63 +951,64 @@ export default {
                             iconUrl: "/done.png",
                             iconSize: [20, 20]
                         }),
-                    title: a.id,
-                    alt: a.tags
-            });
-            //this.targetDevices is the list of devices selected in 'deployment target'
-            marker.on("click", event => {
-                if (!this.targetDevices.some(e => e.name === event.target.options.title)) {
-                    this.targetDevices.push({
-                        name: event.target.options.title,
-                        tags: event.target.options.alt
+                        title: a.id,
+                        alt: a.tags
                     });
-                }
-            });
-            this.markers.addLayer(marker);
+                    //this.targetDevices is the list of devices selected in 'deployment target'
+                    marker.on("click", event => {
+                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
+                    });
+                    this.markers.addLayer(marker);
                 }
             }).catch(error => {
-                    console.log(error);
+                console.log(error);
             });
         },
     },
-   mounted() {
-    this.$refs.map.style.height = window.innerHeight + "px";
-    this.$refs.panel.style.height = window.innerHeight + "px";
+    mounted() {
 
-    /* this.$refs.editor_build_t.editor.setValue("commands:", 1);
-       this.$refs.editor_build_t.editor.setOption("highlightActiveLine", false);
-    */
-    this.getOrders();
-    this.getTargets();
-    const map = L.map("map").setView([50.749523, 7.20343], 17);
-    L.tileLayer(
-        "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
-        {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }
-    ).addTo(map);
+        this.$refs.map.style.height = window.innerHeight + "px";
+        this.$refs.panel.style.height = window.innerHeight + "px";
 
-    this.markers = L.markerClusterGroup({
-        // Change the spiderLeg style
-        spiderLegPolylineOptions: {
-            weight: 1,
-            color: "#222",
-            opacity: 0.1
-        },
-        // Customize marker cluster style
-        iconCreateFunction: function (cluster) {
-            var childCount = cluster.getChildCount();
-            return L.divIcon({
-                html: "<div><span>" + childCount + "</span></div>",
-                className: "myCluster",
-                iconSize: new L.Point(40, 40)
-            });
-        }
-    });
-    // console.log(markers);
+        /* this.$refs.editor_build_t.editor.setValue("commands:", 1);
+           this.$refs.editor_build_t.editor.setOption("highlightActiveLine", false);
+        */
+        this.getOrders();
+        this.getTargets();
+        const map = L.map("map").setView([50.749523, 7.20343], 17);
+        L.tileLayer(
+            "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
+            {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+        ).addTo(map);
 
-    map.addLayer(this.markers);
-}
+        this.markers = L.markerClusterGroup({
+            // Change the spiderLeg style
+            spiderLegPolylineOptions: {
+                weight: 1,
+                color: "#222",
+                opacity: 0.1
+            },
+            // Customize marker cluster style
+            iconCreateFunction: function (cluster) {
+                var childCount = cluster.getChildCount();
+                return L.divIcon({
+                    html: "<div><span>" + childCount + "</span></div>",
+                    className: "myCluster",
+                    iconSize: new L.Point(40, 40)
+                });
+            }
+        });
+        // console.log(markers);
+
+        map.addLayer(this.markers);
+    }
 };
 </script>
 
