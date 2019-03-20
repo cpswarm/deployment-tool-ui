@@ -409,6 +409,8 @@ function rand(n) {
 export default {
     data() {
         return {
+            orders:[],
+            ordersIds:[],
             map: "",
             polyline: "",
             updateOneName: "",
@@ -618,7 +620,7 @@ export default {
         getTargets: function () {
             //http://reely.fit.fraunhofer.de:8080/targets
             // /device.json
-            axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
+            axios.get("/device.json").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -645,10 +647,14 @@ export default {
                         alt: a.tags ? a.tags : []
                     });
                     a.marker = marker;
-                    this.checkLogs(a.id).then(data => {
+                    /* this.checkLogs(a.id).then(data => {
                         a.logs = data;
                         this.devices.push(a);
-                    })
+                    }) */
+
+                    a.logs="";
+                    this.devices.push(a);
+
                     //console.log(a.tags.length);
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
@@ -677,14 +683,75 @@ export default {
             }).catch(error => {
                 console.log(error);
             });
-        }
+        },
+        getDataAddMarkers: function( {label, value, map, exclamation} ) {
+                
+                map.eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            map.removeLayer(layer);
+                        }
+                }); 
+
+                this.markers.clearLayers();
+
+                var filteredData = this.orders.find((i, n)=> { 
+                    return i.id === label
+                });
+                //console.log(filteredData)
+                if(filteredData.deploy){
+                    filteredData.deploy.match.list.forEach(el=>{
+                          let d = this.devices.find(function (de) {
+                            return de.id === el      
+                          })
+                    //console.log(d)
+                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
+                        icon: L.icon({
+                            iconUrl: "/done.png",
+                            iconSize: [20, 20]
+                        }),
+                        title: el,
+                        alt: d.tags ? d.tags : []
+                    });
+                   this.markers.addLayer(marker);
+                })
+                }
+                this.map.addLayer(this.markers)
+                //console.log(filteredData);
+                //markerGroup.addTo(map);
+               
+        },
+        getOrders: function () {
+
+            //http://reely.fit.fraunhofer.de:8080/orders
+            // /deployment.json
+            axios.get("/deployment.json").then(response => {
+                //console.log(this.orders)
+                for (let i = 0; i < response.data.total; i++) {
+
+                    let a = response.data.items[i];
+
+                    a.build ? a.build : (a.build = "");
+                    a.deploy ? a.deploy : (a.deploy = "");
+                    a.isActive = false;
+                    this.orders.push(a);
+                    this.ordersIds.push(a.id);
+                }
+
+                L.control.timelineSlider({
+                    timelineItems: this.ordersIds,
+                    changeMap: this.getDataAddMarkers
+                }).addTo(this.map);
+            });
+        },
     },
     mounted() {
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.panel.style.height = window.innerHeight + "px";
 
         this.getTargets();
+        this.getOrders();
         this.map = L.map("map").setView([50.749523, 7.20343], 17);
+
         L.tileLayer(
             "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
             {
@@ -713,40 +780,7 @@ export default {
             }
         });
         this.map.addLayer(this.markers);
-
-
-        getDataAddMarkers = function( {label, value, map, exclamation} ) {
-                map.eachLayer(function (layer) {
-                        if (layer instanceof L.Marker) {
-                            map.removeLayer(layer);
-                        }
-                });
-
-                filteredData = data.features.filter(function (i, n) {
-                    return i.properties.title===label;
-                    });
-
-                var markerArray = []
-                L.geoJson(filteredData, {
-                    onEachFeature: function onEachFeature(feature, layer) {
-                        /* content = `${feature.properties.content} <br> (${Math.round(value/6 * 100)}% done with story)`
-                        var popup = L.popup().setContent(content);
-                        layer.bindPopup(popup); */
-                        markerArray.push(layer);
-                    }
-                }).addTo(map);
-                
-                var markerGroup = L.featureGroup(markerArray);
-                map.fitBounds(markerGroup.getBounds()).setZoom(12);
-                //markerGroup.addTo(map);
-            };
-
-
-        L.control.timelineSlider({
-                timelineItems: ["Day 1", "The Next Day", "Amazing Event", "1776", "12/22/63", "1984"],
-                changeMap: getDataAddMarkers
-                })
-            .addTo(this.map);
+        
     }
 };
 </script>

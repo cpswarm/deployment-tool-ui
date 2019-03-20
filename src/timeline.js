@@ -11,7 +11,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         
         thumbHeight: "4.5px",
         labelWidth: "80px",
-        betweenLabelAndRangeSpace: "20px",
+        betweenLabelAndRangeSpace: "10px",
 
         labelFontSize: "14px",
         activeColor: "#37adbf",
@@ -28,16 +28,9 @@ L.Control.TimeLineSlider = L.Control.extend({
     },
 
     initialize: function (options) {
-        if (typeof options.changeMap != "function") {
-            options.changeMap = function ({label, value, map}) {
-                console.log("You are not using the value or label from the timeline to change the map.");
-            };
-        }
-        
         if (parseFloat(options.thumbHeight) <= 2) {
             console.log("The nodes on the timeline will not appear properly if its radius is less than 2px.")
         }
-
         L.setOptions(this, options);
     },
     onAdd: function(map) {
@@ -62,6 +55,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         /* Create html elements for input and labels */
         this.slider = L.DomUtil.create('div', 'range', this.container);
         this.slider.innerHTML = `<input id="rangeinputslide" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="1"></input>`
+
 
         this.rangeLabels = L.DomUtil.create('ul', 'range-labels', this.container);
         this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { return "<li>" + item + "</li>" }).join('');
@@ -92,12 +86,14 @@ L.Control.TimeLineSlider = L.Control.extend({
 
         /* When input gets changed change styles on slider and trigger user's changeMap function */
         L.DomEvent.on(this.rangeInput, "input", function() {
-            
+
+            console.log("sss")
+
             curValue = this.value;
 
-            that.sheet.textContent += that.getTrackStyle(this, that.sliderLength);
+            //that.sheet.textContent += that.getTrackStyle(this, that.sliderLength);
             var curLabel = that.rangeLabelArray[curValue-1].innerHTML;
-            
+           
             // Change map according to either current label or value chosen
             mapParams = {value: curValue, label: curLabel, map: map}
             allChangeMapParameters = {...mapParams, ...that.options.extraChangeMapParams};
@@ -160,7 +156,8 @@ L.Control.TimeLineSlider = L.Control.extend({
             }
             .range input {
                 width: 100%;
-                position: absolute;
+                position: relative;
+                top:-10px;
                 height: 0;
                 -webkit-appearance: none;
             }
@@ -194,7 +191,7 @@ L.Control.TimeLineSlider = L.Control.extend({
                 border: 0 !important;
             }
             .range input::-webkit-slider-runnable-track {
-                background: ${that.options.backgroundColor};
+                background-color: #8e8e8e;
                 width: 100%;
                 height: 2px;
                 cursor: pointer;
