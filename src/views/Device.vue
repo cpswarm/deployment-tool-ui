@@ -398,6 +398,8 @@
 import axios from "axios";
 import "leaflet.smooth_marker_bouncing";
 import $ from "jquery";
+import "@/timeline.js"
+
 
 function rand(n) {
     let max = n + 0.001;
@@ -711,6 +713,40 @@ export default {
             }
         });
         this.map.addLayer(this.markers);
+
+
+        getDataAddMarkers = function( {label, value, map, exclamation} ) {
+                map.eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            map.removeLayer(layer);
+                        }
+                });
+
+                filteredData = data.features.filter(function (i, n) {
+                    return i.properties.title===label;
+                    });
+
+                var markerArray = []
+                L.geoJson(filteredData, {
+                    onEachFeature: function onEachFeature(feature, layer) {
+                        /* content = `${feature.properties.content} <br> (${Math.round(value/6 * 100)}% done with story)`
+                        var popup = L.popup().setContent(content);
+                        layer.bindPopup(popup); */
+                        markerArray.push(layer);
+                    }
+                }).addTo(map);
+                
+                var markerGroup = L.featureGroup(markerArray);
+                map.fitBounds(markerGroup.getBounds()).setZoom(12);
+                //markerGroup.addTo(map);
+            };
+
+
+        L.control.timelineSlider({
+                timelineItems: ["Day 1", "The Next Day", "Amazing Event", "1776", "12/22/63", "1984"],
+                changeMap: getDataAddMarkers
+                })
+            .addTo(this.map);
     }
 };
 </script>

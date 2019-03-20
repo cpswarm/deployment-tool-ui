@@ -14,9 +14,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
 import 'vue2-ace-editor'
 
-
-
-
 Vue.config.productionTip = false
 
 new Vue({

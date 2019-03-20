@@ -2,8 +2,9 @@
     "total": 11,
     "items": [
         {
-            "id": "0f9db5a7-f1aa-4df6-a6c2-c18bd01da125",
-            "createdAt": 1551446463318,
+            "id": "1c0df5ae-06a6-4917-92ae-cb3e32c84efa",
+            "debug": true,
+            "createdAt": 1552813030953,
             "build": {
                 "commands": [
                     "go build package/count_to_three.go"
@@ -11,7 +12,7 @@
                 "artifacts": [
                     "count_to_three"
                 ],
-                "host": "3412e1d2-68d0-4878-8bc6-024e683227e2"
+                "host": "device1"
             },
             "deploy": {
                 "install": {
@@ -27,31 +28,31 @@
                 },
                 "target": {
                     "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device1",
+                        "device2"
                     ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
+                    "tags": null
                 },
                 "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
+                    "ids": [
+                        "builder",
+                        "device1",
+                        "device2"
                     ],
+                    "tags": null,
                     "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device1",
+                        "device2"
                     ]
                 }
             }
         },
         {
-            "id": "6de98658-7ba3-4391-a8bb-d7323fd93a0c",
+            "id": "406e6127-c8ca-4c22-a324-f0e4c6d9d80d",
             "debug": true,
-            "createdAt": 1551446304628,
+            "createdAt": 1552844904549,
             "build": {
                 "commands": [
                     "go build package/count_to_three.go"
@@ -59,7 +60,7 @@
                 "artifacts": [
                     "count_to_three"
                 ],
-                "host": "3412e1d2-68d0-4878-8bc6-024e683227e2"
+                "host": "device1"
             },
             "deploy": {
                 "install": {
@@ -69,85 +70,233 @@
                 },
                 "run": {
                     "commands": [
-                        "./count_to_three"
+                        "www"
                     ],
                     "autoRestart": false
                 },
                 "target": {
                     "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device2",
+                        "lonely"
                     ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
+                    "tags": null
                 },
                 "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
+                    "ids": [
+                        "device2",
+                        "lonely",
+                        "builder"
                     ],
+                    "tags": null,
                     "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device2",
+                        "lonely"
                     ]
                 }
             }
         },
         {
-            "id": "6f172cff-05e5-4fa8-8fb6-febac8bb9990",
-            "debug": true,
-            "createdAt": 1551445358279,
-            "build": {
-                "commands": [
-                    "go build package/count_to_three.go"
-                ],
-                "artifacts": [
-                    "count_to_three"
-                ],
-                "host": "3412e1d2-68d0-4878-8bc6-024e683227e2"
-            },
+            "id": "47ee5b6c-6ca5-42cf-84fd-814dab8a1cf8",
+            "createdAt": 1552913776982,
+            "build": null,
             "deploy": {
                 "install": {
                     "commands": [
-                        "chmod +x count_to_three"
+                        "for i in {1..30}; do echo \"Installing $i\"; sleep 1; done"
+                    ]
+                },
+                "run": {
+                    "commands": null,
+                    "autoRestart": false
+                },
+                "target": {
+                    "ids": [
+                        "builder",
+                        "device2"
+                    ],
+                    "tags": null
+                },
+                "match": {
+                    "ids": [
+                        "builder",
+                        "device2"
+                    ],
+                    "tags": null,
+                    "list": [
+                        "builder",
+                        "device2"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "d385aa19-bc4b-46fe-adc4-9f36a0ecb83d",
+            "debug": true,
+            "createdAt": 1552913907980,
+            "build": null,
+            "deploy": {
+                "install": {
+                    "commands": [
+                        "for i in {1..30}; do echo \"Installing $i\"; sleep 1; done",
+                        ""
+                    ]
+                },
+                "run": {
+                    "commands": null,
+                    "autoRestart": false
+                },
+                "target": {
+                    "ids": [
+                        "builder",
+                        "device2"
+                    ],
+                    "tags": null
+                },
+                "match": {
+                    "ids": [
+                        "builder",
+                        "device2"
+                    ],
+                    "tags": null,
+                    "list": [
+                        "builder",
+                        "device2"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "4c91e48e-a205-4261-924a-40cb65acfe02",
+            "debug": true,
+            "createdAt": 1552914412579,
+            "build": null,
+            "deploy": {
+                "install": {
+                    "commands": [
+                        "for i in {1..30}; do echo \"Installing $i\"; sleep 1; done",
+                        ""
                     ]
                 },
                 "run": {
                     "commands": [
-                        "./count_to_three"
+                        "for i in {1..30}; do echo \"Running $i\"; sleep 1; done"
                     ],
                     "autoRestart": false
                 },
                 "target": {
                     "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device2"
                     ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
+                    "tags": null
                 },
                 "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
+                    "ids": [
+                        "builder",
+                        "device2"
                     ],
+                    "tags": null,
                     "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device2"
                     ]
                 }
             }
         },
         {
-            "id": "75225025-6174-4f7e-86f2-cc953e8481bb",
+            "id": "0396d893-6a04-4151-9243-434fe36c2315",
             "debug": true,
-            "createdAt": 1551434731346,
+            "createdAt": 1552914783388,
+            "build": null,
+            "deploy": {
+                "install": {
+                    "commands": [
+                        "for i in {1..30}; do echo \"Installing $i\"; sleep 1; done",
+                        ""
+                    ]
+                },
+                "run": {
+                    "commands": [
+                        "for i in {1..30}; do echo \"Running $i\"; sleep 1; done"
+                    ],
+                    "autoRestart": false
+                },
+                "target": {
+                    "ids": [
+                        "builder",
+                        "device1",
+                        "device2",
+                        "builder",
+                        "device1",
+                        "device2"
+                    ],
+                    "tags": null
+                },
+                "match": {
+                    "ids": [
+                        "device1",
+                        "device2",
+                        "builder"
+                    ],
+                    "tags": null,
+                    "list": [
+                        "builder",
+                        "device1",
+                        "device2"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "5911b367-534b-4abf-a29e-ced223d14fd3",
+            "debug": true,
+            "createdAt": 1552915265698,
+            "build": {
+                "commands": [
+                    "go build package/count_to_three.go"
+                ],
+                "artifacts": [
+                    "count"
+                ],
+                "host": "builder"
+            },
+            "deploy": {
+                "install": {
+                    "commands": [
+                        "for i in {1..30}; do echo \"Installing $i\"; sleep 1; done",
+                        ""
+                    ]
+                },
+                "run": {
+                    "commands": null,
+                    "autoRestart": false
+                },
+                "target": {
+                    "ids": [
+                        "builder",
+                        "device1"
+                    ],
+                    "tags": null
+                },
+                "match": {
+                    "ids": [
+                        "builder",
+                        "device1"
+                    ],
+                    "tags": null,
+                    "list": [
+                        "builder",
+                        "device1"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "1caf7e49-a1aa-434a-b211-eb5b9c243162",
+            "debug": true,
+            "createdAt": 1552915461152,
             "build": {
                 "commands": [
                     "go build package/count_to_three.go"
@@ -155,7 +304,51 @@
                 "artifacts": [
                     "count_to_three"
                 ],
-                "host": "3412e1d2-68d0-4878-8bc6-024e683227e2"
+                "host": "builder"
+            },
+            "deploy": {
+                "install": {
+                    "commands": [
+                        "for i in {1..30}; do echo \"Installing $i\"; sleep 1; done",
+                        ""
+                    ]
+                },
+                "run": {
+                    "commands": null,
+                    "autoRestart": false
+                },
+                "target": {
+                    "ids": [
+                        "builder",
+                        "device1"
+                    ],
+                    "tags": null
+                },
+                "match": {
+                    "ids": [
+                        "builder",
+                        "device1"
+                    ],
+                    "tags": null,
+                    "list": [
+                        "builder",
+                        "device1"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "aa6a32dc-ca2b-478f-83f8-66d2d11a1d8e",
+            "debug": true,
+            "createdAt": 1552915660644,
+            "build": {
+                "commands": [
+                    "go build package/count_to_three.go"
+                ],
+                "artifacts": [
+                    "count_to_three"
+                ],
+                "host": "builder"
             },
             "deploy": {
                 "install": {
@@ -165,74 +358,41 @@
                 },
                 "run": {
                     "commands": [
-                        "./count_to_three",
+                        "for i in {1..30}; do echo \"Running $i\"; sleep 1; done\r",
                         ""
                     ],
                     "autoRestart": false
                 },
                 "target": {
                     "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device1",
+                        "device2",
+                        "lonely"
                     ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
+                    "tags": null
                 },
                 "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
+                    "ids": [
+                        "builder",
+                        "device1",
+                        "device2",
+                        "lonely"
                     ],
+                    "tags": null,
                     "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device1",
+                        "device2",
+                        "lonely"
                     ]
                 }
             }
         },
         {
-            "id": "86d7932b-ef25-49ca-a1a6-1b48e85a64a9",
+            "id": "717c108f-d119-4f5e-ada5-e42d8a0724d0",
             "debug": true,
-            "createdAt": 1551110454626,
-            "build": null,
-            "deploy": {
-                "install": {
-                    "commands": [
-                        "go build package/count_to_three.go"
-                    ]
-                },
-                "run": {
-                    "commands": [
-                        "./count_to_three"
-                    ],
-                    "autoRestart": false
-                },
-                "target": {
-                    "ids": null,
-                    "tags": [
-                        "swarm"
-                    ]
-                },
-                "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
-                    ],
-                    "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ]
-                }
-            }
-        },
-        {
-            "id": "af98cd31-0a26-44cb-ac1c-a8a2b29ddb1e",
-            "debug": true,
-            "createdAt": 1551441396702,
+            "createdAt": 1552915737027,
             "build": {
                 "commands": [
                     "go build package/count_to_three.go"
@@ -240,267 +400,50 @@
                 "artifacts": [
                     "count_to_three"
                 ],
-                "host": "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                "host": "builder"
             },
-            "deploy": {
-                "install": {
-                    "commands": [
-                        "chmod +x count_to_three"
-                    ]
-                },
-                "run": {
-                    "commands": [
-                        "./count_to_three"
-                    ],
-                    "autoRestart": false
-                },
-                "target": {
-                    "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
-                },
-                "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
-                    ],
-                    "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ]
-                }
-            }
+            "deploy": null
         },
         {
-            "id": "b8ebbfe9-ac18-4a3d-b668-2ce4e51bfb61",
+            "id": "e59ee21c-acfa-46fd-9739-b07b186d4b0c",
             "debug": true,
-            "createdAt": 1551445143318,
+            "createdAt": 1552922697972,
             "build": {
                 "commands": [
                     "go build package/count_to_three.go"
                 ],
                 "artifacts": [
-                    "count_to_three"
+                    "hkhjkh"
                 ],
-                "host": "3412e1d2-68d0-4878-8bc6-024e683227e2"
+                "host": "builder"
             },
             "deploy": {
                 "install": {
                     "commands": [
-                        "chmod +x count_to_three"
+                        "for i in {1..30}; do echo \"Installing $i\"; sleep 1; done",
+                        ""
                     ]
                 },
                 "run": {
-                    "commands": [
-                        "./count_to_three"
-                    ],
+                    "commands": null,
                     "autoRestart": false
                 },
                 "target": {
                     "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device1"
                     ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
+                    "tags": null
                 },
                 "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
-                    ],
-                    "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ]
-                }
-            }
-        },
-        {
-            "id": "d5a6dab5-c1c1-4f8c-a34a-39626e9b1db4",
-            "debug": true,
-            "createdAt": 1551444042829,
-            "build": {
-                "commands": [
-                    "go build package/count_to_three.go"
-                ],
-                "artifacts": [
-                    "count_to_three"
-                ],
-                "host": "3412e1d2-68d0-4878-8bc6-024e683227e2"
-            },
-            "deploy": {
-                "install": {
-                    "commands": [
-                        "chmod +x count_to_three"
-                    ]
-                },
-                "run": {
-                    "commands": [
-                        "./count_to_three"
-                    ],
-                    "autoRestart": false
-                },
-                "target": {
                     "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device1"
                     ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
-                },
-                "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
-                    ],
+                    "tags": null,
                     "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ]
-                }
-            }
-        },
-        {
-            "id": "e1f1484e-8637-48e8-bb03-ee5cd35e6e61",
-            "debug": true,
-            "createdAt": 1551446551907,
-            "build": {
-                "commands": [
-                    "go build package/count_to_three.go"
-                ],
-                "artifacts": [
-                    "count_to_three"
-                ],
-                "host": "3412e1d2-68d0-4878-8bc6-024e683227e2"
-            },
-            "deploy": {
-                "install": {
-                    "commands": [
-                        "chmod +x count_to_three"
-                    ]
-                },
-                "run": {
-                    "commands": [
-                        "./count_to_three"
-                    ],
-                    "autoRestart": false
-                },
-                "target": {
-                    "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
-                },
-                "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
-                    ],
-                    "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ]
-                }
-            }
-        },
-        {
-            "id": "e4d91115-6875-49f5-8328-157d4dfc1990",
-            "debug": true,
-            "createdAt": 1551201838582,
-            "build": null,
-            "deploy": {
-                "install": {
-                    "commands": [
-                        "go build package/count_to_three.go"
-                    ]
-                },
-                "run": {
-                    "commands": [
-                        "./count_to_three"
-                    ],
-                    "autoRestart": false
-                },
-                "target": {
-                    "ids": null,
-                    "tags": [
-                        "swarm"
-                    ]
-                },
-                "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
-                    ],
-                    "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ]
-                }
-            }
-        },
-        {
-            "id": "eaf9cd7d-f6f0-46fe-897d-d22bbdfc42a7",
-            "debug": true,
-            "createdAt": 1551445014129,
-            "build": {
-                "commands": [
-                    "go build package/count_to_three.go"
-                ],
-                "artifacts": [
-                    "count_to_three"
-                ],
-                "host": "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-            },
-            "deploy": {
-                "install": {
-                    "commands": [
-                        "chmod +x count_to_three"
-                    ]
-                },
-                "run": {
-                    "commands": [
-                        "./count_to_three"
-                    ],
-                    "autoRestart": false
-                },
-                "target": {
-                    "ids": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
-                    ],
-                    "tags": [
-                        "swarm",
-                        "amd64"
-                    ]
-                },
-                "match": {
-                    "ids": null,
-                    "tags": [
-                        "swarm",
-                        "swarm"
-                    ],
-                    "list": [
-                        "3412e1d2-68d0-4878-8bc6-024e683227e2",
-                        "39624e96-4cfa-4e6b-9c02-dc774d7b9d8e"
+                        "builder",
+                        "device1"
                     ]
                 }
             }

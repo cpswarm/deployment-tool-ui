@@ -6,8 +6,6 @@ import setting from './views/Setting.vue'
 import devices from './views/Device.vue'
 import deployment from './views/Deployment.vue'
 
-
-
 Vue.use(Router)
 
 export default new Router({
