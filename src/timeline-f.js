@@ -1,4 +1,6 @@
 function timeline(collection, options) {
+
+
     const timelines = [];
     const warningLabel = 'Timeline:';
     let winWidth = window.innerWidth;

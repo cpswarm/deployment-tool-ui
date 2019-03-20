@@ -391,6 +391,7 @@
                 </div>
             </div>
         </div>
+       
     </div>
 </template>
 
@@ -398,7 +399,9 @@
 import axios from "axios";
 import "leaflet.smooth_marker_bouncing";
 import $ from "jquery";
-import "@/timeline.js"
+import "@/timeline.js";
+import timeline from "@/timeline-f.js";
+import "@/timeline.css";
 
 
 function rand(n) {
@@ -691,9 +694,7 @@ export default {
                             map.removeLayer(layer);
                         }
                 }); 
-
                 this.markers.clearLayers();
-
                 var filteredData = this.orders.find((i, n)=> { 
                     return i.id === label
                 });
@@ -713,7 +714,7 @@ export default {
                         alt: d.tags ? d.tags : []
                     });
                    this.markers.addLayer(marker);
-                })
+                    })
                 }
                 this.map.addLayer(this.markers)
                 //console.log(filteredData);
@@ -736,11 +737,11 @@ export default {
                     this.orders.push(a);
                     this.ordersIds.push(a.id);
                 }
-
-                L.control.timelineSlider({
+            
+                 L.control.timelineSlider({
                     timelineItems: this.ordersIds,
                     changeMap: this.getDataAddMarkers
-                }).addTo(this.map);
+                }).addTo(this.map); 
             });
         },
     },
@@ -780,6 +781,8 @@ export default {
             }
         });
         this.map.addLayer(this.markers);
+
+        //timeline(document.querySelectorAll('.timeline'));
         
     }
 };
