@@ -56,7 +56,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         /* Prevent scroll events propagation to map when cursor on the div */
         L.DomEvent.disableScrollPropagation(this.container);
 
-        this.container.style.width = '750px'
+        this.container.style.width = '780px'
         this.container.style.overflow = 'hidden' 
 
         /* Create html elements for input and labels */ 
@@ -103,29 +103,43 @@ L.Control.TimeLineSlider = L.Control.extend({
 
         // Move the slider
         this.offset = 0;
+        this.offsetTotal = this.rangeWidthCSS - 780;
+        this.offsetInterval = parseFloat(this.options.labelWidth)+ parseFloat(this.options.thumbHeight)*2;
+      
         L.DomEvent.on(this.pre, "click", ()=> {
-            if(this.offset >=200){
-                this.pre.disabled=false
-            }else{
-                this.next.disabled = true;
-                this.offset += parseFloat(this.options.labelWidth);
+
+            if(this.offset <0){
+                this.offset += this.offsetInterval;
                 this.line.style.transform = 'translateX('+ this.offset +'px)'
                 this.line.style.transition = 'all .8s'; 
-            }
+                this.next.disabled=false
+        
+            }else{
+                if(this.offset >=0){
+                     this.pre.disabled=true
+                }else{
+                     this.next.disabled=true
+                }           
+            }  
+             console.log(this.rangeWidthCSS, this.offset)            
         })
 
         L.DomEvent.on(this.next, "click", ()=> {
-            
-            if(this.offset <=-200){
-                this.next.disabled =true;
-            }else if(this.offset >=200){
-                this.pre.disabled=false;
-            }else{
-                this.pre.disabled=false;
-                this.offset -= parseFloat(this.options.labelWidth);
+          
+
+            if(780-this.offset< this.rangeWidthCSS){
+                this.pre.disabled=false
+                this.offset -= this.offsetInterval;
                 this.line.style.transform = 'translateX('+ this.offset +'px)'; 
                 this.line.style.transition = 'all .8s'; 
-            }
+            }else{
+                    if(this.offset <=0){
+                         this.next.disabled=true
+                    }else{
+                         this.pre.disabled=true
+                }           
+            }  
+            console.log(this.rangeWidthCSS, this.offset)
         })
 
         /* When input gets changed change styles on slider and trigger user's changeMap function */
