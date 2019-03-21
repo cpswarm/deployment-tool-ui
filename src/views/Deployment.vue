@@ -453,6 +453,7 @@ export default {
             this.deployName = order.id;
             this.deployDebug = order.debug;
             this.source = "";
+            document.getElementById("customFile").value = "";
             this.build_c = order.build ? order.build.commands.join("\n") : "";
             this.build_a = order.build ? order.build.artifacts.join("\n") : "";
             this.host = order.build ? order.build.host : "";
@@ -528,6 +529,7 @@ export default {
             document.getElementById("searchTarget").appendChild(badge);
         },
         handleFileSelect: function (event) {
+            console.log(this.source)
             var files = event.target.files;
             // FileList object
             var archive = new jsZip().folder("archive");
@@ -641,12 +643,9 @@ export default {
             }
             //console.log(deviceStatus)
             if (!deploy) {
-                axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc")
+                axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&sortOrder=desc&perPage=1000")
                     .then(response => {
-                        response.data.items.forEach(el => {
-                            logs.push(el);
-                        });
-                        this.generateTree(logs, deviceStatus, t);
+                        this.generateTree(response.data.items, deviceStatus, t);
                     }).catch(error => {
                         console.log(error)
                     });
@@ -755,7 +754,7 @@ export default {
                 code += '<div class="myCommandCard">' + c + '</div>';
 
             })
-            //console.log(devicesStatus)
+            console.log(devicesStatus)
             devicesStatus.forEach((value, key) => {
                 switch (value[0]) {
                     case "build":
@@ -805,6 +804,7 @@ export default {
                         break;
                 }
             })
+            //console.log(myTree)
             var treeLayout = d3.tree().size([200, 200]);
             var root = d3.hierarchy(myTree);
             treeLayout(root);
@@ -844,7 +844,7 @@ export default {
                     } else if (d.target.data.value == 0 && d.source.data.value != 0 && d.source.children && !d.target.children) {
                         return 0;
                     } else if (d.target.data.value == 0 && d.source.data.value != 0 && d.source.children && d.target.children) {
-                        if (d.source.children[0].value == 0 && d.source.children.length > 1 && d.target.children[0].value == 0) {
+                        if (d.source.children[0].value == 0 && d.source.children.length <= 1 && d.target.children[0].value == 0) {
                             return 0;
                         } else {
                             return 1;
@@ -860,6 +860,7 @@ export default {
             this.deployName = "";
             document.getElementById("mySourcelabel").innerHTML = "";
             this.source = "";
+            document.getElementById("customFile").value = "";
             this.deployDebug = false
             this.build_c = "";
             this.build_a = "";

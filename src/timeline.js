@@ -73,7 +73,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         this.line = L.DomUtil.create('div','range',this.slider);
         this.line.innerHTML = `<input id="rangeinputslide" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="1"></input>`
 
-        console.log(this.options.timelineItems)
+        //console.log(this.options.timelineItems)
         this.rangeLabels = L.DomUtil.create('ul', 'range-labels', this.line);
         this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { 
             let date = new Date(item.createdAt)

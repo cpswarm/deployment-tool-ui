@@ -340,6 +340,19 @@
             </div>
         </div>
         <div id="map" style="width:800px" ref="map"></div>
+        <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h5 id="" class="modal-title">Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="mymodal-body" class="modal-body" style="text-align:left"></div>
+            </div>
+        </div>
+    </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content" style="width:170%">
@@ -429,20 +442,22 @@ export default {
     },
     methods: {
         deleteTarget: function (id) {
-             $('#mymodal-body').empty()
-            axios.delete("http://reely.fit.fraunhofer.de:8080/target/" + id).then(
+         
+            $('#mymodal-body').empty();
+            $('#myAlert').modal();
+            axios.delete("http://reely.fit.fraunhofer.de:8080/targets/" + id).then(
                 response => {
                     let index = this.devices.indexOf(this.devices.find(el => el.id === id))
                     //console.log(id)
-                    this.orders.splice(index, 1);
+                    this.devices.splice(index, 1);
+                    //console.log(response)
                     //console.log(this.devices);
-                    $('#mymodal-body').append("Delete order with " + id + "  " + response.statusText)
+                    $('#mymodal-body').append("Delete target with " + id + "  " + response.statusText)
                     $('#myAlert').modal();
                     //console.log(this.devices.length)
                 }
             ).catch(error => {
-                $('#mymodal-body').append("Delete  with " + id + "  " + error)
-                $('#myAlert').modal();
+                $('#mymodal-body').append("Delete  with " + id + "  " + error);
             })
             
         },
@@ -640,7 +655,7 @@ export default {
         getTargets: function () {
             //http://reely.fit.fraunhofer.de:8080/targets
             // /device.json
-            axios.get("/device.json").then(response => {
+            axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -742,7 +757,7 @@ export default {
 
             //http://reely.fit.fraunhofer.de:8080/orders
             // /deployment.json
-            axios.get("/deployment.json").then(response => {
+            axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
                 //console.log(this.orders)
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -797,9 +812,7 @@ export default {
             }
         });
         this.map.addLayer(this.markers);
-
         //timeline(document.querySelectorAll('.timeline'));
-        
     }
 };
 </script>
