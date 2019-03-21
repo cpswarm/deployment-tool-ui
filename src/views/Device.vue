@@ -37,7 +37,7 @@
                                 </form>
                             </div>
                             <div id="deviceList">
-                                <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)">
+                                <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
                                     <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
                                         <div class="mycard-content">{{device.id}}</div>
@@ -75,7 +75,7 @@
                                                     @click="showEditForm(device)">
                                             </button>
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/delete.png" style="width:16px;margin-right:5px">
+                                                <img src="../assets/delete.png" style="width:16px;margin-right:5px" @click="deleteTarget(device.id)">
                                             </button>
                                         </div>
                                     </div>
@@ -413,7 +413,6 @@ export default {
     data() {
         return {
             orders:[],
-            ordersIds:[],
             map: "",
             polyline: "",
             updateOneName: "",
@@ -429,6 +428,24 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+        deleteTarget: function (id) {
+             $('#mymodal-body').empty()
+            axios.delete("http://reely.fit.fraunhofer.de:8080/target/" + id).then(
+                response => {
+                    let index = this.devices.indexOf(this.devices.find(el => el.id === id))
+                    //console.log(id)
+                    this.orders.splice(index, 1);
+                    //console.log(this.devices);
+                    $('#mymodal-body').append("Delete order with " + id + "  " + response.statusText)
+                    $('#myAlert').modal();
+                    //console.log(this.devices.length)
+                }
+            ).catch(error => {
+                $('#mymodal-body').append("Delete  with " + id + "  " + error)
+                $('#myAlert').modal();
+            })
+            
+        },
         checkLogs: function (target) {
             var des = "target=" + target;
             return axios.get("http://reely.fit.fraunhofer.de:8080/logs?perPage=1000&" + des).then(function (response) {
@@ -735,11 +752,10 @@ export default {
                     a.deploy ? a.deploy : (a.deploy = "");
                     a.isActive = false;
                     this.orders.push(a);
-                    this.ordersIds.push(a.id);
                 }
             
                  L.control.timelineSlider({
-                    timelineItems: this.ordersIds,
+                    timelineItems: this.orders,
                     changeMap: this.getDataAddMarkers
                 }).addTo(this.map); 
             });

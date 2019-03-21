@@ -57,28 +57,32 @@ L.Control.TimeLineSlider = L.Control.extend({
         L.DomEvent.disableScrollPropagation(this.container);
 
         this.container.style.width = '780px'
+        this.container.style.height = '130px'
         this.container.style.overflow = 'hidden' 
 
         /* Create html elements for input and labels */ 
         this.pre = L.DomUtil.create('button','btn btn-sm btn-light',this.container); 
-        this.pre.setAttribute('style','position: relative; right:46%; z-index:10');
+        this.pre.setAttribute('style','position: relative; right:46%; z-index:10; top:20px');
         this.pre.innerHTML='<span>&#9668;</span>'; 
         this.pre.disabled= true;
         this.next = L.DomUtil.create('button','btn btn-sm btn-light',this.container);
         this.next.innerHTML='<span>&#9658;</span>';
-        this.next.setAttribute('style','position: relative; left:46%;z-index:10');
+        this.next.setAttribute('style','position: relative; left:46%;z-index:10; top:20px');
 
         this.slider = L.DomUtil.create('div', 'slider', this.container);
         this.line = L.DomUtil.create('div','range',this.slider);
         this.line.innerHTML = `<input id="rangeinputslide" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="1"></input>`
 
-
+        console.log(this.options.timelineItems)
         this.rangeLabels = L.DomUtil.create('ul', 'range-labels', this.line);
-        this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { return '<li><div style="margin-top:20px">' + item + '</div></li>' }).join('');
+        this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { 
+            let date = new Date(item.createdAt)
+            return '<li><div style="margin-top:-23px">'+ date.getDate()+'-'+(date.getMonth()+1)+ ' '+ date.getHours()+':' + date.getMinutes() +'</div><div class="timeline-item" style="margin-top:20px">' + item.id + '</div></li>' 
+        }).join('');
 
         this.rangeInput = L.DomUtil.get(this.line).children[0];
         this.rangeLabelArray = Array.from(this.rangeLabels.getElementsByTagName('li'));
-        this.rangeLabelLabel = Array.from(this.rangeLabels.getElementsByTagName('div'));
+        this.rangeLabelLabel = Array.from(this.rangeLabels.getElementsByClassName('timeline-item'));
         this.sliderLength = this.rangeLabelArray.length;
 
         this.thumbSize = parseFloat(this.options.thumbHeight) * 2;
@@ -204,7 +208,7 @@ L.Control.TimeLineSlider = L.Control.extend({
                     }
             .slider{
                 position: relative;
-                top:-28px;
+                top:-8px;
             }
             .range {
                 position: relative;
