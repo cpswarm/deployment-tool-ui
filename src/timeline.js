@@ -2,59 +2,17 @@ L.Control.TimeLineSlider = L.Control.extend({
     options: {
         position: 'bottomleft',
         timelineItems: ["Today", "Tomorrow", "The Next Day"],
-        timeline:[],
+        
 
         changeMap: function ({ label, value, map }) {
             console.log("You are not using the value or label from the timeline to change the map.");
         },
 
-        warningLabel: 'Timeline:',
-        winWidth: window.innerWidth,
-        resizeTimer : "",
-        currentIndex :0,
-        // Set default settings
-        defaultSettings: {
-            forceVerticalMode: {
-                type: 'integer',
-                defaultValue: 600
-            },
-            horizontalStartPosition: {
-                type: 'string',
-                acceptedValues: ['bottom', 'top'],
-                defaultValue: 'top'
-            },
-            mode: {
-                type: 'string',
-                acceptedValues: ['horizontal', 'vertical'],
-                defaultValue: 'vertical'
-            },
-            moveItems: {
-                type: 'integer',
-                defaultValue: 1
-            },
-            startIndex: {
-                type: 'integer',
-                defaultValue: 0
-            },
-            verticalStartPosition: {
-                type: 'string',
-                acceptedValues: ['left', 'right'],
-                defaultValue: 'left'
-            },
-            verticalTrigger: {
-                type: 'string',
-                defaultValue: '15%'
-            },
-            visibleItems: {
-                type: 'integer',
-                defaultValue: 3
-            }
-        },
         extraChangeMapParams: {},
         initializeChange: true,
 
         thumbHeight: "4.5px",
-        labelWidth: "80px",
+        labelWidth: "100px",
         betweenLabelAndRangeSpace: "10px",
 
         labelFontSize: "14px",
@@ -70,333 +28,6 @@ L.Control.TimeLineSlider = L.Control.extend({
         leftBgPadding: "30px",
 
     },
-    // Helper function to test whether values are an integer
-    testValues: function (value, settingName) {
-        if (typeof value !== 'number' && value % 1 !== 0) {
-            console.warn(`${warningLabel} The value "${value}" entered for the setting "${settingName}" is not an integer.`);
-            return false;
-        }
-        return true;
-    },
-
-    // Helper function to wrap an element in another HTML element
-    itemWrap: function (el, wrapper, classes) {
-        wrapper.classList.add(classes);
-        el.parentNode.insertBefore(wrapper, el);
-        wrapper.appendChild(el);
-    },
-
-    // Helper function to wrap each element in a group with other HTML elements
-    wrapElements: function (items) {
-        items.forEach((item) => {
-            this.itemWrap(item.querySelector('.timeline__content'), document.createElement('div'), 'timeline__content__wrap');
-            this.itemWrap(item.querySelector('.timeline__content__wrap'), document.createElement('div'), 'timeline__item__inner');
-        });
-    },
-
-    // Helper function to check if an element is partially in the viewport
-    isElementInViewport: function (el, triggerPosition) {
-        const rect = el.getBoundingClientRect();
-        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-        const defaultTrigger = defaultSettings.verticalTrigger.defaultValue.match(/(\d*\.?\d*)(.*)/);
-        let triggerUnit = triggerPosition.unit;
-        let triggerValue = triggerPosition.value;
-        let trigger = windowHeight;
-        if (triggerUnit === 'px' && triggerValue >= windowHeight) {
-            console.warn('The value entered for the setting "verticalTrigger" is larger than the window height. The default value will be used instead.');
-            [, triggerValue, triggerUnit] = defaultTrigger;
-        }
-        if (triggerUnit === 'px') {
-            trigger = parseInt(trigger - triggerValue, 10);
-        } else if (triggerUnit === '%') {
-            trigger = parseInt(trigger * ((100 - triggerValue) / 100), 10);
-        }
-        return (
-            rect.top <= trigger
-            && rect.left <= (window.innerWidth || document.documentElement.clientWidth)
-            && (rect.top + rect.height) >= 0
-            && (rect.left + rect.width) >= 0
-        );
-    },
-
-    // Helper function to add transform styles
-    addTransforms: function (el, transform) {
-        el.style.webkitTransform = transform;
-        el.style.msTransform = transform;
-        el.style.transform = transform;
-    },
-
-    // Create timelines
-    createTimelines: function (timelineEl) {
-        const timelineName = timelineEl.id ? `#${timelineEl.id}` : `.${timelineEl.className}`;
-        const errorPart = 'could not be found as a direct descendant of';
-        const data = timelineEl.dataset;
-        let wrap;
-        let scroller;
-        let items;
-        const settings = {};
-
-        // Test for correct HTML structure
-        try {
-            wrap = timelineEl.querySelector('.timeline__wrap');
-            if (!wrap) {
-                throw new Error(`${warningLabel} .timeline__wrap ${errorPart} ${timelineName}`);
-            } else {
-                scroller = wrap.querySelector('.timeline__items');
-                if (!scroller) {
-                    throw new Error(`${warningLabel} .timeline__items ${errorPart} .timeline__wrap`);
-                } else {
-                    items = [].slice.call(scroller.children, 0);
-                }
-            }
-        } catch (e) {
-            console.warn(e.message);
-            return false;
-        }
-
-        // Test setting input values
-        Object.keys(defaultSettings).forEach((key) => {
-            settings[key] = defaultSettings[key].defaultValue;
-
-            if (data[key]) {
-                settings[key] = data[key];
-            } else if (options && options[key]) {
-                settings[key] = options[key];
-            }
-
-            if (defaultSettings[key].type === 'integer') {
-                if (!settings[key] || !testValues(settings[key], key)) {
-                    settings[key] = defaultSettings[key].defaultValue;
-                }
-            } else if (defaultSettings[key].type === 'string') {
-                if (defaultSettings[key].acceptedValues && defaultSettings[key].acceptedValues.indexOf(settings[key]) === -1) {
-                    console.warn(`${warningLabel} The value "${settings[key]}" entered for the setting "${key}" was not recognised.`);
-                    settings[key] = defaultSettings[key].defaultValue;
-                }
-            }
-        });
-
-        // Further specific testing of input values
-        const defaultTrigger = defaultSettings.verticalTrigger.defaultValue.match(/(\d*\.?\d*)(.*)/);
-        const triggerArray = settings.verticalTrigger.match(/(\d*\.?\d*)(.*)/);
-        let [, triggerValue, triggerUnit] = triggerArray;
-        let triggerValid = true;
-        if (!triggerValue) {
-            console.warn(`${warningLabel} No numercial value entered for the 'verticalTrigger' setting.`);
-            triggerValid = false;
-        }
-        if (triggerUnit !== 'px' && triggerUnit !== '%') {
-            console.warn(`${warningLabel} The setting 'verticalTrigger' must be a percentage or pixel value.`);
-            triggerValid = false;
-        }
-        if (triggerUnit === '%' && (triggerValue > 100 || triggerValue < 0)) {
-            console.warn(`${warningLabel} The 'verticalTrigger' setting value must be between 0 and 100 if using a percentage value.`);
-            triggerValid = false;
-        } else if (triggerUnit === 'px' && triggerValue < 0) {
-            console.warn(`${warningLabel} The 'verticalTrigger' setting value must be above 0 if using a pixel value.`);
-            triggerValid = false;
-        }
-
-        if (triggerValid === false) {
-            [, triggerValue, triggerUnit] = defaultTrigger;
-        }
-
-        settings.verticalTrigger = {
-            unit: triggerUnit,
-            value: triggerValue
-        };
-
-        if (settings.moveItems > settings.visibleItems) {
-            console.warn(`${warningLabel} The value of "moveItems" (${settings.moveItems}) is larger than the number of "visibleItems" (${settings.visibleItems}). The value of "visibleItems" has been used instead.`);
-            settings.moveItems = settings.visibleItems;
-        }
-
-        if (settings.startIndex > (items.length - settings.visibleItems) && items.length > settings.visibleItems) {
-            console.warn(`${warningLabel} The 'startIndex' setting must be between 0 and ${items.length - settings.visibleItems} for this timeline. The value of ${items.length - settings.visibleItems} has been used instead.`);
-            settings.startIndex = items.length - settings.visibleItems;
-        } else if (items.length <= settings.visibleItems) {
-            console.warn(`${warningLabel} The number of items in the timeline must exceed the number of visible items to use the 'startIndex' option.`);
-            settings.startIndex = 0;
-        } else if (settings.startIndex < 0) {
-            console.warn(`${warningLabel} The 'startIndex' setting must be between 0 and ${items.length - settings.visibleItems} for this timeline. The value of 0 has been used instead.`);
-            settings.startIndex = 0;
-        }
-
-        timelines.push({
-            timelineEl,
-            wrap,
-            scroller,
-            items,
-            settings
-        });
-    },
-
-    setHeightandWidths: function (tl) {
-        // Set widths of items and viewport
-        function setWidths() {
-            tl.itemWidth = tl.wrap.offsetWidth / tl.settings.visibleItems;
-            tl.items.forEach((item) => {
-                item.style.width = `${tl.itemWidth}px`;
-            });
-            tl.scrollerWidth = tl.itemWidth * tl.items.length;
-            tl.scroller.style.width = `${tl.scrollerWidth}px`;
-        }
-
-        // Set height of items and viewport
-        function setHeights() {
-            let oddIndexTallest = 0;
-            let evenIndexTallest = 0;
-            tl.items.forEach((item, i) => {
-                item.style.height = 'auto';
-                const height = item.offsetHeight;
-                if (i % 2 === 0) {
-                    evenIndexTallest = height > evenIndexTallest ? height : evenIndexTallest;
-                } else {
-                    oddIndexTallest = height > oddIndexTallest ? height : oddIndexTallest;
-                }
-            });
-
-            const transformString = `translateY(${evenIndexTallest}px)`;
-            tl.items.forEach((item, i) => {
-                if (i % 2 === 0) {
-                    item.style.height = `${evenIndexTallest}px`;
-                    if (tl.settings.horizontalStartPosition === 'bottom') {
-                        item.classList.add('timeline__item--bottom');
-                        this.addTransforms(item, transformString);
-                    } else {
-                        item.classList.add('timeline__item--top');
-                    }
-                } else {
-                    item.style.height = `${oddIndexTallest}px`;
-                    if (tl.settings.horizontalStartPosition !== 'bottom') {
-                        item.classList.add('timeline__item--bottom');
-                        this.addTransforms(item, transformString);
-                    } else {
-                        item.classList.add('timeline__item--top');
-                    }
-                }
-            });
-            tl.scroller.style.height = `${evenIndexTallest + oddIndexTallest}px`;
-        }
-        if (window.innerWidth > tl.settings.forceVerticalMode) {
-            setWidths();
-            setHeights();
-        }
-    },
-
-    // Create and add arrow controls to horizontal timeline
-    addNavigation: function (tl) {
-        if (tl.items.length > tl.settings.visibleItems) {
-            const prevArrow = document.createElement('button');
-            const nextArrow = document.createElement('button');
-            const topPosition = tl.items[0].offsetHeight;
-            prevArrow.className = 'timeline-nav-button timeline-nav-button--prev';
-            nextArrow.className = 'timeline-nav-button timeline-nav-button--next';
-            prevArrow.textContent = 'Previous';
-            nextArrow.textContent = 'Next';
-            prevArrow.style.top = `${topPosition}px`;
-            nextArrow.style.top = `${topPosition}px`;
-            if (currentIndex === 0) {
-                prevArrow.disabled = true;
-            } else if (currentIndex === (tl.items.length - tl.settings.visibleItems)) {
-                nextArrow.disabled = true;
-            }
-            tl.timelineEl.appendChild(prevArrow);
-            tl.timelineEl.appendChild(nextArrow);
-        }
-    },
-
-    // Add the centre line to the horizontal timeline
-    addHorizontalDivider: function (tl) {
-        const divider = tl.timelineEl.querySelector('.timeline-divider');
-        if (divider) {
-            tl.timelineEl.removeChild(divider);
-        }
-        const topPosition = tl.items[0].offsetHeight;
-        const horizontalDivider = document.createElement('span');
-        horizontalDivider.className = 'timeline-divider';
-        horizontalDivider.style.top = `${topPosition}px`;
-        tl.timelineEl.appendChild(horizontalDivider);
-    },
-
-    // Calculate the new position of the horizontal timeline
-    timelinePosition: function (tl) {
-        const position = tl.items[currentIndex].offsetLeft;
-        const str = `translate3d(-${position}px, 0, 0)`;
-        this.addTransforms(tl.scroller, str);
-    },
-
-    // Make the horizontal timeline slide
-    slideTimeline: function (tl) {
-        const navArrows = tl.timelineEl.querySelectorAll('.timeline-nav-button');
-        const arrowPrev = tl.timelineEl.querySelector('.timeline-nav-button--prev');
-        const arrowNext = tl.timelineEl.querySelector('.timeline-nav-button--next');
-        const maxIndex = tl.items.length - tl.settings.visibleItems;
-        const moveItems = parseInt(tl.settings.moveItems, 10);
-        [].forEach.call(navArrows, (arrow) => {
-            arrow.addEventListener('click', function (e) {
-                e.preventDefault();
-                currentIndex = this.classList.contains('timeline-nav-button--next') ? (currentIndex += moveItems) : (currentIndex -= moveItems);
-                if (currentIndex === 0 || currentIndex < 0) {
-                    currentIndex = 0;
-                    arrowPrev.disabled = true;
-                    arrowNext.disabled = false;
-                } else if (currentIndex === maxIndex || currentIndex > maxIndex) {
-                    currentIndex = maxIndex;
-                    arrowPrev.disabled = false;
-                    arrowNext.disabled = true;
-                } else {
-                    arrowPrev.disabled = false;
-                    arrowNext.disabled = false;
-                }
-                this.timelinePosition(tl);
-            });
-        });
-    },
-
-    // Set up horizontal timeline
-    setUpHorinzontalTimeline: function (tl) {
-        currentIndex = tl.settings.startIndex;
-        tl.timelineEl.classList.add('timeline--horizontal');
-        this.setHeightandWidths(tl);
-        this.timelinePosition(tl);
-        this.addNavigation(tl);
-        this.addHorizontalDivider(tl);
-        this.slideTimeline(tl);
-    },
-
-    // Reset timelines
-    resetTimelines: function (tl) {
-        tl.timelineEl.classList.remove('timeline--horizontal', 'timeline--mobile');
-        tl.scroller.removeAttribute('style');
-        tl.items.forEach((item) => {
-            item.removeAttribute('style');
-            item.classList.remove('animated', 'fadeIn', 'timeline__item--left', 'timeline__item--right');
-        });
-        const navArrows = tl.timelineEl.querySelectorAll('.timeline-nav-button');
-        [].forEach.call(navArrows, (arrow) => {
-            arrow.parentNode.removeChild(arrow);
-        });
-    },
-
-    // Set up the timelines
-    setUpTimelines: function () {
-        this.options.timeline.forEach((tl) => {
-            tl.timelineEl.style.opacity = 0;
-            if (!tl.timelineEl.classList.contains('timeline--loaded')) {
-                this.wrapElements(tl.items);
-            }
-            this.resetTimelines(tl);
-            if (window.innerWidth <= tl.settings.forceVerticalMode) {
-                tl.timelineEl.classList.add('timeline--mobile');
-            }
-            this.setUpHorinzontalTimeline(tl);
-            tl.timelineEl.classList.add('timeline--loaded');
-            this.setTimeout(() => {
-                tl.timelineEl.style.opacity = 1;
-            }, 500);
-        });
-    },
 
     initialize: function (options) {
         if (parseFloat(options.thumbHeight) <= 2) {
@@ -404,47 +35,50 @@ L.Control.TimeLineSlider = L.Control.extend({
         }
         L.setOptions(this, options);
     },
+    transform: function () {
+      
+    },
     onAdd: function (map) {
         this.map = map;
         this.sheet = document.createElement('style');
         document.body.appendChild(this.sheet);
 
-
-        let time_line = L.DomUtil.create('div', 'timeline');
-        let time_wrap = L.DomUtil.create('div', 'timeline__wrap', time_line);
-        let time_items = L.DomUtil.create('div', 'timeline__items', time_wrap)
-
-        this.options.timelineItems.forEach(el =>{
-            let time_item = L.DomUtil.create('div', 'timeline__item', time_items);
-            let time_content = L.DomUtil.create('div', 'timeline__content',time_item);
-            time_content.innerHTML = el
-        })
+        this.container = L.DomUtil.create('div', 'control_container');
         
-        Array.prototype.forEach.call(time_line, this.createTimelines);
-        this.setUpTimelines();
-
-        this.container = time_line;
         /* Prevent click events propagation to map */
         L.DomEvent.disableClickPropagation(this.container);
 
         /* Prevent right click event propagation to map */
-        L.DomEvent.on(this.container, 'timeline', function (ev) {
+        L.DomEvent.on(this.container, 'control_container', function (ev){
             L.DomEvent.stopPropagation(ev);
         });
 
         /* Prevent scroll events propagation to map when cursor on the div */
         L.DomEvent.disableScrollPropagation(this.container);
 
-        /* Create html elements for input and labels */
-        this.slider = L.DomUtil.create('div', 'range', this.container);
-        this.slider.innerHTML = `<input id="rangeinputslide" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="1"></input>`
+        this.container.style.width = '750px'
+        this.container.style.overflow = 'hidden' 
+
+        /* Create html elements for input and labels */ 
+        this.pre = L.DomUtil.create('button','btn btn-sm btn-light',this.container); 
+        this.pre.setAttribute('style','position: relative; right:46%; z-index:10');
+        this.pre.innerHTML='<span>&#9668;</span>'; 
+        this.pre.disabled= true;
+        this.next = L.DomUtil.create('button','btn btn-sm btn-light',this.container);
+        this.next.innerHTML='<span>&#9658;</span>';
+        this.next.setAttribute('style','position: relative; left:46%;z-index:10');
+
+        this.slider = L.DomUtil.create('div', 'slider', this.container);
+        this.line = L.DomUtil.create('div','range',this.slider);
+        this.line.innerHTML = `<input id="rangeinputslide" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="1"></input>`
 
 
-        this.rangeLabels = L.DomUtil.create('ul', 'range-labels', this.container);
-        this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { return "<li>" + item + "</li>" }).join('');
+        this.rangeLabels = L.DomUtil.create('ul', 'range-labels', this.line);
+        this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { return '<li><div style="margin-top:20px">' + item + '</div></li>' }).join('');
 
-        this.rangeInput = L.DomUtil.get(this.slider).children[0];
+        this.rangeInput = L.DomUtil.get(this.line).children[0];
         this.rangeLabelArray = Array.from(this.rangeLabels.getElementsByTagName('li'));
+        this.rangeLabelLabel = Array.from(this.rangeLabels.getElementsByTagName('div'));
         this.sliderLength = this.rangeLabelArray.length;
 
         this.thumbSize = parseFloat(this.options.thumbHeight) * 2;
@@ -467,15 +101,40 @@ L.Control.TimeLineSlider = L.Control.extend({
 
         this.sheet.textContent = this.setupStartStyles();
 
+        // Move the slider
+        this.offset = 0;
+        L.DomEvent.on(this.pre, "click", ()=> {
+            if(this.offset >=200){
+                this.pre.disabled=false
+            }else{
+                this.next.disabled = true;
+                this.offset += parseFloat(this.options.labelWidth);
+                this.line.style.transform = 'translateX('+ this.offset +'px)'
+                this.line.style.transition = 'all .8s'; 
+            }
+        })
+
+        L.DomEvent.on(this.next, "click", ()=> {
+            
+            if(this.offset <=-200){
+                this.next.disabled =true;
+            }else if(this.offset >=200){
+                this.pre.disabled=false;
+            }else{
+                this.pre.disabled=false;
+                this.offset -= parseFloat(this.options.labelWidth);
+                this.line.style.transform = 'translateX('+ this.offset +'px)'; 
+                this.line.style.transition = 'all .8s'; 
+            }
+        })
+
         /* When input gets changed change styles on slider and trigger user's changeMap function */
         L.DomEvent.on(this.rangeInput, "input", function () {
-
-
+            
             curValue = this.value;
-
             //that.sheet.textContent += that.getTrackStyle(this, that.sliderLength);
-            var curLabel = that.rangeLabelArray[curValue - 1].innerHTML;
-
+            var curLabel = that.rangeLabelLabel[curValue - 1].innerHTML;
+            
             // Change map according to either current label or value chosen
             mapParams = { value: curValue, label: curLabel, map: map }
             allChangeMapParameters = { ...mapParams, ...that.options.extraChangeMapParams };
@@ -528,18 +187,19 @@ L.Control.TimeLineSlider = L.Control.extend({
         style = `
             .control_container { 
                 background-color: ${that.backgroundRGBA};
-                padding: ${that.options.topBgPadding} ${that.options.rightBgPadding} ${that.options.bottomBgPadding} ${that.options.leftBgPadding};
+                    }
+            .slider{
+                position: relative;
+                top:-28px;
             }
             .range {
                 position: relative;
-                left: -${that.thumbSize}px;
-                height: 5px;
+                left: ${that.thumbSize + 20}px;
                 width: ${that.rangeWidthCSS}px;
             }
             .range input {
                 width: 100%;
                 position: relative;
-                top:-10px;
                 height: 0;
                 -webkit-appearance: none;
             }
@@ -601,6 +261,9 @@ L.Control.TimeLineSlider = L.Control.extend({
                 border: 0;
             }
             .range-labels {
+                position: relative;
+                top:-13px;
+                left: ${that.thumbSize-2}px;
                 margin: ${that.topLabelMargin}px -${that.rlLabelMargin}px 0;
                 padding: 0;
                 list-style: none;
@@ -619,7 +282,6 @@ L.Control.TimeLineSlider = L.Control.extend({
                 width: ${that.thumbSize}px;
                 height: ${that.thumbSize}px;
                 position: absolute;
-                top: -${that.options.betweenLabelAndRangeSpace};
                 right: 0;
                 left: 0;
                 content: "";
