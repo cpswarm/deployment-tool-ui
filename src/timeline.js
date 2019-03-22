@@ -70,14 +70,34 @@ L.Control.TimeLineSlider = L.Control.extend({
         this.next.setAttribute('style','position: relative; left:46%;z-index:10; top:20px');
 
         this.slider = L.DomUtil.create('div', 'slider', this.container);
+        this.slider.setAttribute('style','width:90%;postion:relative;left:30px; overflow-x:hidden;top:-30px')
+        this.hr=L.DomUtil.create('hr','',this.slider);
+        this.hr.setAttribute('style','position: relative;top: 15px;border: 2px solid #8e8e8e;')
         this.line = L.DomUtil.create('div','range',this.slider);
+         
         this.line.innerHTML = `<input id="rangeinputslide" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="1"></input>`
-
+     
         //console.log(this.options.timelineItems)
         this.rangeLabels = L.DomUtil.create('ul', 'range-labels', this.line);
-        this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { 
-            let date = new Date(item.createdAt)
-            return '<li><div style="margin-top:-23px">'+ date.getDate()+'-'+(date.getMonth()+1)+ ' '+ date.getHours()+':' + date.getMinutes() +'</div><div class="timeline-item" style="margin-top:20px">' + item.id + '</div></li>' 
+        this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => {
+
+            let li = L.DomUtil.create('li');
+            let date = new Date(item.createdAt);
+            li.innerHTML='<div style="margin-top:-23px">'+ date.getDate()+'-'+(date.getMonth()+1)+ ' '+ date.getHours()+':' + date.getMinutes() +'</div>';
+            let img=L.DomUtil.create("img","", li);
+            //console.log(item.status)
+           /*  if(item.status[1]!==0){
+                 img.src = "done.png";
+            }else{
+                img.src = "error.png";
+            } */
+
+            img.src = "done.png";
+           
+            img.setAttribute('style', 'margin-top:-9px;width:16px; background-color: #ffffff; border-radius:50%' )
+            let i = L.DomUtil.create('div','timeline-item', li);
+            i.innerHTML=item.id;
+            return '<li>' + li.innerHTML +'</li>';
         }).join('');
 
         this.rangeInput = L.DomUtil.get(this.line).children[0];
@@ -87,7 +107,7 @@ L.Control.TimeLineSlider = L.Control.extend({
 
         this.thumbSize = parseFloat(this.options.thumbHeight) * 2;
         // double the thumb size when its active
-        this.activeThumbSize = this.thumbSize * 2;
+        this.activeThumbSize = this.thumbSize * 2.5;
 
         // make the width of the range div holding the input the number of intervals * the label width and add the thumb size on either end of the range
         this.rangeWidthCSS = parseFloat(this.options.labelWidth) * (this.options.timelineItems.length - 1) + (this.thumbSize * 2);
@@ -125,13 +145,13 @@ L.Control.TimeLineSlider = L.Control.extend({
                      this.next.disabled=true
                 }           
             }  
-             console.log(this.rangeWidthCSS, this.offset)            
+             //console.log(this.rangeWidthCSS, this.offset)            
         })
 
         L.DomEvent.on(this.next, "click", ()=> {
           
 
-            if(780-this.offset< this.rangeWidthCSS){
+            if(700-this.offset< this.rangeWidthCSS){
                 this.pre.disabled=false
                 this.offset -= this.offsetInterval;
                 this.line.style.transform = 'translateX('+ this.offset +'px)'; 
@@ -143,12 +163,12 @@ L.Control.TimeLineSlider = L.Control.extend({
                          this.pre.disabled=true
                 }           
             }  
-            console.log(this.rangeWidthCSS, this.offset)
+            //console.log(this.rangeWidthCSS, this.offset)
         })
 
         /* When input gets changed change styles on slider and trigger user's changeMap function */
         L.DomEvent.on(this.rangeInput, "input", function () {
-            
+        
             curValue = this.value;
             //that.sheet.textContent += that.getTrackStyle(this, that.sliderLength);
             var curLabel = that.rangeLabelLabel[curValue - 1].innerHTML;
@@ -172,11 +192,11 @@ L.Control.TimeLineSlider = L.Control.extend({
             });
         };
 
-        // Initialize input change at start
+        /* // Initialize input change at start
         if (this.options.initializeChange) {
             var inputEvent = new Event('input');
             this.rangeInput.dispatchEvent(inputEvent);
-        }
+        } */
 
         return this.container;
 
@@ -214,6 +234,7 @@ L.Control.TimeLineSlider = L.Control.extend({
                 position: relative;
                 left: ${that.thumbSize + 20}px;
                 width: ${that.rangeWidthCSS}px;
+                top:-15px;
             }
             .range input {
                 width: 100%;
@@ -224,7 +245,7 @@ L.Control.TimeLineSlider = L.Control.extend({
             /* -1 because the height is 2 (half the height) */
             .range input::-webkit-slider-thumb {
                 background: ${that.options.activeColor};
-                margin: -${that.thumbSize - 1}px 0 0;
+                margin: -${that.thumbSize +1}px 0 0 -2px;
                 width: ${that.activeThumbSize}px;
                 height: ${that.activeThumbSize}px;    
                 -webkit-appearance: none;
@@ -234,7 +255,7 @@ L.Control.TimeLineSlider = L.Control.extend({
             }
             .range input::-moz-range-thumb {
                 background: ${that.options.activeColor};
-                margin: -${that.thumbSize - 1}px 0 0;
+                margin: -${that.thumbSize +1}px 0 0 -2px;
                 width: ${that.activeThumbSize}px;
                 height: ${that.activeThumbSize}px;
                 border-radius: 50%;
@@ -243,7 +264,7 @@ L.Control.TimeLineSlider = L.Control.extend({
             }
             .range input::-ms-thumb {
                 background: ${that.options.activeColor};
-                margin: -${that.thumbSize - 1}px 0 0;
+                margin: -${that.thumbSize +1}px 0 0 -2px;
                 width: ${that.activeThumbSize}px;
                 height: ${that.activeThumbSize}px;
                 border-radius: 50%;
@@ -286,6 +307,7 @@ L.Control.TimeLineSlider = L.Control.extend({
                 padding: 0;
                 list-style: none;
             }
+            
             .range-labels li {
                 color: ${that.options.inactiveColor};
                 width: ${that.options.labelWidth};
@@ -296,7 +318,7 @@ L.Control.TimeLineSlider = L.Control.extend({
                 cursor: pointer;
             }
             .range-labels li::before {
-                background: ${that.options.inactiveColor};
+                background-image: url("assets/done.png"):
                 width: ${that.thumbSize}px;
                 height: ${that.thumbSize}px;
                 position: absolute;

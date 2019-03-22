@@ -441,6 +441,22 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+         checkStatus: function (id, total) {
+            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
+            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+                if (!response.data.items) {
+                    return [total, 0];
+                } else {
+                    if (response.data.items[0].stage == "build") {
+                        return [0, 0]
+                    } else {
+                        return [total - response.data.items.length, response.data.items.length];
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+        },
         deleteTarget: function (id) {
          
             $('#mymodal-body').empty();
@@ -682,13 +698,10 @@ export default {
                         alt: a.tags ? a.tags : []
                     });
                     a.marker = marker;
-                    /* this.checkLogs(a.id).then(data => {
+                    this.checkLogs(a.id).then(data => {
                         a.logs = data;
                         this.devices.push(a);
-                    }) */
-
-                    a.logs="";
-                    this.devices.push(a);
+                    });
 
                     //console.log(a.tags.length);
                     if (a.tags) {
@@ -737,6 +750,12 @@ export default {
                             return de.id === el      
                           })
                     //console.log(d)
+                    if (!d.location) {
+                        d.location = {
+                            lon: rand(50.749523),
+                            lat: rand(7.203923),
+                        }
+                    }
                     let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
                         icon: L.icon({
                             iconUrl: "/done.png",
@@ -762,18 +781,25 @@ export default {
                 for (let i = 0; i < response.data.total; i++) {
 
                     let a = response.data.items[i];
-
                     a.build ? a.build : (a.build = "");
                     a.deploy ? a.deploy : (a.deploy = "");
                     a.isActive = false;
-                    this.orders.push(a);
-                }
-            
+                    if (a.deploy) {
+                        this.checkStatus(a.id, a.deploy.match.list.length).then(data => {
+                           a.status = data
+                        })
+                    } else {
+                        a.status=[0,0]
+                        a.deploy = "";
+                    } this.orders.push(a);
+                }    
+            }).then(()=>{
+                //console.log(this.orders)
                  L.control.timelineSlider({
                     timelineItems: this.orders,
                     changeMap: this.getDataAddMarkers
                 }).addTo(this.map); 
-            });
+            })
         },
     },
     mounted() {
