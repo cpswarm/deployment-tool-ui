@@ -3,7 +3,6 @@ L.Control.TimeLineSlider = L.Control.extend({
         position: 'bottomleft',
         timelineItems: ["Today", "Tomorrow", "The Next Day"],
         
-
         changeMap: function ({ label, value, map }) {
             console.log("You are not using the value or label from the timeline to change the map.");
         },
@@ -11,7 +10,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         extraChangeMapParams: {},
         initializeChange: true,
 
-        thumbHeight: "4.5px",
+        thumbHeight: "6px",
         labelWidth: "100px",
         betweenLabelAndRangeSpace: "10px",
 
@@ -83,7 +82,11 @@ L.Control.TimeLineSlider = L.Control.extend({
 
             let li = L.DomUtil.create('li');
             let date = new Date(item.createdAt);
-            li.innerHTML='<div style="margin-top:-23px">'+ date.getDate()+'-'+(date.getMonth()+1)+ ' '+ date.getHours()+':' + date.getMinutes() +'</div>';
+            let month = date.getMonth() < 9 ? '0'+(date.getMonth()+1).toString(): (date.getMonth() + 1 );
+  
+            let minute = date.getMinutes() < 10 ? '0'+ date.getMinutes().toString(): date.getMinutes();
+         
+            li.innerHTML='<div style="margin-top:-23px">'+ date.getDate()+'-'+month + ' ' +date.getHours()+ ':'+ minute +'</div>';
             let img=L.DomUtil.create("img","", li);
             //console.log(item.status)
            /*  if(item.status[1]!==0){
@@ -94,7 +97,7 @@ L.Control.TimeLineSlider = L.Control.extend({
 
             img.src = "done.png";
            
-            img.setAttribute('style', 'margin-top:-9px;width:16px; background-color: #ffffff; border-radius:50%' )
+            img.setAttribute('style', 'margin-top:-4px;width:18px; background-color: #ffffff; border-radius:50%;' )
             let i = L.DomUtil.create('div','timeline-item', li);
             i.innerHTML=item.id;
             return '<li>' + li.innerHTML +'</li>';
@@ -107,7 +110,7 @@ L.Control.TimeLineSlider = L.Control.extend({
 
         this.thumbSize = parseFloat(this.options.thumbHeight) * 2;
         // double the thumb size when its active
-        this.activeThumbSize = this.thumbSize * 2.5;
+        this.activeThumbSize = this.thumbSize * 2;
 
         // make the width of the range div holding the input the number of intervals * the label width and add the thumb size on either end of the range
         this.rangeWidthCSS = parseFloat(this.options.labelWidth) * (this.options.timelineItems.length - 1) + (this.thumbSize * 2);
@@ -149,8 +152,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         })
 
         L.DomEvent.on(this.next, "click", ()=> {
-          
-
+        
             if(700-this.offset< this.rangeWidthCSS){
                 this.pre.disabled=false
                 this.offset -= this.offsetInterval;
@@ -245,7 +247,7 @@ L.Control.TimeLineSlider = L.Control.extend({
             /* -1 because the height is 2 (half the height) */
             .range input::-webkit-slider-thumb {
                 background: ${that.options.activeColor};
-                margin: -${that.thumbSize +1}px 0 0 -2px;
+                margin: -${that.thumbSize-2}px 0 0;
                 width: ${that.activeThumbSize}px;
                 height: ${that.activeThumbSize}px;    
                 -webkit-appearance: none;
@@ -255,7 +257,7 @@ L.Control.TimeLineSlider = L.Control.extend({
             }
             .range input::-moz-range-thumb {
                 background: ${that.options.activeColor};
-                margin: -${that.thumbSize +1}px 0 0 -2px;
+                margin: -${that.thumbSize-2}px 0 0;
                 width: ${that.activeThumbSize}px;
                 height: ${that.activeThumbSize}px;
                 border-radius: 50%;
@@ -264,7 +266,7 @@ L.Control.TimeLineSlider = L.Control.extend({
             }
             .range input::-ms-thumb {
                 background: ${that.options.activeColor};
-                margin: -${that.thumbSize +1}px 0 0 -2px;
+                margin: -${that.thumbSize-2}px 0 0;
                 width: ${that.activeThumbSize}px;
                 height: ${that.activeThumbSize}px;
                 border-radius: 50%;
