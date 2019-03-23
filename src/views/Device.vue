@@ -135,7 +135,7 @@
                                                             <input type="checkbox" autocomplete="off" value="arm32"> arm32
                                                         </label>
                                                         <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox"  autocomplete="off" value="8051"> 8051
+                                                            <input type="checkbox"  autocomplete="off" value="mcs51"> mcs51
                                                         </label>
                                                     </div>
                                                 </div>
@@ -222,13 +222,13 @@
                                 <div class="mycard-title">Name Base:</div>
                                 <div class="mycard-content">
                                     <div class="form-check input-group">
-                                        <input class="form-check-input" type="radio" name="radio">
-                                        <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;">
+                                        <input class="form-check-input" type="radio" name="radio" disabled>
+                                        <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" disabled>
                                         <label>- 1/2/3...</label>
                                     </div>
                                     <div class="form-check input-group">
-                                        <input class="form-check-input" type="radio" name="radio">
-                                        <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;">
+                                        <input class="form-check-input" type="radio" name="radio" disabled>
+                                        <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" disabled>
                                         <label class="form-check-label" for="exampleCheck1">- a/b/c...</label>
                                     </div>
                                 </div>
@@ -237,42 +237,42 @@
                                     <div class="input-group">
                                         <label style="margin-top:2.5px">Type:</label>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light active" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> drone
+                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                <input type="checkbox" autocomplete="off" value="drone"> drone
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> sensor
+                                                <input type="checkbox" autocomplete="off" value="swarm"> swarm
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> robot
+                                                <input type="checkbox" autocomplete="off" value="robot"> robot
                                             </label>
                                         </div>
                                     </div>
                                     <div class="input-group">
                                         <label style="margin-top:2.5px">HW Arch:</label>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light active" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> arm64
+                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                <input type="checkbox" autocomplete="off" value="amd64"> amd64
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> arm32
+                                                <input type="checkbox" autocomplete="off" value="arm32"> arm32
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> 8051
+                                                <input type="checkbox" autocomplete="off" value="mcs51"> mcs51
                                             </label>
                                         </div>
                                     </div>
                                     <div class="input-group">
                                         <label style="margin-top:2.5px">OS:</label>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light active" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> freebsd
+                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                <input type="checkbox" autocomplete="off" value="freebsd"> freebsd
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> netbsd
+                                                <input type="checkbox" autocomplete="off" value="netbsd"> netbsd
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" checked autocomplete="off"> darwin
+                                                <input type="checkbox" autocomplete="off" value="darwin"> darwin
                                             </label>
                                         </div>
                                     </div>
@@ -280,10 +280,9 @@
                                 <div class="mycard-title">Location:</div>
                                 <div class="mycard-content"> <input type="text" class="form-control form-control-sm"
                                         style="font-size: 14px;height: 22px;padding: 5px;"></div>
-
                             </form>
                             <div style="text-align:right;margin-top:5px;">
-                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;">Update</button>
+                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;" @click="batchUpdate">Update</button>
                             </div>
                         </div>
                     </div>
@@ -445,6 +444,39 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+        batchUpdate: function () {
+
+            let input = document.getElementById('updateTags').getElementsByTagName('input'); 
+            let myUpdate = {
+                tags:[],
+                location:{
+                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
+                    lat: parseFloat(input[input.length-1].value.split(',')[1])
+                }
+            }
+            Array.from(input).map(item =>{
+                if(item.checked){
+                    myUpdate.tags.push(item.value)
+                }
+            });
+            $('#mymodal-body').empty();
+            $('#mymodal-body').append("Update target with ")
+            $('#myAlert').modal();
+            //console.log(myUpdate);
+            this.targetDevices.forEach(el=>{
+                axios.put("http://reely.fit.fraunhofer.de:8080/targets/" + el.id, myUpdate).then(response=>{
+                    //console.log(response)
+                    $('#mymodal-body').append(el.id + "  " + response.statusText + "<br>")
+                    //console.log(this.devices.length)
+                }
+            ).catch(error => {
+                $('#mymodal-body').append("Update target with " + el.id + "  " + error);
+                });
+            });
+            this.devices = [];
+            $("#collapseOne").collapse("show");
+            this.getTargets();
+        },
         checkStatus: function (id, total) {
             // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
             return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
@@ -468,10 +500,8 @@ export default {
             axios.delete("http://reely.fit.fraunhofer.de:8080/targets/" + id).then(
                 response => {
                     let index = this.devices.indexOf(this.devices.find(el => el.id === id))
-                    //console.log(id)
                     this.devices.splice(index, 1);
                     //console.log(response)
-                    //console.log(this.devices);
                     $('#mymodal-body').append("Delete target with " + id + "  " + response.statusText)
                     //console.log(this.devices.length)
                 }
@@ -541,8 +571,8 @@ export default {
                 id: input[0].value,
                 tags:[],
                 location:{
-                    lat: parseFloat(input[input.length-1].value.split(',')[0]),
-                    lon: parseFloat(input[input.length-1].value.split(',')[1])
+                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
+                    lat: parseFloat(input[input.length-1].value.split(',')[1])
                 }
             }
             Array.from(input).map(item =>{
@@ -552,26 +582,23 @@ export default {
             });
             $('#mymodal-body').empty();
             $('#myAlert').modal();
-            console.log(myUpdate)
+            //console.log(myUpdate)
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
             axios.put("http://reely.fit.fraunhofer.de:8080/targets/" +id, myUpdate).then(response=>{
 
                     //console.log(response)
                     let i = this.devices.findIndex(el =>el.id == id);
-                    this.devices[i].id = myUpdate.id;
-                    this.devices[i].tags = myUpdate.tags;
-                    this.devices[i].location = myUpdate.location;
+                    this.$set(this.devices[i], 'id', myUpdate.id);
+                    this.$set(this.devices[i], 'tags', myUpdate.tags);
+                    this.$set(this.devices[i], 'location', myUpdate.location);
                     $('#mymodal-body').append("Update target with " + id + "  " + response.statusText)
                     //console.log(this.devices.length)
-                    
                 }
             ).catch(error => {
-                $('#mymodal-body').append("Update  with " + id + "  " + error);
+                $('#mymodal-body').append("Update target with " + id + "  " + error);
             });
             //console.log(event.path)
-           
-            
         },
         hideEdit: function (e) {
             e.path[5].childNodes[0].style.display = 'grid';
@@ -617,7 +644,7 @@ export default {
         },
         showRelationship: function (tag, device) {
             //console.log()
-            device.marker.bounce(4);
+            //device.marker.bounce(4);
             if (this.polyline) {
                 this.polyline.remove();
                 this.polyline = "";
@@ -635,10 +662,31 @@ export default {
                 let color;
                 switch (tag) {
                     case 'amd64':
-                        color = "#DFABFF";
+                        color = "#376b6d";
                         break;
                     case 'swarm':
-                        color = "#FF8A8A";
+                        color = "##42602d";
+                        break;
+                        case 'darwin':
+                        color = "#f17c67";
+                        break;
+                        case 'netbsd':
+                        color = "#b54434";
+                        break;
+                        case 'freebsd':
+                        color = "#cc543a";
+                        break;
+                        case 'mcs51':
+                        color = "#58b2dc";
+                        break;
+                        case 'arm32':
+                        color = "#0d5661";
+                        break;
+                        case 'robot':
+                        color = "#36563c";
+                        break;
+                        case 'drone':
+                        color = "#516E41";
                         break;
                 }
                 this.polyline = L.polyline(latlngs,
@@ -738,6 +786,7 @@ export default {
         getTargets: function () {
             //http://reely.fit.fraunhofer.de:8080/targets
             // /device.json
+            console.log(this.devices);
             axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
@@ -767,10 +816,8 @@ export default {
                     a.marker = marker;
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
-                        //console.log(a.logs)
                         this.devices.push(a);
                     });
-
                     //console.log(a.tags.length);
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
@@ -873,6 +920,7 @@ export default {
     mounted() {
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.panel.style.height = window.innerHeight + "px";
+
         this.getOrders();
         this.getTargets();
         
@@ -1016,15 +1064,50 @@ export default {
 }
 .amd64{
     color: #fff;
-    background-color: #DFABFF;
+    background-color: #376b6d;
     margin-right:2.5px;
 }
 .swarm{
     color: #fff;
-    background-color: #FF8A8A;
+    background-color: #42602d;
     margin-right:2.5px;
 }
-.swarm:hover, .amd64:hover{
+.drone{
+    color: #fff;
+    background-color: #516E41;
+    margin-right:2.5px;
+}
+.robot{
+    color: #fff;
+    background-color: #36563c;
+    margin-right:2.5px;
+}
+.arm32{
+    color: #fff;
+    background-color: #0d5661;
+    margin-right:2.5px;
+}
+.mcs51{
+    color: #fff;
+    background-color: #58b2dc;
+    margin-right:2.5px;
+}
+.freebsd{
+    color: #fff;
+    background-color: #cc543a;
+    margin-right:2.5px;
+}
+.netbsd{
+    color: #fff;
+    background-color: #b54434;
+    margin-right:2.5px;
+}
+.darwin{
+    color: #fff;
+    background-color: #f17c67;
+    margin-right:2.5px;
+}
+.swarm:hover, .amd64:hover, .darwin:hover, .arm32:hover, .freebsd:hover, .netbsd:hover, .robot:hover,.drone:hover, .mcs51:hover{
     cursor: pointer;
 }
 .myTerminal{
