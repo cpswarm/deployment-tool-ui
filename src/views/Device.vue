@@ -96,7 +96,7 @@
                                             @input="submitTerminal"></textarea>
                                     </div>
                                     <div style="display:none">
-                                        <form id="updateDevice">
+                                        <form class="updateDevice">
                                             <div style=" grid-column: 1/4;">
                                                 <button type="button" class="close" aria-label="Close" style="height:20px"
                                                     @click="hideEdit">
@@ -112,44 +112,44 @@
                                             <div class="mycard-title">Tags:</div>
                                             <div class="mycard-content">
                                                 <div class="input-group">
-                                                    <label style="margin-top:2.5px">Type:</label>
+                                                    <p style="margin:2.5px 0">Type:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light active" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> drone
+                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                           <input type="checkbox" autocomplete="off"  value="drone"> drone
                                                         </label>
                                                         <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> sensor
+                                                            <input type="checkbox"  autocomplete="off" value="swarm"> swarm
                                                         </label>
                                                         <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> robot
+                                                            <input type="checkbox"  autocomplete="off" value="robot"> robot
                                                         </label>
                                                     </div>
                                                 </div>
                                                 <div class="input-group">
-                                                    <label style="margin-top:2.5px">HW Arch:</label>
+                                                     <p style="margin:2.5px 0">HW Arch:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light active" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> arm64
+                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                            <input type="checkbox"  autocomplete="off" value="amd64"> amd64
                                                         </label>
                                                         <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> arm32
+                                                            <input type="checkbox" autocomplete="off" value="arm32"> arm32
                                                         </label>
                                                         <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> 8051
+                                                            <input type="checkbox"  autocomplete="off" value="8051"> 8051
                                                         </label>
                                                     </div>
                                                 </div>
                                                 <div class="input-group">
-                                                    <label style="margin-top:2.5px">OS:</label>
+                                                     <p style="margin:2.5px 0">OS:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light active" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> freebsd
+                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                            <input type="checkbox" autocomplete="off" value="freebsd"> freebsd
                                                         </label>
                                                         <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> netbsd
+                                                            <input type="checkbox"  autocomplete="off" value="netbsd"> netbsd
                                                         </label>
                                                         <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                            <input type="checkbox" checked autocomplete="off"> darwin
+                                                            <input type="checkbox" autocomplete="off" value="darwin"> darwin
                                                         </label>
                                                     </div>
                                                 </div>
@@ -160,7 +160,7 @@
                                             <div></div>
                                             <div style="text-align:right;margin-top:5px;grid-column:1/4">
                                                 <button type="button" class="btn btn-primary btn-sm" style="font-size:13px;padding: 2.5px 5px;"
-                                                    @click="submitEdit">Update</button>
+                                                    @click="submitEdit(device.id)">Update</button>
                                             </div>
                                         </form>
                                     </div>
@@ -473,7 +473,6 @@ export default {
                     //console.log(response)
                     //console.log(this.devices);
                     $('#mymodal-body').append("Delete target with " + id + "  " + response.statusText)
-                    $('#myAlert').modal();
                     //console.log(this.devices.length)
                 }
             ).catch(error => {
@@ -492,7 +491,7 @@ export default {
                     });
                     let task = Array.from(fulltask).slice(0,10);
 
-                    console.log(task)
+                    //console.log(task)
                     if (response.data.items.some(el => el.error == true)) {
                         return {
                             tasks: task,
@@ -535,8 +534,44 @@ export default {
             )
             $("#myLog").modal();
         },
-        submitEdit: function () {
-            // Post one device update
+        submitEdit: function (id) {
+
+            let input= event.path[2].getElementsByTagName('input'); 
+            let myUpdate = {
+                id: input[0].value,
+                tags:[],
+                location:{
+                    lat: parseFloat(input[input.length-1].value.split(',')[0]),
+                    lon: parseFloat(input[input.length-1].value.split(',')[1])
+                }
+            }
+            Array.from(input).map(item =>{
+                if(item.checked){
+                    myUpdate.tags.push(item.value)
+                }
+            });
+            $('#mymodal-body').empty();
+            $('#myAlert').modal();
+            console.log(myUpdate)
+            event.path[4].childNodes[0].style.display = 'grid';
+            event.path[4].childNodes[2].style.display = 'none';
+            axios.put("http://reely.fit.fraunhofer.de:8080/targets/" +id, myUpdate).then(response=>{
+
+                    //console.log(response)
+                    let i = this.devices.findIndex(el =>el.id == id);
+                    this.devices[i].id = myUpdate.id;
+                    this.devices[i].tags = myUpdate.tags;
+                    this.devices[i].location = myUpdate.location;
+                    $('#mymodal-body').append("Update target with " + id + "  " + response.statusText)
+                    //console.log(this.devices.length)
+                    
+                }
+            ).catch(error => {
+                $('#mymodal-body').append("Update  with " + id + "  " + error);
+            });
+            //console.log(event.path)
+           
+            
         },
         hideEdit: function (e) {
             e.path[5].childNodes[0].style.display = 'grid';
@@ -547,6 +582,18 @@ export default {
             event.path[4].childNodes[2].style.display = 'inline';
             //console.log(event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0])
             event.path[4].childNodes[2].childNodes[0].childNodes[2].childNodes[0].value= device.id;
+            if(device.tags){
+                 device.tags.map(item => {
+                let tag = event.path[4].childNodes[2].childNodes[0].childNodes[5];
+                  Array.from(tag.getElementsByTagName('label')).forEach(el => {
+                    //console.log(el.childNodes[0].value, item)
+                    if(el.childNodes[0].value == item){
+                         el.childNodes[0].checked = "true"
+                         el.setAttribute('class','btn btn-light active');
+                    }
+                })
+            })
+            }
             event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0].value= [device.location.lon,device.location.lat];
         },
         submitTerminal: function () {
@@ -896,13 +943,14 @@ export default {
   border-radius: 2px;
   padding: 5px 2.5px;
 }
-#updateDevice {
+.updateDevice {
   display: grid;
   grid-template-columns: 0.7fr 4fr 0.5fr;
   grid-gap: 2.5px;
   border: 1px solid #e4e4e4;
   border-radius: 2px;
   padding: 5px 2.5px;
+  margin-bottom: 5px;
 }
 .history_li{
     color: #8e8e8e;

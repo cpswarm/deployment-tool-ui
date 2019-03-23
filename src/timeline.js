@@ -135,14 +135,13 @@ L.Control.TimeLineSlider = L.Control.extend({
       
         L.DomEvent.on(this.pre, "click", ()=> {
 
-            if(this.offset <0){
+            if(this.offset < 0){
                 this.offset += this.offsetInterval;
                 this.line.style.transform = 'translateX('+ this.offset +'px)'
                 this.line.style.transition = 'all .8s'; 
                 this.next.disabled=false
-        
             }else{
-                if(this.offset >=0){
+                if(this.offset >= 0){
                      this.pre.disabled=true
                 }else{
                      this.next.disabled=true
