@@ -104,7 +104,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         }).join('');
 
         this.rangeInput = L.DomUtil.get(this.line).children[0];
-        this.rangeLabelArray = Array.from(this.rangeLabels.getElementsByTagName('li'));
+        this.rangeLabelArray = Array.from(this.rangeLabels.getElementsByTagName('img'));
         this.rangeLabelLabel = Array.from(this.rangeLabels.getElementsByClassName('timeline-item'));
         this.sliderLength = this.rangeLabelArray.length;
 
@@ -153,7 +153,7 @@ L.Control.TimeLineSlider = L.Control.extend({
 
         L.DomEvent.on(this.next, "click", ()=> {
         
-            if(700-this.offset< this.rangeWidthCSS){
+            if(670-this.offset< this.rangeWidthCSS){
                 this.pre.disabled=false
                 this.offset -= this.offsetInterval;
                 this.line.style.transform = 'translateX('+ this.offset +'px)'; 
@@ -319,17 +319,7 @@ L.Control.TimeLineSlider = L.Control.extend({
                 text-align: center;
                 cursor: pointer;
             }
-            .range-labels li::before {
-                background-image: url("assets/done.png"):
-                width: ${that.thumbSize}px;
-                height: ${that.thumbSize}px;
-                position: absolute;
-                right: 0;
-                left: 0;
-                content: "";
-                margin: 0 auto;
-                border-radius: 50%;
-            }
+            
             .range-labels .active {
                 color: ${that.options.activeColor};
             }
