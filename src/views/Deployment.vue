@@ -622,23 +622,26 @@ export default {
             //console.log(this.ws)
             var logs = [];
             var t = [];
-            var deviceStatus = new Map();
+            let deviceStatus = new Map();
+            
             //If there is a build process
             if (host) {
-                deviceStatus.set(host, {
-                    build: "STAGE-START",
-                })
+                let status = new Map();
+                status.set('build','STAGE-START');
+                status.set('install','');
+                status.set('run','');
+                deviceStatus.set(host, status);
                 t.push(host)
             }
             //If there is a deploy process
             if (target) {
                 target.forEach(el => {
-                    if (el != host) {
-                        deviceStatus.set(el, {
-                            install: "",
-                        })
-                        t.push(el)
-                    }
+                    let status = new Map();
+                    status.set('build','');
+                    status.set('install','');
+                    status.set('run','');
+                    deviceStatus.set(el,status);
+                    t.push(el); 
                 })
             }
             //console.log(deviceStatus)
@@ -682,7 +685,6 @@ export default {
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
 
-            //console.log('targets', targets);
             //console.log('all logs', logs)
             var code = "";
             var myTree = {
@@ -723,7 +725,27 @@ export default {
                 //console.log(oneLog)
                 // IF there is log on this el device
                 if (oneLog.length > 0) {
-                    // Check whether there is a stage ended with error
+                    let endLogs = oneLog.filter(el =>{
+                        return el.output == "STAGE-END"
+                    });
+                    //console.log(endLogs)
+                    if(endLogs){
+                        endLogs.forEach(item =>{
+                            if(item.error){  
+                                //console.log(item.target, devicesStatus.get(item.target))
+                                devicesStatus.get(item.target).set(item.stage,['STAGE-END-e', oneLog.filter(el => el.stage == item.stage)])
+                            }else{
+                                //console.log(item.target, devicesStatus.get(item.target))
+                                devicesStatus.get(item.target).set(item.stage, ['STAGE-END', oneLog.filter(el => el.stage == item.stage)])
+                            }
+                        })
+                    }else{
+                         if(devicesStatus.get(item.target).get(item.stage)[0].substring(0,9) != "STAGE-END"){
+                              devicesStatus.get(item.target).set(item.stage,['', oneLog.filter(el => el.stage == item.stage)])
+                         }
+                    }
+                console.log(devicesStatus)
+                  /*   // Check whether there is a stage ended with error
                     let e = oneLog.find(el => {
                         return el.error == true && el.output == "STAGE-END" && el.stage != "build"
                     })
@@ -743,7 +765,7 @@ export default {
                         devicesStatus.set(b_e.target, ["build", "STAGE-END-e", oneLog.filter(el => el.stage == "build")]);
                     } else if (b) {
                         devicesStatus.set("build", ["build", b.output, oneLog.filter(el => el.stage == "build")]);
-                    }
+                    } */
                 }
                 var c = "Device: " + el;
                 oneLog.forEach(log => {
@@ -754,9 +776,59 @@ export default {
                 code += '<div class="myCommandCard">' + c + '</div>';
 
             })
-            console.log(devicesStatus)
+            //console.log(devicesStatus)
             devicesStatus.forEach((value, key) => {
-                switch (value[0]) {
+                //console.log(value,key)
+                if(value.get('build')){
+                    switch (value.get('build')[0]) {
+                            case "STAGE-END-e":
+                                myTree.name = "build"
+                                myTree.value = 1;
+                                myTree.class = 'node-f';
+                                myTree.commands = value.get('build')[1];
+                                break;
+                            default:
+                                myTree.name = "build"
+                                myTree.value = 1;
+                                myTree.class = 'node-s';
+                                myTree.commands = value.get('build')[1]; 
+                                
+                        }       
+                }
+                if(value.get('run')){
+                    console.log(value.get('run'))
+                    switch (value.get('run')[0]) {
+                            case "STAGE-END-e":
+                                myTree.children[0].children[1].name = "run";
+                                myTree.children[0].children[1].value++;
+                                myTree.children[0].children[1].class = 'node-f';
+                                myTree.children[0].children[1].commands = value.get('run')[1];
+                                break;
+                            default:
+                                myTree.children[0].children[0].name = "run";
+                                myTree.children[0].children[0].value++;
+                                myTree.children[0].children[0].class = 'node-s';
+                                myTree.children[0].children[0].commands = value.get('run')[1];
+                        }
+                       
+                }else if(value.get('install')){
+                    switch (value.get('install')[0]) {
+                            case "STAGE-END-e":
+                                myTree.children[1].name = "install";
+                                myTree.children[1].value++;
+                                myTree.children[1].class = 'node-f';
+                                myTree.children[1].commands = value[2];
+                                break;
+                            default:
+                                myTree.children[0].name = "install"
+                                myTree.children[0].value++;
+                                myTree.children[0].class = 'node-s';
+                                myTree.children[0].commands = value[2];
+                        }
+                      
+                }
+/* 
+                switch (value) {
                     case "build":
                         switch (value[1]) {
                             case "STAGE-END-e":
@@ -802,8 +874,8 @@ export default {
                                 myTree.children[0].children[0].commands = value[2];
                         }
                         break;
-                }
-            })
+                } */
+            }) 
             //console.log(myTree)
             var treeLayout = d3.tree().size([200, 200]);
             var root = d3.hierarchy(myTree);
