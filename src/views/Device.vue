@@ -638,6 +638,14 @@ export default {
             //console.log(e.path)
         },
         clickCard: function (marker) {
+
+            let cards = event.path[3].getElementsByClassName('mycard');
+            Array.from(cards).map(item=>{
+               item.setAttribute('class','mycard my-card-body');
+            })
+            event.path[1].setAttribute('class','mycard my-card-body active');
+
+            this.map.panTo(marker.getLatLng());
             //L.Marker.stopAllBouncingMarkers();
             //console.log("card");
             //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
@@ -694,6 +702,7 @@ export default {
                         color: color,
                         weight: 2,
                     }).addTo(this.map);
+
                 this.map.fitBounds(this.polyline.getBounds());
 
                 //console.log(polyline)
@@ -812,7 +821,7 @@ export default {
                         }),
                         title: a.id,
                         alt: a.tags ? a.tags : []
-                    });
+                    })
                     a.marker = marker;
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
@@ -832,6 +841,7 @@ export default {
                     //console.log(this.tags);
                     //Markers click function
                     marker.on("click", event => {
+                        this.polyline.remove();
                         if (!this.targetDevices.some(
                             e => e.id === event.target.options.title
                         )) {
@@ -854,6 +864,7 @@ export default {
                             map.removeLayer(layer);
                         }
                 }); 
+                this.polyline.remove();
                 this.markers.clearLayers();
                 var filteredData = this.orders.find((i, n)=> { 
                     return i.id === label
@@ -883,6 +894,7 @@ export default {
                     })
                 }
                 this.map.addLayer(this.markers)
+                this.map.fitBounds(this.markers);
                 //console.log(filteredData);
                 //markerGroup.addTo(map);
                
@@ -1035,6 +1047,10 @@ export default {
   border-radius: 2px;
 }
 .mycard:active{
+  border: 1px solid #007bff;
+  border-radius: 2px;
+}
+.active{
   border: 1px solid #007bff;
   border-radius: 2px;
 }
