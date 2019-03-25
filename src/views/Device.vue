@@ -50,24 +50,29 @@
                                             </span>
                                         </div>
                                         <div class="mycard-title">Latest Task:</div>
-                                        <div class="mycard-content">{{device.logs.log[0].task}}</div>
+                                        <div class="mycard-content">
+                                             <div v-if="device.logs.log">
+                                            {{device.logs.log[0].task}}</div></div>
                                         <div class="mycard-title">Latest Logs:</div>
-                                        <div v-if="device.logs.error" style="text-align:left">
-                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/done.png" style="width:16px" @click="showlog1(device.logs.log,device.logs.log[0].task)">
-                                            </button>
-                                        </div>
-                                        <div v-else style="text-align:left">
+                                        <div v-if="device.logs.error==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/error.png" style="width:16px" @click="showlog1(device.logs.log,device.logs.log[0].task)">
                                             </button>
                                         </div>
+                                        <div v-else-if="device.logs.error==false" style="text-align:left">
+                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
+                                                <img src="../assets/done.png" style="width:16px" @click="showlog1(device.logs.log,device.logs.log[0].task)">
+                                            </button>
+                                        </div>
+                                         <div v-else></div>
                                         <div class="mycard-title">History Tasks:</div>
                                         <div>
-                                            <hr style="border: 1px solid #8e8e8e;margin:10px 0"> 
-                                            <li v-for="task in device.logs.tasks" class="history_li" @click="showlog1(device.logs.log, task)">
+                                            <div v-if="device.logs.tasks">
+                                                <hr style="border: 1px solid #8e8e8e;margin:10px 0"> 
+                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showlog1(device.logs.log, task)">
                                                     {{task.substring(0,2)}}
                                             </li>
+                                            </div>
                                         </div>
                                         <div></div>
                                         <div style="text-align:right">
@@ -409,17 +414,28 @@
             </div>
         </div>
         <div id="notification" class="notification"> 
-            <div class="mycard-title" style="color:#ffda44; display: none">New Discovered:
+            <div class="mycard-title" style="color:#ffda44; display: none" >New Discovered:
                 <img src="../assets/star.png" style="width:15px"></div>
-            <div class="mycard-content" style="color:#ffda44;; display: none">{{this.newDiscover.length}}</div>
+            <div class="mycard-content" style="display: none;">
+                 <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="showNewDevices">
+                        {{this.newDiscover.length}} 
+                </button>
+                </div> 
             <div class="mycard-title" style="color:#d80027">Failed:
                 <img src="../assets/error.png" style="width:15px">
             </div>
-            <div class="mycard-content" style="color:#d80027">{{this.failed.length}}</div>
+            <div class="mycard-content">
+                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027;padding: 0 2px" @click="filterDevices('failed')">
+                {{this.failed.length}}
+                  </button>
+                </div>
             <div class="mycard-title" style="color:#00ae31">Success:
                  <img src="../assets/done.png" style="width:15px">
             </div>
-            <div class="mycard-content"  style="color:#00ae31">{{this.success.length}}</div>
+            <div class="mycard-content" >
+                  <button type="button" class="btn btn-light btn-sm" style="color:#00ae31;padding: 0 2px" @click="filterDevices('success')">
+                        {{this.success.length}} </button>
+                </div>
         </div>
     </div>
 </template>
@@ -459,6 +475,24 @@ export default {
         editor: require("vue2-ace-editor")
     },
     methods: {
+        filterDevices: function (para) {
+            switch(para){
+                case 'failed': 
+                    this.devices = this.failed;
+                    break;
+                case 'success': 
+                    this.devices = this.success;
+                    break;
+            }
+        },
+        showNewDevices: function () {
+            this.devices = this.newDiscover.concat(this.devices);
+            this.markers.clearLayers();
+            this.devices.map(item=>{
+                this.markers.addLayer(item.marker)
+            })
+            //console.log(this.devices);
+        },
         batchUpdate: function () {
 
             let input = document.getElementById('updateTags').getElementsByTagName('input'); 
@@ -555,7 +589,7 @@ export default {
                     return {
                         tasks:"",
                         log: "",
-                        error: true
+                        error: "none"
                     };
                 }
             }).catch(error => {
@@ -660,7 +694,7 @@ export default {
                  Array.from(cards).map(item=>{
                   item.setAttribute('class','mycard my-card-body');
                 })
-              console.log(event.path[1])
+              //console.log(event.path[1])
               event.path[1].setAttribute('class','mycard my-card-body active');
            }
              this.map.panTo(marker.getLatLng());
@@ -846,6 +880,7 @@ export default {
                         this.devices.push(a);
                     });
                    
+                   //console.log(this.devices)
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
                             if (!this.tags.some(e => e.tag === a.tags[j])) {
@@ -952,11 +987,10 @@ export default {
         handelNewDiscover: function (devices) {
            /*  console.log(devices)
             for (let i = 0; i < devices.length; i++) { */
-                 
                     let a = devices;
                     a.isActive = true;
                     a.relations = true;
-                    console.log(a);
+                    //console.log(a);
                     if (!a.location) {
                         a.location = {
                             lon: rand(50.749523),
@@ -975,7 +1009,7 @@ export default {
                     a.logs = {
                         tasks:"",
                         log:"",
-                        error: ""
+                        error: "none"
                     };
                     this.newDiscover.push(a);
 
@@ -991,7 +1025,7 @@ export default {
                     }
                     let n = $('#notification').children();
                     n[0].setAttribute('style', 'color:#ffda44; display: inline');
-                    n[1].setAttribute('style', 'color:#ffda44; display: inline');
+                    n[1].setAttribute('style', 'color:#ffda44; display: inline;margin-top:2.5px');
 
                     //Markers click function
                     marker.on("click", event => {
@@ -1005,11 +1039,10 @@ export default {
                             });
                         }
                     });
-                    this.markers.addLayer(marker);
-             //   }
         }
     },
     mounted() {
+
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.panel.style.height = window.innerHeight + "px";
 
