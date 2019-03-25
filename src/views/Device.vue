@@ -343,20 +343,20 @@
                 </div>
             </div>
         </div>
-        <div id="map" style="width:800px" ref="map"></div>
+        <div id="map" style="width:900px" ref="map"></div>
         <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
-            <div class="modal-content" >
-                <div class="modal-header">
-                    <h5 id="" class="modal-title">Message</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+            <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
+                <div class="modal-content" >
+                    <div class="modal-header">
+                        <h5 id="" class="modal-title">Message</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                 </div>
                 <div id="mymodal-body" class="modal-body" style="text-align:left"></div>
             </div>
         </div>
-    </div>
+        </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content" style="width:170%">
@@ -408,7 +408,19 @@
                 </div>
             </div>
         </div>
-       
+        <div id="notification" class="notification"> 
+            <div class="mycard-title" style="color:#ffda44; display: none">New Discovered:
+                <img src="../assets/star.png" style="width:15px"></div>
+            <div class="mycard-content" style="color:#ffda44;; display: none">{{this.newDiscover.length}}</div>
+            <div class="mycard-title" style="color:#d80027">Failed:
+                <img src="../assets/error.png" style="width:15px">
+            </div>
+            <div class="mycard-content" style="color:#d80027">{{this.failed.length}}</div>
+            <div class="mycard-title" style="color:#00ae31">Success:
+                 <img src="../assets/done.png" style="width:15px">
+            </div>
+            <div class="mycard-content"  style="color:#00ae31">{{this.success.length}}</div>
+        </div>
     </div>
 </template>
 
@@ -428,6 +440,9 @@ function rand(n) {
 export default {
     data() {
         return {
+            failed:[],
+            success:[],
+            newDiscover:[],
             orders:[],
             map: "",
             polyline: "",
@@ -522,17 +537,18 @@ export default {
                     let task = Array.from(fulltask).slice(0,10);
 
                     //console.log(task)
-                    if (response.data.items.some(el => el.error == true)) {
+                    let lastLog = response.data.items.filter(el => el.task == task[0])
+                    if (lastLog.some(el => el.error == true)) {
                         return {
                             tasks: task,
                             log: response.data.items,
-                            error: false
+                            error: true
                         };
                     } else {
                         return {
                             tasks:task,
                             log: response.data.items,
-                            error: true
+                            error: false
                         };
                     }
                 } else {
@@ -804,11 +820,7 @@ export default {
                     let a = response.data.items[i];
                     a.isActive = true;
                     a.relations = true;
-                    //This the correct latlng
-                    //let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
-                    //The latlng is faked
-                    // let marker = L.marker(L.latLng(rand(50.749523), rand(7.20343)), {
-                    //This the correct latlng
+                   
                     if (!a.location) {
                         a.location = {
                             lon: rand(50.749523),
@@ -826,9 +838,14 @@ export default {
                     a.marker = marker;
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
+                        if(data.error == true){
+                            this.failed.push(a);
+                        }else{
+                            this.success.push(a); 
+                        }
                         this.devices.push(a);
                     });
-                    //console.log(a.tags.length);
+                   
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
                             if (!this.tags.some(e => e.tag === a.tags[j])) {
@@ -930,7 +947,67 @@ export default {
                     changeMap: this.getDataAddMarkers
                 }).addTo(this.map); 
             
-        });}
+        });
+        },
+        handelNewDiscover: function (devices) {
+           /*  console.log(devices)
+            for (let i = 0; i < devices.length; i++) { */
+                 
+                    let a = devices;
+                    a.isActive = true;
+                    a.relations = true;
+                    console.log(a);
+                    if (!a.location) {
+                        a.location = {
+                            lon: rand(50.749523),
+                            lat: rand(7.203923),
+                        }
+                    }
+                    let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
+                        icon: L.icon({
+                            iconUrl: "/done.png",
+                            iconSize: [20, 20]
+                        }),
+                        title: a.id,
+                        alt: a.tags ? a.tags : []
+                    })
+                    a.marker = marker;
+                    a.logs = {
+                        tasks:"",
+                        log:"",
+                        error: ""
+                    };
+                    this.newDiscover.push(a);
+
+                    if (a.tags) {
+                        for (let j = 0; j < a.tags.length; j++) {
+                            if (!this.tags.some(e => e.tag === a.tags[j])) {
+                                this.tags.push({
+                                    isActive: true,
+                                    tag: a.tags[j]
+                                });
+                            }
+                        }
+                    }
+                    let n = $('#notification').children();
+                    n[0].setAttribute('style', 'color:#ffda44; display: inline');
+                    n[1].setAttribute('style', 'color:#ffda44; display: inline');
+
+                    //Markers click function
+                    marker.on("click", event => {
+                        this.polyline.remove();
+                        if (!this.targetDevices.some(
+                            e => e.id === event.target.options.title
+                        )) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
+                    });
+                    this.markers.addLayer(marker);
+             //   }
+        }
     },
     mounted() {
         this.$refs.map.style.height = window.innerHeight + "px";
@@ -938,7 +1015,24 @@ export default {
 
         this.getOrders();
         this.getTargets();
-        
+
+        var ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?topics=targetAdded");
+        ws.onopen = function () {
+            console.log("Socket connected.");
+        };
+        ws.onmessage = event => {
+            //console.log(event.data);
+            var obj = JSON.parse(event.data);
+            this.handelNewDiscover(obj.payload);
+            console.log("new device!")
+        };
+        ws.onclose = function () {
+                    console.log("Socket disconnected.");
+                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
+                    // If socket disconnected, try to connect again after 5s.
+                    /* setTimeout(function () { listen(1, true);}, 5000); */
+        };
+
         this.map = L.map("map").setView([50.749523, 7.20343], 17);
 
         L.tileLayer(
@@ -968,8 +1062,8 @@ export default {
                 });
             }
         });
-        this.map.addLayer(this.markers);
-        //timeline(document.querySelectorAll('.timeline'));
+        this.map.addLayer(this.markers);  
+    
     }
 };
 </script>
@@ -979,7 +1073,20 @@ export default {
   display: flex;
   flex-direction: row;
 }
-
+.notification{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    display:grid;
+    grid-template-columns: 6fr 1fr;
+    grid-gap: 0 4px;
+    padding: 2.5px 5px;
+    font-size: 14px;
+    list-style: none;
+    background-color: #fff;
+    box-shadow: 0 1px 1px #8e8e8e50
+}
 .panel {
   width: 100%;
   display: flex;
