@@ -638,16 +638,17 @@ export default {
             //console.log(e.path)
         },
         clickCard: function (marker) {
-
-            let cards = event.path[3].getElementsByClassName('mycard');
-            Array.from(cards).map(item=>{
-               item.setAttribute('class','mycard my-card-body');
-            })
-            event.path[1].setAttribute('class','mycard my-card-body active');
-
-            this.map.panTo(marker.getLatLng());
+            
+            if(event.target.tagName == "DIV"){
+                 let cards = document.getElementById('deviceList').getElementsByClassName('mycard my-card-body');
+                 Array.from(cards).map(item=>{
+                  item.setAttribute('class','mycard my-card-body');
+                })
+              console.log(event.path[1])
+              event.path[1].setAttribute('class','mycard my-card-body active');
+           }
+             this.map.panTo(marker.getLatLng());
             //L.Marker.stopAllBouncingMarkers();
-            //console.log("card");
             //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
         },
         showRelationship: function (tag, device) {
@@ -795,7 +796,7 @@ export default {
         getTargets: function () {
             //http://reely.fit.fraunhofer.de:8080/targets
             // /device.json
-            console.log(this.devices);
+            //console.log(this.devices);
             axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
@@ -864,7 +865,9 @@ export default {
                             map.removeLayer(layer);
                         }
                 }); 
-                this.polyline.remove();
+                if(this.polyline){
+                    this.polyline.remove();
+                }
                 this.markers.clearLayers();
                 var filteredData = this.orders.find((i, n)=> { 
                     return i.id === label
@@ -894,7 +897,7 @@ export default {
                     })
                 }
                 this.map.addLayer(this.markers)
-                this.map.fitBounds(this.markers);
+                this.map.fitBounds(this.markers.getBounds());
                 //console.log(filteredData);
                 //markerGroup.addTo(map);
                
@@ -1042,7 +1045,7 @@ export default {
 .mycard {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  grid-gap: 2.5px;
+  padding: 2.5px;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 2px;
 }
