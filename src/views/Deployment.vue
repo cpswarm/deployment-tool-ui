@@ -129,9 +129,6 @@
                                         <img src="../assets/duplicate.png" style="width:18px">
                                     </button>
                                 </div>
-
-
-
                                 </div>
                                 
                             </div>

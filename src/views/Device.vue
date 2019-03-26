@@ -51,8 +51,9 @@
                                         </div>
                                         <div class="mycard-title">Latest Task:</div>
                                         <div class="mycard-content">
-                                             <div v-if="device.logs.log">
-                                            {{device.logs.log[0].task}}</div></div>
+                                            <span v-if="device.logs.log">
+                                            {{device.logs.log[0].task}}</span>
+                                            </div>
                                         <div class="mycard-title">Latest Logs:</div>
                                         <div v-if="device.logs.error==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
@@ -464,6 +465,7 @@ export default {
             polyline: "",
             updateOneName: "",
             devices: [],
+            fullDevices:[],
             tags: [],
             targetDevices: [],
             markers: [],
@@ -801,6 +803,7 @@ export default {
             var tagsNodes = document.getElementById("searchTarget").childNodes;
 
             //console.log(tagsNodes);
+            this.devices = this.fullDevices;
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.devices.length; j++) {
@@ -820,13 +823,13 @@ export default {
 
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.devices.length; j++) {
+                    for (var j = 0; j < this.fullDevices.length; j++) {
                         //console.log(this.devices)
-                        if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
-                            if (!this.targetDevices.some(e => e.id === this.devices[j].id)) {
+                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+                            if (!this.targetDevices.some(e => e.id === this.fullDevices[j].id)) {
                                 this.targetDevices.push({
-                                    id: this.devices[j].id,
-                                    tags: this.devices[j].tags
+                                    id: this.fullDevices[j].id,
+                                    tags: this.fullDevices[j].tags
                                 });
                                 //console.log(i, j, m);
                             }
@@ -878,8 +881,8 @@ export default {
                             this.success.push(a); 
                         }
                         this.devices.push(a);
+                        this.fullDevices.push(a);
                     });
-                   
                    //console.log(this.devices)
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
@@ -921,15 +924,17 @@ export default {
                     this.polyline.remove();
                 }
                 this.markers.clearLayers();
+                this.devices = [];
                 var filteredData = this.orders.find((i, n)=> { 
                     return i.id === label
                 });
                 //console.log(filteredData)
                 if(filteredData.deploy){
                     filteredData.deploy.match.list.forEach(el=>{
-                          let d = this.devices.find(function (de) {
+                          let d = this.fullDevices.find(function (de) {
                             return de.id === el      
                           })
+                    this.devices.push(d);      
                     //console.log(d)
                     if (!d.location) {
                         d.location = {
