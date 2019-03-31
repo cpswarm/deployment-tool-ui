@@ -262,7 +262,7 @@
             </div>
         </div>
     </div>
-    <div id="map" style="width:800px" ref="map"></div>
+    <div id="map" style="width:900px" ref="map"></div>
     <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
             <div class="modal-content" >
@@ -306,6 +306,30 @@
             </div>
         </div>
     </div>
+        <div id="notification" class="notification"> 
+            <div class="mycard-title" style="color:#ffda44; display: none" >New Discovered:
+                <img src="../assets/star.png" style="width:15px"></div>
+            <div class="mycard-content" style="display: none;">
+                 <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="showNewDevices">
+                        {{this.newDiscover.length}} 
+                </button>
+                </div> 
+            <div class="mycard-title" style="color:#d80027">Failed:
+                <img src="../assets/error.png" style="width:15px">
+            </div>
+            <div class="mycard-content">
+                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027;padding: 0 2px" @click="filterDevices('failed')">
+                {{this.failed.length}}
+                  </button>
+                </div>
+            <div class="mycard-title" style="color:#00ae31">Success:
+                 <img src="../assets/done.png" style="width:15px">
+            </div>
+            <div class="mycard-content" >
+                  <button type="button" class="btn btn-light btn-sm" style="color:#00ae31;padding: 0 2px" @click="filterDevices('success')">
+                        {{this.success.length}} </button>
+                </div>
+        </div>
 </div>
 </template>
 
@@ -342,10 +366,14 @@ export default {
             host: "",
             devices: [],
             targetDevices: [],
+            fullDevices:[],
             tags: [],
             orders: [],
             tree: [],
-            markers: []
+            markers: [],
+            failed:[],
+            success:[],
+            newDiscover:[],
         };
     },
     components: {
@@ -359,7 +387,7 @@ export default {
         }
     },
     methods: {
-         clickCard: function (order) {
+        clickCard: function (order) {
 
             if(event.target.tagName == "DIV"){
                  let cards = document.getElementById('deploymentList').getElementsByClassName('mycard my-card-body');
@@ -399,6 +427,29 @@ export default {
             //L.Marker.stopAllBouncingMarkers();
             //console.log("card");
             //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
+        },
+        filterDevices: function (para) {
+            switch(para){
+                case 'failed': 
+                    this.devices = this.failed;
+                    break;
+                case 'success': 
+                    this.devices = this.success;
+                    break;
+            }
+            this.$router.push({ path: "/home", props:{
+                devices: this.devices,
+            } 
+            });
+            
+        },
+        showNewDevices: function () {
+            this.devices = this.newDiscover.concat(this.devices);
+            this.markers.clearLayers();
+            this.devices.map(item=>{
+                this.markers.addLayer(item.marker)
+            })
+            //console.log(this.devices);
         },
         getFinishnStatus: function (id, total) {
 
@@ -441,6 +492,43 @@ export default {
                     } else {
                         return [total - response.data.items.length, response.data.items.length];
                     }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+        },
+        checkLogs: function (target) {
+            var des = "target=" + target;
+            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+
+                if (response.data.items) { 
+                    let fulltask = new Set();
+                    response.data.items.forEach(el => {
+                        fulltask.add(el.task)
+                    });
+                    let task = Array.from(fulltask).slice(0,10);
+
+                    //console.log(task)
+                    let lastLog = response.data.items.filter(el => el.task == task[0])
+                    if (lastLog.some(el => el.error == true)) {
+                        return {
+                            tasks: task,
+                            log: response.data.items,
+                            error: true
+                        };
+                    } else {
+                        return {
+                            tasks:task,
+                            log: response.data.items,
+                            error: false
+                        };
+                    }
+                } else {
+                    return {
+                        tasks:"",
+                        log: "",
+                        error: "none"
+                    };
                 }
             }).catch(error => {
                 console.log(error);
@@ -1043,7 +1131,7 @@ export default {
                     // Generate a (lat, lng) randomly for each device
 
                     // this.devices is the list of all devices registered on the server
-                    this.devices.push(a);
+                    
                     //console.log(this.devices)
                     //this.tags is the list of all tags of the devices, no duplicated
                     if (a.tags) {
@@ -1070,6 +1158,19 @@ export default {
                         title: a.id,
                         alt: a.tags
                     });
+                    a.marker = marker;
+                    this.checkLogs(a.id).then(data => {
+                        a.logs = data;
+                        if(data.error == true){
+                            this.failed.push(a);
+                        }else{
+                            this.success.push(a); 
+                        }
+                        this.devices.push(a);
+                        this.fullDevices.push(a);
+                    });
+
+                    this.devices.push(a);
                     //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
                         if (!this.targetDevices.some(e => e.id === event.target.options.title)) {

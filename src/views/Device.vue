@@ -1077,6 +1077,8 @@ export default {
 
         this.getOrders();
         this.getTargets();
+        
+        //console.log(this.devices)
 
         var ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?topics=targetAdded");
         ws.onopen = function () {
