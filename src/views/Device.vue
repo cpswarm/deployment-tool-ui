@@ -363,6 +363,19 @@
             </div>
         </div>
         </div>
+         <div id="myMessage" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog alert alert-success" role="document" style="width:150%">
+                <div class="modal-content" >
+                    <div class="modal-header">
+                        <h5 class="modal-title">Message</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                </div>
+                <div id="mymessage-body" class="modal-body" style="text-align:left"></div>
+            </div>
+        </div>
+        </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content" style="width:200%">
@@ -514,16 +527,18 @@ export default {
                 }
             });
             $('#mymodal-body').empty();
-            $('#mymodal-body').append("Update target with ")
-            $('#myAlert').modal();
+            $('#mymessage-body').empty();
+      
             //console.log(myUpdate);
             this.targetDevices.forEach(el=>{
                 axios.put("http://reely.fit.fraunhofer.de:8080/targets/" + el.id, myUpdate).then(response=>{
                     //console.log(response)
-                    $('#mymodal-body').append(el.id + "  " + response.statusText + "<br>")
+                    $('#myMessage').modal();
+                    $('#mymessage-body').append("Update target with "+ el.id + "  " + response.statusText + "<br>")
                     //console.log(this.devices.length)
                 }
             ).catch(error => {
+                $('#myAlert').modal();
                 $('#mymodal-body').append("Update target with " + el.id + "  " + error);
                 });
             });
@@ -550,17 +565,19 @@ export default {
         deleteTarget: function (id) {
          
             $('#mymodal-body').empty();
-            $('#myAlert').modal();
+            $('#mymessage-body').empty();
             axios.delete("http://reely.fit.fraunhofer.de:8080/targets/" + id).then(
                 response => {
                     let index = this.devices.indexOf(this.devices.find(el => el.id === id))
                     this.devices.splice(index, 1);
                     //console.log(response)
-                    $('#mymodal-body').append("Delete target with " + id + "  " + response.statusText)
+                    $('#myMessage').modal();
+                    $('#mymessage-body').append("Delete target with " + id + "  " + response.statusText)
                     //console.log(this.devices.length)
                 }
             ).catch(error => {
-                $('#mymodal-body').append("Delete  with " + id + "  " + error);
+                $('#myAlert').modal();
+                $('#mymodal-body').append("Delete target with " + id + "  " + error);
             })
             
         },
@@ -638,7 +655,7 @@ export default {
                 }
             });
             $('#mymodal-body').empty();
-            $('#myAlert').modal();
+            $('#mymessage-body').empty();
             //console.log(myUpdate)
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
@@ -649,10 +666,12 @@ export default {
                     this.$set(this.devices[i], 'id', myUpdate.id);
                     this.$set(this.devices[i], 'tags', myUpdate.tags);
                     this.$set(this.devices[i], 'location', myUpdate.location);
-                    $('#mymodal-body').append("Update target with " + id + "  " + response.statusText)
+                    $('#myMessage').modal();
+                    $('#mymessage-body').append("Update target with " + id + "  " + response.statusText)
                     //console.log(this.devices.length)
                 }
             ).catch(error => {
+                $('#myAlert').modal();
                 $('#mymodal-body').append("Update target with " + id + "  " + error);
             });
             //console.log(event.path)
