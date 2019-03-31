@@ -365,7 +365,7 @@
         </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document" style="margin: 50px 100px;">
-                <div class="modal-content" style="width:170%">
+                <div class="modal-content" style="width:200%">
                     <div class="modal-header">
                         <h5 id="logTitle" class="modal-title">Logs for Task:</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -383,6 +383,7 @@
                                     Build
                                 </div>
                                 <div id="collapsebuild" class="collapse show" aria-labelledby="headingBuild" style="padding: 0 0px 0px 35px;">
+                                
                                 </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
@@ -395,6 +396,7 @@
                                     Install
                                 </div>
                                 <div id="collapseinstall" class="collapse show" aria-labelledby="headinginstall" style="padding: 0 0px 0px 35px;">
+                                  
                                 </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
@@ -407,6 +409,7 @@
                                     Run
                                 </div>
                                 <div id="collapserun" class="collapse show" aria-labelledby="headingrun" style="padding: 0 0px 0px 35px;">
+                                  
                                 </div>
                             </div>
                         </div>
@@ -606,14 +609,16 @@ export default {
             $("#collapserun").empty();
 
             $("#logTitle").append('Logs of Task: '+id);
-            log.filter(el => el.task == id).forEach(function (el) {
-                if (el.error == true) {
-                    $("#collapse" + el.stage).append('<div class="myfont_f">' + new Date(el.time).toLocaleString() + '  <div class="myfont_t" style="display:inline-block">' + el.command + '</div>  ' + el.output + '</div>')
+
+            let logs =  log.filter(el => el.task == id)
+            for(let i =1; i<logs.length;i++){
+                let command = logs[i].command == logs[i-1].command? '': logs[i].command;
+                if (logs[i].error == true) {
+                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_f">' + new Date(logs[i].time).toLocaleString() +'</div><div class="myfont_f">' + logs[i].output + '</div><div class="myfont_f">' + command + '</div> </div> ')
                 } else {
-                    $("#collapse" + el.stage).append('<div class="myfont_s">' + new Date(el.time).toLocaleString() + '  <div class="myfont_t" style="display:inline-block">' + el.command + '</div>  ' + el.output + '</div>')
+                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_s">' + new Date(logs[i].time).toLocaleString() + '</div><div class="myfont_s">' + logs[i].output + '</div><div class="myfont_t">' + command + '</div> </div> ')
                 }
             }
-            )
             $("#myLog").modal();
         },
         submitEdit: function (id) {
@@ -1124,6 +1129,10 @@ export default {
     list-style: none;
     background-color: #fff;
     box-shadow: 0 1px 1px #8e8e8e50
+}
+.mycollapse{
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
 }
 .panel {
   width: 100%;
