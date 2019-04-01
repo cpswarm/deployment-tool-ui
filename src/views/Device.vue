@@ -1,6 +1,6 @@
 <template>
     <div class="mappanelContainer">
-        <div ref="panel" class="panel" style="width:400px;overflow: scroll;">
+        <div class="panel" style="width:400px">
             <div id="title">
                 <h5 style="display: inline-block; margin:5px">Device Management</h5>
             </div>
@@ -36,7 +36,7 @@
                                     </div>
                                 </form>
                             </div>
-                            <div id="deviceList">
+                            <div id="deviceList" ref="list" style="overflow:scroll">
                                 <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
                                     <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
@@ -183,9 +183,8 @@
                             Update Devices
                         </button>
                     </div>
-                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample"
-                        ref="collapseTwo">
-                        <div class="card-body" style="text-align:left;padding:7.5px">
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                        <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:scroll">
                             <p style="margin-bottom:5px;font-size:14px">Updating Targets:</p>
                             <div style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: scroll">
                                 <div>
@@ -301,9 +300,9 @@
                             Add New Tokens
                         </button>
                     </div>
-                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample"
-                        ref="collapseThree">
-                        <div style="margin:10px 12.5px 5px">
+                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                        <div ref="collapseThree" style="overflow:scroll">
+                        <div style="margin:10px 12.5px 5px;">
                             <form id="newDevice" class="form-inline">
                                 <h6 style="font-size:15px;margin:0">#Tokens:</h6>
                                 <input class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
@@ -345,6 +344,9 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        </div>
+                      
                     </div>
                 </div>
             </div>
@@ -1083,8 +1085,9 @@ export default {
     mounted() {
 
         this.$refs.map.style.height = window.innerHeight + "px";
-        this.$refs.panel.style.height = window.innerHeight + "px";
-
+        this.$refs.list.style.height = window.innerHeight-32-32-32-27-34-15 + "px";
+        this.$refs.collapseTwo.style.height = window.innerHeight-32-32-32-34-15 + "px";
+        this.$refs.collapseThree.style.height = window.innerHeight-32-32-32-34-15 + "px";
         this.getOrders();
         this.getTargets();
         
@@ -1242,9 +1245,8 @@ export default {
   border: 1px solid #007bff;
   border-radius: 2px;
 }
-.collapse {
-  overflow: scroll;
-}
+
+
 .mycard-title {
   text-align: right;
   font-size: 15px;
@@ -1253,9 +1255,7 @@ export default {
   text-align: left;
   font-size: 14px;
 }
-#deviceList {
-  overflow: scroll;
-}
+
 
 .card-header {
   width: 400px;

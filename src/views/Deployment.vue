@@ -1,6 +1,6 @@
 <template>
   <div class="mappanelContainer">
-    <div ref="panel" class="panel" style="width:400px;overflow: scroll;">
+    <div class="panel" style="width:400px">
         <div id="title">
             <h5 draggable="true" style="display: inline-block; margin:5px">Deployment Management</h5>
         </div>
@@ -32,8 +32,8 @@
                         </div>
                     </form>
                 </div>
-                <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample">
-                    <div style="padding:5px">
+                <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" style="overflow:scroll">
+                    <div style="padding:5px" ref="list">
                         <div id="deploymentList">
                             <div v-for="order in orderOrders"   v-show="order" :key="order.id" @click="clickCard(order)">
                                 <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
@@ -144,8 +144,8 @@
                         Add New Deployment
                     </button>
                 </div>
-                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
-                    <div class="card-body" style="padding:7.5px">
+                <div id="collapseThree"  class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" style="overflow:scroll">
+                    <div class="card-body" style="padding:7.5px" ref="collapseThree">
                         <h6 style="text-align:left">
                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" data-toggle="collapse"
                                 data-target="#collapseOne">
@@ -1197,7 +1197,8 @@ export default {
     mounted() {
 
         this.$refs.map.style.height = window.innerHeight + "px";
-        this.$refs.panel.style.height = window.innerHeight + "px";
+        this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32-15 + "px";
+        this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 -15 + "px";
 
         /* this.$refs.editor_build_t.editor.setValue("commands:", 1);
            this.$refs.editor_build_t.editor.setOption("highlightActiveLine", false);
