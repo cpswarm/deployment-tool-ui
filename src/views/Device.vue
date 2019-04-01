@@ -44,9 +44,9 @@
                                         <div class="mycard-title">Tags:</div>
                                         <div class="mycard-content">
                                             <span>
-                                                <div v-for="tag in device.tags" class="badge badge-pill" :class="tag"
+                                                <button v-for="tag in device.tags" class="badge badge-pill" :class="tag"
                                                     @click="device.relations=showRelationship(tag,device)">{{tag}}
-                                                </div>
+                                                </button>
                                             </span>
                                         </div>
                                         <div class="mycard-title">Latest Task:</div>
@@ -504,7 +504,9 @@ export default {
             }
         },
         showNewDevices: function () {
+            
             this.devices = this.newDiscover.concat(this.devices);
+            this.newDiscover = [];
             this.markers.clearLayers();
             this.devices.map(item=>{
                 this.markers.addLayer(item.marker)
@@ -714,6 +716,8 @@ export default {
             //console.log(e.path)
         },
         clickCard: function (marker) {
+
+            console.log(event.target.tagName)
             
             if(event.target.tagName == "DIV"){
                  let cards = document.getElementById('deviceList').getElementsByClassName('mycard my-card-body');
@@ -921,7 +925,10 @@ export default {
                     //console.log(this.tags);
                     //Markers click function
                     marker.on("click", event => {
-                        this.polyline.remove();
+                        if(this.polyline){
+                            this.polyline.remove();
+                        }
+                        this.devices.splice(0,this.devices.length, a);
                         if (!this.targetDevices.some(
                             e => e.id === event.target.options.title
                         )) {
@@ -1058,7 +1065,10 @@ export default {
 
                     //Markers click function
                     marker.on("click", event => {
-                        this.polyline.remove();
+                        if(this.polyline){
+                            this.polyline.remove();
+                        }
+                        this.devices,splice(0,this.devices.length, a);
                         if (!this.targetDevices.some(
                             e => e.id === event.target.options.title
                         )) {

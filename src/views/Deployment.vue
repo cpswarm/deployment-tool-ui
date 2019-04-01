@@ -1173,6 +1173,9 @@ export default {
                     this.devices.push(a);
                     //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
+
+                        
+
                         if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                             this.targetDevices.push({
                                 id: event.target.options.title,
