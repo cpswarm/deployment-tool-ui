@@ -15,7 +15,7 @@
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" role="tabpanel" aria-labelledby="home-tab">
+        <div class="tab-pane fade show active" role="tabpanel" aria-labelledby="home-tab" style=" border: 1px solid #dee2e6;border-radius: 2px;">
             <form action id="projectSetting">
                 <div id="mapSetting">
                     <div style="text-align: right">
@@ -348,6 +348,7 @@ export default {
   display: grid;
   grid-template-columns: 2fr 5fr;
 }
+
 .myLabel {
   margin-left: 5px;
 }

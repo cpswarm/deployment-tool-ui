@@ -344,9 +344,7 @@
                                 </tbody>
                             </table>
                         </div>
-
                         </div>
-                      
                     </div>
                 </div>
             </div>
@@ -547,8 +545,13 @@ export default {
                 });
             });
             this.devices = [];
+            this.fullDevices = [];
+            this.failed =[];
+            this.success = [];
+            this.markers.clearLayers();
+            this.getTargets();   
+
             $("#collapseOne").collapse("show");
-            this.getTargets();
         },
         checkStatus: function (id, total) {
             // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
@@ -666,10 +669,25 @@ export default {
             axios.put("http://reely.fit.fraunhofer.de:8080/targets/" +id, myUpdate).then(response=>{
 
                     //console.log(response)
+                    //console.log(this.markers)
                     let i = this.devices.findIndex(el =>el.id == id);
+                    //let j = this.markers.findIndex(el =>el.title == id);
+  
+                    console.log(this.markers)
+                    
+                    let marker = L.marker(L.latLng(myUpdate.location.lon, myUpdate.location.lat), {
+                        icon: L.icon({
+                            iconUrl: "/done.png",
+                            iconSize: [20, 20]
+                        }),
+                        title: myUpdate.id,
+                        alt: myUpdate.tags
+                    })
                     this.$set(this.devices[i], 'id', myUpdate.id);
                     this.$set(this.devices[i], 'tags', myUpdate.tags);
                     this.$set(this.devices[i], 'location', myUpdate.location);
+                    this.$set(this.devices[i], 'marker', marker)
+                    
                     $('#myMessage').modal();
                     $('#mymessage-body').append("Update target with " + id + "  " + response.statusText)
                     //console.log(this.devices.length)
@@ -719,7 +737,7 @@ export default {
         },
         clickCard: function (marker) {
 
-            console.log(event.target.tagName)
+            //console.log(event.target.tagName)
             
             if(event.target.tagName == "DIV"){
                  let cards = document.getElementById('deviceList').getElementsByClassName('mycard my-card-body');
@@ -756,7 +774,7 @@ export default {
                         color = "#376b6d";
                         break;
                     case 'swarm':
-                        color = "##42602d";
+                        color = "#42602d";
                         break;
                         case 'darwin':
                         color = "#f17c67";
@@ -785,7 +803,7 @@ export default {
                         color: color,
                         weight: 2,
                     }).addTo(this.map);
-
+                console.log(this.polyline)
                 this.map.fitBounds(this.polyline.getBounds());
 
                 //console.log(polyline)
@@ -1087,7 +1105,28 @@ export default {
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.list.style.height = window.innerHeight-32-32-32-27-34-15 + "px";
         this.$refs.collapseTwo.style.height = window.innerHeight-32-32-32-34-15 + "px";
-        this.$refs.collapseThree.style.height = window.innerHeight-32-32-32-34-15 + "px";
+        this.$refs.collapseThree.style.height = window.innerHeight-32-32-32-34-15 + "px";  
+        
+        //Custermize the markerCluster style
+        this.markers = L.markerClusterGroup({
+            spiderLegPolylineOptions: {
+                weight: 1,
+                color: "#222",
+                opacity: 0.1
+            },
+            iconCreateFunction: function (cluster) {
+                var childCount = cluster.getChildCount();
+
+                //console.log(cluster)
+                //cluster.unspiderfy();
+                return L.divIcon({
+                    html: "<div><span>" + childCount + "</span></div>",
+                    className: "myCluster",
+                    iconSize: new L.Point(40, 40)
+                });
+            }
+        });
+      
         this.getOrders();
         this.getTargets();
         
@@ -1120,25 +1159,7 @@ export default {
             }
         ).addTo(this.map);
 
-        //Custermize the markerCluster style
-        this.markers = L.markerClusterGroup({
-            spiderLegPolylineOptions: {
-                weight: 1,
-                color: "#222",
-                opacity: 0.1
-            },
-            iconCreateFunction: function (cluster) {
-                var childCount = cluster.getChildCount();
-
-                //console.log(cluster)
-                //cluster.unspiderfy();
-                return L.divIcon({
-                    html: "<div><span>" + childCount + "</span></div>",
-                    className: "myCluster",
-                    iconSize: new L.Point(40, 40)
-                });
-            }
-        });
+      
         this.map.addLayer(this.markers);  
     
     }
@@ -1245,8 +1266,6 @@ export default {
   border: 1px solid #007bff;
   border-radius: 2px;
 }
-
-
 .mycard-title {
   text-align: right;
   font-size: 15px;
