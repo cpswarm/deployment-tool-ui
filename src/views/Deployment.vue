@@ -1134,8 +1134,10 @@ export default {
                     
                     //console.log(this.devices)
                     //this.tags is the list of all tags of the devices, no duplicated
+                    var tags="";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
+                            tags+='<div class="badge badge-pill ' +a.tags[j] +'">'+a.tags[j]+'</div>'
                             if (!this.tags.some(e => e.tag === a.tags[j])) {
                                 this.tags.push({
                                     isActive: true,
@@ -1159,6 +1161,8 @@ export default {
                         alt: a.tags
                     });
                     a.marker = marker;
+                    
+                    marker.bindPopup('<div>Name: '+a.id +'</div><div>Tags: '+ tags +'</div>');
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
                         if(data.error == true){
@@ -1174,7 +1178,7 @@ export default {
                     //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
 
-                        
+                        marker.openPopup();
 
                         if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                             this.targetDevices.push({
