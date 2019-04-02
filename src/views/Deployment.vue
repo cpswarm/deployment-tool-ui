@@ -1,6 +1,6 @@
 <template>
   <div class="mappanelContainer">
-    <div class="panel" style="width:400px">
+    <div class="panel">
         <div id="title">
             <h5 draggable="true" style="display: inline-block; margin:5px">Deployment Management</h5>
         </div>
@@ -262,7 +262,7 @@
             </div>
         </div>
     </div>
-    <div id="map" style="width:900px" ref="map"></div>
+    <div id="map" ref="map"></div>
     <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
             <div class="modal-content" >
@@ -437,7 +437,7 @@ export default {
                     this.devices = this.success;
                     break;
             }
-            this.$router.push({ path: "/home", props:{
+            this.$router.push({ path: "/home/deployment", redirect:"/home",  props:{
                 devices: this.devices,
             } 
             });

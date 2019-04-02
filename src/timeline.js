@@ -6,6 +6,8 @@ L.Control.TimeLineSlider = L.Control.extend({
         changeMap: function ({ label, value, map }) {
             console.log("You are not using the value or label from the timeline to change the map.");
         },
+        
+        mapWidth: "800px",
 
         extraChangeMapParams: {},
         initializeChange: true,
@@ -55,7 +57,8 @@ L.Control.TimeLineSlider = L.Control.extend({
         /* Prevent scroll events propagation to map when cursor on the div */
         L.DomEvent.disableScrollPropagation(this.container);
 
-        this.container.style.width = '780px'
+        //console.log(this.options.mapWidth)
+        this.container.style.width = this.options.mapWidth +"px";
         this.container.style.height = '130px'
         this.container.style.overflow = 'hidden' 
 
@@ -69,7 +72,7 @@ L.Control.TimeLineSlider = L.Control.extend({
         this.next.setAttribute('style','position: relative; left:46%;z-index:10; top:20px');
 
         this.slider = L.DomUtil.create('div', 'slider', this.container);
-        this.slider.setAttribute('style','width:90%;postion:relative;left:30px; overflow-x:hidden;top:-30px')
+        this.slider.setAttribute('style','width:90%;postion:relative;left:60px; overflow-x:hidden;top:-30px')
         this.hr=L.DomUtil.create('hr','',this.slider);
         this.hr.setAttribute('style','position: relative;top: 15px;border: 2px solid #8e8e8e;')
         this.line = L.DomUtil.create('div','range',this.slider);

@@ -52,16 +52,10 @@
 
 <style>
 #container {
-display: flex;
-flex-direction: row;
+display: grid;
+grid-template-columns: 1fr 30fr;
 }
-#navbar{
-flex-grow: 1
-}
-#mappanel{
-    flex-grow: 11;
-    display: flex;
-}
+
 #navbar label{
    border-radius: 0
 }
