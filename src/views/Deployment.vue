@@ -154,10 +154,6 @@
                             <a style="font-size:15px">Duplicate one exsiting deployment</a>
                         </h6>
                         <form id="newDeployment">
-                            <div class="mycard-title" style="text-align:right">Name:</div>
-                            <div class="mycard-content">
-                                <input v-model="deployName" type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;">
-                            </div>
                             <div class="mycard-title" style="text-align:right">Source:</div>
                             <div>
                                 <div class="custom-file" style="height:22px">
@@ -444,7 +440,7 @@ export default {
             
         },
         showNewDevices: function () {
-            this.devices = this.newDiscover.concat(this.devices);
+            this.devices = this.newDiscover;
             this.markers.clearLayers();
             this.devices.map(item=>{
                 this.markers.addLayer(item.marker)
@@ -581,7 +577,7 @@ export default {
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
-            this.deployName = order.id;
+          
             this.deployDebug = order.debug;
             this.source = "";
             document.getElementById("customFile").value = "";

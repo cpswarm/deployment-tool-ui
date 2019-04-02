@@ -430,15 +430,15 @@
                 </div>
             </div>
         </div>
-        <div id="notification" class="notification"> 
-            <div class="mycard-title" style="color:#ffda44; display: none" >New Discovered:
+        <div id="notification"> 
+            <div class="mycard-title" style="color:#ffda44; display: none; padding:0 5px" >New Discovered:
                 <img src="../assets/star.png" style="width:15px"></div>
             <div class="mycard-content" style="display: none;">
                  <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="showNewDevices">
                         {{this.newDiscover.length}} 
                 </button>
                 </div> 
-            <div class="mycard-title" style="color:#d80027">Failed:
+            <div class="mycard-title" style="color:#d80027;padding:0 5px">Failed:
                 <img src="../assets/error.png" style="width:15px">
             </div>
             <div class="mycard-content">
@@ -446,7 +446,7 @@
                 {{this.failed.length}}
                   </button>
                 </div>
-            <div class="mycard-title" style="color:#00ae31">Success:
+            <div class="mycard-title" style="color:#00ae31;padding:0 5px">Success:
                  <img src="../assets/done.png" style="width:15px">
             </div>
             <div class="mycard-content" >
@@ -494,18 +494,37 @@ export default {
     },
     methods: {
         filterDevices: function (para) {
+
             switch(para){
                 case 'failed': 
                     this.devices = this.failed;
+                    event.path[2].childNodes[2].style.background = '#f8f9fa';
+                    event.path[2].childNodes[3].style.background = '#f8f9fa';
+                    event.path[2].childNodes[4].style.background = '#fff';
+                    event.path[2].childNodes[5].style.background = '#fff';
+                          event.path[2].childNodes[0].style.background = '#fff';
+            event.path[2].childNodes[1].style.background = '#fff';
                     break;
                 case 'success': 
                     this.devices = this.success;
+                    event.path[2].childNodes[4].style.background = '#f8f9fa';
+                    event.path[2].childNodes[5].style.background = '#f8f9fa';
+                    event.path[2].childNodes[2].style.background = '#fff';
+                    event.path[2].childNodes[3].style.background = '#fff';
+                          event.path[2].childNodes[0].style.background = '#fff';
+            event.path[2].childNodes[1].style.background = '#fff';
                     break;
             }
         },
         showNewDevices: function () {
             
-            this.devices = this.newDiscover.concat(this.devices);
+            event.path[2].childNodes[0].style.background = '#f8f9fa';
+            event.path[2].childNodes[1].style.background = '#f8f9fa';
+             event.path[2].childNodes[2].style.background = '#fff';
+                    event.path[2].childNodes[3].style.background = '#fff';
+                    event.path[2].childNodes[4].style.background = '#fff';
+                    event.path[2].childNodes[5].style.background = '#fff';
+            this.devices = this.newDiscover;
             this.newDiscover = [];
             this.markers.clearLayers();
             this.devices.map(item=>{
@@ -590,7 +609,7 @@ export default {
         },
         checkLogs: function (target) {
             var des = "target=" + target;
-            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
 
                 if (response.data.items) { 
                     let fulltask = new Set();
@@ -1174,14 +1193,13 @@ export default {
   display: grid;
   grid-template-columns: 1fr 3fr;
 }
-.notification{
+#notification{
     position: absolute;
     top: 15px;
     right: 15px;
     z-index: 1000;
     display:grid;
     grid-template-columns: 6fr 1fr;
-    grid-gap: 0 4px;
     padding: 2.5px 5px;
     font-size: 14px;
     list-style: none;
