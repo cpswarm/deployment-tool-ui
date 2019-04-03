@@ -7,7 +7,15 @@
         <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
             <div class="card">
                 <div class="card-header" id="headingOne" style="text-align:left;width:100%">
-                    <form class="form-inline">
+                  <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            <img src="../assets/device.png" style="width:18px">
+                            Deployment List
+                    </button>
+                </div>
+                <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
+                    <div style="padding:5px;" >
+                        <form class="form-inline" style="margin-bottom:5px">
                         <div id="searchOrder" class="input-group" style="width:100%">
                             <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
@@ -18,27 +26,25 @@
                                     <img src="../assets/search.png" style="height:20px">
                                 </a>
                             </div>
-
                             <div class="dropdown-menu" style="padding:2.5px">
                                 <!-- how to search -->
                                 <!--  <a
-                    v-for="order in orders"
-                    class="dropdown-item"
-                    v-show="order.isActive"
+                                            v-for="order in orders"
+                                                class="dropdown-item"
+                                             v-show="order.isActive"
                     @click="selectItem(order.order)"
                     style="font-size:14px;padding:0px 15px"
                   >{{order.order}}</a>-->
                             </div>
                         </div>
                     </form>
-                </div>
-                <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" style="overflow:scroll">
-                    <div style="padding:5px" ref="list">
-                        <div id="deploymentList">
+                        <div id="deploymentList" ref="list" style="overflow:scroll">
                             <div v-for="order in orderOrders"   v-show="order" :key="order.id" @click="clickCard(order)">
                                 <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
                                     <div class="mycard-title">Name:</div>
                                     <div class="mycard-content">{{order.id}}</div>
+                                    <div class="mycard-title">Description:</div>
+                                    <div class="mycard-content">{{order.description}}</div>
                                     <div class="mycard-title">Devices:</div>
                                     <div class="mycard-content">
                                     <img src="../assets/done.png" style="width:16px">
@@ -154,6 +160,10 @@
                             <a style="font-size:15px">Duplicate one exsiting deployment</a>
                         </h6>
                         <form id="newDeployment">
+                            <div class="mycard-title" style="text-align:right">Description:</div>
+                            <div class="mycard-content">
+                                <textarea v-model="deployDes" class="form-control form-control-sm" rows="3" style="padding:0 3px;"></textarea>
+                            </div>
                             <div class="mycard-title" style="text-align:right">Source:</div>
                             <div>
                                 <div class="custom-file" style="height:22px">
@@ -351,7 +361,7 @@ export default {
             map:"",
             ws: "",
             orderSearchT: "",
-            deployName: "",
+            deployDes: "",
             deployDebug: "",
             source: "",
             build_c: "",
@@ -685,8 +695,9 @@ export default {
             }
             var myYaml;
             var taskDer = {
+                description: this.deployDes?this.deployDes.split("\n").join():null,
                 source: {
-                    zip: ""
+                    zip: null,
                 },
                 build: {
                     commands: this.build_c ? this.build_c.split("\n") : null,
