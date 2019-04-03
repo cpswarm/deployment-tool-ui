@@ -431,22 +431,23 @@
             </div>
         </div>
         <div id="myTimeline" ref="myTimeline">
-               <button ref="pre" disabled class="btn btn-sm btn-light" style="position: relative; float:left;top:20px; border-radius:50%; color:#8e8e8e;border: 2px solid #8e8e8e" @click="previous">
-                    <span style="font-size:12px">&#9668;</span> 
+               <button ref="pre" disabled class="btn btn-sm btn-light" style="width: 20px;height: 20px;position: relative;float: left;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="previous">
+                    <span style="left: -5px;font-size: 9px;position: relative;top: -8px;">&#9668;</span> 
                 </button> 
-                <button ref="next" class="btn btn-sm btn-light"  style="position: relative; float:right;top:20px;border-radius:50%; color:#8e8e8e;border: 2px solid #8e8e8e" @click="next">
-                    <span style="font-size:12px">&#9658;</span>
+                <button ref="next" class="btn btn-sm btn-light"  style="width: 20px;height: 20px;position: relative;float: right;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="next">
+                    <span style="left: -4px;font-size: 9px;position: relative;top: -8px;">&#9658;</span>
                 </button>
-               <div style="height:100px; overflow:hidden">
-                <hr style="border: 1px solid #8e8e8e;margin-top: 35px;">
-                <div ref="timeline_lis" style="position: relative;top:-50px;height:85px;width:max-content">
-                    <li v-for="order in orders" class="timeline-li" @click="clickDeployment(order.id)" data-container="body" data-toggle="popover" data-placement="top" :data-content="order.description">
-                    <div>{{order.date}}</div>
+               <div style="height:70px; overflow:hidden">
+                <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
+                <div ref="timeline_lis" style="position: relative;top:-54px;width:max-content">
+                    <li v-for="order in orders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
+                    <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
+                  
                     <div v-if="order.status">
-                        <img v-if="order.status[1]!=0" src="../assets/done.png" style="width:18px;background-color: #fff; border-radius: 50%" >  
-                        <img v-else src="../assets/error.png" style="width:18px;background-color: #fff; border-radius: 50%" >              
+                        <img v-if="order.status[1]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
+                        <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
                     </div>
-                       <div>{{order.id.substring(0,6)}}</div> 
+                     <!--   <div>{{order.id.substring(0,6)}}</div>  -->
                     </li> 
                 </div>
             </div>
@@ -565,7 +566,7 @@ export default {
         previous: function () {
 
             if(this.offset < 0){
-                this.offset += 80;
+                this.offset += 100;
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
                 this.$refs.timeline_lis.style.transition = 'all .6s'; 
                 this.$refs.next.disabled=false
@@ -579,11 +580,11 @@ export default {
         },  
         next: function () {
 
-             if(700-this.offset < (this.map.getSize().x - 20)){
+             if(800-this.offset < (this.map.getSize().x - 20)){
                 this.$refs.pre.disabled=false
-                this.offset -= 80;
+                this.offset -= 100;
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
-                this.$refs.timeline_lis.style.transition = 'all .8s'; 
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
             }else{
                     if(this.offset <=0){
                          this.$refs.next.disabled=true
@@ -1147,7 +1148,8 @@ export default {
                     let month = date.getMonth() < 9 ? '0'+(date.getMonth()+1).toString(): (date.getMonth() + 1 );
                     let minute = date.getMinutes() < 10 ? '0'+ date.getMinutes().toString(): date.getMinutes();
 
-                    a.date = date.toUTCString().substring(4,11) + ' ' +date.toUTCString().substring(17,22);
+                    a.date = date.toUTCString().substring(5,11);
+                    a.time = date.toUTCString().substring(17,22);
          
                     //a.date= day+'-'+ month + ' ' +date.getHours()+ ':'+ minute;
 
@@ -1314,14 +1316,24 @@ export default {
     right: 5px;
     z-index: 1000;
     overflow: hidden;
+    background-color: #ffffff96;
+    border-radius: 5px
 }
 .timeline-li{
+    height: 68px;
+    padding-top: 5px;
     font-size: 14px;
     list-style: none;
-    width: 80px;
+    width: 100px;
     position: relative;
     float: left;
     cursor: pointer;
+}
+li:focus, li:active{
+    border: 1px solid #00000033;
+    border-radius: 5px;
+    background-color: #ffffff;
+    outline: none;
 }
 #notification{
     position: absolute;
