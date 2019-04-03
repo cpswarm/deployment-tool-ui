@@ -312,6 +312,27 @@
             </div>
         </div>
     </div>
+     <div id="myTimeline" ref="myTimeline">
+               <button ref="pre" disabled class="btn btn-sm btn-light" style="width: 20px;height: 20px;position: relative;float: left;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="previous">
+                    <span style="left: -5px;font-size: 9px;position: relative;top: -8px;">&#9668;</span> 
+                </button> 
+                <button ref="next" class="btn btn-sm btn-light"  style="width: 20px;height: 20px;position: relative;float: right;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="next">
+                    <span style="left: -4px;font-size: 9px;position: relative;top: -8px;">&#9658;</span>
+                </button>
+               <div style="height:70px; overflow:hidden">
+                <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
+                <div ref="timeline_lis" style="position: relative;top:-54px;width:max-content">
+                    <li v-for="order in orders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
+                    <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
+                    <div v-if="order.status">
+                        <img v-if="order.status[1]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
+                        <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
+                    </div>
+                     <!--   <div>{{order.id.substring(0,6)}}</div>  -->
+                    </li> 
+                </div>
+            </div>
+        </div>
         <div id="notification" class="notification"> 
             <div class="mycard-title" style="color:#ffda44; display: none" >New Discovered:
                 <img src="../assets/star.png" style="width:15px"></div>
@@ -393,6 +414,100 @@ export default {
         }
     },
     methods: {
+           clickDeployment: function (id) {
+             
+                this.map.eachLayer(layer=> {
+                        if (layer instanceof L.Marker) {
+                            this.map.removeLayer(layer);
+                        }
+                }); 
+                if(this.polyline){
+                    this.polyline.remove();
+                }
+                this.markers.clearLayers();
+                this.devices = [];
+                var filteredData = this.orders.find((i, n)=> { 
+                    return i.id === id
+                });
+                //console.log(filteredData)
+                if(filteredData.deploy){
+                    filteredData.deploy.match.list.forEach(el=>{
+                          var d = this.fullDevices.find(function (de) {
+                            return de.id === el      
+                          })
+                    this.devices.push(d);      
+                    //console.log(d)
+                    if (!d.location) {
+                        d.location = {
+                            lon: rand(50.749523),
+                            lat: rand(7.203923),
+                        }
+                    }
+                    var tags="";
+                    if (d.tags) {
+                        for (let j = 0; j < d.tags.length; j++) {
+                            tags+='<div class="badge badge-pill ' +d.tags[j] +'">'+d.tags[j]+'</div>'
+                        }
+                    }
+                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
+                        icon: L.icon({
+                            iconUrl: "/done.png",
+                            iconSize: [20, 20]
+                        }),
+                        title: el,
+                        alt: d.tags ? d.tags : []
+                    });
+                    marker.bindPopup('<div>Name: '+ d.id +'</div><div>Tags: '+ tags +'</div>');
+                    //this.targetDevices is the list of devices selected in 'deployment target'
+                    marker.on("click", event => {
+
+                        marker.openPopup();
+                        //console.log("ddd")
+                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
+                    });
+                   this.markers.addLayer(marker);
+                })
+                }
+                this.map.addLayer(this.markers)
+                this.map.fitBounds(this.markers.getBounds());
+                //console.log(filteredData);
+                //markerGroup.addTo(map);
+        },
+        previous: function () {
+
+            if(this.offset < 0){
+                this.offset += 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+                this.$refs.next.disabled=false
+            }else{
+                if(this.offset >= 0){
+                     this.$refs.pre.disabled=true
+                }else{
+                     this.$refs.next.disabled=true
+                }           
+            }  
+        },  
+        next: function () {
+
+             if(800-this.offset < (this.map.getSize().x - 20)){
+                this.$refs.pre.disabled=false
+                this.offset -= 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+            }else{
+                    if(this.offset <=0){
+                         this.$refs.next.disabled=true
+                    }else{
+                         this.$refs.pre.disabled=true
+                }           
+            }  
+        },
         clickCard: function (order) {
 
             if(event.target.tagName == "DIV"){
@@ -406,10 +521,16 @@ export default {
             this.markers.clearLayers();
             if(order.deploy){
                     order.deploy.match.list.forEach(el=>{
-                          let d = this.devices.find(function (de) {
+                          var d = this.devices.find(function (de) {
                             return de.id === el      
                           })
                     //console.log(d)
+                    var tags="";
+                      if (d.tags) {
+                        for (let j = 0; j < d.tags.length; j++) {
+                            tags+='<div class="badge badge-pill ' +d.tags[j] +'">'+d.tags[j]+'</div>';
+                        }
+                    }
                     if (!d.location) {
                         d.location = {
                             lon: rand(50.749523),
@@ -423,6 +544,19 @@ export default {
                         }),
                         title: el,
                         alt: d.tags ? d.tags : []
+                    });
+                    marker.bindPopup('<div>Name: '+d.id +'</div><div>Tags: '+ tags +'</div>');
+                    //this.targetDevices is the list of devices selected in 'deployment target'
+                    marker.on("click", event => {
+
+                        marker.openPopup();
+                        //console.log("ddd")
+                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
                     });
                    this.markers.addLayer(marker);
                     })
@@ -1040,6 +1174,14 @@ export default {
                     a.deploy ? a.deploy : (a.deploy = "");
                     a.isActive = false;
 
+                    let date = new Date(a.createdAt);
+                    let day = date.getDate() < 9 ? '0'+date.getDate().toString(): date.getDate();
+                    let month = date.getMonth() < 9 ? '0'+(date.getMonth()+1).toString(): (date.getMonth() + 1 );
+                    let minute = date.getMinutes() < 10 ? '0'+ date.getMinutes().toString(): date.getMinutes();
+
+                    a.date = date.toUTCString().substring(5,11);
+                    a.time = date.toUTCString().substring(17,22);
+
                     if (a.deploy) {
                         this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
                             a.finishedAt = data[0];
@@ -1106,8 +1248,7 @@ export default {
                     });
                     a.marker = marker;
                     
-                    marker.bindPopup('<div>Name: '+a.id +'</div><div>Tags: '+ tags +'</div>');
-
+                   
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
                         if(data.error == true){
@@ -1119,7 +1260,8 @@ export default {
                         this.fullDevices.push(a);
                     });
 
-                    this.devices.push(a);
+                    this.devices.push(a); 
+                    marker.bindPopup('<div>Name: '+a.id +'</div><div>Tags: '+ tags +'</div>');
                     //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
 
@@ -1178,6 +1320,9 @@ export default {
         // console.log(markers);
 
         this.map.addLayer(this.markers);
+    },
+    updated(){
+        $('[data-toggle="popover"]').popover(); 
     }
 };
 </script>

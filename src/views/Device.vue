@@ -442,7 +442,6 @@
                 <div ref="timeline_lis" style="position: relative;top:-54px;width:max-content">
                     <li v-for="order in orders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
-                  
                     <div v-if="order.status">
                         <img v-if="order.status[1]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
                         <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
@@ -536,7 +535,7 @@ export default {
                 //console.log(filteredData)
                 if(filteredData.deploy){
                     filteredData.deploy.match.list.forEach(el=>{
-                          let d = this.fullDevices.find(function (de) {
+                          var d = this.fullDevices.find(function (de) {
                             return de.id === el      
                           })
                     this.devices.push(d);      
@@ -554,6 +553,20 @@ export default {
                         }),
                         title: el,
                         alt: d.tags ? d.tags : []
+                    });
+                      marker.on("click", event => {
+                        if(this.polyline){
+                            this.polyline.remove();
+                        }
+                        this.devices.splice(0,this.devices.length, d);
+                        if (!this.targetDevices.some(
+                            e => e.id === event.target.options.title
+                        )) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
                     });
                    this.markers.addLayer(marker);
                     })
@@ -792,7 +805,7 @@ export default {
                     let i = this.devices.findIndex(el =>el.id == id);
                     //let j = this.markers.findIndex(el =>el.title == id);
   
-                    console.log(this.markers)
+                    //console.log(this.markers)
                     
                     let marker = L.marker(L.latLng(myUpdate.location.lon, myUpdate.location.lat), {
                         icon: L.icon({
@@ -802,6 +815,20 @@ export default {
                         title: myUpdate.id,
                         alt: myUpdate.tags
                     })
+                      marker.on("click", event => {
+                        if(this.polyline){
+                            this.polyline.remove();
+                        }
+                        this.devices.splice(0,this.devices.length, myUpdate);
+                        if (!this.targetDevices.some(
+                            e => e.id === event.target.options.title
+                        )) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
+                    });
                     this.$set(this.devices[i], 'id', myUpdate.id);
                     this.$set(this.devices[i], 'tags', myUpdate.tags);
                     this.$set(this.devices[i], 'location', myUpdate.location);
@@ -1223,7 +1250,7 @@ export default {
                         if(this.polyline){
                             this.polyline.remove();
                         }
-                        this.devices,splice(0,this.devices.length, a);
+                        this.devices.splice(0,this.devices.length, a);
                         if (!this.targetDevices.some(
                             e => e.id === event.target.options.title
                         )) {
