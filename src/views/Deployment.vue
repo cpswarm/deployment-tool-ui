@@ -16,7 +16,7 @@
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
                         <form class="form-inline" style="margin-bottom:5px">
-                        <div id="searchOrder" class="input-group" style="width:100%">
+                        <div id="searchOrder" class="input-group" style="width:91%">
                             <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
                                 style="font-size: 14px;height: 26px;padding: 5px;">
@@ -37,6 +37,9 @@
                   >{{order.order}}</a>-->
                             </div>
                         </div>
+                        <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 0 0 8px;" @click="refresh">
+                            <img src="../assets/refresh.svg" style="width:16px">
+                        </button>
                     </form>
                         <div id="deploymentList" ref="list" style="overflow:scroll">
                             <div v-for="order in orderOrders"   v-show="order" :key="order.id" @click="clickCard(order)">
@@ -325,7 +328,7 @@
                     <li v-for="order in orders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
-                        <img v-if="order.status[1]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
+                        <img v-if="order.status[1]==0&&order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
                         <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
                     </div>
                      <!--   <div>{{order.id.substring(0,6)}}</div>  -->
@@ -415,7 +418,7 @@ export default {
         }
     },
     methods: {
-           clickDeployment: function (id) {
+        clickDeployment: function (id) {
              
                 this.map.eachLayer(layer=> {
                         if (layer instanceof L.Marker) {
@@ -750,6 +753,10 @@ export default {
                 }
             }
             //console.log(this.targetDevices);
+        },
+        refresh: function () {
+            this.orders = [];
+            this.getOrders();
         },
         filterHost: function () {
             var value = this.host.toLowerCase();

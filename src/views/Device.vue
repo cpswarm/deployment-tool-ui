@@ -18,7 +18,7 @@
                         <div style="padding:5px">
                             <div id="search" style="margin-bottom:5px">
                                 <form class="form-inline">
-                                    <div class="input-group" style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
+                                    <div class="input-group" style="text-align:left;width:91%;border: 1px solid #ced4da;border-radius:.25rem;">
                                         <div id="searchTarget"></div>
                                         <input class="dropdown-toggle form-control form-control-sm" type="text" v-model="searchText"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
@@ -33,11 +33,17 @@
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)"
                                                 style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
                                         </div>
-                                    </div>
+                                    </div>  
+                                    <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 0 0 8px;" @click="refresh">
+                                        <img src="../assets/refresh.svg" style="width:16px">
+                                    </button>
                                 </form>
+                              
                             </div>
+                            
                             <div id="deviceList" ref="list" style="overflow:scroll">
-                                <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
+                                <!-- <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id"> -->
+                                <div v-for="device in devices" v-show="device.isActive" :key="device.id">
                                     <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
                                         <div class="mycard-content" >{{device.id}}</div>
@@ -57,12 +63,12 @@
                                         <div class="mycard-title">Latest Logs:</div>
                                         <div v-if="device.logs.error==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/error.png" style="width:14px" @click="showlog1(device.logs.log,device.logs.log[0].task)">
+                                                <img src="../assets/error.png" style="width:14px" @click="showLog(device.logs.log,device.logs.log[0].task)">
                                             </button>
                                         </div>
                                         <div v-else-if="device.logs.error==false" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/done.png" style="width:14px" @click="showlog1(device.logs.log,device.logs.log[0].task)">
+                                                <img src="../assets/done.png" style="width:14px" @click="showLog(device.logs.log,device.logs.log[0].task)">
                                             </button>
                                         </div>
                                          <div v-else></div>
@@ -70,7 +76,7 @@
                                         <div>
                                             <div v-if="device.logs.tasks">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
-                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showlog1(device.logs.log, task)">
+                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task)">
                                                     {{task.substring(0,2)}}
                                             </li>
                                             </div>
@@ -440,10 +446,10 @@
                <div style="height:70px; overflow:hidden">
                 <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
                 <div ref="timeline_lis" style="position: relative;top:-54px;width:max-content">
-                    <li v-for="order in orders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
+                    <li v-for="order in orderOrders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
-                        <img v-if="order.status[1]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
+                        <img v-if="order.status[1]==0 && order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
                         <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
                     </div>
                      <!--   <div>{{order.id.substring(0,6)}}</div>  -->
@@ -452,9 +458,9 @@
             </div>
         </div>
         <div id="notification"> 
-            <div class="mycard-title" style="color:#ffda44; display: none; padding:0 5px" >New Discovered:
+            <div class="mycard-title" style="color:#ffda44; padding:0 5px" >New Discovered:
                 <img src="../assets/star.png" style="width:15px"></div>
-            <div class="mycard-content" style="display: none;">
+            <div class="mycard-content">
                  <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="showNewDevices">
                         {{this.newDiscover.length}} 
                 </button>
@@ -515,11 +521,111 @@ export default {
     components: {
         editor: require("vue2-ace-editor")
     },
+    computed: {
+        orderOrders: function () {
+            console.log(this.orders)
+            return this.orders.sort(function (a, b) {
+                return b.finishedAt - a.finishedAt
+            })
+        }
+    },
     methods: {
+        batchUpdate: function () {
+
+            let input = document.getElementById('updateTags').getElementsByTagName('input'); 
+            let myUpdate = {
+                tags:[],
+                location:{
+                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
+                    lat: parseFloat(input[input.length-1].value.split(',')[1])
+                }
+            }
+            Array.from(input).map(item =>{
+                if(item.checked){
+                    myUpdate.tags.push(item.value)
+                }
+            });
+            $('#mymodal-body').empty();
+            $('#mymessage-body').empty();
+      
+            //console.log(myUpdate);
+            this.targetDevices.forEach(el=>{
+                axios.put("http://"+this.address+"/targets/" + el.id, myUpdate).then(response=>{
+                    //console.log(response)
+                    $('#myMessage').modal();
+                    $('#mymessage-body').append("Update target with "+ el.id + "  " + response.statusText + "<br>")
+                    //console.log(this.devices.length)
+                }
+            ).catch(error => {
+                $('#myAlert').modal();
+                $('#mymodal-body').append("Update target with " + el.id + "  " + error);
+                });
+            });
+            this.devices = [];
+            this.fullDevices = [];
+            this.failed =[];
+            this.success = [];
+            this.markers.clearLayers();
+            this.getTargets();   
+
+            $("#collapseOne").collapse("show");
+        },
+        /* checkStatus: function (id, total) {
+            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
+            return axios.get("http://"+this.address+"/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+                if (!response.data.items) {
+                    return [total, 0];
+                } else {
+                    if (response.data.items[0].stage == "build") {
+                        return [0, 0]
+                    } else {
+                        return [total - response.data.items.length, response.data.items.length];
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+        }, */ 
+        checkLogs: function (target) {
+            var des = "target=" + target;
+            return axios.get("http://"+this.address+"/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+
+                if (response.data.items) { 
+                    let fulltask = new Set();
+                    response.data.items.forEach(el => {
+                        fulltask.add(el.task)
+                    });
+                    let task = Array.from(fulltask).slice(0,10);
+                    console
+
+                    //console.log(task)
+                    let lastLog = response.data.items.filter(el => el.task == task[0])
+                    if (lastLog.some(el => el.error == true)) {
+                        return {
+                            tasks: task,
+                            log: response.data.items,
+                            error: true
+                        };
+                    } else {
+                        return {
+                            tasks:task,
+                            log: response.data.items,
+                            error: false
+                        };
+                    }
+                } else {
+                    return {
+                        tasks:"",
+                        log: "",
+                        error: "none"
+                    };
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+        }, 
         clickDeployment: function (id) {
 
-                
-             
                 this.map.eachLayer(layer=> {
                         if (layer instanceof L.Marker) {
                             this.map.removeLayer(layer);
@@ -576,131 +682,30 @@ export default {
                 this.map.fitBounds(this.markers.getBounds());
                 //console.log(filteredData);
                 //markerGroup.addTo(map);
-        },
-        previous: function () {
-
-            if(this.offset < 0){
-                this.offset += 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-                this.$refs.next.disabled=false
-            }else{
-                if(this.offset >= 0){
-                     this.$refs.pre.disabled=true
-                }else{
-                     this.$refs.next.disabled=true
-                }           
-            }  
         },  
-        next: function () {
+        clickCard: function (marker) {
 
-             if(800-this.offset < (this.map.getSize().x - 20)){
-                this.$refs.pre.disabled=false
-                this.offset -= 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-            }else{
-                    if(this.offset <=0){
-                         this.$refs.next.disabled=true
-                    }else{
-                         this.$refs.pre.disabled=true
-                }           
-            }  
-        },
-        filterDevices: function (para) {
-
-            switch(para){
-                case 'failed': 
-                    this.devices = this.failed;
-                    event.path[2].childNodes[2].style.background = '#f8f9fa';
-                    event.path[2].childNodes[3].style.background = '#f8f9fa';
-                    event.path[2].childNodes[4].style.background = '#fff';
-                    event.path[2].childNodes[5].style.background = '#fff';
-                          event.path[2].childNodes[0].style.background = '#fff';
-            event.path[2].childNodes[1].style.background = '#fff';
-                    break;
-                case 'success': 
-                    this.devices = this.success;
-                    event.path[2].childNodes[4].style.background = '#f8f9fa';
-                    event.path[2].childNodes[5].style.background = '#f8f9fa';
-                    event.path[2].childNodes[2].style.background = '#fff';
-                    event.path[2].childNodes[3].style.background = '#fff';
-                          event.path[2].childNodes[0].style.background = '#fff';
-            event.path[2].childNodes[1].style.background = '#fff';
-                    break;
-            }
-        },
-        showNewDevices: function () {
+            //console.log(event.target.tagName)
             
-            event.path[2].childNodes[0].style.background = '#f8f9fa';
-            event.path[2].childNodes[1].style.background = '#f8f9fa';
-             event.path[2].childNodes[2].style.background = '#fff';
-                    event.path[2].childNodes[3].style.background = '#fff';
-                    event.path[2].childNodes[4].style.background = '#fff';
-                    event.path[2].childNodes[5].style.background = '#fff';
-            this.devices = this.newDiscover;
-            this.newDiscover = [];
-            this.markers.clearLayers();
-            this.devices.map(item=>{
-                this.markers.addLayer(item.marker)
-            })
-            //console.log(this.devices);
+            if(event.target.tagName == "DIV"){
+                 let cards = document.getElementById('deviceList').getElementsByClassName('mycard my-card-body');
+                 Array.from(cards).map(item=>{
+                  item.setAttribute('class','mycard my-card-body');
+                })
+              //console.log(event.path[1])
+              event.path[1].setAttribute('class','mycard my-card-body active');
+           }
+             this.map.panTo(marker.getLatLng());
+            //L.Marker.stopAllBouncingMarkers();
+            //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
         },
-        batchUpdate: function () {
-
-            let input = document.getElementById('updateTags').getElementsByTagName('input'); 
-            let myUpdate = {
-                tags:[],
-                location:{
-                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
-                    lat: parseFloat(input[input.length-1].value.split(',')[1])
-                }
+        closeSearch: function () {
+            //console.log(document.getElementById("collapseTwo").className)
+            if (document.getElementById("collapseTwo").className == "collapse") {
+                document.getElementById("search").style.display = "none";
+            } else {
+                document.getElementById("search").style.display = "inline";
             }
-            Array.from(input).map(item =>{
-                if(item.checked){
-                    myUpdate.tags.push(item.value)
-                }
-            });
-            $('#mymodal-body').empty();
-            $('#mymessage-body').empty();
-      
-            //console.log(myUpdate);
-            this.targetDevices.forEach(el=>{
-                axios.put("http://"+this.address+"/targets/" + el.id, myUpdate).then(response=>{
-                    //console.log(response)
-                    $('#myMessage').modal();
-                    $('#mymessage-body').append("Update target with "+ el.id + "  " + response.statusText + "<br>")
-                    //console.log(this.devices.length)
-                }
-            ).catch(error => {
-                $('#myAlert').modal();
-                $('#mymodal-body').append("Update target with " + el.id + "  " + error);
-                });
-            });
-            this.devices = [];
-            this.fullDevices = [];
-            this.failed =[];
-            this.success = [];
-            this.markers.clearLayers();
-            this.getTargets();   
-
-            $("#collapseOne").collapse("show");
-        },
-        checkStatus: function (id, total) {
-            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get("http://"+this.address+"/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
-                if (!response.data.items) {
-                    return [total, 0];
-                } else {
-                    if (response.data.items[0].stage == "build") {
-                        return [0, 0]
-                    } else {
-                        return [total - response.data.items.length, response.data.items.length];
-                    }
-                }
-            }).catch(error => {
-                console.log(error);
-            });
         },
         deleteTarget: function (id) {
          
@@ -721,243 +726,54 @@ export default {
             })
             
         },
-        checkLogs: function (target) {
-            var des = "target=" + target;
-            return axios.get("http://"+this.address+"/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
-
-                if (response.data.items) { 
-                    let fulltask = new Set();
-                    response.data.items.forEach(el => {
-                        fulltask.add(el.task)
-                    });
-                    let task = Array.from(fulltask).slice(0,10);
-
-                    //console.log(task)
-                    let lastLog = response.data.items.filter(el => el.task == task[0])
-                    if (lastLog.some(el => el.error == true)) {
-                        return {
-                            tasks: task,
-                            log: response.data.items,
-                            error: true
-                        };
-                    } else {
-                        return {
-                            tasks:task,
-                            log: response.data.items,
-                            error: false
-                        };
+        //The marker click function of add a timeline extends L.control
+        /* getDataAddMarkers: function( {label, value, map, exclamation} ) {
+                
+                map.eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            map.removeLayer(layer);
+                        }
+                }); 
+                if(this.polyline){
+                    this.polyline.remove();
+                }
+                this.markers.clearLayers();
+                this.devices = [];
+                var filteredData = this.orders.find((i, n)=> { 
+                    return i.id === label
+                });
+                //console.log(filteredData)
+                if(filteredData.deploy){
+                    filteredData.deploy.match.list.forEach(el=>{
+                          let d = this.fullDevices.find(function (de) {
+                            return de.id === el      
+                          })
+                    this.devices.push(d);      
+                    //console.log(d)
+                    if (!d.location) {
+                        d.location = {
+                            lon: rand(50.749523),
+                            lat: rand(7.203923),
+                        }
                     }
-                } else {
-                    return {
-                        tasks:"",
-                        log: "",
-                        error: "none"
-                    };
-                }
-            }).catch(error => {
-                console.log(error);
-            });
-        },
-        showlog1: function (log,id) {
-
-            $("#logTitle").empty();
-            $("#collapsebuild").empty();
-            $("#collapseinstall").empty();
-            $("#collapserun").empty();
-
-            $("#logTitle").append('Logs of Task: '+id);
-
-            let logs =  log.filter(el => el.task == id)
-            for(let i =1; i<logs.length;i++){
-                let command = logs[i].command == logs[i-1].command? '': logs[i].command;
-                if (logs[i].error == true) {
-                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_f">' + new Date(logs[i].time).toLocaleString() +'</div><div class="myfont_f">' + logs[i].output + '</div><div class="myfont_f">' + command + '</div> </div> ')
-                } else {
-                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_s">' + new Date(logs[i].time).toLocaleString() + '</div><div class="myfont_s">' + logs[i].output + '</div><div class="myfont_t">' + command + '</div> </div> ')
-                }
-            }
-            $("#myLog").modal();
-        },
-        submitEdit: function (id) {
-
-            let input= event.path[2].getElementsByTagName('input'); 
-            let myUpdate = {
-                id: input[0].value,
-                tags:[],
-                location:{
-                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
-                    lat: parseFloat(input[input.length-1].value.split(',')[1])
-                }
-            }
-            Array.from(input).map(item =>{
-                if(item.checked){
-                    myUpdate.tags.push(item.value)
-                }
-            });
-            $('#mymodal-body').empty();
-            $('#mymessage-body').empty();
-            //console.log(myUpdate)
-            event.path[4].childNodes[0].style.display = 'grid';
-            event.path[4].childNodes[2].style.display = 'none';
-            axios.put("http://"+this.address+"/targets/" +id, myUpdate).then(response=>{
-
-                    //console.log(response)
-                    //console.log(this.markers)
-                    let i = this.devices.findIndex(el =>el.id == id);
-                    //let j = this.markers.findIndex(el =>el.title == id);
-  
-                    //console.log(this.markers)
-                    
-                    let marker = L.marker(L.latLng(myUpdate.location.lon, myUpdate.location.lat), {
+                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
                         icon: L.icon({
                             iconUrl: "/done.png",
                             iconSize: [20, 20]
                         }),
-                        title: myUpdate.id,
-                        alt: myUpdate.tags
-                    })
-                      marker.on("click", event => {
-                        if(this.polyline){
-                            this.polyline.remove();
-                        }
-                        this.devices.splice(0,this.devices.length, myUpdate);
-                        if (!this.targetDevices.some(
-                            e => e.id === event.target.options.title
-                        )) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
+                        title: el,
+                        alt: d.tags ? d.tags : []
                     });
-                    this.$set(this.devices[i], 'id', myUpdate.id);
-                    this.$set(this.devices[i], 'tags', myUpdate.tags);
-                    this.$set(this.devices[i], 'location', myUpdate.location);
-                    this.$set(this.devices[i], 'marker', marker)
-                    
-                    $('#myMessage').modal();
-                    $('#mymessage-body').append("Update target with " + id + "  " + response.statusText)
-                    //console.log(this.devices.length)
+                   this.markers.addLayer(marker);
+                    })
                 }
-            ).catch(error => {
-                $('#myAlert').modal();
-                $('#mymodal-body').append("Update target with " + id + "  " + error);
-            });
-            //console.log(event.path)
-        },
-        hideEdit: function (e) {
-            e.path[5].childNodes[0].style.display = 'grid';
-            e.path[5].childNodes[2].style.display = 'none';
-        },
-        showEditForm: function (device) {
-            event.path[3].style.display = 'none';
-            event.path[4].childNodes[2].style.display = 'inline';
-            //console.log(event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0])
-            event.path[4].childNodes[2].childNodes[0].childNodes[2].childNodes[0].value= device.id;
-            if(device.tags){
-                 device.tags.map(item => {
-                let tag = event.path[4].childNodes[2].childNodes[0].childNodes[5];
-                  Array.from(tag.getElementsByTagName('label')).forEach(el => {
-                    //console.log(el.childNodes[0].value, item)
-                    if(el.childNodes[0].value == item){
-                         el.childNodes[0].checked = "true"
-                         el.setAttribute('class','btn btn-light active');
-                    }
-                })
-            })
-            }
-            event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0].value= [device.location.lon,device.location.lat];
-        },
-        submitTerminal: function () {
-            //Post one line command
-            //console.log(this.terminal.split('\n'));
-        },
-        hideTerminal: function (e) {
-            e.path[4].childNodes[0].style.display = 'grid';
-            e.path[4].childNodes[1].style.display = 'none';
-            //console.log(e.path)
-        },
-        showTerminal: function (e) {
-            e.path[3].style.display = 'none';
-            e.path[4].childNodes[1].style.display = 'inline'
-            //console.log(e.path)
-        },
-        clickCard: function (marker) {
-
-            //console.log(event.target.tagName)
-            
-            if(event.target.tagName == "DIV"){
-                 let cards = document.getElementById('deviceList').getElementsByClassName('mycard my-card-body');
-                 Array.from(cards).map(item=>{
-                  item.setAttribute('class','mycard my-card-body');
-                })
-              //console.log(event.path[1])
-              event.path[1].setAttribute('class','mycard my-card-body active');
-           }
-             this.map.panTo(marker.getLatLng());
-            //L.Marker.stopAllBouncingMarkers();
-            //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
-        },
-        showRelationship: function (tag, device) {
-            //console.log()
-            //device.marker.bounce(4);
-            if (this.polyline) {
-                this.polyline.remove();
-                this.polyline = "";
-            }
-            if (device.relations == true) {
-
-                var latlngs = [];
-                this.devices.forEach(function (target) {
-                 
-                    if (target.tags && target.tags.some(el => el == tag)) {
-                        latlngs.push([
-                            [target.location.lon, target.location.lat],
-                            [device.location.lon, device.location.lat]])
-                    }
-                });
-                let color;
-                switch (tag) {
-                    case 'amd64':
-                        color = "#376b6d";
-                        break;
-                    case 'swarm':
-                        color = "#42602d";
-                        break;
-                        case 'darwin':
-                        color = "#f17c67";
-                        break;
-                        case 'netbsd':
-                        color = "#b54434";
-                        break;
-                        case 'freebsd':
-                        color = "#cc543a";
-                        break;
-                        case 'mcs51':
-                        color = "#58b2dc";
-                        break;
-                        case 'arm32':
-                        color = "#0d5661";
-                        break;
-                        case 'robot':
-                        color = "#36563c";
-                        break;
-                        case 'drone':
-                        color = "#516E41";
-                        break;
-                }
-                this.polyline = L.polyline(latlngs,
-                    {
-                        color: color,
-                        weight: 2,
-                    }).addTo(this.map);
-                console.log(this.polyline)
-                this.map.fitBounds(this.polyline.getBounds());
-
-                //console.log(polyline)
-            }
-            return device.relations ? false : true;
-        },
+                this.map.addLayer(this.markers)
+                this.map.fitBounds(this.markers.getBounds());
+                //console.log(filteredData);
+                //markerGroup.addTo(map);
+               
+        }, */ 
+        //Search device
         filterDevice: function () {
             var value = this.searchText.toLowerCase();
             this.tags.forEach(function (tag) {
@@ -968,80 +784,105 @@ export default {
                 }
             });
         },
-        removeDevice: function (name) {
-            for (var i = 0; i < this.targetDevices.length; i++) {
-
-                if (this.targetDevices[i].id == name) {
-                    this.targetDevices.splice(i, 1);
-                }
+        //Click notification card item and filtering device
+        filterDevices: function (para) {
+            switch(para){
+                case 'failed': 
+                    this.devices = this.failed;
+                    event.path[2].childNodes[2].style.background = '#f8f9fa';
+                    event.path[2].childNodes[3].style.background = '#f8f9fa';
+                    event.path[2].childNodes[4].style.background = '#fff';
+                    event.path[2].childNodes[5].style.background = '#fff';
+                    event.path[2].childNodes[0].style.background = '#fff';
+                    event.path[2].childNodes[1].style.background = '#fff';
+                    break;
+                case 'success': 
+                    this.devices = this.success;
+                    event.path[2].childNodes[4].style.background = '#f8f9fa';
+                    event.path[2].childNodes[5].style.background = '#f8f9fa';
+                    event.path[2].childNodes[2].style.background = '#fff';
+                    event.path[2].childNodes[3].style.background = '#fff';
+                    event.path[2].childNodes[0].style.background = '#fff';
+                    event.path[2].childNodes[1].style.background = '#fff';
+                    break;
             }
         },
-        selectItem: function (tag) {
-            var badge = document.createElement("span");
-            badge.innerHTML = tag;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.onclick = function () {
-                this.style.display = "none";
-            };
-            document.getElementById("searchTarget").appendChild(badge);
-        },
-        selectItem2: function (tag) {
-            var badge = document.createElement("span");
-            badge.innerHTML = tag;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.onclick = function () {
-                this.style.display = "none";
-            };
-            document.getElementById("searchTarget2").appendChild(badge);
-        },
-        // All device -> search devices
-        searchTarget: function () {
-            var tagsNodes = document.getElementById("searchTarget").childNodes;
+        getFinishnStatus: function (id, total) {
 
-            //console.log(tagsNodes);
-            this.devices = this.fullDevices;
-            for (var i = 0; i < tagsNodes.length; i++) {
-                if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.devices.length; j++) {
-                        if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
-                            //console.log(this.devices[j].tags, tagsNodes[i].innerHTML)
-                            this.devices[j].isActive = true;
-                        } else {
-                            this.devices[j].isActive = false;
-                        }
+            return axios.get("http://"+this.address+"/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+
+                let finishAt = response.data.items[0].time;
+                let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
+                if (logs.length == 0) {
+                    return [finishAt, [total, 0]];
+                } else {
+                    if (logs[0].stage == "build") {
+                        return [finishAt, [0, 0]]
+                    } else {
+                        return [finishAt, [total - logs.length, logs.length]];
                     }
                 }
-            }
-        },
-        //Update device -> search devices
-        searchTarget2: function () {
-            var tagsNodes = document.getElementById("searchTarget2").childNodes;
+            }).catch(error => {
+                console.log(error);
+            });
 
-            for (var i = 0; i < tagsNodes.length; i++) {
-                if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.fullDevices.length; j++) {
-                        //console.log(this.devices)
-                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
-                            if (!this.targetDevices.some(e => e.id === this.fullDevices[j].id)) {
-                                this.targetDevices.push({
-                                    id: this.fullDevices[j].id,
-                                    tags: this.fullDevices[j].tags
-                                });
-                                //console.log(i, j, m);
-                            }
-                        }
-                    }
+        },
+        getFinishTime: function (id) {
+            //Request the latest logs time
+            return axios.get("http://"+this.address+"/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+                //console.log(response.data)
+                return response.data.items[0].time;
+            }).catch(error => {
+                console.log(error);
+            })
+            //return new Date(1551800395755).toLocaleString();
+        },
+        getOrders: function () {
+            //http://"+this.address+"/orders
+            // /deployment.json
+            axios.get("http://"+this.address+"/orders").then(response => {
+                //console.log(this.orders)
+                for (let i = 0; i < response.data.total; i++) {
+
+                    let a = response.data.items[i];
+                    a.build ? a.build : (a.build = "");
+                    a.deploy ? a.deploy : (a.deploy = "");
+                    a.isActive = false;
+                     
+                    let date = new Date(a.createdAt);
+                    let day = date.getDate() < 9 ? '0'+date.getDate().toString(): date.getDate();
+                    let month = date.getMonth() < 9 ? '0'+(date.getMonth()+1).toString(): (date.getMonth() + 1 );
+                    let minute = date.getMinutes() < 10 ? '0'+ date.getMinutes().toString(): date.getMinutes();
+
+                    a.date = date.toUTCString().substring(5,11);
+                    a.time = date.toUTCString().substring(17,22);
+         
+                    //a.date= day+'-'+ month + ' ' +date.getHours()+ ':'+ minute;
+                    if (a.deploy) {
+                        this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
+                            a.finishedAt = data[0];
+                            a.status = data[1];
+                            this.orders.push(a);
+                        });
+                    } else {
+                        this.getFinishTime(a.id).then(data => {
+                            a.finishedAt = data;
+                        });
+                        a.status = [0, 0]
+                        a.deploy = ""; 
+                        this.orders.push(a);
+                    } 
+                     
                 }
-            }
-        },
-        closeSearch: function () {
-            //console.log(document.getElementById("collapseTwo").className)
-            if (document.getElementById("collapseTwo").className == "collapse") {
-                document.getElementById("search").style.display = "none";
-            } else {
-                document.getElementById("search").style.display = "inline";
-            }
-        },
+                //console.log(this.orders)
+               /* L.control.timelineSlider({
+                    timelineItems: this.orders,
+                    changeMap: this.getDataAddMarkers,
+                    mapWidth: this.map.getSize().x
+                }).addTo(this.map);  */
+            
+            });
+        }, 
         getTargets: function () {
             //http://"+this.address+"/targets
             // /device.json
@@ -1112,98 +953,6 @@ export default {
                 console.log(error);
             });
         },
-        getDataAddMarkers: function( {label, value, map, exclamation} ) {
-                
-                map.eachLayer(function (layer) {
-                        if (layer instanceof L.Marker) {
-                            map.removeLayer(layer);
-                        }
-                }); 
-                if(this.polyline){
-                    this.polyline.remove();
-                }
-                this.markers.clearLayers();
-                this.devices = [];
-                var filteredData = this.orders.find((i, n)=> { 
-                    return i.id === label
-                });
-                //console.log(filteredData)
-                if(filteredData.deploy){
-                    filteredData.deploy.match.list.forEach(el=>{
-                          let d = this.fullDevices.find(function (de) {
-                            return de.id === el      
-                          })
-                    this.devices.push(d);      
-                    //console.log(d)
-                    if (!d.location) {
-                        d.location = {
-                            lon: rand(50.749523),
-                            lat: rand(7.203923),
-                        }
-                    }
-                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: el,
-                        alt: d.tags ? d.tags : []
-                    });
-                   this.markers.addLayer(marker);
-                    })
-                }
-                this.map.addLayer(this.markers)
-                this.map.fitBounds(this.markers.getBounds());
-                //console.log(filteredData);
-                //markerGroup.addTo(map);
-               
-        },
-        getOrders: function () {
-
-            //http://"+this.address+"/orders
-            // /deployment.json
-            console.log(this.address)
-            axios.get("http://"+this.address+"/orders").then(response => {
-                //console.log(this.orders)
-                for (let i = 0; i < response.data.total; i++) {
-
-                    let a = response.data.items[i];
-                    a.build ? a.build : (a.build = "");
-                    a.deploy ? a.deploy : (a.deploy = "");
-                    a.isActive = false;
-                     
-                    let date = new Date(a.createdAt);
-                    let day = date.getDate() < 9 ? '0'+date.getDate().toString(): date.getDate();
-                    let month = date.getMonth() < 9 ? '0'+(date.getMonth()+1).toString(): (date.getMonth() + 1 );
-                    let minute = date.getMinutes() < 10 ? '0'+ date.getMinutes().toString(): date.getMinutes();
-
-                    a.date = date.toUTCString().substring(5,11);
-                    a.time = date.toUTCString().substring(17,22);
-         
-                    //a.date= day+'-'+ month + ' ' +date.getHours()+ ':'+ minute;
-
-                    if (a.deploy) {
-                        this.checkStatus(a.id, a.deploy.match.list.length).then(data => {
-                           a.status = data;
-                           //console.log(a.status)
-                        })
-                    } else {
-                        a.status=[0,0]
-                        a.deploy = "";
-                    } 
-                    this.orders.push(a);  
-                }
-               
-                //console.log(this.orders)
-                
-               /*   L.control.timelineSlider({
-                    timelineItems: this.orders,
-                    changeMap: this.getDataAddMarkers,
-                    mapWidth: this.map.getSize().x
-                }).addTo(this.map);  */
-            
-        });
-        },
         handelNewDiscover: function (devices) {
            /*  console.log(devices)
             for (let i = 0; i < devices.length; i++) { */
@@ -1243,10 +992,9 @@ export default {
                             }
                         }
                     }
-                    let n = $('#notification').children();
+                    /* let n = $('#notification').children();
                     n[0].setAttribute('style', 'color:#ffda44; display: inline');
-                    n[1].setAttribute('style', 'color:#ffda44; display: inline;margin-top:2.5px');
-
+                    n[1].setAttribute('style', 'color:#ffda44; display: inline;margin-top:2.5px'); */
                     //Markers click function
                     marker.on("click", event => {
                         if(this.polyline){
@@ -1262,7 +1010,312 @@ export default {
                             });
                         }
                     });
-        }
+        },
+        hideTerminal: function (e) {
+            e.path[4].childNodes[0].style.display = 'grid';
+            e.path[4].childNodes[1].style.display = 'none';
+            //console.log(e.path)
+        },
+        hideEdit: function (e) {
+            e.path[5].childNodes[0].style.display = 'grid';
+            e.path[5].childNodes[2].style.display = 'none';
+        },
+        next: function () {
+
+             if(800-this.offset < (this.map.getSize().x - 20)){
+                this.$refs.pre.disabled=false
+                this.offset -= 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+            }else{
+                    if(this.offset <=0){
+                         this.$refs.next.disabled=true
+                    }else{
+                         this.$refs.pre.disabled=true
+                }           
+            }  
+        },
+        previous: function () {
+
+            if(this.offset < 0){
+                this.offset += 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+                this.$refs.next.disabled=false
+            }else{
+                if(this.offset >= 0){
+                     this.$refs.pre.disabled=true
+                }else{
+                     this.$refs.next.disabled=true
+                }           
+            }  
+        },  
+        removeDevice: function (name) {
+            for (var i = 0; i < this.targetDevices.length; i++) {
+
+                if (this.targetDevices[i].id == name) {
+                    this.targetDevices.splice(i, 1);
+                }
+            }
+        }, 
+        refresh: function () {
+          this.devices=[];
+          this.fullDevices=[];
+          this.failed=[];
+          this.success=[];
+          this.newDiscover=[];
+          this.markers.clearLayers();
+          this.getTargets();
+        },
+        // All device -> search devices
+        searchTarget: function () {
+            var tagsNodes = document.getElementById("searchTarget").childNodes;
+
+            //console.log(tagsNodes);
+            this.devices = this.fullDevices;
+            for (var i = 0; i < tagsNodes.length; i++) {
+                if (tagsNodes[i].style.display != "none") {
+                    for (var j = 0; j < this.devices.length; j++) {
+                        if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+                            //console.log(this.devices[j].tags, tagsNodes[i].innerHTML)
+                            this.devices[j].isActive = true;
+                        } else {
+                            this.devices[j].isActive = false;
+                        }
+                    }
+                }
+            }
+        },
+        //Update device -> search devices
+        searchTarget2: function () {
+            var tagsNodes = document.getElementById("searchTarget2").childNodes;
+
+            for (var i = 0; i < tagsNodes.length; i++) {
+                if (tagsNodes[i].style.display != "none") {
+                    for (var j = 0; j < this.fullDevices.length; j++) {
+                        //console.log(this.devices)
+                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+                            if (!this.targetDevices.some(e => e.id === this.fullDevices[j].id)) {
+                                this.targetDevices.push({
+                                    id: this.fullDevices[j].id,
+                                    tags: this.fullDevices[j].tags
+                                });
+                                //console.log(i, j, m);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        selectItem: function (tag) {
+            var badge = document.createElement("span");
+            badge.innerHTML = tag;
+            badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.onclick = function () {
+                this.style.display = "none";
+            };
+            document.getElementById("searchTarget").appendChild(badge);
+        },
+        selectItem2: function (tag) {
+            var badge = document.createElement("span");
+            badge.innerHTML = tag;
+            badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.onclick = function () {
+                this.style.display = "none";
+            };
+            document.getElementById("searchTarget2").appendChild(badge);
+        },
+        showEditForm: function (device) {
+            event.path[3].style.display = 'none';
+            event.path[4].childNodes[2].style.display = 'inline';
+            //console.log(event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0])
+            event.path[4].childNodes[2].childNodes[0].childNodes[2].childNodes[0].value= device.id;
+            if(device.tags){
+                 device.tags.map(item => {
+                let tag = event.path[4].childNodes[2].childNodes[0].childNodes[5];
+                  Array.from(tag.getElementsByTagName('label')).forEach(el => {
+                    //console.log(el.childNodes[0].value, item)
+                    if(el.childNodes[0].value == item){
+                         el.childNodes[0].checked = "true"
+                         el.setAttribute('class','btn btn-light active');
+                    }
+                })
+            })
+            }
+            event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0].value= [device.location.lon,device.location.lat];
+        }, 
+        showLog: function (log,id) {
+
+            $("#logTitle").empty();
+            $("#collapsebuild").empty();
+            $("#collapseinstall").empty();
+            $("#collapserun").empty();
+
+            $("#logTitle").append('Logs of Task: '+id);
+
+            let logs =  log.filter(el => el.task == id)
+            for(let i =1; i<logs.length;i++){
+                let command = logs[i].command == logs[i-1].command? '': logs[i].command;
+                if (logs[i].error == true) {
+                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_f">' + new Date(logs[i].time).toLocaleString() +'</div><div class="myfont_f">' + logs[i].output + '</div><div class="myfont_f">' + command + '</div> </div> ')
+                } else {
+                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_s">' + new Date(logs[i].time).toLocaleString() + '</div><div class="myfont_s">' + logs[i].output + '</div><div class="myfont_t">' + command + '</div> </div> ')
+                }
+            }
+            $("#myLog").modal();
+        },       
+        showNewDevices: function () {
+            
+            event.path[2].childNodes[0].style.background = '#f8f9fa';
+            event.path[2].childNodes[1].style.background = '#f8f9fa';
+            event.path[2].childNodes[2].style.background = '#fff';
+            event.path[2].childNodes[3].style.background = '#fff';
+            event.path[2].childNodes[4].style.background = '#fff';
+            event.path[2].childNodes[5].style.background = '#fff';
+            this.devices = this.newDiscover;
+            this.newDiscover = [];
+            this.markers.clearLayers();
+            this.devices.map(item=>{
+                this.markers.addLayer(item.marker)
+            })
+            //console.log(this.devices);
+        },
+        showRelationship: function (tag, device) {
+            //console.log()
+            //device.marker.bounce(4);
+            if (this.polyline) {
+                this.polyline.remove();
+                this.polyline = "";
+            }
+            if (device.relations == true) {
+
+                var latlngs = [];
+                this.devices.forEach(function (target) {
+                 
+                    if (target.tags && target.tags.some(el => el == tag)) {
+                        latlngs.push([
+                            [target.location.lon, target.location.lat],
+                            [device.location.lon, device.location.lat]])
+                    }
+                });
+                let color;
+                switch (tag) {
+                    case 'amd64':
+                        color = "#376b6d";
+                        break;
+                    case 'swarm':
+                        color = "#42602d";
+                        break;
+                        case 'darwin':
+                        color = "#f17c67";
+                        break;
+                        case 'netbsd':
+                        color = "#b54434";
+                        break;
+                        case 'freebsd':
+                        color = "#cc543a";
+                        break;
+                        case 'mcs51':
+                        color = "#58b2dc";
+                        break;
+                        case 'arm32':
+                        color = "#0d5661";
+                        break;
+                        case 'robot':
+                        color = "#36563c";
+                        break;
+                        case 'drone':
+                        color = "#516E41";
+                        break;
+                }
+                this.polyline = L.polyline(latlngs,
+                    {
+                        color: color,
+                        weight: 2,
+                    }).addTo(this.map);
+                console.log(this.polyline)
+                this.map.fitBounds(this.polyline.getBounds());
+
+                //console.log(polyline)
+            }
+            return device.relations ? false : true;
+        }, 
+        showTerminal: function (e) {
+            e.path[3].style.display = 'none';
+            e.path[4].childNodes[1].style.display = 'inline'
+            //console.log(e.path)
+        },
+        submitEdit: function (id) {
+
+            let input= event.path[2].getElementsByTagName('input'); 
+            let myUpdate = {
+                id: input[0].value,
+                tags:[],
+                location:{
+                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
+                    lat: parseFloat(input[input.length-1].value.split(',')[1])
+                }
+            }
+            Array.from(input).map(item =>{
+                if(item.checked){
+                    myUpdate.tags.push(item.value)
+                }
+            });
+            $('#mymodal-body').empty();
+            $('#mymessage-body').empty();
+            //console.log(myUpdate)
+            event.path[4].childNodes[0].style.display = 'grid';
+            event.path[4].childNodes[2].style.display = 'none';
+            axios.put("http://"+this.address+"/targets/" +id, myUpdate).then(response=>{
+
+                    //console.log(response)
+                    //console.log(this.markers)
+                    let i = this.devices.findIndex(el =>el.id == id);
+                    //let j = this.markers.findIndex(el =>el.title == id);
+  
+                    //console.log(this.markers)
+                    
+                    let marker = L.marker(L.latLng(myUpdate.location.lon, myUpdate.location.lat), {
+                        icon: L.icon({
+                            iconUrl: "/done.png",
+                            iconSize: [20, 20]
+                        }),
+                        title: myUpdate.id,
+                        alt: myUpdate.tags
+                    })
+                      marker.on("click", event => {
+                        if(this.polyline){
+                            this.polyline.remove();
+                        }
+                        this.devices.splice(0,this.devices.length, myUpdate);
+                        if (!this.targetDevices.some(
+                            e => e.id === event.target.options.title
+                        )) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
+                    });
+                    this.$set(this.devices[i], 'id', myUpdate.id);
+                    this.$set(this.devices[i], 'tags', myUpdate.tags);
+                    this.$set(this.devices[i], 'location', myUpdate.location);
+                    this.$set(this.devices[i], 'marker', marker)
+                    
+                    $('#myMessage').modal();
+                    $('#mymessage-body').append("Update target with " + id + "  " + response.statusText)
+                    //console.log(this.devices.length)
+                }
+            ).catch(error => {
+                $('#myAlert').modal();
+                $('#mymodal-body').append("Update target with " + id + "  " + error);
+            });
+            //console.log(event.path)
+        },
+        submitTerminal: function () {
+            //Post one line command
+            //console.log(this.terminal.split('\n'));
+        },
     },
     mounted() {
 
