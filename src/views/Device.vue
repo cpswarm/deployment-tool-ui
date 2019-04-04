@@ -66,12 +66,12 @@
                                             {{device.logs.log[0].task}}</span>
                                             </div>
                                         <div class="mycard-title">Latest Logs:</div>
-                                        <div v-if="device.logs.error==true" style="text-align:left">
+                                        <div v-if="device.logs.tasks[0][1]==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/error.png" style="width:14px" @click="showLog(device.logs.log,device.logs.log[0].task)">
                                             </button>
                                         </div>
-                                        <div v-else-if="device.logs.error==false" style="text-align:left">
+                                        <div v-else-if="device.logs.tasks[0][1]==false" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/done.png" style="width:14px" @click="showLog(device.logs.log,device.logs.log[0].task)">
                                             </button>
@@ -81,8 +81,11 @@
                                         <div>
                                             <div v-if="device.logs.tasks">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
-                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task)">
-                                                    {{task.substring(0,2)}}
+                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task[0])">    
+                                                    {{task[0].substring(0,2)}}
+                                                 
+                                                    <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >  
+                                                    <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >                
                                             </li>
                                             </div>
                                         </div>
@@ -599,36 +602,32 @@ export default {
         }, */ 
         checkLogs: function (target) {
             var des = "target=" + target;
-            return axios.get("http://"+this.address+"/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+            return axios.get("http://"+this.address+"/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
 
                 if (response.data.items) { 
                     let fulltask = new Set();
                     response.data.items.forEach(el => {
                         fulltask.add(el.task)
                     });
-                    let task = Array.from(fulltask).slice(0,10);
-                    console
+                    let task = Array.from(fulltask).slice(0,15).reverse();
 
                     //console.log(task)
-                    let lastLog = response.data.items.filter(el => el.task == task[0])
-                    if (lastLog.some(el => el.error == true)) {
-                        return {
-                            tasks: task,
+                    let tasks = task.map(t =>{
+                         let lastLog = response.data.items.filter(el => el.task == t); 
+                         if (lastLog.some(el => el.error == true)) {
+                             return t = [t,true]
+                        }else{
+                             return t = [t,false]
+                        }
+                    });
+                    return {
+                            tasks: tasks,
                             log: response.data.items,
-                            error: true
-                        };
-                    } else {
-                        return {
-                            tasks:task,
-                            log: response.data.items,
-                            error: false
-                        };
-                    }
+                   }
                 } else {
                     return {
-                        tasks:"",
-                        log: "",
-                        error: "none"
+                        tasks:[],
+                        log: [],
                     };
                 }
             }).catch(error => {
@@ -938,7 +937,7 @@ export default {
                     a.marker = marker;
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
-                        if(data.error == true){
+                        if(data.tasks[0][1] == true){
                             this.failed.push(a);
                             marker.setIcon(L.icon({
                                 iconUrl: "/error.png",
@@ -1271,7 +1270,7 @@ export default {
                         color: color,
                         weight: 2,
                     }).addTo(this.map);
-                console.log(this.polyline)
+                //console.log(this.polyline)
                 this.map.fitBounds(this.polyline.getBounds());
 
                 //console.log(polyline)
@@ -1452,7 +1451,7 @@ export default {
     float: left;
     cursor: pointer;
 }
-li:focus, li:active{
+.timeline-li:focus, .timeline-li:active{
     border: 1px solid #00000033;
     border-radius: 5px;
     background-color: #ffffff;
@@ -1519,18 +1518,6 @@ li:focus, li:active{
     text-align: center;
     cursor: pointer;
     list-style: none;
-}
-.history_li::before {
-    background-color: #8e8e8e;
-    width: 9px;
-    height: 9px;
-    position: absolute;
-     top:-15px;
-    right: 0;
-    left: 0;
-    content: "";
-    margin: 0 auto;
-    border-radius: 50%;
 }
 .mybtn{
     font-size: 13px;

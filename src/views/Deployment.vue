@@ -378,8 +378,8 @@ function rand(n) {
 export default {
     data() {
         return {
-            address:"",
-            map:"",
+            address: "",
+            map: "",
             ws: "",
             orderSearchT: "",
             deployDes: "",
@@ -393,14 +393,14 @@ export default {
             host: "",
             devices: [],
             targetDevices: [],
-            fullDevices:[],
+            fullDevices: [],
             tags: [],
             orders: [],
             tree: [],
             markers: [],
-            failed:[],
-            success:[],
-            newDiscover:[],
+            failed: [],
+            success: [],
+            newDiscover: [],
         };
     },
     components: {
@@ -416,8 +416,8 @@ export default {
     methods: {
         filterOrder: function () {
             var value = this.orderSearchT.toLowerCase();
-            this.orders.forEach(d=>{
-                 if (!(d.id.toLowerCase().indexOf(value) > -1)) {
+            this.orders.forEach(d => {
+                if (!(d.id.toLowerCase().indexOf(value) > -1)) {
                     d.nameActive = false;
                 } else {
                     d.nameActive = true;
@@ -434,53 +434,53 @@ export default {
             };
             document.getElementById("searchOrder").appendChild(badge);
         },
-        searchOrder: function() {
-    var tagsNodes = document.getElementById("searchOrder").childNodes;
-    var value = this.orderSearchT.toLowerCase();
+        searchOrder: function () {
+            var tagsNodes = document.getElementById("searchOrder").childNodes;
+            var value = this.orderSearchT.toLowerCase();
 
-    //console.log(value);
-    for (var i = 0; i < tagsNodes.length; i++) {
-        if (tagsNodes[i].style.display != "none") {
-            for (var j = 0; j < this.orders.length; j++) {
-                if (this.orders[j].id == tagsNodes[i].innerHTML) {
-                    this.orders[j].cardActive = true;
-                } else {
-                    this.orders[j].cardActive = false;
+            //console.log(value);
+            for (var i = 0; i < tagsNodes.length; i++) {
+                if (tagsNodes[i].style.display != "none") {
+                    for (var j = 0; j < this.orders.length; j++) {
+                        if (this.orders[j].id == tagsNodes[i].innerHTML) {
+                            this.orders[j].cardActive = true;
+                        } else {
+                            this.orders[j].cardActive = false;
+                        }
+                    }
                 }
             }
-        }
-    }
-    if(value.length > 0){
-        this.orders.forEach(o => {
-        if ( o.description && o.description.toLowerCase().indexOf(value) > -1) {
-            o.cardActive = true;
-        } else {
-            o.cardActive = false;
-        }
-        }) 
-    }
-    },
+            if (value.length > 0) {
+                this.orders.forEach(o => {
+                    if (o.description && o.description.toLowerCase().indexOf(value) > -1) {
+                        o.cardActive = true;
+                    } else {
+                        o.cardActive = false;
+                    }
+                })
+            }
+        },
         clickDeployment: function (id) {
-                this.map.eachLayer(layer=> {
-                        if (layer instanceof L.Marker) {
-                            this.map.removeLayer(layer);
-                        }
-                }); 
-                if(this.polyline){
-                    this.polyline.remove();
+            this.map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    this.map.removeLayer(layer);
                 }
-                this.markers.clearLayers();
-                this.devices = [];
-                var filteredData = this.orders.find((i, n)=> { 
-                    return i.id === id
-                });
-                //console.log(filteredData)
-                if(filteredData.deploy){
-                    filteredData.deploy.match.list.forEach(el=>{
-                          var d = this.fullDevices.find(function (de) {
-                            return de.id === el      
-                          })
-                    this.devices.push(d);      
+            });
+            if (this.polyline) {
+                this.polyline.remove();
+            }
+            this.markers.clearLayers();
+            this.devices = [];
+            var filteredData = this.orders.find((i, n) => {
+                return i.id === id
+            });
+            //console.log(filteredData)
+            if (filteredData.deploy) {
+                filteredData.deploy.match.list.forEach(el => {
+                    var d = this.fullDevices.find(function (de) {
+                        return de.id === el
+                    })
+                    this.devices.push(d);
                     //console.log(d)
                     if (!d.location) {
                         d.location = {
@@ -488,10 +488,10 @@ export default {
                             lat: rand(7.203923),
                         }
                     }
-                    var tags="";
+                    var tags = "";
                     if (d.tags) {
                         for (let j = 0; j < d.tags.length; j++) {
-                            tags+='<div class="badge badge-pill ' +d.tags[j] +'">'+d.tags[j]+'</div>'
+                            tags += '<div class="badge badge-pill ' + d.tags[j] + '">' + d.tags[j] + '</div>'
                         }
                     }
                     let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
@@ -502,7 +502,7 @@ export default {
                         title: el,
                         alt: d.tags ? d.tags : []
                     });
-                    marker.bindPopup('<div>Name: '+ d.id +'</div><div>Tags: '+ tags +'</div>');
+                    marker.bindPopup('<div>Name: ' + d.id + '</div><div>Tags: ' + tags + '</div>');
                     //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
 
@@ -515,65 +515,65 @@ export default {
                             });
                         }
                     });
-                   this.markers.addLayer(marker);
+                    this.markers.addLayer(marker);
                 })
-                }
-                this.map.addLayer(this.markers)
-                this.map.fitBounds(this.markers.getBounds());
-                //console.log(filteredData);
-                //markerGroup.addTo(map);
+            }
+            this.map.addLayer(this.markers)
+            this.map.fitBounds(this.markers.getBounds());
+            //console.log(filteredData);
+            //markerGroup.addTo(map);
         },
         previous: function () {
 
-            if(this.offset < 0){
+            if (this.offset < 0) {
                 this.offset += 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-                this.$refs.next.disabled=false
-            }else{
-                if(this.offset >= 0){
-                     this.$refs.pre.disabled=true
-                }else{
-                     this.$refs.next.disabled=true
-                }           
-            }  
-        },  
+                this.$refs.timeline_lis.style.transform = 'translateX(' + this.offset + 'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s';
+                this.$refs.next.disabled = false
+            } else {
+                if (this.offset >= 0) {
+                    this.$refs.pre.disabled = true
+                } else {
+                    this.$refs.next.disabled = true
+                }
+            }
+        },
         next: function () {
 
-             if(800-this.offset < (this.map.getSize().x - 20)){
-                this.$refs.pre.disabled=false
+            if (800 - this.offset < (this.map.getSize().x - 20)) {
+                this.$refs.pre.disabled = false
                 this.offset -= 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-            }else{
-                    if(this.offset <=0){
-                         this.$refs.next.disabled=true
-                    }else{
-                         this.$refs.pre.disabled=true
-                }           
-            }  
+                this.$refs.timeline_lis.style.transform = 'translateX(' + this.offset + 'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s';
+            } else {
+                if (this.offset <= 0) {
+                    this.$refs.next.disabled = true
+                } else {
+                    this.$refs.pre.disabled = true
+                }
+            }
         },
         clickCard: function (order) {
 
-            if(event.target.tagName == "DIV"){
-                 let cards = document.getElementById('deploymentList').getElementsByClassName('mycard my-card-body');
-                 Array.from(cards).map(item=>{
-                  item.setAttribute('class','mycard my-card-body');
+            if (event.target.tagName == "DIV") {
+                let cards = document.getElementById('deploymentList').getElementsByClassName('mycard my-card-body');
+                Array.from(cards).map(item => {
+                    item.setAttribute('class', 'mycard my-card-body');
                 })
-            event.path[1].setAttribute('class','mycard my-card-body active');
-           }
-           
+                event.path[1].setAttribute('class', 'mycard my-card-body active');
+            }
+
             this.markers.clearLayers();
-            if(order.deploy){
-                    order.deploy.match.list.forEach(el=>{
-                          var d = this.devices.find(function (de) {
-                            return de.id === el      
-                          })
+            if (order.deploy) {
+                order.deploy.match.list.forEach(el => {
+                    var d = this.devices.find(function (de) {
+                        return de.id === el
+                    })
                     //console.log(d)
-                    var tags="";
-                      if (d.tags) {
+                    var tags = "";
+                    if (d.tags) {
                         for (let j = 0; j < d.tags.length; j++) {
-                            tags+='<div class="badge badge-pill ' +d.tags[j] +'">'+d.tags[j]+'</div>';
+                            tags += '<div class="badge badge-pill ' + d.tags[j] + '">' + d.tags[j] + '</div>';
                         }
                     }
                     if (!d.location) {
@@ -590,7 +590,7 @@ export default {
                         title: el,
                         alt: d.tags ? d.tags : []
                     });
-                    marker.bindPopup('<div>Name: '+d.id +'</div><div>Tags: '+ tags +'</div>');
+                    marker.bindPopup('<div>Name: ' + d.id + '</div><div>Tags: ' + tags + '</div>');
                     //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
 
@@ -603,42 +603,43 @@ export default {
                             });
                         }
                     });
-                   this.markers.addLayer(marker);
-                    })
-                }
-                this.map.addLayer(this.markers)
-                this.map.fitBounds(this.markers.getBounds());
+                    this.markers.addLayer(marker);
+                })
+            }
+            this.map.addLayer(this.markers)
+            this.map.fitBounds(this.markers.getBounds());
             //this.map.fitbounds(this.markers.layer.getBounds());
             //L.Marker.stopAllBouncingMarkers();
             //console.log("card");
             //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
         },
         filterDevices: function (para) {
-            switch(para){
-                case 'failed': 
+            switch (para) {
+                case 'failed':
                     this.devices = this.failed;
                     break;
-                case 'success': 
+                case 'success':
                     this.devices = this.success;
                     break;
             }
-            this.$router.push({ path: "/home/deployment", redirect:"/home",  props:{
-                devices: this.devices,
-            } 
+            this.$router.push({
+                path: "/home/deployment", redirect: "/home", props: {
+                    devices: this.devices,
+                }
             });
-            
+
         },
         showNewDevices: function () {
             this.devices = this.newDiscover;
             this.markers.clearLayers();
-            this.devices.map(item=>{
+            this.devices.map(item => {
                 this.markers.addLayer(item.marker)
             })
             //console.log(this.devices);
         },
         getFinishnStatus: function (id, total) {
 
-            return axios.get("http://"+this.address+"/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+            return axios.get("http://" + this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
 
                 let finishAt = response.data.items[0].time;
                 let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
@@ -658,7 +659,7 @@ export default {
         },
         getFinishTime: function (id) {
             //Request the latest logs time
-            return axios.get("http://"+this.address+"/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+            return axios.get("http://" + this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
                 //console.log(response.data)
                 return response.data.items[0].time;
             }).catch(error => {
@@ -668,7 +669,7 @@ export default {
         },
         checkStatus: function (id, total) {
             // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get("http://"+this.address+"/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+            return axios.get("http://" + this.address + "/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
                 if (!response.data.items) {
                     return [total, 0];
                 } else {
@@ -684,14 +685,14 @@ export default {
         },
         checkLogs: function (target) {
             var des = "target=" + target;
-            return axios.get("http://"+this.address+"/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+            return axios.get("http://" + this.address + "/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
 
-                if (response.data.items) { 
+                if (response.data.items) {
                     let fulltask = new Set();
                     response.data.items.forEach(el => {
                         fulltask.add(el.task)
                     });
-                    let task = Array.from(fulltask).slice(0,10);
+                    let task = Array.from(fulltask).slice(0, 15).reverse();
 
                     //console.log(task)
                     let lastLog = response.data.items.filter(el => el.task == task[0])
@@ -703,14 +704,14 @@ export default {
                         };
                     } else {
                         return {
-                            tasks:task,
+                            tasks: task,
                             log: response.data.items,
                             error: false
                         };
                     }
                 } else {
                     return {
-                        tasks:"",
+                        tasks: "",
                         log: "",
                         error: "none"
                     };
@@ -730,7 +731,7 @@ export default {
         deleteOrder: function (order) {
 
             $('#mymodal-body').empty()
-            axios.delete("http://"+this.address+"/orders/" + order.id).then(
+            axios.delete("http://" + this.address + "/orders/" + order.id).then(
                 response => {
 
                     let index = this.orders.indexOf(this.orders.find(el => el.id == order.id))
@@ -750,7 +751,7 @@ export default {
         stopOrder: function (order) {
 
             $('#mymodal-body').empty();
-            axios.put("http://"+this.address+"/orders/" + order.id + "/stop").then(response => {
+            axios.put("http://" + this.address + "/orders/" + order.id + "/stop").then(response => {
 
                 //this.orders.splice(order.id,1);
                 //console.log(response);
@@ -766,7 +767,7 @@ export default {
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
-          
+
             this.deployDebug = order.debug;
             this.source = "";
             document.getElementById("customFile").value = "";
@@ -878,7 +879,7 @@ export default {
             }
             var myYaml;
             var taskDer = {
-                description: this.deployDes?this.deployDes.split("\n").join():null,
+                description: this.deployDes ? this.deployDes.split("\n").join() : null,
                 source: {
                     zip: null,
                 },
@@ -906,7 +907,7 @@ export default {
                     console.log(taskDer)
                     myYaml = yaml.safeDump(taskDer);
                     //console.log(myYaml);
-                    axios.post("http://"+this.address+"/orders", myYaml).then(response => {
+                    axios.post("http://" + this.address + "/orders", myYaml).then(response => {
                         //console.log(response);
                         response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                         response.data.build ? response.data.deploy : (response.data.build = "");
@@ -924,7 +925,7 @@ export default {
             } else {
                 myYaml = yaml.safeDump(taskDer);
                 //console.log(myYaml);    
-                axios.post("http://"+this.address+"/orders", myYaml).then(response => {
+                axios.post("http://" + this.address + "/orders", myYaml).then(response => {
                     //console.log(response);
                     response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                     response.data.build ? response.data.deploy : (response.data.build = "");
@@ -943,13 +944,13 @@ export default {
             var logs = [];
             var t = [];
             let deviceStatus = new Map();
-            
+
             //If there is a build process
             if (host) {
                 let status = new Map();
-                status.set('build','STAGE-START');
-                status.set('install','');
-                status.set('run','');
+                status.set('build', 'STAGE-START');
+                status.set('install', '');
+                status.set('run', '');
                 deviceStatus.set(host, status);
                 t.push(host)
             }
@@ -957,16 +958,16 @@ export default {
             if (target) {
                 target.forEach(el => {
                     let status = new Map();
-                    status.set('build','');
-                    status.set('install','');
-                    status.set('run','');
-                    deviceStatus.set(el,status);
-                    t.push(el); 
+                    status.set('build', '');
+                    status.set('install', '');
+                    status.set('run', '');
+                    deviceStatus.set(el, status);
+                    t.push(el);
                 })
             }
             //console.log(deviceStatus)
             if (!deploy) {
-                axios.get("http://"+this.address+"/logs?task=" + id + "&sortOrder=desc&perPage=1000")
+                axios.get("http://" + this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                     .then(response => {
                         this.generateTree(response.data.items, deviceStatus, t);
                     }).catch(error => {
@@ -982,7 +983,7 @@ export default {
                 this.ws.close();
                 this.ws = "";
             } else {
-                this.ws = new WebSocket("ws://"+this.address+"/events?order=" + id + "&topics=logs");
+                this.ws = new WebSocket("ws://" + this.address + "/events?order=" + id + "&topics=logs");
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
                 };
@@ -1039,94 +1040,94 @@ export default {
 
             // Meaning there is build process.
             // Go through all host + targets
-            for(let i = 0; i<targets.length; i++){
+            for (let i = 0; i < targets.length; i++) {
                 // Get all logs for one devices, make sure, the logs is in desc order
                 var oneLog = logs.filter(log => log.target == targets[i]);
                 //console.log(oneLog)
                 // IF there is log on this el device
                 if (oneLog.length > 0) {
-                    let endLogs = oneLog.filter(el =>{
+                    let endLogs = oneLog.filter(el => {
                         return el.output == "STAGE-END"
                     });
                     //console.log(endLogs)
-                    if(endLogs){
-                        endLogs.forEach(item =>{
-                            if(item.error){  
+                    if (endLogs) {
+                        endLogs.forEach(item => {
+                            if (item.error) {
                                 //console.log(item.target, devicesStatus.get(item.target))
-                                devicesStatus.get(item.target).set(item.stage,['STAGE-END-e', oneLog.filter(el => el.stage == item.stage)])
-                            }else{
+                                devicesStatus.get(item.target).set(item.stage, ['STAGE-END-e', oneLog.filter(el => el.stage == item.stage)])
+                            } else {
                                 //console.log(item.target, devicesStatus.get(item.target))
                                 devicesStatus.get(item.target).set(item.stage, ['STAGE-END', oneLog.filter(el => el.stage == item.stage)])
                             }
                         })
-                    }else{
-                         if(devicesStatus.get(item.target).get(item.stage)[0].substring(0,9) != "STAGE-END"){
-                              devicesStatus.get(item.target).set(item.stage,['', oneLog.filter(el => el.stage == item.stage)])
-                         }
+                    } else {
+                        if (devicesStatus.get(item.target).get(item.stage)[0].substring(0, 9) != "STAGE-END") {
+                            devicesStatus.get(item.target).set(item.stage, ['', oneLog.filter(el => el.stage == item.stage)])
+                        }
                     }
                 }
-                if(!(targets[i] == targets[0] && i >0)){
+                if (!(targets[i] == targets[0] && i > 0)) {
                     //console.log(targets[i],targets[0])
-                    var c = "Device: " +  targets[i];
+                    var c = "Device: " + targets[i];
                     oneLog.forEach(log => {
-                    let s = "";
-                    log.error ? s = "f" : s = "s"
-                    c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.output + "</div>";
-                });
-                code += '<div class="myCommandCard">' + c + '</div>';
+                        let s = "";
+                        log.error ? s = "f" : s = "s"
+                        c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.output + "</div>";
+                    });
+                    code += '<div class="myCommandCard">' + c + '</div>';
                 }
-               
+
             }
             //console.log(devicesStatus)
             devicesStatus.forEach((value, key) => {
                 //console.log(value,key)
-                if(value.get('build')){
+                if (value.get('build')) {
                     switch (value.get('build')[0]) {
-                            case "STAGE-END-e":
-                                myTree.name = "build"
-                                myTree.value = 1;
-                                myTree.class = 'node-f';
-                                myTree.commands = value.get('build')[1];
-                                break;
-                            default:
-                                myTree.name = "build"
-                                myTree.value = 1;
-                                myTree.class = 'node-s';
-                                myTree.commands = value.get('build')[1];              
-                        }       
+                        case "STAGE-END-e":
+                            myTree.name = "build"
+                            myTree.value = 1;
+                            myTree.class = 'node-f';
+                            myTree.commands = value.get('build')[1];
+                            break;
+                        default:
+                            myTree.name = "build"
+                            myTree.value = 1;
+                            myTree.class = 'node-s';
+                            myTree.commands = value.get('build')[1];
+                    }
                 }
-                if(value.get('run')){
+                if (value.get('run')) {
                     //console.log(value.get('run'))
                     switch (value.get('run')[0]) {
-                            case "STAGE-END-e":
-                                myTree.children[0].children[1].name = "run";
-                                myTree.children[0].children[1].value++;
-                                myTree.children[0].children[1].class = 'node-f';
-                                myTree.children[0].children[1].commands = value.get('run')[1];
-                                break;
-                            default:
-                                myTree.children[0].children[0].name = "run";
-                                myTree.children[0].children[0].value++;
-                                myTree.children[0].children[0].class = 'node-s';
-                                myTree.children[0].children[0].commands = value.get('run')[1];
-                        }
-                       
-                }else if(value.get('install')){
+                        case "STAGE-END-e":
+                            myTree.children[0].children[1].name = "run";
+                            myTree.children[0].children[1].value++;
+                            myTree.children[0].children[1].class = 'node-f';
+                            myTree.children[0].children[1].commands = value.get('run')[1];
+                            break;
+                        default:
+                            myTree.children[0].children[0].name = "run";
+                            myTree.children[0].children[0].value++;
+                            myTree.children[0].children[0].class = 'node-s';
+                            myTree.children[0].children[0].commands = value.get('run')[1];
+                    }
+
+                } else if (value.get('install')) {
                     switch (value.get('install')[0]) {
-                            case "STAGE-END-e":
-                                myTree.children[1].name = "install";
-                                myTree.children[1].value++;
-                                myTree.children[1].class = 'node-f';
-                                myTree.children[1].commands = value[2];
-                                break;
-                            default:
-                                myTree.children[0].name = "install"
-                                myTree.children[0].value++;
-                                myTree.children[0].class = 'node-s';
-                                myTree.children[0].commands = value[2];
-                        }  
+                        case "STAGE-END-e":
+                            myTree.children[1].name = "install";
+                            myTree.children[1].value++;
+                            myTree.children[1].class = 'node-f';
+                            myTree.children[1].commands = value[2];
+                            break;
+                        default:
+                            myTree.children[0].name = "install"
+                            myTree.children[0].value++;
+                            myTree.children[0].class = 'node-s';
+                            myTree.children[0].commands = value[2];
+                    }
                 }
-            }) 
+            })
             //console.log(myTree)
             var treeLayout = d3.tree().size([200, 200]);
             var root = d3.hierarchy(myTree);
@@ -1177,7 +1178,7 @@ export default {
                     }
                 })
             $('#mylog').append(code);
-            
+
         },
         clearForm: function () {
             this.deployName = "";
@@ -1202,7 +1203,7 @@ export default {
             this.getOrders();
             this.devices = [];
             this.fullDevices = [];
-            this.failed =[];
+            this.failed = [];
             this.success = [];
             this.markers.clearLayers();
             this.getTargets();
@@ -1212,7 +1213,7 @@ export default {
 
             //http://"+this.address+"/orders
             // /deployment.json
-            axios.get("http://"+this.address+"/orders").then(response => {
+            axios.get("http://" + this.address + "/orders").then(response => {
                 //console.log(this.orders)
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -1225,12 +1226,12 @@ export default {
                     a.cardActive = true;
 
                     let date = new Date(a.createdAt);
-                    let day = date.getDate() < 9 ? '0'+date.getDate().toString(): date.getDate();
-                    let month = date.getMonth() < 9 ? '0'+(date.getMonth()+1).toString(): (date.getMonth() + 1 );
-                    let minute = date.getMinutes() < 10 ? '0'+ date.getMinutes().toString(): date.getMinutes();
+                    let day = date.getDate() < 9 ? '0' + date.getDate().toString() : date.getDate();
+                    let month = date.getMonth() < 9 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1);
+                    let minute = date.getMinutes() < 10 ? '0' + date.getMinutes().toString() : date.getMinutes();
 
-                    a.date = date.toUTCString().substring(5,11);
-                    a.time = date.toUTCString().substring(17,22);
+                    a.date = date.toUTCString().substring(5, 11);
+                    a.time = date.toUTCString().substring(17, 22);
 
                     if (a.deploy) {
                         this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
@@ -1257,7 +1258,7 @@ export default {
 
             //http://"+this.address+"/targets
             // /device.json
-            axios.get("http://"+this.address+"/targets").then(response => {
+            axios.get("http://" + this.address + "/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
@@ -1267,13 +1268,13 @@ export default {
                     // Generate a (lat, lng) randomly for each device
 
                     // this.devices is the list of all devices registered on the server
-                    
+
                     //console.log(this.devices)
                     //this.tags is the list of all tags of the devices, no duplicated
-                    var tags="";
+                    var tags = "";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
-                            tags+='<div class="badge badge-pill ' +a.tags[j] +'">'+a.tags[j]+'</div>'
+                            tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
                             if (!this.tags.some(e => e.tag === a.tags[j])) {
                                 this.tags.push({
                                     isActive: true,
@@ -1297,21 +1298,21 @@ export default {
                         alt: a.tags
                     });
                     a.marker = marker;
-                    
-                   
+
+
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
-                        if(data.error == true){
+                        if (data.error == true) {
                             this.failed.push(a);
-                        }else{
-                            this.success.push(a); 
+                        } else {
+                            this.success.push(a);
                         }
                         this.devices.push(a);
                         this.fullDevices.push(a);
                     });
 
-                    this.devices.push(a); 
-                    marker.bindPopup('<div>Name: '+a.id +'</div><div>Tags: '+ tags +'</div>');
+                    this.devices.push(a);
+                    marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
                     //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
 
@@ -1334,8 +1335,8 @@ export default {
     mounted() {
 
         this.$refs.map.style.height = window.innerHeight + "px";
-        this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32-15 + "px";
-        this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 -15 + "px";
+        this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32 - 15 + "px";
+        this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 - 15 + "px";
 
         this.address = localStorage.getItem('address');
 
@@ -1344,8 +1345,8 @@ export default {
         */
         this.getOrders();
         this.getTargets();
-        this.map = L.map("map").setView([50.749523, 7.20343], 17);
-        this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px'
+        this.map = L.map("map").setView([50.749523, 7.20343], 10);
+        this.$refs.myTimeline.style.width = this.map.getSize().x - 20 + 'px'
         L.tileLayer(
             "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
             {
@@ -1374,8 +1375,8 @@ export default {
 
         this.map.addLayer(this.markers);
     },
-    updated(){
-        $('[data-toggle="popover"]').popover(); 
+    updated() {
+        $('[data-toggle="popover"]').popover();
     }
 };
 </script>
