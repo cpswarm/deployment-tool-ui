@@ -881,7 +881,6 @@ export default {
                     });
                 });
             } else {
-
                 myYaml = yaml.safeDump(taskDer);
                 //console.log(myYaml);    
                 axios.post("http://"+this.address+"/orders", myYaml).then(response => {

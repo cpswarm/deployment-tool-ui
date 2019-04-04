@@ -30,6 +30,11 @@
                                             </a>
                                         </div>
                                         <div class="dropdown-menu" style="padding:2.5px">
+                                            <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
+                                            <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem(device.id)"
+                                                style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                             <div class="dropdown-divider"></div>
+                                             <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)"
                                                 style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
                                         </div>
@@ -42,8 +47,8 @@
                             </div>
                             
                             <div id="deviceList" ref="list" style="overflow:scroll">
-                                <!-- <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id"> -->
-                                <div v-for="device in devices" v-show="device.isActive" :key="device.id">
+                                <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
+                                
                                     <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
                                         <div class="mycard-content" >{{device.id}}</div>
@@ -207,8 +212,14 @@
                                                 </a>
                                             </div>
                                             <div class="dropdown-menu" style="padding:2.5px">
-                                                <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive"
-                                                    @click="selectItem2(tag.tag)" style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
+                                                    <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
+                                            <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem2(device.id)"
+                                                style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                             <div class="dropdown-divider"></div>
+                                             <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
+                                            <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem2(tag.tag)"
+                                                style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
+                    
                                             </div>
                                         </div>
                                     </form>
@@ -687,14 +698,14 @@ export default {
 
             //console.log(event.target.tagName)
             
-            if(event.target.tagName == "DIV"){
+           /*  if(event.target.tagName == "DIV"){
                  let cards = document.getElementById('deviceList').getElementsByClassName('mycard my-card-body');
                  Array.from(cards).map(item=>{
                   item.setAttribute('class','mycard my-card-body');
                 })
               //console.log(event.path[1])
               event.path[1].setAttribute('class','mycard my-card-body active');
-           }
+           } */
              this.map.panTo(marker.getLatLng());
             //L.Marker.stopAllBouncingMarkers();
             //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
@@ -793,6 +804,13 @@ export default {
                     tag.isActive = true;
                 }
             });
+            this.fullDevices.forEach(d=>{
+                 if (!(d.name.toLowerCase().indexOf(value) > -1)) {
+                    d.nameActive = false;
+                } else {
+                    d.nameActive = true;
+                }
+            })
         },
         //Click notification card item and filtering device
         filterDevices: function (para) {
@@ -904,6 +922,7 @@ export default {
                     let a = response.data.items[i];
                     a.isActive = true;
                     a.relations = true;
+                    a.nameActive = true;
                    
                     if (!a.location) {
                         a.location = {
@@ -1092,12 +1111,13 @@ export default {
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.devices.length; j++) {
-                        if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+                        if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.devices[j].id == tagsNodes[i].innerHTML ) {
                             //console.log(this.devices[j].tags, tagsNodes[i].innerHTML)
                             this.devices[j].isActive = true;
                         } else {
                             this.devices[j].isActive = false;
                         }
+
                     }
                 }
             }
@@ -1110,7 +1130,7 @@ export default {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.fullDevices.length; j++) {
                         //console.log(this.devices)
-                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.devices[j].id == tagsNodes[i].innerHTML) {
                             if (!this.targetDevices.some(e => e.id === this.fullDevices[j].id)) {
                                 this.targetDevices.push({
                                     id: this.fullDevices[j].id,
@@ -1127,6 +1147,7 @@ export default {
             var badge = document.createElement("span");
             badge.innerHTML = tag;
             badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
             badge.onclick = function () {
                 this.style.display = "none";
             };
@@ -1136,6 +1157,7 @@ export default {
             var badge = document.createElement("span");
             badge.innerHTML = tag;
             badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
             badge.onclick = function () {
                 this.style.display = "none";
             };
