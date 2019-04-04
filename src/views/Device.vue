@@ -523,7 +523,7 @@ export default {
     },
     computed: {
         orderOrders: function () {
-            console.log(this.orders)
+            //console.log(this.orders)
             return this.orders.sort(function (a, b) {
                 return b.finishedAt - a.finishedAt
             })
@@ -647,13 +647,13 @@ export default {
                           })
                     this.devices.push(d);      
                     //console.log(d)
-                    if (!d.location) {
+                   /*  if (!d.location) {
                         d.location = {
                             lon: rand(50.749523),
                             lat: rand(7.203923),
                         }
-                    }
-                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
+                    } */
+                  /*   let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
                         icon: L.icon({
                             iconUrl: "/done.png",
                             iconSize: [20, 20]
@@ -661,7 +661,7 @@ export default {
                         title: el,
                         alt: d.tags ? d.tags : []
                     });
-                      marker.on("click", event => {
+                    marker.on("click", event => {
                         if(this.polyline){
                             this.polyline.remove();
                         }
@@ -674,9 +674,9 @@ export default {
                                 tags: event.target.options.alt
                             });
                         }
-                    });
-                   this.markers.addLayer(marker);
-                    })
+                    }); */
+                   this.markers.addLayer(d.marker);
+                })
                 }
                 this.map.addLayer(this.markers)
                 this.map.fitBounds(this.markers.getBounds());
@@ -711,10 +711,20 @@ export default {
          
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
+
             axios.delete("http://"+this.address+"/targets/" + id).then(
                 response => {
-                    let index = this.devices.indexOf(this.devices.find(el => el.id === id))
+                    let index = this.devices.indexOf(this.devices.find(el => el.id === id));
                     this.devices.splice(index, 1);
+                    this.failed = [];
+                    this.success = [];
+                    this.devices.forEach(el=>{
+                        if(el.logs.error == true){
+                            this.failed.push(el);
+                        }else{
+                            this.success.push(el); 
+                        }
+                    })
                     //console.log(response)
                     $('#myMessage').modal();
                     $('#mymessage-body').append("Delete target with " + id + "  " + response.statusText)
@@ -901,11 +911,8 @@ export default {
                             lat: rand(7.203923),
                         }
                     }
+                    let icon ="";
                     let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
                         title: a.id,
                         alt: a.tags ? a.tags : []
                     })
@@ -914,12 +921,21 @@ export default {
                         a.logs = data;
                         if(data.error == true){
                             this.failed.push(a);
+                            marker.setIcon(L.icon({
+                                iconUrl: "/error.png",
+                                iconSize: [20, 20]
+                        }))
                         }else{
                             this.success.push(a); 
+                            marker.setIcon(L.icon({
+                                iconUrl: "/done.png",
+                                iconSize: [20, 20]
+                        }))
                         }
                         this.devices.push(a);
                         this.fullDevices.push(a);
-                    });
+                    }); 
+                   
                    //console.log(this.devices)
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
@@ -968,7 +984,7 @@ export default {
                     }
                     let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
                         icon: L.icon({
-                            iconUrl: "/done.png",
+                            iconUrl: "/star.png",
                             iconSize: [20, 20]
                         }),
                         title: a.id,
@@ -1266,16 +1282,18 @@ export default {
             //console.log(myUpdate)
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
+
             axios.put("http://"+this.address+"/targets/" +id, myUpdate).then(response=>{
 
-                    //console.log(response)
-                    //console.log(this.markers)
                     let i = this.devices.findIndex(el =>el.id == id);
-                    //let j = this.markers.findIndex(el =>el.title == id);
-  
-                    //console.log(this.markers)
+
+                    this.devices[i].marker.setLatLng(L.latLng(myUpdate.location.lon, myUpdate.location.lat));
+                    this.devices[i].marker.title = myUpdate.id;
+                    this.devices[i].marker.alt = myUpdate.tags;
+
+                    this.map.panTo(this.devices[i].marker.getLatLng())
                     
-                    let marker = L.marker(L.latLng(myUpdate.location.lon, myUpdate.location.lat), {
+                  /*   let marker = L.marker(L.latLng(myUpdate.location.lon, myUpdate.location.lat), {
                         icon: L.icon({
                             iconUrl: "/done.png",
                             iconSize: [20, 20]
@@ -1283,7 +1301,7 @@ export default {
                         title: myUpdate.id,
                         alt: myUpdate.tags
                     })
-                      marker.on("click", event => {
+                    marker.on("click", event => {
                         if(this.polyline){
                             this.polyline.remove();
                         }
@@ -1296,11 +1314,11 @@ export default {
                                 tags: event.target.options.alt
                             });
                         }
-                    });
+                    }); */
                     this.$set(this.devices[i], 'id', myUpdate.id);
                     this.$set(this.devices[i], 'tags', myUpdate.tags);
                     this.$set(this.devices[i], 'location', myUpdate.location);
-                    this.$set(this.devices[i], 'marker', marker)
+                    //this.$set(this.devices[i], 'marker', marker)
                     
                     $('#myMessage').modal();
                     $('#mymessage-body').append("Update target with " + id + "  " + response.statusText)
