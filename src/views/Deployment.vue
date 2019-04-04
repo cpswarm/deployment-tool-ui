@@ -16,25 +16,21 @@
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
                         <form class="form-inline" style="margin-bottom:5px">
-                        <div id="searchOrder" class="input-group" style="width:91%">
+                        <div class="input-group" style="width:91%">
+                             <div id="searchOrder"></div>
                             <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder"
                                 style="font-size: 14px;height: 26px;padding: 5px;">
                             <div class="input-group-append">
-                                <a class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseOne"
-                                    aria-expanded="true" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;">
+                                <a class="btn btn-outline-secondary" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchOrder">
                                     <img src="../assets/search.png" style="height:20px">
                                 </a>
                             </div>
                             <div class="dropdown-menu" style="padding:2.5px">
-                                <!-- how to search -->
-                                <!--  <a
-                                            v-for="order in orders"
-                                                class="dropdown-item"
-                                             v-show="order.isActive"
-                    @click="selectItem(order.order)"
-                    style="font-size:14px;padding:0px 15px"
-                  >{{order.order}}</a>-->
+                                <p class="dropdown-header" style="padding:2px 5px"> You can also search by description!</p>
+                                <div class="dropdown-divider"></div>
+                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
+                               <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectOrder(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
                             </div>
                         </div>
                         <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 0 0 8px;" @click="refresh">
@@ -42,7 +38,7 @@
                         </button>
                     </form>
                         <div id="deploymentList" ref="list" style="overflow:scroll">
-                            <div v-for="order in orderOrders"   v-show="order" :key="order.id" @click="clickCard(order)">
+                            <div v-for="order in orderOrders"   v-show="order.cardActive" :key="order.id" @click="clickCard(order)">
                                 <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
                                     <div class="mycard-title">Name:</div>
                                     <div class="mycard-content">{{order.id}}</div>
@@ -418,8 +414,53 @@ export default {
         }
     },
     methods: {
+        filterOrder: function () {
+            var value = this.orderSearchT.toLowerCase();
+            this.orders.forEach(d=>{
+                 if (!(d.id.toLowerCase().indexOf(value) > -1)) {
+                    d.nameActive = false;
+                } else {
+                    d.nameActive = true;
+                }
+            })
+        },
+        selectOrder: function (id) {
+            var badge = document.createElement("span");
+            badge.innerHTML = id;
+            badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
+            badge.onclick = function () {
+                this.style.display = "none";
+            };
+            document.getElementById("searchOrder").appendChild(badge);
+        },
+        searchOrder: function() {
+    var tagsNodes = document.getElementById("searchOrder").childNodes;
+    var value = this.orderSearchT.toLowerCase();
+
+    //console.log(value);
+    for (var i = 0; i < tagsNodes.length; i++) {
+        if (tagsNodes[i].style.display != "none") {
+            for (var j = 0; j < this.orders.length; j++) {
+                if (this.orders[j].id == tagsNodes[i].innerHTML) {
+                    this.orders[j].cardActive = true;
+                } else {
+                    this.orders[j].cardActive = false;
+                }
+            }
+        }
+    }
+    if(value.length > 0){
+        this.orders.forEach(o => {
+        if ( o.description && o.description.toLowerCase().indexOf(value) > -1) {
+            o.cardActive = true;
+        } else {
+            o.cardActive = false;
+        }
+        }) 
+    }
+    },
         clickDeployment: function (id) {
-             
                 this.map.eachLayer(layer=> {
                         if (layer instanceof L.Marker) {
                             this.map.removeLayer(layer);
@@ -1180,6 +1221,8 @@ export default {
                     a.build ? a.build : (a.build = "");
                     a.deploy ? a.deploy : (a.deploy = "");
                     a.isActive = false;
+                    a.nameActive = true;
+                    a.cardActive = true;
 
                     let date = new Date(a.createdAt);
                     let day = date.getDate() < 9 ? '0'+date.getDate().toString(): date.getDate();

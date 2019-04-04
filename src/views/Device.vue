@@ -805,7 +805,7 @@ export default {
                 }
             });
             this.fullDevices.forEach(d=>{
-                 if (!(d.name.toLowerCase().indexOf(value) > -1)) {
+                 if (!(d.id.toLowerCase().indexOf(value) > -1)) {
                     d.nameActive = false;
                 } else {
                     d.nameActive = true;
