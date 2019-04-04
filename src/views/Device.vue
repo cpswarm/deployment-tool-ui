@@ -494,6 +494,7 @@ function rand(n) {
 export default {
     data() {
         return {
+            address:"",
             offset:0,
             failed:[],
             success:[],
@@ -665,7 +666,7 @@ export default {
       
             //console.log(myUpdate);
             this.targetDevices.forEach(el=>{
-                axios.put("http://reely.fit.fraunhofer.de:8080/targets/" + el.id, myUpdate).then(response=>{
+                axios.put("http://"+this.address+"/targets/" + el.id, myUpdate).then(response=>{
                     //console.log(response)
                     $('#myMessage').modal();
                     $('#mymessage-body').append("Update target with "+ el.id + "  " + response.statusText + "<br>")
@@ -687,7 +688,7 @@ export default {
         },
         checkStatus: function (id, total) {
             // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+            return axios.get("http://"+this.address+"/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
                 if (!response.data.items) {
                     return [total, 0];
                 } else {
@@ -705,7 +706,7 @@ export default {
          
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
-            axios.delete("http://reely.fit.fraunhofer.de:8080/targets/" + id).then(
+            axios.delete("http://"+this.address+"/targets/" + id).then(
                 response => {
                     let index = this.devices.indexOf(this.devices.find(el => el.id === id))
                     this.devices.splice(index, 1);
@@ -722,7 +723,7 @@ export default {
         },
         checkLogs: function (target) {
             var des = "target=" + target;
-            return axios.get("http://reely.fit.fraunhofer.de:8080/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
+            return axios.get("http://"+this.address+"/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
 
                 if (response.data.items) { 
                     let fulltask = new Set();
@@ -798,7 +799,7 @@ export default {
             //console.log(myUpdate)
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
-            axios.put("http://reely.fit.fraunhofer.de:8080/targets/" +id, myUpdate).then(response=>{
+            axios.put("http://"+this.address+"/targets/" +id, myUpdate).then(response=>{
 
                     //console.log(response)
                     //console.log(this.markers)
@@ -908,7 +909,8 @@ export default {
 
                 var latlngs = [];
                 this.devices.forEach(function (target) {
-                    if (target.tags.some(el => el == tag)) {
+                 
+                    if (target.tags && target.tags.some(el => el == tag)) {
                         latlngs.push([
                             [target.location.lon, target.location.lat],
                             [device.location.lon, device.location.lat]])
@@ -1041,10 +1043,10 @@ export default {
             }
         },
         getTargets: function () {
-            //http://reely.fit.fraunhofer.de:8080/targets
+            //http://"+this.address+"/targets
             // /device.json
             //console.log(this.devices);
-            axios.get("http://reely.fit.fraunhofer.de:8080/targets").then(response => {
+            axios.get("http://"+this.address+"/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -1158,10 +1160,10 @@ export default {
         },
         getOrders: function () {
 
-            //http://reely.fit.fraunhofer.de:8080/orders
+            //http://"+this.address+"/orders
             // /deployment.json
-          
-            axios.get("http://reely.fit.fraunhofer.de:8080/orders").then(response => {
+            console.log(this.address)
+            axios.get("http://"+this.address+"/orders").then(response => {
                 //console.log(this.orders)
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -1268,7 +1270,8 @@ export default {
         this.$refs.list.style.height = window.innerHeight-32-32-32-27-34-15 + "px";
         this.$refs.collapseTwo.style.height = window.innerHeight-32-32-32-34-15 + "px";
         this.$refs.collapseThree.style.height = window.innerHeight-32-32-32-34-15 + "px";  
-        
+
+        this.address = localStorage.getItem('address');
         
         this.map = L.map("map").setView([50.749523, 7.20343], 10);
         this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px'
@@ -1298,7 +1301,7 @@ export default {
         
         //console.log(this.devices)
 
-        var ws = new WebSocket("ws://reely.fit.fraunhofer.de:8080/events?topics=targetAdded");
+        var ws = new WebSocket("ws://"+this.address+"/events?topics=targetAdded");
         ws.onopen = function () {
             console.log("Socket connected.");
         };

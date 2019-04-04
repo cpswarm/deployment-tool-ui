@@ -8,13 +8,19 @@
       <div class="form-group row">
         <label for="usrname" class="col-sm-3 col-form-label">User Name:</label>
         <div class="col-sm-9">
-          <input type="password" class="form-control" id="usrname" placeholder="User Name">
+          <input type="text" class="form-control" id="usrname" placeholder="User Name">
         </div>
       </div>
       <div class="form-group row">
         <label for="inputPassword" class="col-sm-3 col-form-label">Password:</label>
         <div class="col-sm-9">
           <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="address" class="col-sm-3 col-form-label">Server Address:</label>
+        <div class="col-sm-9">
+          <input v-model="address" type="text" class="form-control" id="address" placeholder="Example: reely.fit.fraunhofer.de:8080">
         </div>
       </div>
       <div></div>
@@ -28,9 +34,20 @@
 </template>
 <script>
 export default {
+  data(){
+    return{
+      address:''
+    }
+  },
   methods: {
     handleSubmit() {
-      this.$router.push({ path: "/home" });
+      localStorage.setItem("address", this.address);
+     /*  this.$router.push({ name: "device", params:{
+        address: this.address
+      }}); */
+       this.$router.push({ path: "/home", params:{
+        address: this.address
+      }});
     }
   }
 };
@@ -38,7 +55,7 @@ export default {
 <style>
 #home {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1.5fr 1fr;
 }
 </style>
 

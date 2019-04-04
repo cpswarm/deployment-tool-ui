@@ -24,6 +24,7 @@ export default new Router({
       children: [    
         {
           path: '',
+          name:'device',
           component: devices,
         },
         {
