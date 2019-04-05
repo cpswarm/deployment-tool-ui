@@ -375,7 +375,7 @@
                 <div class="modal-content" >
                     <div class="modal-header">
                         <h5 id="" class="modal-title">Message</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
                             <span aria-hidden="true">&times;</span>
                         </button>
                 </div>
@@ -388,7 +388,7 @@
                 <div class="modal-content" >
                     <div class="modal-header">
                         <h5 class="modal-title">Message</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
                             <span aria-hidden="true">&times;</span>
                         </button>
                 </div>
@@ -398,7 +398,7 @@
         </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document" style="margin: 50px 100px;">
-                <div class="modal-content" style="width:200%">
+                <div class="modal-content" style="">
                     <div class="modal-header">
                         <h5 id="logTitle" class="modal-title">Logs for Task:</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -567,6 +567,8 @@ export default {
                 axios.put("http://"+this.address+"/targets/" + el.id, myUpdate).then(response=>{
                     //console.log(response)
                     $('#myMessage').modal();
+            
+                    $("#collapseOne").collapse("show");
                     $('#mymessage-body').append("Update target with "+ el.id + "  " + response.statusText + "<br>")
                     //console.log(this.devices.length)
                 }
@@ -575,14 +577,18 @@ export default {
                 $('#mymodal-body').append("Update target with " + el.id + "  " + error);
                 });
             });
+
+            
+        },
+        closeModal: function () {
+
             this.devices = [];
             this.fullDevices = [];
-            this.failed =[];
+            this.failed = [];
             this.success = [];
             this.markers.clearLayers();
-            this.getTargets();   
+            this.getTargets();
 
-            $("#collapseOne").collapse("show");
         },
         /* checkStatus: function (id, total) {
             // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
@@ -694,7 +700,6 @@ export default {
                 //markerGroup.addTo(map);
         },  
         clickCard: function (marker) {
-
             //console.log(event.target.tagName)
             
            /*  if(event.target.tagName == "DIV"){
@@ -816,8 +821,8 @@ export default {
             switch(para){
                 case 'failed': 
                     this.devices = this.failed;
-                    event.path[2].childNodes[2].style.background = '#f8f9fa';
-                    event.path[2].childNodes[3].style.background = '#f8f9fa';
+                    event.path[2].childNodes[2].style.background = '#ececec';
+                    event.path[2].childNodes[3].style.background = '#ececec';
                     event.path[2].childNodes[4].style.background = '#fff';
                     event.path[2].childNodes[5].style.background = '#fff';
                     event.path[2].childNodes[0].style.background = '#fff';
@@ -825,14 +830,19 @@ export default {
                     break;
                 case 'success': 
                     this.devices = this.success;
-                    event.path[2].childNodes[4].style.background = '#f8f9fa';
-                    event.path[2].childNodes[5].style.background = '#f8f9fa';
+                    event.path[2].childNodes[4].style.background = '#ececec';
+                    event.path[2].childNodes[5].style.background = '#ececec';
                     event.path[2].childNodes[2].style.background = '#fff';
                     event.path[2].childNodes[3].style.background = '#fff';
                     event.path[2].childNodes[0].style.background = '#fff';
                     event.path[2].childNodes[1].style.background = '#fff';
                     break;
             }
+            this.markers.clearLayers()
+            this.devices.forEach(d=>{
+                this.markers.addLayer(d.marker)
+            });
+            this.map.fitBounds(this.markers.getBounds())
         },
         getFinishnStatus: function (id, total) {
 
@@ -955,8 +965,10 @@ export default {
                     }); 
                    
                    //console.log(this.devices)
+                    var tags = "";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
+                             tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
                             if (!this.tags.some(e => e.tag === a.tags[j])) {
                                 this.tags.push({
                                     isActive: true,
@@ -967,7 +979,9 @@ export default {
                     }
                     //console.log(this.tags);
                     //Markers click function
+                    marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
                     marker.on("click", event => {
+                        marker.openPopup();
                         if(this.polyline){
                             this.polyline.remove();
                         }
@@ -1015,9 +1029,10 @@ export default {
                         error: "none"
                     };
                     this.newDiscover.push(a);
-
+                    var tags = "";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
+                            tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
                             if (!this.tags.some(e => e.tag === a.tags[j])) {
                                 this.tags.push({
                                     isActive: true,
@@ -1030,7 +1045,9 @@ export default {
                     n[0].setAttribute('style', 'color:#ffda44; display: inline');
                     n[1].setAttribute('style', 'color:#ffda44; display: inline;margin-top:2.5px'); */
                     //Markers click function
+                    marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
                     marker.on("click", event => {
+                        marker.openPopup();
                         if(this.polyline){
                             this.polyline.remove();
                         }
@@ -1056,7 +1073,7 @@ export default {
         },
         next: function () {
 
-             if(800-this.offset < (this.map.getSize().x - 20)){
+             if(this.$refs.timeline_lis.offsetWidth+this.offset> (this.map.getSize().x - 20)){
                 this.$refs.pre.disabled=false
                 this.offset -= 100;
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
@@ -1203,8 +1220,8 @@ export default {
         },       
         showNewDevices: function () {
             
-            event.path[2].childNodes[0].style.background = '#f8f9fa';
-            event.path[2].childNodes[1].style.background = '#f8f9fa';
+            event.path[2].childNodes[0].style.background = '#ececec';
+            event.path[2].childNodes[1].style.background = '#ececec';
             event.path[2].childNodes[2].style.background = '#fff';
             event.path[2].childNodes[3].style.background = '#fff';
             event.path[2].childNodes[4].style.background = '#fff';
@@ -1365,7 +1382,7 @@ export default {
 
         this.address = localStorage.getItem('address');
         
-        this.map = L.map("map").setView([50.749523, 7.20343], 10);
+        this.map = L.map("map").setView([45.749523, 18.20343],5);
         this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px'
         //console.log(this.$refs.map.style.width)
         //Custermize the markerCluster style
@@ -1418,11 +1435,12 @@ export default {
             }
         ).addTo(this.map);
     
-        this.map.addLayer(this.markers);         
+        this.map.addLayer(this.markers); 
           
     },
     updated(){
         $('[data-toggle="popover"]').popover(); 
+        
     }
 };
 </script>
@@ -1472,7 +1490,7 @@ export default {
 }
 .mycollapse{
     display: grid;
-    grid-template-columns: 1fr 2fr 2fr;
+    grid-template-columns: 150px 1fr 1fr;
 }
 .panel {
   width: 100%;
@@ -1532,10 +1550,6 @@ export default {
   border-radius: 2px;
 }
 .mycard:active{
-  border: 1px solid #007bff;
-  border-radius: 2px;
-}
-.active{
   border: 1px solid #007bff;
   border-radius: 2px;
 }

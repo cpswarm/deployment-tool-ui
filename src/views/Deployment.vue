@@ -301,7 +301,7 @@
         </div>
     <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document" style="margin: 50px 100px;">
-            <div class="modal-content" style="width:200%">
+            <div class="modal-content" >
                 <div class="modal-header">
                     <h5 class="modal-title">Process Tree</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
@@ -338,7 +338,7 @@
                 </button>
                <div style="height:70px; overflow:hidden">
                 <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
-                <div ref="timeline_lis" style="position: relative;top:-54px;width:max-content">
+                <div id="timeline_lis" ref="timeline_lis" style="position: relative;top:-54px;width:max-content">
                     <li v-for="order in orders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
@@ -351,9 +351,9 @@
             </div>
         </div>
         <div id="notification" class="notification"> 
-            <div class="mycard-title" style="color:#ffda44; display: none" >New Discovered:
+            <div class="mycard-title" style="color:#ffda44;" >New Discovered:
                 <img src="../assets/star.png" style="width:15px"></div>
-            <div class="mycard-content" style="display: none;">
+            <div class="mycard-content">
                  <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="showNewDevices">
                         {{this.newDiscover.length}} 
                 </button>
@@ -434,8 +434,7 @@ export default {
     },
     methods: {
           next: function () {
-
-             if(800-this.offset < (this.map.getSize().x - 20)){
+             if(this.$refs.timeline_lis.offsetWidth+this.offset > (this.map.getSize().x - 20)){
                 this.$refs.pre.disabled=false
                 this.offset -= 100;
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
@@ -572,36 +571,7 @@ export default {
             //console.log(filteredData);
             //markerGroup.addTo(map);
         },
-        previous: function () {
-
-            if (this.offset < 0) {
-                this.offset += 100;
-                this.$refs.timeline_lis.style.transform = 'translateX(' + this.offset + 'px)';
-                this.$refs.timeline_lis.style.transition = 'all .6s';
-                this.$refs.next.disabled = false
-            } else {
-                if (this.offset >= 0) {
-                    this.$refs.pre.disabled = true
-                } else {
-                    this.$refs.next.disabled = true
-                }
-            }
-        },
-        next: function () {
-
-            if (800 - this.offset < (this.map.getSize().x - 20)) {
-                this.$refs.pre.disabled = false
-                this.offset -= 100;
-                this.$refs.timeline_lis.style.transform = 'translateX(' + this.offset + 'px)';
-                this.$refs.timeline_lis.style.transition = 'all .6s';
-            } else {
-                if (this.offset <= 0) {
-                    this.$refs.next.disabled = true
-                } else {
-                    this.$refs.pre.disabled = true
-                }
-            }
-        },
+       
         clickCard: function (order) {
 
             if (event.target.tagName == "DIV") {
@@ -672,7 +642,7 @@ export default {
                     break;
             }
             this.$router.push({
-                path: "/home/deployment", redirect: "/home", props: {
+                path: "/home", props: {
                     devices: this.devices,
                 }
             });
@@ -1357,22 +1327,25 @@ export default {
                         }
                     }
                     let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
                         title: a.id,
-                        alt: a.tags
+                        alt: a.tags ? a.tags : []
                     });
                     a.marker = marker;
-
 
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
                         if (data.error == true) {
                             this.failed.push(a);
+                              marker.setIcon(L.icon({
+                                iconUrl: "/error.png",
+                                iconSize: [20, 20]
+                        }))
                         } else {
                             this.success.push(a);
+                             marker.setIcon(L.icon({
+                                iconUrl: "/done.png",
+                                iconSize: [20, 20]
+                        }))
                         }
                         this.devices.push(a);
                         this.fullDevices.push(a);
@@ -1412,7 +1385,7 @@ export default {
         */
         this.getOrders();
         this.getTargets();
-        this.map = L.map("map").setView([50.749523, 7.20343], 10);
+        this.map = L.map("map").setView([45.749523, 18.20343], 5);
         this.$refs.myTimeline.style.width = this.map.getSize().x - 20 + 'px'
         L.tileLayer(
             "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",

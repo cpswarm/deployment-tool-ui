@@ -2,7 +2,7 @@
  <div style="width: 100%;padding:20px">
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#homeSetting" role="tab" aria-controls="homeSetting"
                 aria-selected="true">Project Setting</a>
         </li>
         <li class="nav-item">
@@ -15,7 +15,7 @@
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" role="tabpanel" aria-labelledby="home-tab" style=" border: 1px solid #dee2e6;border-radius: 2px;">
+        <div id="homeSetting" class="tab-pane fade show active" role="tabpanel" aria-labelledby="home-tab">
             <form action id="projectSetting">
                 <div id="mapSetting">
                     <div style="text-align: right">
@@ -60,7 +60,7 @@
                     </div>
                     <div class="mycard-title">Map Preview:</div>
                     <div style="grid-column: 1/3;height:360px">
-                        <img src="../assets/map.png" alt width="100%">
+                        <img src="../assets/map.png" style="width:80%; height:100%">
                     </div>
                 </div>
                 <div></div>
