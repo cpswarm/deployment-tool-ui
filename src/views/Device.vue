@@ -1237,6 +1237,7 @@ export default {
         showRelationship: function (tag, device) {
             //console.log()
             //device.marker.bounce(4);
+            device.marker.openPopup()
             if (this.polyline) {
                 this.polyline.remove();
                 this.polyline = "";
