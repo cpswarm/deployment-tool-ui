@@ -199,7 +199,7 @@
                                         style="border-radius: .2rem; height:22px;margin: 5px 0" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" @keyup="filterHost">
                                     <div class="dropdown-menu" style="padding:2.5px">
-                                        <a v-for="device in devices" class="dropdown-item" v-show="device.hostActive"
+                                        <a v-for="device in fullDevices" class="dropdown-item" v-show="device.hostActive"
                                             @click=" host = device.id " style="font-size:14px;padding:0px 15px">{{device.id}}</a>
                                     </div>
                                 </div>
@@ -235,6 +235,11 @@
                                             </a>
                                         </div>
                                         <div class="dropdown-menu" style="padding:2.5px">
+                                                   <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
+                                            <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem(device.id)"
+                                                style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                             <div class="dropdown-divider"></div>
+                                             <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)"
                                                 style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
                                         </div>
@@ -281,6 +286,19 @@
             </div>
         </div>
     </div>
+    <div id="myMessage" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog alert alert-success" role="document" style="width:150%">
+                <div class="modal-content" >
+                    <div class="modal-header">
+                        <h5 class="modal-title">Message</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                </div>
+                <div id="mymessage-body" class="modal-body" style="text-align:left"></div>
+            </div>
+        </div>
+        </div>
     <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document" style="margin: 50px 100px;">
             <div class="modal-content" style="width:200%">
@@ -378,6 +396,7 @@ function rand(n) {
 export default {
     data() {
         return {
+            offset:0,
             address: "",
             map: "",
             ws: "",
@@ -414,6 +433,36 @@ export default {
         }
     },
     methods: {
+          next: function () {
+
+             if(800-this.offset < (this.map.getSize().x - 20)){
+                this.$refs.pre.disabled=false
+                this.offset -= 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+            }else{
+                    if(this.offset <=0){
+                         this.$refs.next.disabled=true
+                    }else{
+                         this.$refs.pre.disabled=true
+                }           
+            }  
+        },
+        previous: function () {
+
+            if(this.offset < 0){
+                this.offset += 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+                this.$refs.next.disabled=false
+            }else{
+                if(this.offset >= 0){
+                     this.$refs.pre.disabled=true
+                }else{
+                     this.$refs.next.disabled=true
+                }           
+            }  
+        }, 
         filterOrder: function () {
             var value = this.orderSearchT.toLowerCase();
             this.orders.forEach(d => {
@@ -730,7 +779,8 @@ export default {
         },
         deleteOrder: function (order) {
 
-            $('#mymodal-body').empty()
+            $('#mymodal-body').empty();
+            $('#mymessage-body').empty();
             axios.delete("http://" + this.address + "/orders/" + order.id).then(
                 response => {
 
@@ -738,8 +788,9 @@ export default {
                     //console.log(order.id)
                     this.orders.splice(index, 1);
                     //console.log(this.orders);
-                    $('#mymodal-body').append("Delete order with " + order.id + "  " + response.statusText)
-                    $('#myAlert').modal();
+                    $('#myMessage').modal();
+                    $('#mymessage-body').append("Delete order with " + order.id + "  " + response.statusText)
+                
                     //console.log(this.orders.length)
                 }
             ).catch(error => {
@@ -751,23 +802,25 @@ export default {
         stopOrder: function (order) {
 
             $('#mymodal-body').empty();
+            $('#mymessage-body').empty();
             axios.put("http://" + this.address + "/orders/" + order.id + "/stop").then(response => {
 
                 //this.orders.splice(order.id,1);
-                //console.log(response);
-                $('#mymodal-body').append("Stop order with " + order.id + "  " + response.data.message)
-                $('#myAlert').modal();
+                //console.log(response); 
+                $('#myMessage').modal();
+                $('#mymessage-body').append("Stop order with " + order.id + "  " + response.data.message)
+               
                 //console.log(this.orders.length)
 
             }).catch(error => {
-                $('#mymodal-body').append("Delete order with " + order.id + "  " + error)
+                $('#mymodal-body').append("Stop order with " + order.id + "  " + error)
                 $('#myAlert').modal();
             })
         },
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
-
+            this.deployDes=order.description?order.description:"";
             this.deployDebug = order.debug;
             this.source = "";
             document.getElementById("customFile").value = "";
@@ -819,20 +872,27 @@ export default {
                     tag.isActive = true;
                 }
             });
+            this.fullDevices.forEach(d=>{
+                 if (!(d.id.toLowerCase().indexOf(value) > -1)) {
+                    d.nameActive = false;
+                } else {
+                    d.nameActive = true;
+                }
+            })
         },
         searchTarget: function () {
             var tagsNodes = document.getElementById("searchTarget").childNodes;
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.devices.length; j++) {
-                        if (this.devices[j].tags) {
-                            if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) {
+                    for (var j = 0; j < this.fullDevices.length; j++) {
+                        if (this.fullDevices[j].tags) {
+                            if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML ||  this.fullDevices[j].id == tagsNodes[i].innerHTML)) {
                                 //console.log(this.targetDevices)
-                                if (!(this.targetDevices.some(e => e.id == this.devices[j].id))) {
+                                if (!(this.targetDevices.some(e => e.id == this.fullDevices[j].id))) {
                                     //console.log(this.devices[j].tags)
                                     this.targetDevices.push({
-                                        id: this.devices[j].id,
-                                        tags: this.devices[j].tags
+                                        id: this.fullDevices[j].id,
+                                        tags: this.fullDevices[j].tags
                                     });
                                     //console.log(i, j, m);
                                 }
@@ -846,6 +906,7 @@ export default {
             var badge = document.createElement("span");
             badge.innerHTML = tag;
             badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
             badge.onclick = function () { this.style.display = "none"; };
             document.getElementById("searchTarget").appendChild(badge);
         },
@@ -904,7 +965,7 @@ export default {
             if (this.source) {
                 this.source.then(data => {
                     taskDer.source.zip = data;
-                    console.log(taskDer)
+                    //console.log(taskDer)
                     myYaml = yaml.safeDump(taskDer);
                     //console.log(myYaml);
                     axios.post("http://" + this.address + "/orders", myYaml).then(response => {
@@ -913,6 +974,7 @@ export default {
                         response.data.build ? response.data.deploy : (response.data.build = "");
 
                         $("#collapseOne").collapse("show");
+
                         this.clearForm();
                         this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
 
@@ -929,6 +991,10 @@ export default {
                     //console.log(response);
                     response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                     response.data.build ? response.data.deploy : (response.data.build = "");
+
+                    $("#collapseOne").collapse("show");
+                        
+                    this.clearForm();
                     this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
 
                 }).catch(error => {
@@ -1198,8 +1264,8 @@ export default {
             if (this.ws) {
                 this.ws.close();
                 this.ws = "";
-            }
-            this.orders = [];
+            } 
+            this.orders=[];
             this.getOrders();
             this.devices = [];
             this.fullDevices = [];
@@ -1264,6 +1330,7 @@ export default {
                     let a = response.data.items[i];
                     a.targetActive = true;
                     a.hostActive = true;
+                    a.nameActive = true;
                     // let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
                     // Generate a (lat, lng) randomly for each device
 
@@ -1335,8 +1402,8 @@ export default {
     mounted() {
 
         this.$refs.map.style.height = window.innerHeight + "px";
-        this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32 - 15 + "px";
-        this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 - 15 + "px";
+        this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32 - 15 - 32 + "px";
+        this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 - 22 + "px";
 
         this.address = localStorage.getItem('address');
 

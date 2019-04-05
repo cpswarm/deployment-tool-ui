@@ -1129,7 +1129,7 @@ export default {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.fullDevices.length; j++) {
                         //console.log(this.devices)
-                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.devices[j].id == tagsNodes[i].innerHTML) {
+                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.fullDevices[j].id == tagsNodes[i].innerHTML) {
                             if (!this.targetDevices.some(e => e.id === this.fullDevices[j].id)) {
                                 this.targetDevices.push({
                                     id: this.fullDevices[j].id,
@@ -1360,8 +1360,8 @@ export default {
 
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.list.style.height = window.innerHeight-32-32-32-27-34-15 + "px";
-        this.$refs.collapseTwo.style.height = window.innerHeight-32-32-32-34-15 + "px";
-        this.$refs.collapseThree.style.height = window.innerHeight-32-32-32-34-15 + "px";  
+        this.$refs.collapseTwo.style.height = window.innerHeight-32-32-32-34-5 + "px";
+        this.$refs.collapseThree.style.height = window.innerHeight-32-32-32-34-5 + "px";  
 
         this.address = localStorage.getItem('address');
         
