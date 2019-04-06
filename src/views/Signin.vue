@@ -20,7 +20,7 @@
       <div class="form-group row">
         <label for="address" class="col-sm-3 col-form-label">Server Address:</label>
         <div class="col-sm-9">
-          <input v-model="address" type="text" class="form-control" id="address" placeholder="Example: reely.fit.fraunhofer.de:8080">
+          <input v-model="address" type="text" class="form-control" id="address" placeholder="Example: http://reely.fit.fraunhofer.de:8080">
         </div>
       </div>
       <div></div>
@@ -41,7 +41,10 @@ export default {
   },
   methods: {
     handleSubmit() {
-      localStorage.setItem("address", this.address);
+    
+        localStorage.setItem("address", this.address);
+      
+      
      /*  this.$router.push({ name: "device", params:{
         address: this.address
       }}); */
@@ -49,7 +52,12 @@ export default {
         address: this.address
       }});
     }
-  }
+  },
+  mounted() {
+    if(localStorage.address){
+      this.address = localStorage.address;
+    }
+  },
 };
 </script>
 <style>

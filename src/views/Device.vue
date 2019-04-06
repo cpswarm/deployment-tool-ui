@@ -564,7 +564,7 @@ export default {
       
             //console.log(myUpdate);
             this.targetDevices.forEach(el=>{
-                axios.put("http://"+this.address+"/targets/" + el.id, myUpdate).then(response=>{
+                axios.put(this.address+"/targets/" + el.id, myUpdate).then(response=>{
                     //console.log(response)
                     $('#myMessage').modal();
             
@@ -592,7 +592,7 @@ export default {
         },
         /* checkStatus: function (id, total) {
             // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get("http://"+this.address+"/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+            return axios.get(this.address+"/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
                 if (!response.data.items) {
                     return [total, 0];
                 } else {
@@ -608,7 +608,7 @@ export default {
         }, */ 
         checkLogs: function (target) {
             var des = "target=" + target;
-            return axios.get("http://"+this.address+"/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
+            return axios.get(this.address+"/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
 
                 if (response.data.items) { 
                     let fulltask = new Set();
@@ -727,7 +727,7 @@ export default {
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
 
-            axios.delete("http://"+this.address+"/targets/" + id).then(
+            axios.delete(this.address+"/targets/" + id).then(
                 response => {
                     let index = this.devices.indexOf(this.devices.find(el => el.id === id));
                     this.devices.splice(index, 1);
@@ -846,7 +846,7 @@ export default {
         },
         getFinishnStatus: function (id, total) {
 
-            return axios.get("http://"+this.address+"/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+            return axios.get(this.address+"/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
 
                 let finishAt = response.data.items[0].time;
                 let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
@@ -866,7 +866,7 @@ export default {
         },
         getFinishTime: function (id) {
             //Request the latest logs time
-            return axios.get("http://"+this.address+"/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+            return axios.get(this.address+"/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
                 //console.log(response.data)
                 return response.data.items[0].time;
             }).catch(error => {
@@ -877,7 +877,7 @@ export default {
         getOrders: function () {
             //http://"+this.address+"/orders
             // /deployment.json
-            axios.get("http://"+this.address+"/orders").then(response => {
+            axios.get(this.address+"/orders").then(response => {
                 //console.log(this.orders)
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -924,7 +924,7 @@ export default {
             //http://"+this.address+"/targets
             // /device.json
             //console.log(this.devices);
-            axios.get("http://"+this.address+"/targets").then(response => {
+            axios.get(this.address+"/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -1322,7 +1322,7 @@ export default {
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
 
-            axios.put("http://"+this.address+"/targets/" +id, myUpdate).then(response=>{
+            axios.put(this.address+"/targets/" +id, myUpdate).then(response=>{
 
                     let i = this.devices.findIndex(el =>el.id == id);
 
@@ -1411,7 +1411,11 @@ export default {
         
         //console.log(this.devices)
 
-        var ws = new WebSocket("ws://"+this.address+"/events?topics=targetAdded");
+         if(this.address.indexOf('https')>-1){
+                    var ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=targetAdded");
+                }else{
+                    var ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=targetAdded");
+                }
         ws.onopen = function () {
             console.log("Socket connected.");
         };

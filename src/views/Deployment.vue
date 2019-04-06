@@ -658,7 +658,7 @@ export default {
         },
         getFinishnStatus: function (id, total) {
 
-            return axios.get("http://" + this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+            return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
 
                 let finishAt = response.data.items[0].time;
                 let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
@@ -678,7 +678,7 @@ export default {
         },
         getFinishTime: function (id) {
             //Request the latest logs time
-            return axios.get("http://" + this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+            return axios.get(this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
                 //console.log(response.data)
                 return response.data.items[0].time;
             }).catch(error => {
@@ -688,7 +688,7 @@ export default {
         },
         checkStatus: function (id, total) {
             // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get("http://" + this.address + "/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+            return axios.get(this.address + "/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
                 if (!response.data.items) {
                     return [total, 0];
                 } else {
@@ -704,7 +704,7 @@ export default {
         },
         checkLogs: function (target) {
             var des = "target=" + target;
-            return axios.get("http://" + this.address + "/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
+            return axios.get(this.address + "/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
 
                 if (response.data.items) {
                     let fulltask = new Set();
@@ -751,7 +751,7 @@ export default {
 
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
-            axios.delete("http://" + this.address + "/orders/" + order.id).then(
+            axios.delete(this.address + "/orders/" + order.id).then(
                 response => {
 
                     let index = this.orders.indexOf(this.orders.find(el => el.id == order.id))
@@ -773,7 +773,7 @@ export default {
 
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
-            axios.put("http://" + this.address + "/orders/" + order.id + "/stop").then(response => {
+            axios.put(this.address + "/orders/" + order.id + "/stop").then(response => {
 
                 //this.orders.splice(order.id,1);
                 //console.log(response); 
@@ -938,7 +938,7 @@ export default {
                     //console.log(taskDer)
                     myYaml = yaml.safeDump(taskDer);
                     //console.log(myYaml);
-                    axios.post("http://" + this.address + "/orders", myYaml).then(response => {
+                    axios.post(this.address + "/orders", myYaml).then(response => {
                         //console.log(response);
                         response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                         response.data.build ? response.data.deploy : (response.data.build = "");
@@ -957,7 +957,7 @@ export default {
             } else {
                 myYaml = yaml.safeDump(taskDer);
                 //console.log(myYaml);    
-                axios.post("http://" + this.address + "/orders", myYaml).then(response => {
+                axios.post(this.address + "/orders", myYaml).then(response => {
                     //console.log(response);
                     response.data.deploy ? response.data.deploy : (response.data.deploy = "");
                     response.data.build ? response.data.deploy : (response.data.build = "");
@@ -1003,7 +1003,7 @@ export default {
             }
             //console.log(deviceStatus)
             if (!deploy) {
-                axios.get("http://" + this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
+                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                     .then(response => {
                         this.generateTree(response.data.items, deviceStatus, t);
                     }).catch(error => {
@@ -1019,7 +1019,12 @@ export default {
                 this.ws.close();
                 this.ws = "";
             } else {
-                this.ws = new WebSocket("ws://" + this.address + "/events?order=" + id + "&topics=logs");
+                if(this.address.indexOf('https')>-1){
+                    this.ws = new WebSocket("wss://" + this.address + "/events?order=" + id + "&topics=logs");
+                }else{
+                    this.ws = new WebSocket("ws://" + this.address + "/events?order=" + id + "&topics=logs");
+                }
+                
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
                 };
@@ -1218,6 +1223,7 @@ export default {
         },
         clearForm: function () {
             this.deployName = "";
+            this.deployDes = "";
             document.getElementById("mySourcelabel").innerHTML = "";
             this.source = "";
             document.getElementById("customFile").value = "";
@@ -1249,7 +1255,7 @@ export default {
 
             //http://"+this.address+"/orders
             // /deployment.json
-            axios.get("http://" + this.address + "/orders").then(response => {
+            axios.get(this.address + "/orders").then(response => {
                 //console.log(this.orders)
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -1294,7 +1300,7 @@ export default {
 
             //http://"+this.address+"/targets
             // /device.json
-            axios.get("http://" + this.address + "/targets").then(response => {
+            axios.get(this.address + "/targets").then(response => {
                 //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
