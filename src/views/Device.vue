@@ -397,7 +397,7 @@
         </div>
         </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document" style="margin: 50px 100px;">
+            <div id="myLog-dialog"class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content" style="">
                     <div class="modal-header">
                         <h5 id="logTitle" class="modal-title">Logs for Task:</h5>
@@ -1639,6 +1639,11 @@ export default {
   color: white;
   font: 11.5px Inconsolata, monospace;
   text-shadow: 0 0 5px #C8C8C8;
+}
+@media (min-width: 576px){
+    #myLog-dialog{
+        max-width:110% !important;
+    }
 }
 </style>
 

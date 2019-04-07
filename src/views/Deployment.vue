@@ -312,7 +312,7 @@
         </div>
         </div>
     <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document" style="margin: 50px 100px;">
+        <div id="myTree_dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
             <div class="modal-content" >
                 <div class="modal-header">
                     <h5 class="modal-title">Process Tree</h5>
@@ -929,7 +929,9 @@ export default {
                 //archive.file(f.name, f);
             }
             this.source = archive.generateAsync({ type: "base64" });
-            document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+            if(files){
+                document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+            }
             this.sourceOrder = null;
            
         },
@@ -976,7 +978,7 @@ export default {
                     taskDer.source.zip = data;
                     //console.log(taskDer)
                     myYaml = yaml.safeDump(taskDer);
-                    console.log(myYaml);
+                    //console.log(myYaml);
                     axios.post(this.address + "/orders", myYaml).then(response => {
                         //console.log(response);
                         response.data.deploy ? response.data.deploy : (response.data.deploy = "");
@@ -1014,6 +1016,7 @@ export default {
             }
         },
         listen: function (id, deploy, target, host) {
+            $("#mylog").empty();
             $("#myTree").modal();
             //console.log(this.ws)
             var logs = [];
@@ -1040,6 +1043,9 @@ export default {
                     t.push(el);
                 })
             }
+            t.map(device=>{
+                $('#mylog').append('<div id="'+ device +'"class="myCommandCard">Device: '+device+'</div>');
+            })
             //console.log(deviceStatus)
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
@@ -1082,7 +1088,7 @@ export default {
         },
         generateTree: function (logs, devicesStatus, targets) {
 
-            $("#mylog").empty();
+            //$("#mylog").empty();
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
 
@@ -1149,13 +1155,14 @@ export default {
                 if (!(targets[i] == targets[0] && i > 0)) {
                     //console.log(targets[i],targets[0])
                     
-                    var c = "Device: " + targets[i];
+                    //var c = "Device: " + targets[i];
+                    var c="";
                     oneLog.forEach(log => {
                         let s = "";
                         log.error ? s = "f" : s = "s"
                         c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.output + "</div>";
                     });
-                    code += '<div class="myCommandCard">' + c + '</div>';
+                    $('#'+targets[i]).append(c);
                 }
 
             }
@@ -1258,7 +1265,7 @@ export default {
                         return 1;
                     }
                 })
-            $('#mylog').append(code);
+            //$('#mylog').append(code);
 
         },
         clearForm: function () {
@@ -1577,6 +1584,11 @@ export default {
     border-radius: .25rem 0 0 .25rem;
     width: px;
     width: 110px;
+}
+@media (min-width: 576px){
+    #myTree_dialog{
+        max-width:110% !important;
+    }
 }
 </style>
 
