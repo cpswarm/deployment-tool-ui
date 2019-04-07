@@ -165,13 +165,25 @@
                             </div>
                             <div class="mycard-title" style="text-align:right">Source:</div>
                             <div>
-                                <div class="custom-file" style="height:22px">
-                                    <input type="file" class="custom-file-input" id="customFile" multiple
-                                        webkitdirectory @change="handleFileSelect">
-                                    <label id="mySourcelabel" class="custom-file-label" for="customFile" style="text-align: left;height: 22px;padding: 0px; font-size: 14px;">Choose
-                                        file</label>
-                                    <div id="uploadFiles"></div>
-                                </div>
+                               <div class="input-group mycard-content">
+                                         <select class="mySelect" v-model="typeSource" @change="chooseSource">
+                                            <option disabled value="">Choose...</option>
+                                            <option value="1">From Artifacts</option>
+                                            <option value="2">Upload Files</option>         
+                                        </select> 
+                                    <div class="input-group-append" style="width:63%">
+                                        <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" v-model="sourceOrder">
+                                        <div class="dropdown-menu" style="padding:2.5px">
+                                            <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
+                                            <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectArtifacts(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
+                                        </div>
+                                    <div ref="custom_file" class="custom-file" style="height:26px; display:none">
+                                        <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
+                                        <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
+                                        <div id="uploadFiles"></div>
+                                    </div>
+                                    </div>
+                                </div>       
                             </div>
                             <div class="mycard-title" style="text-align:right">Debug:</div>
                             <div class="mycard-content">
@@ -396,6 +408,8 @@ function rand(n) {
 export default {
     data() {
         return {
+            typeSource:"",
+            sourceOrder:"",
             offset:0,
             address: "",
             map: "",
@@ -433,7 +447,22 @@ export default {
         }
     },
     methods: {
-          next: function () {
+        chooseSource: function () {
+            //console.log(this.typeSource)
+            //console.log(event.path)
+            switch(this.typeSource){
+                case '1':  
+                    this.$refs.custom_file.style.display = 'none';
+                    this.$refs.sourceOrder.style.display = 'flex';
+                    break;
+                case '2':
+                    this.$refs.custom_file.style.display = 'flex';
+                    this.$refs.sourceOrder.style.display = 'none';
+                    break;
+            }
+            this.source="";
+        },
+        next: function () {
              if(this.$refs.timeline_lis.offsetWidth+this.offset > (this.map.getSize().x - 20)){
                 this.$refs.pre.disabled=false
                 this.offset -= 100;
@@ -471,6 +500,9 @@ export default {
                     d.nameActive = true;
                 }
             })
+        },
+        selectArtifacts: function (id) {
+            this.sourceOrder = id;
         },
         selectOrder: function (id) {
             var badge = document.createElement("span");
@@ -571,7 +603,6 @@ export default {
             //console.log(filteredData);
             //markerGroup.addTo(map);
         },
-       
         clickCard: function (order) {
 
             if (event.target.tagName == "DIV") {
@@ -794,6 +825,11 @@ export default {
             this.deployDebug = order.debug;
             this.source = "";
             document.getElementById("customFile").value = "";
+            this.sourceOrder = order.id;
+            this.typeSource = '1';
+            this.$refs.custom_file.style.display = 'none';
+            this.$refs.sourceOrder.style.display = 'flex';
+            
             this.build_c = order.build ? order.build.commands.join("\n") : "";
             this.build_a = order.build ? order.build.artifacts.join("\n") : "";
             this.host = order.build ? order.build.host : "";
@@ -881,7 +917,7 @@ export default {
             document.getElementById("searchTarget").appendChild(badge);
         },
         handleFileSelect: function (event) {
-            console.log(this.source)
+            //console.log(this.source)
             var files = event.target.files;
             // FileList object
             var archive = new jsZip().folder("archive");
@@ -894,6 +930,8 @@ export default {
             }
             this.source = archive.generateAsync({ type: "base64" });
             document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+            this.sourceOrder = null;
+           
         },
         submitDeploy: function () {
 
@@ -913,6 +951,7 @@ export default {
                 description: this.deployDes ? this.deployDes.split("\n").join() : null,
                 source: {
                     zip: null,
+                    order: this.sourceOrder ? this.sourceOrder : null,
                 },
                 build: {
                     commands: this.build_c ? this.build_c.split("\n") : null,
@@ -937,7 +976,7 @@ export default {
                     taskDer.source.zip = data;
                     //console.log(taskDer)
                     myYaml = yaml.safeDump(taskDer);
-                    //console.log(myYaml);
+                    console.log(myYaml);
                     axios.post(this.address + "/orders", myYaml).then(response => {
                         //console.log(response);
                         response.data.deploy ? response.data.deploy : (response.data.deploy = "");
@@ -1020,9 +1059,9 @@ export default {
                 this.ws = "";
             } else {
                 if(this.address.indexOf('https')>-1){
-                    this.ws = new WebSocket("wss://" + this.address + "/events?order=" + id + "&topics=logs");
+                    this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
                 }else{
-                    this.ws = new WebSocket("ws://" + this.address + "/events?order=" + id + "&topics=logs");
+                    this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
                 }
                 
                 this.ws.onopen = function () {
@@ -1109,6 +1148,7 @@ export default {
                 }
                 if (!(targets[i] == targets[0] && i > 0)) {
                     //console.log(targets[i],targets[0])
+                    
                     var c = "Device: " + targets[i];
                     oneLog.forEach(log => {
                         let s = "";
@@ -1227,6 +1267,8 @@ export default {
             document.getElementById("mySourcelabel").innerHTML = "";
             this.source = "";
             document.getElementById("customFile").value = "";
+            this.typeSource ='1';
+            this.sourceOrder='';
             this.deployDebug = false
             this.build_c = "";
             this.build_a = "";
@@ -1462,8 +1504,15 @@ export default {
 }
 
 #mySourcelabel::after {
-  height: 20px;
-  padding: 0;
+    height: 24px;
+    padding: 2.5px;
+}
+#mySourcelabel {
+    text-align: left;
+    height: 26px;
+    padding: 3.5px;
+    font-size: 14px;
+    border-radius: 0 .25rem .25rem 0;
 }
 #mytree-body {
   display: grid;
@@ -1520,6 +1569,14 @@ export default {
   fill: none;
   stroke: #ccc;
   stroke-width: 1px;
+}
+.mySelect{
+    padding: 0px 5px;
+    height: 26px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem 0 0 .25rem;
+    width: px;
+    width: 110px;
 }
 </style>
 
