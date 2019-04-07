@@ -1044,7 +1044,7 @@ export default {
                 })
             }
             t.map(device=>{
-                $('#mylog').append('<div id="'+ device +'"class="myCommandCard">Device: '+device+'</div>');
+                $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+device+'</h6><div id="'+device+'" class="myCommandCard"></div></div>');
             })
             //console.log(deviceStatus)
             if (!deploy) {
@@ -1162,9 +1162,9 @@ export default {
                         log.error ? s = "f" : s = "s"
                         c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.output + "</div>";
                     });
-                    $('#'+targets[i]).append(c);
+                    $('#'+targets[i]).append(c);              
                 }
-
+                document.getElementById(targets[i]).lastElementChild.scrollIntoView(false);
             }
             //console.log(devicesStatus)
             devicesStatus.forEach((value, key) => {
@@ -1266,6 +1266,10 @@ export default {
                     }
                 })
             //$('#mylog').append(code);
+           /*  targets.forEach(el=>{
+                
+            }) */
+            
 
         },
         clearForm: function () {
@@ -1495,12 +1499,17 @@ export default {
 .myCluster span {
   line-height: 30px;
 }
-.myCommandCard{
+.myCommands{
   border: 1px solid #cccccc;
   border-radius: 2.5px;
-  background: #fcfcfc;
+  padding: 5px;
   margin-bottom: 5px;
-  padding: 5px
+}
+.myCommandCard{
+    height: 320px;
+    background: #fcfcfc;
+    padding: 5px;
+    overflow: auto;
 }
 .simpleDeviceCard {
   border: 1px solid #cccccc;
