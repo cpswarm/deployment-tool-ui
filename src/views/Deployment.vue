@@ -948,8 +948,8 @@ export default {
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.fullDevices.length; j++) {
-                        if (this.fullDevices[j].tags) {
-                            if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML ||  this.fullDevices[j].id == tagsNodes[i].innerHTML)) {
+                       
+                            if ((this.fullDevices[j].tags && this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.fullDevices[j].id == tagsNodes[i].innerHTML)) {
                                 //console.log(this.targetDevices)
                                 if (!(this.targetDevices.some(e => e.id == this.fullDevices[j].id))) {
                                     //console.log(this.devices[j].tags)
@@ -960,7 +960,7 @@ export default {
                                     //console.log(i, j, m);
                                 }
                             }
-                        }
+                        
                     }
                 }
             }

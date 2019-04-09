@@ -948,7 +948,7 @@ export default {
              
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
-                        console.log(a)
+                       
                         if(data.tasks[0][1] == true){
                             this.failed.push(a);
                             marker.setIcon(L.icon({
@@ -1122,14 +1122,14 @@ export default {
         },
         // All device -> search devices
         searchTarget: function () {
+            
             var tagsNodes = document.getElementById("searchTarget").childNodes;
-
             //console.log(tagsNodes);
             this.devices = this.fullDevices;
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.devices.length; j++) {
-                        if (this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.devices[j].id == tagsNodes[i].innerHTML ) {
+                        if ((this.devices[j].tags && this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) || this.devices[j].id == tagsNodes[i].innerHTML ) {
                             //console.log(this.devices[j].tags, tagsNodes[i].innerHTML)
                             this.devices[j].isActive = true;
                         } else {
@@ -1142,13 +1142,13 @@ export default {
         },
         //Update device -> search devices
         searchTarget2: function () {
-            var tagsNodes = document.getElementById("searchTarget2").childNodes;
 
+            var tagsNodes = document.getElementById("searchTarget2").childNodes;
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.fullDevices.length; j++) {
                         //console.log(this.devices)
-                        if (this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.fullDevices[j].id == tagsNodes[i].innerHTML) {
+                        if ((this.fullDevices[j].tags && this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML)) || this.fullDevices[j].id == tagsNodes[i].innerHTML) {
                             if (!this.targetDevices.some(e => e.id === this.fullDevices[j].id)) {
                                 this.targetDevices.push({
                                     id: this.fullDevices[j].id,
