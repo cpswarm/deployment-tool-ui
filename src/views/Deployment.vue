@@ -207,7 +207,7 @@
                                 </div>
                                 <div class="input-group">
                                     <label class="myfont_t" style="padding: 7.5px 0;margin-bottom: 0px;">host:</label>
-                                    <input type="text" v-model="host" class="dropdown-toggle form-control form-control-sm"
+                                    <input ref="hostInput" type="text" v-model="host" class="dropdown-toggle form-control form-control-sm"
                                         style="border-radius: .2rem; height:22px;margin: 5px 0" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" @keyup="filterHost">
                                     <div class="dropdown-menu" style="padding:2.5px">
@@ -454,10 +454,37 @@ export default {
                 case '1':  
                     this.$refs.custom_file.style.display = 'none';
                     this.$refs.sourceOrder.style.display = 'flex';
+                    this.build_c ="";
+                    this.build_a= "";
+                    this.$refs.editor_build_c.editor.setOptions(
+                        {
+                        readOnly: true, 
+                        highlightActiveLine:false,
+                        highlightGutterLine:false
+                        });
+                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="none";
+                    this.$refs.editor_build_a.editor.setOptions(
+                        {readOnly: true, 
+                        highlightActiveLine:false,
+                        highlightGutterLine:false});
+                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
+                    this.$refs.hostInput.disabled = true;
                     break;
                 case '2':
                     this.$refs.custom_file.style.display = 'flex';
                     this.$refs.sourceOrder.style.display = 'none';
+                    
+                    this.$refs.editor_build_c.editor.setOptions(
+                        {readOnly: false, 
+                        highlightActiveLine:true,
+                        highlightGutterLine:true});
+                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="inline";
+                    this.$refs.editor_build_a.editor.setOptions(
+                        {readOnly: false, 
+                        highlightActiveLine:true,
+                        highlightGutterLine:true});
+                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="inline";
+                    this.$refs.hostInput.disabled = false;
                     break;
             }
             this.source="";
@@ -605,13 +632,13 @@ export default {
         },
         clickCard: function (order) {
 
-            if (event.target.tagName == "DIV") {
+           /*  if (event.target.tagName == "DIV") {
                 let cards = document.getElementById('deploymentList').getElementsByClassName('mycard my-card-body');
                 Array.from(cards).map(item => {
                     item.setAttribute('class', 'mycard my-card-body');
                 })
                 event.path[1].setAttribute('class', 'mycard my-card-body active');
-            }
+            } */
 
             this.markers.clearLayers();
             if (order.deploy) {
@@ -830,9 +857,24 @@ export default {
             this.$refs.custom_file.style.display = 'none';
             this.$refs.sourceOrder.style.display = 'flex';
             
-            this.build_c = order.build ? order.build.commands.join("\n") : "";
-            this.build_a = order.build ? order.build.artifacts.join("\n") : "";
-            this.host = order.build ? order.build.host : "";
+            this.build_c = "";
+            this.build_a = "";
+            this.host = "";
+
+            this.$refs.editor_build_c.editor.setOptions(
+                        {
+                        readOnly: true, 
+                        highlightActiveLine:false,
+                        highlightGutterLine:false
+                        });
+                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="none";
+                    this.$refs.editor_build_a.editor.setOptions(
+                        {readOnly: true, 
+                        highlightActiveLine:false,
+                        highlightGutterLine:false});
+                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
+                    this.$refs.hostInput.disabled = true;
+
             this.install_c = order.deploy && order.deploy.install.commands ? order.deploy.install.commands.join("\n") : "";
             this.run_c = order.deploy && order.deploy.run.commands ? order.deploy.run.commands.join("\n") : "";
             this.targetDevices = [];
