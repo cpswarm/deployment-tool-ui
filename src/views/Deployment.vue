@@ -361,7 +361,7 @@
                     </li> 
                 </div>
             </div>
-        </div>
+        </div> 
         <div id="notification" class="notification"> 
             <div class="mycard-title" style="color:#ffda44;" >New Discovered:
                 <img src="../assets/star.png" style="width:15px"></div>
@@ -420,10 +420,13 @@ export default {
             source: "",
             build_c: "",
             build_a: "",
+            build_c_d: "",
+            build_a_d: "",
             install_c: "",
             run_c: "",
             targetText: "",
             host: "",
+            host_d: "",
             devices: [],
             targetDevices: [],
             fullDevices: [],
@@ -456,6 +459,7 @@ export default {
                     this.$refs.sourceOrder.style.display = 'flex';
                     this.build_c ="";
                     this.build_a= "";
+                    this.host = "";
                     this.$refs.editor_build_c.editor.setOptions(
                         {
                         readOnly: true, 
@@ -470,7 +474,14 @@ export default {
                     this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
                     this.$refs.hostInput.disabled = true;
                     break;
-                case '2':
+                case '2': 
+    
+                    if(this.build_c_d && this.build_a_d && this.host_d){
+                       
+                        this.build_c = this.build_c_d;
+                        this.build_a = this.build_a_d;
+                        this.host = this.host_d
+                    }
                     this.$refs.custom_file.style.display = 'flex';
                     this.$refs.sourceOrder.style.display = 'none';
                     
@@ -856,6 +867,10 @@ export default {
             this.typeSource = '1';
             this.$refs.custom_file.style.display = 'none';
             this.$refs.sourceOrder.style.display = 'flex';
+
+            this.build_c_d = order.build ? order.build.commands.join("\n") : "";
+            this.build_a_d = order.build ? order.build.artifacts.join("\n") : "";
+            this.host_d = order.build ? order.build.host : "";
             
             this.build_c = "";
             this.build_a = "";
