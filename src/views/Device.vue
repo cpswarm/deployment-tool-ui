@@ -539,7 +539,7 @@ export default {
         orderOrders: function () {
             //console.log(this.orders)
             return this.orders.sort(function (a, b) {
-                return b.finishedAt - a.finishedAt
+                return a.finishedAt - b.finishedAt
             })
         }
     },
