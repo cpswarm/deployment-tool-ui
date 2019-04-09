@@ -62,7 +62,7 @@
                                         </div>
                                         <div class="mycard-title">Latest Task:</div>
                                         <div class="mycard-content" style="font-size:12px">
-                                            <span v-if="device.logs.log">
+                                            <span v-if="device.logs.log.length > 0">
                                             {{device.logs.log[0].task}}</span>
                                             </div>
                                         <div class="mycard-title">Latest Logs:</div>
@@ -76,17 +76,17 @@
                                                 <img src="../assets/done.png" style="width:14px" @click="showLog(device.logs.log,device.logs.log[0].task)">
                                             </button>
                                         </div>
-                                         <div v-else></div>
+                                        <div v-else></div>
                                         <div class="mycard-title">History Tasks:</div>
                                         <div>
-                                            <div v-if="device.logs.tasks">
+                                            <div v-if="device.logs.tasks[0][1]!='none'">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
                                                 <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task[0])">    
                                                     {{task[0].substring(0,2)}}
                                                  
                                                     <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >  
                                                     <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >                
-                                            </li>
+                                                </li>
                                             </div>
                                         </div>
                                         <div></div>
@@ -615,7 +615,7 @@ export default {
                     response.data.items.forEach(el => {
                         fulltask.add(el.task)
                     });
-                    let task = Array.from(fulltask).slice(0,15).reverse();
+                    let task = Array.from(fulltask).slice(0,14).reverse();
 
                     //console.log(task)
                     let tasks = task.map(t =>{
@@ -632,7 +632,7 @@ export default {
                    }
                 } else {
                     return {
-                        tasks:[],
+                        tasks:[['','none']],
                         log: [],
                     };
                 }
@@ -945,20 +945,22 @@ export default {
                         alt: a.tags ? a.tags : []
                     })
                     a.marker = marker;
+             
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
+                        console.log(a)
                         if(data.tasks[0][1] == true){
                             this.failed.push(a);
                             marker.setIcon(L.icon({
                                 iconUrl: "/error.png",
                                 iconSize: [20, 20]
-                        }))
+                            }))
                         }else{
                             this.success.push(a); 
                             marker.setIcon(L.icon({
                                 iconUrl: "/done.png",
                                 iconSize: [20, 20]
-                        }))
+                            }))
                         }
                         this.devices.push(a);
                         this.fullDevices.push(a);
@@ -1405,9 +1407,9 @@ export default {
                 });
             }
         });
-      
-        this.getOrders();
         this.getTargets();
+        this.getOrders();
+       
         
         //console.log(this.devices)
 
