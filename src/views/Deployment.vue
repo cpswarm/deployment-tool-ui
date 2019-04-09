@@ -1053,7 +1053,7 @@ export default {
                         this.generateTree(response.data.items, deviceStatus, t);
                     }).catch(error => {
                         console.log(error)
-                    });
+                });
             }
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
@@ -1164,7 +1164,8 @@ export default {
                     });
                     $('#'+targets[i]).append(c);              
                 }
-                document.getElementById(targets[i]).lastElementChild.scrollIntoView(false);
+                document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;
+                //console.log(document.getElementById(targets[i]))
             }
             //console.log(devicesStatus)
             devicesStatus.forEach((value, key) => {
@@ -1269,8 +1270,6 @@ export default {
            /*  targets.forEach(el=>{
                 
             }) */
-            
-
         },
         clearForm: function () {
             this.deployName = "";
