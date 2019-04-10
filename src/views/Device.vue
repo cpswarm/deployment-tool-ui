@@ -615,7 +615,7 @@ export default {
                     response.data.items.forEach(el => {
                         fulltask.add(el.task)
                     });
-                    let task = Array.from(fulltask).slice(0,14).reverse();
+                    let task = Array.from(fulltask).slice(0,13).reverse();
 
                     //console.log(task)
                     let tasks = task.map(t =>{
@@ -1122,7 +1122,7 @@ export default {
         },
         // All device -> search devices
         searchTarget: function () {
-            
+
             var tagsNodes = document.getElementById("searchTarget").childNodes;
             //console.log(tagsNodes);
             this.devices = this.fullDevices;
@@ -1410,7 +1410,6 @@ export default {
         this.getTargets();
         this.getOrders();
        
-        
         //console.log(this.devices)
 
          if(this.address.indexOf('https')>-1){

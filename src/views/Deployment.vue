@@ -449,135 +449,83 @@ export default {
             })
         }
     },
-    methods: {
-        chooseSource: function () {
-            //console.log(this.typeSource)
-            //console.log(event.path)
-            switch(this.typeSource){
-                case '1':  
-                    this.$refs.custom_file.style.display = 'none';
-                    this.$refs.sourceOrder.style.display = 'flex';
-                    this.build_c ="";
-                    this.build_a= "";
-                    this.host = "";
-                    this.$refs.editor_build_c.editor.setOptions(
-                        {
-                        readOnly: true, 
-                        highlightActiveLine:false,
-                        highlightGutterLine:false
-                        });
-                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="none";
-                    this.$refs.editor_build_a.editor.setOptions(
-                        {readOnly: true, 
-                        highlightActiveLine:false,
-                        highlightGutterLine:false});
-                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
-                    this.$refs.hostInput.disabled = true;
-                    break;
-                case '2': 
-    
-                    if(this.build_c_d && this.build_a_d && this.host_d){
-                       
-                        this.build_c = this.build_c_d;
-                        this.build_a = this.build_a_d;
-                        this.host = this.host_d
-                    }
-                    this.$refs.custom_file.style.display = 'flex';
-                    this.$refs.sourceOrder.style.display = 'none';
-                    
-                    this.$refs.editor_build_c.editor.setOptions(
-                        {readOnly: false, 
-                        highlightActiveLine:true,
-                        highlightGutterLine:true});
-                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="inline";
-                    this.$refs.editor_build_a.editor.setOptions(
-                        {readOnly: false, 
-                        highlightActiveLine:true,
-                        highlightGutterLine:true});
-                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="inline";
-                    this.$refs.hostInput.disabled = false;
-                    break;
-            }
-            this.source="";
+    methods: { 
+        clearForm: function () {
+            this.deployName = "";
+            this.deployDes = "";
+            document.getElementById("mySourcelabel").innerHTML = "";
+            this.source = "";
+            document.getElementById("customFile").value = "";
+            this.typeSource ='1';
+            this.sourceOrder='';
+            this.deployDebug = false
+            this.build_c = "";
+            this.build_a = "";
+            this.host = "";
+            this.install_c = "";
+            this.run_c = "";
+            this.targetDevices = [];
         },
-        next: function () {
-             if(this.$refs.timeline_lis.offsetWidth+this.offset > (this.map.getSize().x - 20)){
-                this.$refs.pre.disabled=false
-                this.offset -= 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-            }else{
-                    if(this.offset <=0){
-                         this.$refs.next.disabled=true
-                    }else{
-                         this.$refs.pre.disabled=true
-                }           
-            }  
-        },
-        previous: function () {
+        clickCard: function (order) {
 
-            if(this.offset < 0){
-                this.offset += 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-                this.$refs.next.disabled=false
-            }else{
-                if(this.offset >= 0){
-                     this.$refs.pre.disabled=true
-                }else{
-                     this.$refs.next.disabled=true
-                }           
-            }  
-        }, 
-        filterOrder: function () {
-            var value = this.orderSearchT.toLowerCase();
-            this.orders.forEach(d => {
-                if (!(d.id.toLowerCase().indexOf(value) > -1)) {
-                    d.nameActive = false;
-                } else {
-                    d.nameActive = true;
-                }
-            })
-        },
-        selectArtifacts: function (id) {
-            this.sourceOrder = id;
-        },
-        selectOrder: function (id) {
-            var badge = document.createElement("span");
-            badge.innerHTML = id;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () {
-                this.style.display = "none";
-            };
-            document.getElementById("searchOrder").appendChild(badge);
-        },
-        searchOrder: function () {
-            var tagsNodes = document.getElementById("searchOrder").childNodes;
-            var value = this.orderSearchT.toLowerCase();
+           /*  if (event.target.tagName == "DIV") {
+                let cards = document.getElementById('deploymentList').getElementsByClassName('mycard my-card-body');
+                Array.from(cards).map(item => {
+                    item.setAttribute('class', 'mycard my-card-body');
+                })
+                event.path[1].setAttribute('class', 'mycard my-card-body active');
+            } */
 
-            //console.log(value);
-            for (var i = 0; i < tagsNodes.length; i++) {
-                if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.orders.length; j++) {
-                        if (this.orders[j].id == tagsNodes[i].innerHTML) {
-                            this.orders[j].cardActive = true;
-                        } else {
-                            this.orders[j].cardActive = false;
+            this.markers.clearLayers();
+            if (order.deploy) {
+                order.deploy.match.list.forEach(el => {
+                    var d = this.devices.find(function (de) {
+                        return de.id === el
+                    })
+                    //console.log(d)
+                    var tags = "";
+                    if (d.tags) {
+                        for (let j = 0; j < d.tags.length; j++) {
+                            tags += '<div class="badge badge-pill ' + d.tags[j] + '">' + d.tags[j] + '</div>';
                         }
                     }
-                }
-            }
-            if (value.length > 0) {
-                this.orders.forEach(o => {
-                    if (o.description && o.description.toLowerCase().indexOf(value) > -1) {
-                        o.cardActive = true;
-                    } else {
-                        o.cardActive = false;
+                    if (!d.location) {
+                        d.location = {
+                            lon: rand(50.749523),
+                            lat: rand(7.203923),
+                        }
                     }
+                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
+                        icon: L.icon({
+                            iconUrl: "/done.png",
+                            iconSize: [20, 20]
+                        }),
+                        title: el,
+                        alt: d.tags ? d.tags : []
+                    });
+                    marker.bindPopup('<div>Name: ' + d.id + '</div><div>Tags: ' + tags + '</div>');
+                    //this.targetDevices is the list of devices selected in 'deployment target'
+                    marker.on("click", event => {
+
+                        marker.openPopup();
+                        //console.log("ddd")
+                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
+                            this.targetDevices.push({
+                                id: event.target.options.title,
+                                tags: event.target.options.alt
+                            });
+                        }
+                    });
+                    this.markers.addLayer(marker);
                 })
             }
-        },
+            this.map.addLayer(this.markers)
+            this.map.fitBounds(this.markers.getBounds());
+            //this.map.fitbounds(this.markers.layer.getBounds());
+            //L.Marker.stopAllBouncingMarkers();
+            //console.log("card");
+            //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
+        }, 
         clickDeployment: function (id) {
             this.map.eachLayer(layer => {
                 if (layer instanceof L.Marker) {
@@ -640,136 +588,22 @@ export default {
             this.map.fitBounds(this.markers.getBounds());
             //console.log(filteredData);
             //markerGroup.addTo(map);
-        },
-        clickCard: function (order) {
+        },   
+        closeModal: function () {
 
-           /*  if (event.target.tagName == "DIV") {
-                let cards = document.getElementById('deploymentList').getElementsByClassName('mycard my-card-body');
-                Array.from(cards).map(item => {
-                    item.setAttribute('class', 'mycard my-card-body');
-                })
-                event.path[1].setAttribute('class', 'mycard my-card-body active');
-            } */
-
+            if (this.ws) {
+                this.ws.close();
+                this.ws = "";
+            } 
+            this.orders=[];
+            this.getOrders();
+            this.devices = [];
+            this.fullDevices = [];
+            this.failed = [];
+            this.success = [];
             this.markers.clearLayers();
-            if (order.deploy) {
-                order.deploy.match.list.forEach(el => {
-                    var d = this.devices.find(function (de) {
-                        return de.id === el
-                    })
-                    //console.log(d)
-                    var tags = "";
-                    if (d.tags) {
-                        for (let j = 0; j < d.tags.length; j++) {
-                            tags += '<div class="badge badge-pill ' + d.tags[j] + '">' + d.tags[j] + '</div>';
-                        }
-                    }
-                    if (!d.location) {
-                        d.location = {
-                            lon: rand(50.749523),
-                            lat: rand(7.203923),
-                        }
-                    }
-                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: el,
-                        alt: d.tags ? d.tags : []
-                    });
-                    marker.bindPopup('<div>Name: ' + d.id + '</div><div>Tags: ' + tags + '</div>');
-                    //this.targetDevices is the list of devices selected in 'deployment target'
-                    marker.on("click", event => {
+            this.getTargets();
 
-                        marker.openPopup();
-                        //console.log("ddd")
-                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
-                    });
-                    this.markers.addLayer(marker);
-                })
-            }
-            this.map.addLayer(this.markers)
-            this.map.fitBounds(this.markers.getBounds());
-            //this.map.fitbounds(this.markers.layer.getBounds());
-            //L.Marker.stopAllBouncingMarkers();
-            //console.log("card");
-            //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
-        },
-        filterDevices: function (para) {
-            switch (para) {
-                case 'failed':
-                    this.devices = this.failed;
-                    break;
-                case 'success':
-                    this.devices = this.success;
-                    break;
-            }
-            this.$router.push({
-                path: "/home", props: {
-                    devices: this.devices,
-                }
-            });
-
-        },
-        showNewDevices: function () {
-            this.devices = this.newDiscover;
-            this.markers.clearLayers();
-            this.devices.map(item => {
-                this.markers.addLayer(item.marker)
-            })
-            //console.log(this.devices);
-        },
-        getFinishnStatus: function (id, total) {
-
-            return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
-
-                let finishAt = response.data.items[0].time;
-                let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
-                if (logs.length == 0) {
-                    return [finishAt, [total, 0]];
-                } else {
-                    if (logs[0].stage == "build") {
-                        return [finishAt, [0, 0]]
-                    } else {
-                        return [finishAt, [total - logs.length, logs.length]];
-                    }
-                }
-            }).catch(error => {
-                console.log(error);
-            });
-
-        },
-        getFinishTime: function (id) {
-            //Request the latest logs time
-            return axios.get(this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
-                //console.log(response.data)
-                return response.data.items[0].time;
-            }).catch(error => {
-                console.log(error);
-            })
-            //return new Date(1551800395755).toLocaleString();
-        },
-        checkStatus: function (id, total) {
-            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get(this.address + "/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
-                if (!response.data.items) {
-                    return [total, 0];
-                } else {
-                    if (response.data.items[0].stage == "build") {
-                        return [0, 0]
-                    } else {
-                        return [total - response.data.items.length, response.data.items.length];
-                    }
-                }
-            }).catch(error => {
-                console.log(error);
-            });
         },
         checkLogs: function (target) {
             var des = "target=" + target;
@@ -807,14 +641,72 @@ export default {
             }).catch(error => {
                 console.log(error);
             });
+        }, 
+        checkStatus: function (id, total) {
+            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
+            return axios.get(this.address + "/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
+                if (!response.data.items) {
+                    return [total, 0];
+                } else {
+                    if (response.data.items[0].stage == "build") {
+                        return [0, 0]
+                    } else {
+                        return [total - response.data.items.length, response.data.items.length];
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
         },
-        editorInit: function () {
-            require("brace/ext/language_tools"); //language extension prerequsite...
-            require("brace/mode/golang");
-            require("brace/mode/javascript");
-            require("brace/mode/less");
-            require("brace/theme/github");
-            require("brace/snippets/javascript");
+        chooseSource: function () {
+            //console.log(this.typeSource)
+            //console.log(event.path)
+            switch(this.typeSource){
+                case '1':  
+                    this.$refs.custom_file.style.display = 'none';
+                    this.$refs.sourceOrder.style.display = 'flex';
+                    this.build_c ="";
+                    this.build_a= "";
+                    this.host = "";
+                    this.$refs.editor_build_c.editor.setOptions(
+                        {
+                        readOnly: true, 
+                        highlightActiveLine:false,
+                        highlightGutterLine:false
+                        });
+                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="none";
+                    this.$refs.editor_build_a.editor.setOptions(
+                        {readOnly: true, 
+                        highlightActiveLine:false,
+                        highlightGutterLine:false});
+                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
+                    this.$refs.hostInput.disabled = true;
+                    break;
+                case '2': 
+    
+                    if(this.build_c_d && this.build_a_d && this.host_d){
+                       
+                        this.build_c = this.build_c_d;
+                        this.build_a = this.build_a_d;
+                        this.host = this.host_d
+                    }
+                    this.$refs.custom_file.style.display = 'flex';
+                    this.$refs.sourceOrder.style.display = 'none';
+                    
+                    this.$refs.editor_build_c.editor.setOptions(
+                        {readOnly: false, 
+                        highlightActiveLine:true,
+                        highlightGutterLine:true});
+                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="inline";
+                    this.$refs.editor_build_a.editor.setOptions(
+                        {readOnly: false, 
+                        highlightActiveLine:true,
+                        highlightGutterLine:true});
+                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="inline";
+                    this.$refs.hostInput.disabled = false;
+                    break;
+            }
+            this.source="";
         },
         deleteOrder: function (order) {
 
@@ -837,25 +729,7 @@ export default {
                 $('#myAlert').modal();
             })
 
-        },
-        stopOrder: function (order) {
-
-            $('#mymodal-body').empty();
-            $('#mymessage-body').empty();
-            axios.put(this.address + "/orders/" + order.id + "/stop").then(response => {
-
-                //this.orders.splice(order.id,1);
-                //console.log(response); 
-                $('#myMessage').modal();
-                $('#mymessage-body').append("Stop order with " + order.id + "  " + response.data.message)
-               
-                //console.log(this.orders.length)
-
-            }).catch(error => {
-                $('#mymodal-body').append("Stop order with " + order.id + "  " + error)
-                $('#myAlert').modal();
-            })
-        },
+        }, 
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
@@ -903,29 +777,14 @@ export default {
                 }
             }
         },
-        removeDevice: function (name) {
-            for (var i = 0; i < this.targetDevices.length; i++) {
-                if (this.targetDevices[i].id == name) {
-                    // Array.splice() remove/replace the element at index i
-                    this.targetDevices.splice(i, 1);
-                }
-            }
-            //console.log(this.targetDevices);
-        },
-        refresh: function () {
-            this.orders = [];
-            this.getOrders();
-        },
-        filterHost: function () {
-            var value = this.host.toLowerCase();
-            this.devices.forEach(function (device) {
-                if (!(device.id.toLowerCase().indexOf(value) > -1)) {
-                    device.hostActive = false;
-                } else {
-                    device.hostActive = true;
-                }
-            });
-        },
+        editorInit: function () {
+            require("brace/ext/language_tools"); //language extension prerequsite...
+            require("brace/mode/golang");
+            require("brace/mode/javascript");
+            require("brace/mode/less");
+            require("brace/theme/github");
+            require("brace/snippets/javascript");
+        },  
         filterDevice: function () {
             var value = this.targetText.toLowerCase();
             this.tags.forEach(function (tag) {
@@ -943,205 +802,41 @@ export default {
                 }
             })
         },
-        searchTarget: function () {
-            var tagsNodes = document.getElementById("searchTarget").childNodes;
-            for (var i = 0; i < tagsNodes.length; i++) {
-                if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.fullDevices.length; j++) {
-                       
-                            if ((this.fullDevices[j].tags && this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.fullDevices[j].id == tagsNodes[i].innerHTML)) {
-                                //console.log(this.targetDevices)
-                                if (!(this.targetDevices.some(e => e.id == this.fullDevices[j].id))) {
-                                    //console.log(this.devices[j].tags)
-                                    this.targetDevices.push({
-                                        id: this.fullDevices[j].id,
-                                        tags: this.fullDevices[j].tags
-                                    });
-                                    //console.log(i, j, m);
-                                }
-                            }
-                        
-                    }
+        filterDevices: function (para) {
+            switch (para) {
+                case 'failed':
+                    this.devices = this.failed;
+                    break;
+                case 'success':
+                    this.devices = this.success;
+                    break;
+            }
+            this.$router.push({
+                path: "/home", props: {
+                    devices: this.devices,
                 }
-            }
+            });
+
+        }, 
+        filterHost: function () {
+            var value = this.host.toLowerCase();
+            this.devices.forEach(function (device) {
+                if (!(device.id.toLowerCase().indexOf(value) > -1)) {
+                    device.hostActive = false;
+                } else {
+                    device.hostActive = true;
+                }
+            });
         },
-        selectItem: function (tag) {
-            var badge = document.createElement("span");
-            badge.innerHTML = tag;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () { this.style.display = "none"; };
-            document.getElementById("searchTarget").appendChild(badge);
-        },
-        handleFileSelect: function (event) {
-            //console.log(this.source)
-            var files = event.target.files;
-            // FileList object
-            var archive = new jsZip().folder("archive");
-            for (var i = 0, f; (f = files[i]); i++) {
-                //console.log(f)
-                // if set webkitdirectory
-                archive.file(f.webkitRelativePath, f);
-                // if only set multiple
-                //archive.file(f.name, f);
-            }
-            this.source = archive.generateAsync({ type: "base64" });
-            if(files){
-                document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
-            }
-            this.sourceOrder = null;
-           
-        },
-        submitDeploy: function () {
-
-            $('#mymodal-body').empty();
-            let ids = [];
-            let tags = [];
-            for (let i = 0; i < this.targetDevices.length; i++) {
-                ids.push(this.targetDevices[i].id);
-                /*    this.targetDevices[i].tags.forEach(function (el) {
-                                    if (!tags.some(e => e == el)) {
-                                        tags.push(el);
-                                    }
-                }); */
-            }
-            var myYaml;
-            var taskDer = {
-                description: this.deployDes ? this.deployDes.split("\n").join() : null,
-                source: {
-                    zip: null,
-                    order: this.sourceOrder ? this.sourceOrder : null,
-                },
-                build: {
-                    commands: this.build_c ? this.build_c.split("\n") : null,
-                    artifacts: this.build_a ? this.build_a.split("\n") : null,
-                    host: this.host ? this.host : null
-                },
-                deploy: {
-                    install: {
-                        commands: this.install_c ? this.install_c.split("\n") : null
-                    },
-                    run: {
-                        commands: this.run_c ? this.run_c.split("\n") : null
-                    },
-                    target: {
-                        ids: ids
-                    }
-                },
-                debug: this.deployDebug ? this.deployDebug : false
-            };
-            if (this.source) {
-                this.source.then(data => {
-                    taskDer.source.zip = data;
-                    //console.log(taskDer)
-                    myYaml = yaml.safeDump(taskDer);
-                    //console.log(myYaml);
-                    axios.post(this.address + "/orders", myYaml).then(response => {
-                        //console.log(response);
-                        response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-                        response.data.build ? response.data.deploy : (response.data.build = "");
-
-                        $("#collapseOne").collapse("show");
-
-                        this.clearForm();
-                        this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
-
-                    }).catch(error => {
-                        console.log(error.response);
-                        $("#mymodal-body").append(error.response.data.error);
-                        $("#myAlert").modal();
-                    });
-                });
-            } else {
-                myYaml = yaml.safeDump(taskDer);
-                //console.log(myYaml);    
-                axios.post(this.address + "/orders", myYaml).then(response => {
-                    //console.log(response);
-                    response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-                    response.data.build ? response.data.deploy : (response.data.build = "");
-
-                    $("#collapseOne").collapse("show");
-                        
-                    this.clearForm();
-                    this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
-
-                }).catch(error => {
-                    console.log(error.response);
-                    $("#mymodal-body").append(error.response.data.error);
-                    $("#myAlert").modal();
-                });
-            }
-        },
-        listen: function (id, deploy, target, host) {
-            $("#mylog").empty();
-            $("#myTree").modal();
-            //console.log(this.ws)
-            var logs = [];
-            var t = [];
-            let deviceStatus = new Map();
-
-            //If there is a build process
-            if (host) {
-                let status = new Map();
-                status.set('build', 'STAGE-START');
-                status.set('install', '');
-                status.set('run', '');
-                deviceStatus.set(host, status);
-                t.push(host)
-            }
-            //If there is a deploy process
-            if (target) {
-                target.forEach(el => {
-                    let status = new Map();
-                    status.set('build', '');
-                    status.set('install', '');
-                    status.set('run', '');
-                    deviceStatus.set(el, status);
-                    t.push(el);
-                })
-            }
-            t.map(device=>{
-                $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+device+'</h6><div id="'+device+'" class="myCommandCard"></div></div>');
+        filterOrder: function () {
+            var value = this.orderSearchT.toLowerCase();
+            this.orders.forEach(d => {
+                if (!(d.id.toLowerCase().indexOf(value) > -1)) {
+                    d.nameActive = false;
+                } else {
+                    d.nameActive = true;
+                }
             })
-            //console.log(deviceStatus)
-            if (!deploy) {
-                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
-                    .then(response => {
-                        this.generateTree(response.data.items, deviceStatus, t);
-                    }).catch(error => {
-                        console.log(error)
-                });
-            }
-            if (!("WebSocket" in window)) {
-                alert("WebSocket is not supported by your Browser!");
-                return;
-            }
-            // Clear the WebSocket
-            if (this.ws) {
-                this.ws.close();
-                this.ws = "";
-            } else {
-                if(this.address.indexOf('https')>-1){
-                    this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
-                }else{
-                    this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
-                }
-                
-                this.ws.onopen = function () {
-                    console.log("Socket connected.");
-                };
-                this.ws.onmessage = event => {
-                    //console.log(event.data);
-                    var obj = JSON.parse(event.data);
-                    this.generateTree(obj.payload, deviceStatus, t);
-                };
-                this.ws.onclose = function () {
-                    console.log("Socket disconnected.");
-                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
-                    // If socket disconnected, try to connect again after 5s.
-                    /* setTimeout(function () { listen(1, true);}, 5000); */
-                };
-            }
         },
         generateTree: function (logs, devicesStatus, targets) {
 
@@ -1153,7 +848,8 @@ export default {
             var code = "";
             var myTree = {
                 value: 0,
-                children: [{
+                children: [
+                    {
                     name: "",
                     value: 0,
                     class: "node-s",
@@ -1327,39 +1023,37 @@ export default {
            /*  targets.forEach(el=>{
                 
             }) */
-        },
-        clearForm: function () {
-            this.deployName = "";
-            this.deployDes = "";
-            document.getElementById("mySourcelabel").innerHTML = "";
-            this.source = "";
-            document.getElementById("customFile").value = "";
-            this.typeSource ='1';
-            this.sourceOrder='';
-            this.deployDebug = false
-            this.build_c = "";
-            this.build_a = "";
-            this.host = "";
-            this.install_c = "";
-            this.run_c = "";
-            this.targetDevices = [];
-        },
-        closeModal: function () {
+        },   
+        getFinishnStatus: function (id, total) {
 
-            if (this.ws) {
-                this.ws.close();
-                this.ws = "";
-            } 
-            this.orders=[];
-            this.getOrders();
-            this.devices = [];
-            this.fullDevices = [];
-            this.failed = [];
-            this.success = [];
-            this.markers.clearLayers();
-            this.getTargets();
+            return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+
+                let finishAt = response.data.items[0].time;
+                let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
+                if (logs.length == 0) {
+                    return [finishAt, [total, 0]];
+                } else {
+                    if (logs[0].stage == "build") {
+                        return [finishAt, [0, 0]]
+                    } else {
+                        return [finishAt, [total - logs.length, logs.length]];
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
 
         },
+        getFinishTime: function (id) {
+            //Request the latest logs time
+            return axios.get(this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+                //console.log(response.data)
+                return response.data.items[0].time;
+            }).catch(error => {
+                console.log(error);
+            })
+            //return new Date(1551800395755).toLocaleString();
+        }, 
         getOrders: function () {
 
             //http://"+this.address+"/orders
@@ -1485,6 +1179,323 @@ export default {
             }).catch(error => {
                 console.log(error);
             });
+        },
+        handleFileSelect: function (event) {
+            //console.log(this.source)
+            var files = event.target.files;
+            // FileList object
+            var archive = new jsZip().folder("archive");
+            for (var i = 0, f; (f = files[i]); i++) {
+                //console.log(f)
+                // if set webkitdirectory
+                archive.file(f.webkitRelativePath, f);
+                // if only set multiple
+                //archive.file(f.name, f);
+            }
+            this.source = archive.generateAsync({ type: "base64" });
+            if(files){
+                document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+            }
+            //this.sourceOrder = null;
+           
+        }, 
+        listen: function (id, deploy, target, host) {
+            $("#mylog").empty();
+            $("#myTree").modal();
+            //console.log(this.ws)
+            var logs = [];
+            var t = [];
+            let deviceStatus = new Map();
+
+            //If there is a build process
+            if (host) {
+                let status = new Map();
+                status.set('build', 'STAGE-START');
+                status.set('install', '');
+                status.set('run', '');
+                deviceStatus.set(host, status);
+                t.push(host)
+            }
+            //If there is a deploy process
+            if (target) {
+                target.forEach(el => {
+                    let status = new Map();
+                    status.set('build', '');
+                    status.set('install', '');
+                    status.set('run', '');
+                    deviceStatus.set(el, status);
+                    t.push(el);
+                })
+            }
+            t.map(device=>{
+                $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+device+'</h6><div id="'+device+'" class="myCommandCard"></div></div>');
+            })
+            //console.log(deviceStatus)
+            if (!deploy) {
+                        //http:reely.fit.fraunhofer.de:8080
+                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
+                    .then(response => {
+                        this.generateTree(response.data.items, deviceStatus, t);
+                    }).catch(error => {
+                        console.log(error)
+                });
+            }
+            if (!("WebSocket" in window)) {
+                alert("WebSocket is not supported by your Browser!");
+                return;
+            }
+            // Clear the WebSocket
+            if (this.ws) {
+                this.ws.close();
+                this.ws = "";
+            } else {
+                if(this.address.indexOf('https')>-1){
+                                        
+                    this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
+                }else{
+                    this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
+                }
+                
+                this.ws.onopen = function () {
+                    console.log("Socket connected.");
+                };
+                this.ws.onmessage = event => {
+                    //console.log(event.data);
+                    var obj = JSON.parse(event.data);
+                    this.generateTree(obj.payload, deviceStatus, t);
+                };
+                this.ws.onclose = function () {
+                    console.log("Socket disconnected.");
+                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
+                    // If socket disconnected, try to connect again after 5s.
+                    /* setTimeout(function () { listen(1, true);}, 5000); */
+                };
+            }
+        },
+        next: function () {
+             if(this.$refs.timeline_lis.offsetWidth+this.offset > (this.map.getSize().x - 20)){
+                this.$refs.pre.disabled=false
+                this.offset -= 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+            }else{
+                    if(this.offset <=0){
+                         this.$refs.next.disabled=true
+                    }else{
+                         this.$refs.pre.disabled=true
+                }           
+            }  
+        },
+        previous: function () {
+
+            if(this.offset < 0){
+                this.offset += 100;
+                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s'; 
+                this.$refs.next.disabled=false
+            }else{
+                if(this.offset >= 0){
+                     this.$refs.pre.disabled=true
+                }else{
+                     this.$refs.next.disabled=true
+                }           
+            }  
+        }, 
+        removeDevice: function (name) {
+            for (var i = 0; i < this.targetDevices.length; i++) {
+                if (this.targetDevices[i].id == name) {
+                    // Array.splice() remove/replace the element at index i
+                    this.targetDevices.splice(i, 1);
+                }
+            }
+            //console.log(this.targetDevices);
+        },
+        refresh: function () {
+            this.orders = [];
+            this.getOrders();
+        },  
+        searchOrder: function () {
+            var tagsNodes = document.getElementById("searchOrder").childNodes;
+            var value = this.orderSearchT.toLowerCase();
+
+            //console.log(value);
+            for (var i = 0; i < tagsNodes.length; i++) {
+                if (tagsNodes[i].style.display != "none") {
+                    for (var j = 0; j < this.orders.length; j++) {
+                        if (this.orders[j].id == tagsNodes[i].innerHTML) {
+                            this.orders[j].cardActive = true;
+                        } else {
+                            this.orders[j].cardActive = false;
+                        }
+                    }
+                }
+            }
+            if (value.length > 0) {
+                this.orders.forEach(o => {
+                    if (o.description && o.description.toLowerCase().indexOf(value) > -1) {
+                        o.cardActive = true;
+                    } else {
+                        o.cardActive = false;
+                    }
+                })
+            }
+        },  
+        searchTarget: function () {
+            var tagsNodes = document.getElementById("searchTarget").childNodes;
+            for (var i = 0; i < tagsNodes.length; i++) {
+                if (tagsNodes[i].style.display != "none") {
+                    for (var j = 0; j < this.fullDevices.length; j++) {
+                       
+                            if ((this.fullDevices[j].tags && this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.fullDevices[j].id == tagsNodes[i].innerHTML)) {
+                                //console.log(this.targetDevices)
+                                if (!(this.targetDevices.some(e => e.id == this.fullDevices[j].id))) {
+                                    //console.log(this.devices[j].tags)
+                                    this.targetDevices.push({
+                                        id: this.fullDevices[j].id,
+                                        tags: this.fullDevices[j].tags
+                                    });
+                                    //console.log(i, j, m);
+                                }
+                            }
+                        
+                    }
+                }
+            }
+        },
+        selectArtifacts: function (id) {
+            this.sourceOrder = id;
+        },  
+        selectItem: function (tag) {
+            var badge = document.createElement("span");
+            badge.innerHTML = tag;
+            badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
+            badge.onclick = function () { this.style.display = "none"; };
+            document.getElementById("searchTarget").appendChild(badge);
+        },
+        selectOrder: function (id) {
+            var badge = document.createElement("span");
+            badge.innerHTML = id;
+            badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
+            badge.onclick = function () {
+                this.style.display = "none";
+            };
+            document.getElementById("searchOrder").appendChild(badge);
+        }, 
+        showNewDevices: function () {
+            this.devices = this.newDiscover;
+            this.markers.clearLayers();
+            this.devices.map(item => {
+                this.markers.addLayer(item.marker)
+            })
+            //console.log(this.devices);
+        }, 
+        stopOrder: function (order) {
+
+            $('#mymodal-body').empty();
+            $('#mymessage-body').empty();
+            axios.put(this.address + "/orders/" + order.id + "/stop").then(response => {
+
+                //this.orders.splice(order.id,1);
+                //console.log(response); 
+                $('#myMessage').modal();
+                $('#mymessage-body').append("Stop order with " + order.id + "  " + response.data.message)
+               
+                //console.log(this.orders.length)
+
+            }).catch(error => {
+                $('#mymodal-body').append("Stop order with " + order.id + "  " + error)
+                $('#myAlert').modal();
+            })
+        },
+        submitDeploy: function () {
+
+            $('#mymodal-body').empty();
+            let ids = [];
+            let tags = [];
+            for (let i = 0; i < this.targetDevices.length; i++) {
+                ids.push(this.targetDevices[i].id);
+                /*    this.targetDevices[i].tags.forEach(function (el) {
+                                    if (!tags.some(e => e == el)) {
+                                        tags.push(el);
+                                    }
+                }); */
+            }
+            
+            var myYaml;
+            var taskDer = {
+                description: this.deployDes ? this.deployDes.split("\n").join() : null,
+                source: {
+                    zip: null,
+                    order: null,
+                },
+                build: {
+                    commands: this.build_c ? this.build_c.split("\n") : null,
+                    artifacts: this.build_a ? this.build_a.split("\n") : null,
+                    host: this.host ? this.host : null
+                },
+                deploy: {
+                    install: {
+                        commands: this.install_c ? this.install_c.split("\n") : null
+                    },
+                    run: {
+                        commands: this.run_c ? this.run_c.split("\n") : null
+                    },
+                    target: {
+                        ids: ids
+                    }
+                },
+                debug: this.deployDebug ? this.deployDebug : false
+            };
+            switch(this.typeSource){
+                case '1': taskDer.source.order = this.sourceOrder
+                    break;
+                case '2': this.sourceOrder ="";
+                    break;
+            }
+            if (this.source) {
+                this.source.then(data => {
+                    taskDer.source.zip = data;
+                    //console.log(taskDer)
+                    myYaml = yaml.safeDump(taskDer);
+                    //console.log(myYaml);
+                    axios.post(this.address + "/orders", myYaml).then(response => {
+                        //console.log(response);
+                        response.data.deploy ? response.data.deploy : (response.data.deploy = "");
+                        response.data.build ? response.data.deploy : (response.data.build = "");
+
+                        $("#collapseOne").collapse("show");
+
+                        this.clearForm();
+                        this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
+
+                    }).catch(error => {
+                        console.log(error.response);
+                        $("#mymodal-body").append(error.response.data.error);
+                        $("#myAlert").modal();
+                    });
+                });
+            } else {
+                
+                myYaml = yaml.safeDump(taskDer);
+                //console.log(myYaml);    
+                axios.post(this.address + "/orders", myYaml).then(response => {
+                    //console.log(response);
+                    response.data.deploy ? response.data.deploy : (response.data.deploy = "");
+                    response.data.build ? response.data.deploy : (response.data.build = "");
+
+                    $("#collapseOne").collapse("show");
+                        
+                    this.clearForm();
+                    this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
+
+                }).catch(error => {
+                    console.log(error.response);
+                    $("#mymodal-body").append(error.response.data.error);
+                    $("#myAlert").modal();
+                });
+            }
         },
     },
     mounted() {
