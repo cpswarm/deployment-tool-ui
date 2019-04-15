@@ -17,12 +17,16 @@
                         ref="collapseOne">
                         <div style="padding:5px">
                             <div id="search" style="margin-bottom:5px">
+                                
                                 <form class="form-inline">
-                                    <div class="input-group" style="text-align:left;width:91%;border: 1px solid #ced4da;border-radius:.25rem;">
+                                    <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 5px 0 0px;" @click="refresh">
+                                        <img src="../assets/refresh.svg" style="width:16px">
+                                    </button>
+                                    <div class="input-group" style="width:92%;">
                                         <div id="searchTarget"></div>
                                         <input class="dropdown-toggle form-control form-control-sm" type="text" v-model="searchText"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
-                                            style="font-size: 14px;height: 26px;padding: 5px; border:none">
+                                            style="font-size: 14px;height: 26px;padding: 5px;">
                                         <div class="input-group-append">
                                             <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
                                                 @click="searchTarget">
@@ -39,9 +43,7 @@
                                                 style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
                                         </div>
                                     </div>  
-                                    <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 0 0 8px;" @click="refresh">
-                                        <img src="../assets/refresh.svg" style="width:16px">
-                                    </button>
+                                    
                                 </form>
                               
                             </div>

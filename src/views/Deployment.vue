@@ -15,8 +15,11 @@
                 </div>
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
-                        <form class="form-inline" style="margin-bottom:5px">
-                        <div class="input-group" style="width:91%">
+                        <form class="form-inline" style="margin-bottom:5px"> 
+                        <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 5px 0 0px;" @click="refresh">
+                            <img src="../assets/refresh.svg" style="width:16px">
+                        </button>
+                        <div class="input-group" style="width:92%">
                              <div id="searchOrder"></div>
                             <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder"
@@ -33,9 +36,6 @@
                                <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectOrder(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
                             </div>
                         </div>
-                        <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 0 0 8px;" @click="refresh">
-                            <img src="../assets/refresh.svg" style="width:16px">
-                        </button>
                     </form>
                         <div id="deploymentList" ref="list" style="overflow:scroll">
                             <div v-for="order in orderOrders"   v-show="order.cardActive" :key="order.id" @click="clickCard(order)">
@@ -1029,9 +1029,6 @@ export default {
                 document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
                 }
             }
-
-
-
             
             var tree_b = d3.tree().size([200, 100]);
             var root_b = d3.hierarchy(myTree_b);
