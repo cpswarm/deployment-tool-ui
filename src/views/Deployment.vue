@@ -157,6 +157,8 @@
                                 <img src="../assets/duplicate.png" style="width:20px">
                             </button>
                             <a style="font-size:15px">Duplicate one exsiting deployment</a>
+                            <button type="button" class="btn btn-primary btn-sm" style="padding: 0 4px;position:relative;float:right;font-size:14px" @click="showYaml">View Yaml
+                            </button>
                         </h6>
                         <form id="newDeployment">
                             <div class="mycard-title" >Description:</div>
@@ -281,6 +283,9 @@
                                 <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
                             </div>
                         </form>
+                        <div ref="deployYaml" v-if="myYaml.show">
+                            <textarea v-model="myYaml.y"  cols="30" rows="23" class="form-control" style="font-size:14px"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -419,6 +424,10 @@ function rand(n) {
 export default {
     data() {
         return {
+            myYaml:{
+                show:false,
+                y:"",
+            },
             typeSource:"0",
             sourceOrder:"",
             offset:0,
@@ -460,7 +469,50 @@ export default {
             })
         }
     },
-    methods: { 
+    methods: {
+        showYaml: function () {
+
+            if(this.myYaml.show){
+                this.myYaml.show=false;
+                event.target.innerHTML = 'View Yaml'
+                document.getElementById('newDeployment').style.display ='grid';
+            }else{
+                event.target.innerHTML = 'View Form'
+                this.myYaml.show=true;
+                document.getElementById('newDeployment').style.display ='none';
+            }
+            let ids = [];
+            for (let i = 0; i < this.targetDevices.length; i++) {
+                ids.push(this.targetDevices[i].id);
+            }
+           
+            var taskDer = {
+                description: this.deployDes ? this.deployDes.split("\n").join() : null,
+                source: {
+                    zip: null,
+                    order: null,
+                },
+                build: {
+                    commands: this.build_c ? this.build_c.split("\n") : null,
+                    artifacts: this.build_a ? this.build_a.split("\n") : null,
+                    host: this.host ? this.host : null
+                },
+                deploy: {
+                    install: {
+                        commands: this.install_c ? this.install_c.split("\n") : null
+                    },
+                    run: {
+                        commands: this.run_c ? this.run_c.split("\n") : null
+                    },
+                    target: {
+                        ids: ids
+                    }
+                },
+                debug: this.deployDebug ? this.deployDebug : false
+            };
+            this.myYaml.y = yaml.safeDump(taskDer);
+            
+        },
         clearForm: function () {
             this.deployName = "";
             this.deployDes = "";
@@ -878,7 +930,6 @@ export default {
             })
         },
         generateTree: function (logs, hostStatus, targetsStatus, host, targets) {
-
 
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
