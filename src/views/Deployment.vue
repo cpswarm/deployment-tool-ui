@@ -159,80 +159,82 @@
                             <a style="font-size:15px">Duplicate one exsiting deployment</a>
                         </h6>
                         <form id="newDeployment">
-                            <div class="mycard-title" style="text-align:right">Description:</div>
+                            <div class="mycard-title" >Description:</div>
                             <div class="mycard-content">
                                 <textarea v-model="deployDes" class="form-control form-control-sm" rows="3" style="padding:0 3px;"></textarea>
                             </div>
-                            <div class="mycard-title" style="text-align:right">Source:</div>
+                            <div class="mycard-title" >Source:</div>
                             <div>
                                <div class="input-group mycard-content">
                                          <select class="mySelect" v-model="typeSource" @change="chooseSource">
-                                            <option disabled value="">Choose...</option>
+                                            <option value="0">Choose...</option>
                                             <option value="1">From Artifacts</option>
                                             <option value="2">Upload Files</option>         
                                         </select> 
                                     <div class="input-group-append" style="width:63%">
-                                        <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" v-model="sourceOrder">
+                                        <input ref="emptySource" type="text" class="form-control form-control-sm"  style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" >
+                                        <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;display:none" v-model="sourceOrder">
                                         <div class="dropdown-menu" style="padding:2.5px">
                                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectArtifacts(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
                                         </div>
-                                    <div ref="custom_file" class="custom-file" style="height:26px; display:none">
-                                        <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
-                                        <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
-                                        <div id="uploadFiles"></div>
+                                        <div ref="custom_file" class="custom-file" style="height:26px; display:none">
+                                            <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
+                                            <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
+                                            <div id="uploadFiles"></div>
                                     </div>
                                     </div>
                                 </div>       
                             </div>
-                            <div class="mycard-title" style="text-align:right">Debug:</div>
+                            <div class="mycard-title" >Debug:</div>
                             <div class="mycard-content">
                                 <div class="form-check input-group">
                                     <input v-model="deployDebug" type="checkbox" class="form-check-input">
                                 </div>
                             </div>
-                            <div class="mycard-title" style="text-align:right">Build:(optional)</div>
-                            <div class="mycard-content" style="text-align:left">
-                                <div>
+                            <div class="mycard-title" >Build:</div>
+                            <div class="mycard-content" >
+                                <div ref="build">
+                                    <div style="display:none">(Disabled)</div>
                                     <div>
                                         <div class="myfont_t">commands:</div>
                                         <editor ref="editor_build_c" v-model="build_c" @init="editorInit" lang="golang"
                                             theme="github" width="100%" height="70"></editor>
-                                    </div>
-                                    <div>
+                                  
                                         <div class="myfont_t">artifacts:</div>
                                         <editor ref="editor_build_a" v-model="build_a" @init="editorInit" lang="golang"
                                             theme="github" width="100%" height="70"></editor>
+                                    
+                                        <div class="input-group">
+                                            <label class="myfont_t" style="padding: 7.5px 0;margin-bottom: 0px;">host:</label>
+                                            <input ref="hostInput" type="text" v-model="host" class="dropdown-toggle form-control form-control-sm"
+                                                style="border-radius: .2rem; height:22px;margin: 5px 0" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false" @keyup="filterHost">
+                                            <div class="dropdown-menu" style="padding:2.5px">
+                                            <a v-for="device in fullDevices" class="dropdown-item" v-show="device.hostActive"
+                                                @click=" host = device.id " style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="input-group">
-                                    <label class="myfont_t" style="padding: 7.5px 0;margin-bottom: 0px;">host:</label>
-                                    <input ref="hostInput" type="text" v-model="host" class="dropdown-toggle form-control form-control-sm"
-                                        style="border-radius: .2rem; height:22px;margin: 5px 0" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false" @keyup="filterHost">
-                                    <div class="dropdown-menu" style="padding:2.5px">
-                                        <a v-for="device in fullDevices" class="dropdown-item" v-show="device.hostActive"
-                                            @click=" host = device.id " style="font-size:14px;padding:0px 15px">{{device.id}}</a>
-                                    </div>
+                                    </div> 
                                 </div>
                             </div>
-                            <div class="mycard-title" style="text-align:right">Install:(optional)</div>
-                            <div class="mycard-content" style="text-align:left">
+                            <div class="mycard-title" >Install:</div>
+                            <div class="mycard-content" >
                                 <div>
                                     <div class="myfont_t">commands:</div>
                                     <editor ref="editor_install_c" v-model="install_c" @init="editorInit" lang="golang"
                                         theme="github" width="100%" height="70"></editor>
                                 </div>
                             </div>
-                            <div class="mycard-title" style="text-align:right">Run:(optional)</div>
-                            <div class="mycard-content" style="text-align:left">
+                            <div class="mycard-title" >Run:</div>
+                            <div class="mycard-content" >
                                 <div>
                                     <div class="myfont_t">commands:</div>
                                     <editor ref="editor_run_c" v-model="run_c" @init="editorInit" lang="golang" theme="github"
                                         width="100%" height="70"></editor>
                                 </div>
                             </div>
-                            <div class="mycard-title" style="text-align:right">Target:</div>
+                            <div class="mycard-title" >Target:</div>
                             <div class="mycard-content" style="grid-column: 1/3; border: 1px solid grey;border-style:dashed">
                                 <form class="form-inline">
                                     <div class="input-group" style="width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
@@ -417,7 +419,7 @@ function rand(n) {
 export default {
     data() {
         return {
-            typeSource:"",
+            typeSource:"0",
             sourceOrder:"",
             offset:0,
             address: "",
@@ -462,10 +464,14 @@ export default {
         clearForm: function () {
             this.deployName = "";
             this.deployDes = "";
-            document.getElementById("mySourcelabel").innerHTML = "";
+            document.getElementById("mySourcelabel").innerHTML = "Choose File";
             this.source = "";
             document.getElementById("customFile").value = "";
-            this.typeSource ='1';
+            this.typeSource ='0';
+            this.$refs.emptySource.style.display = 'flex';
+            this.$refs.sourceOrder.style.display = 'none';
+            this.$refs.custom_file.style.display = 'none';
+            this.$refs.build.style.display = 'inline';
             this.sourceOrder='';
             this.deployDebug = false
             this.build_c = "";
@@ -671,10 +677,31 @@ export default {
             //console.log(this.typeSource)
             //console.log(event.path)
             switch(this.typeSource){
+                case '0': 
+                    this.$refs.emptySource.style.display = 'flex';
+                    this.$refs.sourceOrder.style.display = 'none';
+                    this.$refs.custom_file.style.display = 'none';
+                    this.$refs.build.childNodes[0].style.display = 'none';
+                    this.$refs.build.childNodes[1].style.display = 'inline';
+                    /* this.$refs.editor_build_c.editor.setOptions(
+                        {readOnly: false, 
+                        highlightActiveLine:true,
+                        highlightGutterLine:true});
+                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="inline";
+                    this.$refs.editor_build_a.editor.setOptions(
+                        {readOnly: false, 
+                        highlightActiveLine:true,
+                        highlightGutterLine:true});
+                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="inline";
+                    this.$refs.hostInput.disabled = false; */
+                    break;
                 case '1':  
+                    this.$refs.emptySource.style.display = 'none';
                     this.$refs.custom_file.style.display = 'none';
                     this.$refs.sourceOrder.style.display = 'flex';
-                    this.build_c ="";
+                    this.$refs.build.childNodes[0].style.display = 'block';
+                    this.$refs.build.childNodes[1].style.display = 'none';
+                    /* this.build_c ="";
                     this.build_a= "";
                     this.host = "";
                     this.$refs.editor_build_c.editor.setOptions(
@@ -689,20 +716,23 @@ export default {
                         highlightActiveLine:false,
                         highlightGutterLine:false});
                     this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
-                    this.$refs.hostInput.disabled = true;
+                    this.$refs.hostInput.disabled = true; */
                     break;
                 case '2': 
-    
+         
                     if(this.build_c_d && this.build_a_d && this.host_d){
                        
                         this.build_c = this.build_c_d;
                         this.build_a = this.build_a_d;
                         this.host = this.host_d
                     }
+                    this.$refs.emptySource.style.display = 'none';
                     this.$refs.custom_file.style.display = 'flex';
                     this.$refs.sourceOrder.style.display = 'none';
+                    this.$refs.build.childNodes[0].style.display = 'none';
+                    this.$refs.build.childNodes[1].style.display = 'inline';
                     
-                    this.$refs.editor_build_c.editor.setOptions(
+                   /*  this.$refs.editor_build_c.editor.setOptions(
                         {readOnly: false, 
                         highlightActiveLine:true,
                         highlightGutterLine:true});
@@ -712,7 +742,7 @@ export default {
                         highlightActiveLine:true,
                         highlightGutterLine:true});
                     this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="inline";
-                    this.$refs.hostInput.disabled = false;
+                    this.$refs.hostInput.disabled = false; */
                     break;
             }
             this.source="";
