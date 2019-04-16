@@ -15,14 +15,14 @@
                 </div>
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
-                        <form class="form-inline" style="margin-bottom:5px"> 
+                    <form class="form-inline" style="margin-bottom:5px"> 
                         <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 5px 0 0px;" @click="refresh">
                             <img src="../assets/refresh.svg" style="width:16px">
                         </button>
                         <div class="input-group" style="width:92%">
                              <div id="searchOrder"></div>
                             <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(orderSearchT)"
                                 style="font-size: 14px;height: 26px;padding: 5px;">
                             <div class="input-group-append">
                                 <a class="btn btn-outline-secondary" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchOrder">
@@ -174,16 +174,15 @@
                                             <option value="2">Upload Files</option>         
                                         </select> 
                                     <div class="input-group-append" style="width:63%">
-                                        <input ref="emptySource" type="text" class="form-control form-control-sm"  style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" >
-                                        <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;display:none" v-model="sourceOrder">
-                                        <div class="dropdown-menu" style="padding:2.5px">
+                                        <input ref="emptySource" type="text" class="form-control form-control-sm"  style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" disabled>
+                                        <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(sourceOrder)" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;display:none" v-model="sourceOrder">
+                                        <div class="dropdown-menu" style="padding:2.5px;max-height:500px;overflow:auto">
                                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectArtifacts(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
                                         </div>
                                         <div ref="custom_file" class="custom-file" style="height:26px; display:none">
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
                                             <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
-                                            <div id="uploadFiles"></div>
                                     </div>
                                     </div>
                                 </div>       
@@ -242,7 +241,7 @@
                                     <div class="input-group" style="width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
                                         <div id="searchTarget"></div>
                                         <input class="dropdown-toggle form-control form-control-sm" type="text" v-model="targetText"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterTarget"
                                             style="font-size: 14px;height: 26px;padding: 5px; border:none">
                                         <div class="input-group-append">
                                             <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
@@ -382,7 +381,7 @@
             <div class="mycard-title" style="color:#ffda44;" >New Discovered:
                 <img src="../assets/star.png" style="width:15px"></div>
             <div class="mycard-content">
-                 <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="showNewDevices">
+                 <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="toDevices('new')">
                         {{this.newDiscover.length}} 
                 </button>
                 </div> 
@@ -390,7 +389,7 @@
                 <img src="../assets/error.png" style="width:15px">
             </div>
             <div class="mycard-content">
-                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027;padding: 0 2px" @click="filterDevices('failed')">
+                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027;padding: 0 2px" @click="toDevices('failed')">
                 {{this.failed.length}}
                   </button>
                 </div>
@@ -398,7 +397,7 @@
                  <img src="../assets/done.png" style="width:15px">
             </div>
             <div class="mycard-content" >
-                  <button type="button" class="btn btn-light btn-sm" style="color:#00ae31;padding: 0 2px" @click="filterDevices('success')">
+                  <button type="button" class="btn btn-light btn-sm" style="color:#00ae31;padding: 0 2px" @click="toDevices('success')">
                         {{this.success.length}} </button>
                 </div>
         </div>
@@ -440,14 +439,10 @@ export default {
             source: "",
             build_c: "",
             build_a: "",
-            build_c_d: "",
-            build_a_d: "",
             install_c: "",
             run_c: "",
             targetText: "",
             host: "",
-            host_d: "",
-            devices: [],
             targetDevices: [],
             fullDevices: [],
             tags: [],
@@ -469,62 +464,22 @@ export default {
             })
         }
     },
-    methods: {
-        showYaml: function () {
-
-            if(this.myYaml.show){
-                this.myYaml.show=false;
-                event.target.innerHTML = 'View Yaml'
-                document.getElementById('newDeployment').style.display ='grid';
-            }else{
-                event.target.innerHTML = 'View Form'
-                this.myYaml.show=true;
-                document.getElementById('newDeployment').style.display ='none';
-            }
-            let ids = [];
-            for (let i = 0; i < this.targetDevices.length; i++) {
-                ids.push(this.targetDevices[i].id);
-            }
-           
-            var taskDer = {
-                description: this.deployDes ? this.deployDes.split("\n").join() : null,
-                source: {
-                    zip: null,
-                    order: null,
-                },
-                build: {
-                    commands: this.build_c ? this.build_c.split("\n") : null,
-                    artifacts: this.build_a ? this.build_a.split("\n") : null,
-                    host: this.host ? this.host : null
-                },
-                deploy: {
-                    install: {
-                        commands: this.install_c ? this.install_c.split("\n") : null
-                    },
-                    run: {
-                        commands: this.run_c ? this.run_c.split("\n") : null
-                    },
-                    target: {
-                        ids: ids
-                    }
-                },
-                debug: this.deployDebug ? this.deployDebug : false
-            };
-            this.myYaml.y = yaml.safeDump(taskDer);
-            
-        },
+    methods: {   
         clearForm: function () {
-            this.deployName = "";
-            this.deployDes = "";
-            document.getElementById("mySourcelabel").innerHTML = "Choose File";
-            this.source = "";
-            document.getElementById("customFile").value = "";
+
+            this.deployDes = '';
             this.typeSource ='0';
+            this.sourceOrder='';
+            this.source = '';
+            
+            document.getElementById("mySourcelabel").innerHTML = "Choose File";
+            
             this.$refs.emptySource.style.display = 'flex';
             this.$refs.sourceOrder.style.display = 'none';
             this.$refs.custom_file.style.display = 'none';
-            this.$refs.build.style.display = 'inline';
-            this.sourceOrder='';
+            this.$refs.build.childNodes[0].style.display = 'none';
+            this.$refs.build.childNodes[1].style.display = 'inline';
+                      
             this.deployDebug = false
             this.build_c = "";
             this.build_a = "";
@@ -532,145 +487,44 @@ export default {
             this.install_c = "";
             this.run_c = "";
             this.targetDevices = [];
+
+        },
+        refreshmap: function (list) {
+            this.markers.clearLayers();
+            list.forEach(el => {
+                var d = this.fullDevices.find(function (de) {
+                    return de.id === el
+                })
+                this.markers.addLayer(d.marker);
+            });
+            this.map.addLayer(this.markers)
+            this.map.fitBounds(this.markers.getBounds());
         },
         clickCard: function (order) {
-
-           /*  if (event.target.tagName == "DIV") {
-                let cards = document.getElementById('deploymentList').getElementsByClassName('mycard my-card-body');
-                Array.from(cards).map(item => {
-                    item.setAttribute('class', 'mycard my-card-body');
-                })
-                event.path[1].setAttribute('class', 'mycard my-card-body active');
-            } */
-
-            this.markers.clearLayers();
             if (order.deploy) {
-                order.deploy.match.list.forEach(el => {
-                    var d = this.devices.find(function (de) {
-                        return de.id === el
-                    })
-                    //console.log(d)
-                    var tags = "";
-                    if (d.tags) {
-                        for (let j = 0; j < d.tags.length; j++) {
-                            tags += '<div class="badge badge-pill ' + d.tags[j] + '">' + d.tags[j] + '</div>';
-                        }
-                    }
-                    if (!d.location) {
-                        d.location = {
-                            lon: rand(50.749523),
-                            lat: rand(7.203923),
-                        }
-                    }
-                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: el,
-                        alt: d.tags ? d.tags : []
-                    });
-                    marker.bindPopup('<div>Name: ' + d.id + '</div><div>Tags: ' + tags + '</div>');
-                    //this.targetDevices is the list of devices selected in 'deployment target'
-                    marker.on("click", event => {
-
-                        marker.openPopup();
-                        //console.log("ddd")
-                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
-                    });
-                    this.markers.addLayer(marker);
-                })
+                this.refreshmap(order.deploy.match.list);       
             }
-            this.map.addLayer(this.markers)
-            this.map.fitBounds(this.markers.getBounds());
-            //this.map.fitbounds(this.markers.layer.getBounds());
-            //L.Marker.stopAllBouncingMarkers();
-            //console.log("card");
-            //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
         }, 
-        clickDeployment: function (id) {
-            this.map.eachLayer(layer => {
-                if (layer instanceof L.Marker) {
-                    this.map.removeLayer(layer);
-                }
-            });
-            if (this.polyline) {
-                this.polyline.remove();
-            }
-            this.markers.clearLayers();
-            this.devices = [];
-            var filteredData = this.orders.find((i, n) => {
+        clickDeployment: function (id) {     
+            var filteredData = this.orders.find((i) => {
                 return i.id === id
-            });
-            //console.log(filteredData)
+            });     
             if (filteredData.deploy) {
-                filteredData.deploy.match.list.forEach(el => {
-                    var d = this.fullDevices.find(function (de) {
-                        return de.id === el
-                    })
-                    this.devices.push(d);
-                    //console.log(d)
-                    if (!d.location) {
-                        d.location = {
-                            lon: rand(50.749523),
-                            lat: rand(7.203923),
-                        }
-                    }
-                    var tags = "";
-                    if (d.tags) {
-                        for (let j = 0; j < d.tags.length; j++) {
-                            tags += '<div class="badge badge-pill ' + d.tags[j] + '">' + d.tags[j] + '</div>'
-                        }
-                    }
-                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: el,
-                        alt: d.tags ? d.tags : []
-                    });
-                    marker.bindPopup('<div>Name: ' + d.id + '</div><div>Tags: ' + tags + '</div>');
-                    //this.targetDevices is the list of devices selected in 'deployment target'
-                    marker.on("click", event => {
-
-                        marker.openPopup();
-                        //console.log("ddd")
-                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
-                    });
-                    this.markers.addLayer(marker);
-                })
-            }
-            this.map.addLayer(this.markers)
-            this.map.fitBounds(this.markers.getBounds());
-            //console.log(filteredData);
-            //markerGroup.addTo(map);
+                this.refreshmap(filteredData.deploy.match.list);          
+            } 
         },   
         closeModal: function () {
-
             if (this.ws) {
                 this.ws.close();
                 this.ws = "";
             } 
             this.orders=[];
             this.getOrders();
-            this.devices = [];
             this.fullDevices = [];
             this.failed = [];
             this.success = [];
             this.markers.clearLayers();
             this.getTargets();
-
         },
         checkLogs: function (target) {
             var des = "target=" + target;
@@ -682,8 +536,6 @@ export default {
                         fulltask.add(el.task)
                     });
                     let task = Array.from(fulltask).slice(0, 15).reverse();
-
-                    //console.log(task)
                     let lastLog = response.data.items.filter(el => el.task == task[0])
                     if (lastLog.some(el => el.error == true)) {
                         return {
@@ -709,161 +561,82 @@ export default {
                 console.log(error);
             });
         }, 
-        checkStatus: function (id, total) {
-            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get(this.address + "/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
-                if (!response.data.items) {
-                    return [total, 0];
-                } else {
-                    if (response.data.items[0].stage == "build") {
-                        return [0, 0]
-                    } else {
-                        return [total - response.data.items.length, response.data.items.length];
-                    }
-                }
-            }).catch(error => {
-                console.log(error);
-            });
-        },
         chooseSource: function () {
-            //console.log(this.typeSource)
-            //console.log(event.path)
             switch(this.typeSource){
+                //Choose... no source
                 case '0': 
                     this.$refs.emptySource.style.display = 'flex';
                     this.$refs.sourceOrder.style.display = 'none';
                     this.$refs.custom_file.style.display = 'none';
                     this.$refs.build.childNodes[0].style.display = 'none';
                     this.$refs.build.childNodes[1].style.display = 'inline';
-                    /* this.$refs.editor_build_c.editor.setOptions(
-                        {readOnly: false, 
-                        highlightActiveLine:true,
-                        highlightGutterLine:true});
-                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="inline";
-                    this.$refs.editor_build_a.editor.setOptions(
-                        {readOnly: false, 
-                        highlightActiveLine:true,
-                        highlightGutterLine:true});
-                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="inline";
-                    this.$refs.hostInput.disabled = false; */
                     break;
+                //From Artifacts
                 case '1':  
                     this.$refs.emptySource.style.display = 'none';
                     this.$refs.custom_file.style.display = 'none';
                     this.$refs.sourceOrder.style.display = 'flex';
                     this.$refs.build.childNodes[0].style.display = 'block';
                     this.$refs.build.childNodes[1].style.display = 'none';
-                    /* this.build_c ="";
-                    this.build_a= "";
-                    this.host = "";
-                    this.$refs.editor_build_c.editor.setOptions(
-                        {
-                        readOnly: true, 
-                        highlightActiveLine:false,
-                        highlightGutterLine:false
-                        });
-                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="none";
-                    this.$refs.editor_build_a.editor.setOptions(
-                        {readOnly: true, 
-                        highlightActiveLine:false,
-                        highlightGutterLine:false});
-                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
-                    this.$refs.hostInput.disabled = true; */
+                    this.source='';
                     break;
+                //Upload File
                 case '2': 
-         
-                    if(this.build_c_d && this.build_a_d && this.host_d){
-                       
-                        this.build_c = this.build_c_d;
-                        this.build_a = this.build_a_d;
-                        this.host = this.host_d
-                    }
                     this.$refs.emptySource.style.display = 'none';
                     this.$refs.custom_file.style.display = 'flex';
                     this.$refs.sourceOrder.style.display = 'none';
                     this.$refs.build.childNodes[0].style.display = 'none';
                     this.$refs.build.childNodes[1].style.display = 'inline';
-                    
-                   /*  this.$refs.editor_build_c.editor.setOptions(
-                        {readOnly: false, 
-                        highlightActiveLine:true,
-                        highlightGutterLine:true});
-                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="inline";
-                    this.$refs.editor_build_a.editor.setOptions(
-                        {readOnly: false, 
-                        highlightActiveLine:true,
-                        highlightGutterLine:true});
-                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="inline";
-                    this.$refs.hostInput.disabled = false; */
                     break;
             }
-            this.source="";
+        },
+        createBadge:function(content){
+            var badge = document.createElement("span");
+            badge.innerHTML = content;
+            badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
+            badge.onclick = function () { this.style.display = "none"; };
+            return badge;
         },
         deleteOrder: function (order) {
-
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
             axios.delete(this.address + "/orders/" + order.id).then(
                 response => {
-
-                    let index = this.orders.indexOf(this.orders.find(el => el.id == order.id))
-                    //console.log(order.id)
-                    this.orders.splice(index, 1);
-                    //console.log(this.orders);
+                    let index = this.orders.indexOf(this.orders.find(el => el.id == order.id))                
+                    this.orders.splice(index, 1);                 
                     $('#myMessage').modal();
-                    $('#mymessage-body').append("Delete order with " + order.id + "  " + response.statusText)
-                
-                    //console.log(this.orders.length)
+                    $('#mymessage-body').append("Delete order with " + order.id + "  " + response.statusText)   
                 }
             ).catch(error => {
                 $('#mymodal-body').append("Delete order with " + order.id + "  " + error)
                 $('#myAlert').modal();
             })
-
         }, 
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
-            this.deployDes=order.description?order.description:"";
-            this.deployDebug = order.debug;
+            this.deployDes = order.description?order.description:"";
+
             this.source = "";
-            document.getElementById("customFile").value = "";
             this.sourceOrder = order.id;
-            this.typeSource = '1';
-            this.$refs.custom_file.style.display = 'none';
-            this.$refs.sourceOrder.style.display = 'flex';
+            this.typeSource = '1';  
+            this.chooseSource();
 
-            this.build_c_d = order.build ? order.build.commands.join("\n") : "";
-            this.build_a_d = order.build ? order.build.artifacts.join("\n") : "";
-            this.host_d = order.build ? order.build.host : "";
-            
-            this.build_c = "";
-            this.build_a = "";
-            this.host = "";
+            this.deployDebug = order.debug;
 
-            this.$refs.editor_build_c.editor.setOptions(
-                        {
-                        readOnly: true, 
-                        highlightActiveLine:false,
-                        highlightGutterLine:false
-                        });
-                    this.$refs.editor_build_c.editor.renderer.$cursorLayer.element.style.display ="none";
-                    this.$refs.editor_build_a.editor.setOptions(
-                        {readOnly: true, 
-                        highlightActiveLine:false,
-                        highlightGutterLine:false});
-                    this.$refs.editor_build_a.editor.renderer.$cursorLayer.element.style.display ="none";
-                    this.$refs.hostInput.disabled = true;
+            this.build_c = order.build ? order.build.commands.join("\n") : "";
+            this.build_a = order.build ? order.build.artifacts.join("\n") : "";
+            this.host = order.build ? order.build.host : "";
 
             this.install_c = order.deploy && order.deploy.install.commands ? order.deploy.install.commands.join("\n") : "";
             this.run_c = order.deploy && order.deploy.run.commands ? order.deploy.run.commands.join("\n") : "";
             this.targetDevices = [];
             if (order.deploy) {
                 for (var i = 0; i < order.deploy.match.list.length; i++) {
-
                     this.targetDevices.push({
                         id: order.deploy.match.list[i],
-                        tags: this.devices.find(el => el.id == order.deploy.match.list[i]).tags,
+                        tags: this.fullDevices.find(el => el.id == order.deploy.match.list[i]).tags,
                     });
                 }
             }
@@ -875,59 +648,28 @@ export default {
             require("brace/mode/less");
             require("brace/theme/github");
             require("brace/snippets/javascript");
-        },  
-        filterDevice: function () {
-            var value = this.targetText.toLowerCase();
-            this.tags.forEach(function (tag) {
-                if (!(tag.tag.toLowerCase().indexOf(value) > -1)) {
-                    tag.isActive = false;
-                } else {
-                    tag.isActive = true;
-                }
-            });
-            this.fullDevices.forEach(d=>{
-                 if (!(d.id.toLowerCase().indexOf(value) > -1)) {
-                    d.nameActive = false;
-                } else {
-                    d.nameActive = true;
+        },
+        filter: function (list, key, value, word) {
+            list.forEach(l =>{
+                if(!(l[key].toLowerCase().indexOf(word)> -1)){
+                    this.$set(l, value+'Active', false)
+                }else{
+                     this.$set(l, value+'Active', true)
                 }
             })
+        },  
+        filterTarget: function () {
+            var value = this.targetText.toLowerCase();
+            this.filter(this.tags,'tag','is',value);
+            this.filter(this.fullDevices,'id','name',value);
         },
-        filterDevices: function (para) {
-            switch (para) {
-                case 'failed':
-                    this.devices = this.failed;
-                    break;
-                case 'success':
-                    this.devices = this.success;
-                    break;
-            }
-            this.$router.push({
-                path: "/home", props: {
-                    devices: this.devices,
-                }
-            });
-
-        }, 
         filterHost: function () {
             var value = this.host.toLowerCase();
-            this.devices.forEach(function (device) {
-                if (!(device.id.toLowerCase().indexOf(value) > -1)) {
-                    device.hostActive = false;
-                } else {
-                    device.hostActive = true;
-                }
-            });
+            this.filter(this.fullDevices,'id','host',value);
         },
-        filterOrder: function () {
-            var value = this.orderSearchT.toLowerCase();
-            this.orders.forEach(d => {
-                if (!(d.id.toLowerCase().indexOf(value) > -1)) {
-                    d.nameActive = false;
-                } else {
-                    d.nameActive = true;
-                }
-            })
+        filterOrder: function (source) {
+            var value = source.toLowerCase();
+            this.filter(this.orders,'id','name',value);
         },
         generateTree: function (logs, hostStatus, targetsStatus, host, targets) {
 
@@ -1039,26 +781,20 @@ export default {
                 targetsStatus.forEach((value, key) => { 
                
                 if (value.get('run')) {
-                    console.log("run", value.get('run')[0])
+                    //onsole.log("run", value.get('run')[0])
                     switch (value.get('run')[0]) {
                         case 'STAGE-END-e':
                             myTree_d.children[0].children[2].name = "run";
-                                myTree_d.children[0].children[2].value++;
-                                myTree_d.children[0].children[2].class = 'node-f';
-                                myTree_d.children[0].children[2].commands = value.get('run')[1];
-                                break;
+                            myTree_d.children[0].children[2].value++;
+                            myTree_d.children[0].children[2].class = 'node-f';
+                            myTree_d.children[0].children[2].commands = value.get('run')[1];
+                            break;
                         case 'STAGE-END':
-                                myTree_d.children[0].children[1].name = "run";
-                                myTree_d.children[0].children[1].value++;
-                                myTree_d.children[0].children[1].class = 'node-s';
-                                myTree_d.children[0].children[1].commands = value[2];
-                                break;
-                        case 'STAGE-START':
-                            myTree_d.children[0].children[0].name = "run";
-                            myTree_d.children[0].children[0].value++;
-                            myTree_d.children[0].children[0].class = 'node-i';
-                            myTree_d.children[0].children[0].commands = value.get('run')[1];
-                              break;
+                            myTree_d.children[0].children[1].name = "run";
+                            myTree_d.children[0].children[1].value++;
+                            myTree_d.children[0].children[1].class = 'node-s';
+                            myTree_d.children[0].children[1].commands = value[2];
+                            break;
                         default:
                             myTree_d.children[0].children[0].name = "run";
                             myTree_d.children[0].children[0].value++;
@@ -1067,7 +803,7 @@ export default {
                     }
 
                 } else if (value.get('install')) {
-                    console.log("install", value.get('install')[0])
+                    //console.log("install", value.get('install')[0])
                     switch (value.get('install')[0]) {      
                         case 'STAGE-END-e':  
                                 myTree_d.children[2].name = "install";
@@ -1079,12 +815,6 @@ export default {
                                 myTree_d.children[1].value++;
                                 myTree_d.children[1].class = 'node-s';
                                 myTree_d.children[1].commands = value[2];
-                        case 'STAGE-START':
-                                myTree_d.children[0].name = "install";
-                                myTree_d.children[0].value++;
-                                myTree_d.children[0].class = 'node-i';
-                                myTree_d.children[0].commands = value.get('install')[1];
-                              break;
                         default:
                              myTree_d.children[0].name = "install"
                             myTree_d.children[0].value++;
@@ -1092,7 +822,7 @@ export default {
                             myTree_d.children[0].commands = value[2];
                     }
                 }else if(value.get('deploy')){
-                    console.log("deploy", value.get('deploy')[0])
+                    //console.log("deploy", value.get('deploy')[0])
                     if (value.get('deploy')[0] == 'STAGE-START' ) {
                             myTree_d.name = "deploy";
                             myTree_d.value++;
@@ -1110,7 +840,24 @@ export default {
                 document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
                 }
             }
-            
+            if(myTree_d.value==1){
+                myTree_d.class == 'node-s'
+            }
+            if(myTree_d.children[0].value ==1){
+                myTree_d.children[0].class = 'node-s'
+                myTree_d.children[0].value = myTree_d.children[1].value;
+                myTree_d.children[0].commands = myTree_d.children[1].commands;
+                myTree_d.children[1].class = 'node-f';
+                myTree_d.children[1].value = myTree_d.children[2].value;   
+                 myTree_d.children[1].commands = myTree_d.children[2].commands;     
+            }
+                 if(myTree_d.children[0].children[0].value ==1){
+                myTree_d.children[0].children[0].class = 'node-s'
+                myTree_d.children[0].children[0].value = myTree_d.children[0].children[1].value;
+                myTree_d.children[0].commands = myTree_d.children[0].children[1].commands;
+                myTree_d.children[0].children[1].class = 'node-f';
+                myTree_d.children[0].children[1].value = myTree_d.children[0].children[2].value;        
+            }
             var tree_b = d3.tree().size([200, 100]);
             var root_b = d3.hierarchy(myTree_b);
             tree_b(root_b);
@@ -1200,7 +947,6 @@ export default {
         getFinishnStatus: function (id, total) {
 
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
-
                 let finishAt = response.data.items[0].time;
                 let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
                 if (logs.length == 0) {
@@ -1220,23 +966,15 @@ export default {
         getFinishTime: function (id) {
             //Request the latest logs time
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
-                //console.log(response.data)
                 return response.data.items[0].time;
             }).catch(error => {
                 console.log(error);
-            })
-            //return new Date(1551800395755).toLocaleString();
+            });
         }, 
         getOrders: function () {
-
-            //http://"+this.address+"/orders
-            // /deployment.json
-            axios.get(this.address + "/orders?sortOrder=desc").then(response => {
-                //console.log(this.orders)
+            axios.get(this.address + "/orders?sortOrder=desc").then(response => {     
                 for (let i = 0; i < response.data.total; i++) {
-
                     let a = response.data.items[i];
-
                     a.build ? a.build : (a.build = "");
                     a.deploy ? a.deploy : (a.deploy = "");
                     a.isActive = false;
@@ -1256,7 +994,6 @@ export default {
                             a.finishedAt = data[0];
                             a.status = data[1];
                             this.orders.push(a);
-                            //console.log(data)
                         });
                     } else {
                         this.getFinishTime(a.id).then(data => {
@@ -1265,31 +1002,19 @@ export default {
                         a.status = [0, 0]
                         a.deploy = "";
                         this.orders.push(a);
-                    }
-                    //this.orders is the list of all deployment saved on the server
+                    }          
                 }
-                //console.log(this.orders)
             });
-
         },
         getTargets: function () {
-
-            //http://"+this.address+"/targets
-            // /device.json
             axios.get(this.address + "/targets").then(response => {
-                //console.log(response.data);
+                
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
                     a.targetActive = true;
                     a.hostActive = true;
                     a.nameActive = true;
-                    // let marker = L.marker(L.latLng(a.location[0], a.location[1]), {
-                    // Generate a (lat, lng) randomly for each device
-
-                    // this.devices is the list of all devices registered on the server
-
-                    //console.log(this.devices)
-                    //this.tags is the list of all tags of the devices, no duplicated
+                 
                     var tags = "";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
@@ -1313,33 +1038,27 @@ export default {
                         alt: a.tags ? a.tags : []
                     });
                     a.marker = marker;
-
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
                         if (data.error == true) {
                             this.failed.push(a);
-                              marker.setIcon(L.icon({
+                            marker.setIcon(L.icon({
                                 iconUrl: "/error.png",
                                 iconSize: [20, 20]
-                        }))
+                            }))
                         } else {
                             this.success.push(a);
-                             marker.setIcon(L.icon({
+                            marker.setIcon(L.icon({
                                 iconUrl: "/done.png",
                                 iconSize: [20, 20]
-                        }))
+                            }))
                         }
-                        this.devices.push(a);
                         this.fullDevices.push(a);
                     });
 
-                    this.devices.push(a);
                     marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
-                    //this.targetDevices is the list of devices selected in 'deployment target'
                     marker.on("click", event => {
-
                         marker.openPopup();
-                        //console.log("ddd")
                         if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                             this.targetDevices.push({
                                 id: event.target.options.title,
@@ -1353,13 +1072,11 @@ export default {
                 console.log(error);
             });
         },
-        handleFileSelect: function (event) {
-            //console.log(this.source)
+        handleFileSelect: function (event) {     
             var files = event.target.files;
             // FileList object
             var archive = new jsZip().folder("archive");
             for (var i = 0, f; (f = files[i]); i++) {
-                //console.log(f)
                 // if set webkitdirectory
                 archive.file(f.webkitRelativePath, f);
                 // if only set multiple
@@ -1368,9 +1085,7 @@ export default {
             this.source = archive.generateAsync({ type: "base64" });
             if(files){
                 document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
-            }
-            //this.sourceOrder = null;
-           
+            }   
         }, 
         listen: function (id, deploy, target, host) {
 
@@ -1460,7 +1175,6 @@ export default {
             }  
         },
         previous: function () {
-
             if(this.offset < 0){
                 this.offset += 100;
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
@@ -1477,11 +1191,9 @@ export default {
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
                 if (this.targetDevices[i].id == name) {
-                    // Array.splice() remove/replace the element at index i
                     this.targetDevices.splice(i, 1);
                 }
             }
-            //console.log(this.targetDevices);
         },
         refresh: function () {
             this.orders = [];
@@ -1490,8 +1202,6 @@ export default {
         searchOrder: function () {
             var tagsNodes = document.getElementById("searchOrder").childNodes;
             var value = this.orderSearchT.toLowerCase();
-
-            //console.log(value);
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.orders.length; j++) {
@@ -1518,19 +1228,14 @@ export default {
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
                     for (var j = 0; j < this.fullDevices.length; j++) {
-                       
-                            if ((this.fullDevices[j].tags && this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.fullDevices[j].id == tagsNodes[i].innerHTML)) {
-                                //console.log(this.targetDevices)
-                                if (!(this.targetDevices.some(e => e.id == this.fullDevices[j].id))) {
-                                    //console.log(this.devices[j].tags)
-                                    this.targetDevices.push({
-                                        id: this.fullDevices[j].id,
-                                        tags: this.fullDevices[j].tags
-                                    });
-                                    //console.log(i, j, m);
-                                }
+                        if ((this.fullDevices[j].tags && this.fullDevices[j].tags.some(e => e == tagsNodes[i].innerHTML) || this.fullDevices[j].id == tagsNodes[i].innerHTML)) {
+                            if (!(this.targetDevices.some(e => e.id == this.fullDevices[j].id))) {
+                                this.targetDevices.push({
+                                    id: this.fullDevices[j].id,
+                                    tags: this.fullDevices[j].tags
+                                });
                             }
-                        
+                        }
                     }
                 }
             }
@@ -1539,44 +1244,62 @@ export default {
             this.sourceOrder = id;
         },  
         selectItem: function (tag) {
-            var badge = document.createElement("span");
-            badge.innerHTML = tag;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () { this.style.display = "none"; };
+            var badge = this.createBadge(tag);
             document.getElementById("searchTarget").appendChild(badge);
         },
         selectOrder: function (id) {
-            var badge = document.createElement("span");
-            badge.innerHTML = id;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () {
-                this.style.display = "none";
-            };
+            var badge = this.createBadge(id);
             document.getElementById("searchOrder").appendChild(badge);
         }, 
-        showNewDevices: function () {
-            this.devices = this.newDiscover;
-            this.markers.clearLayers();
-            this.devices.map(item => {
-                this.markers.addLayer(item.marker)
-            })
-            //console.log(this.devices);
-        }, 
+        showYaml: function () {
+
+            if(this.myYaml.show){
+                this.myYaml.show=false;
+                event.target.innerHTML = 'View Yaml'
+                document.getElementById('newDeployment').style.display ='grid';
+            }else{
+                event.target.innerHTML = 'View Form'
+                this.myYaml.show=true;
+                document.getElementById('newDeployment').style.display ='none';
+            }
+            let ids = [];
+            for (let i = 0; i < this.targetDevices.length; i++) {
+                ids.push(this.targetDevices[i].id);
+            }
+            var taskDer = {
+                description: this.deployDes ? this.deployDes.split("\n").join() : null,
+                source: {
+                    zip: null,
+                    order: null,
+                },
+                build: {
+                    commands: this.build_c ? this.build_c.split("\n") : null,
+                    artifacts: this.build_a ? this.build_a.split("\n") : null,
+                    host: this.host ? this.host : null
+                },
+                deploy: {
+                    install: {
+                        commands: this.install_c ? this.install_c.split("\n") : null
+                    },
+                    run: {
+                        commands: this.run_c ? this.run_c.split("\n") : null
+                    },
+                    target: {
+                        ids: ids
+                    }
+                },
+                debug: this.deployDebug ? this.deployDebug : false
+            };
+            this.myYaml.y = yaml.safeDump(taskDer);
+            
+        },
         stopOrder: function (order) {
 
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
             axios.put(this.address + "/orders/" + order.id + "/stop").then(response => {
-
-                //this.orders.splice(order.id,1);
-                //console.log(response); 
                 $('#myMessage').modal();
-                $('#mymessage-body').append("Stop order with " + order.id + "  " + response.data.message)
-               
-                //console.log(this.orders.length)
-
+                $('#mymessage-body').append("Stop order with " + order.id + "  " + response.data.message)    
             }).catch(error => {
                 $('#mymodal-body').append("Stop order with " + order.id + "  " + error)
                 $('#myAlert').modal();
@@ -1589,11 +1312,6 @@ export default {
             let tags = [];
             for (let i = 0; i < this.targetDevices.length; i++) {
                 ids.push(this.targetDevices[i].id);
-                /*    this.targetDevices[i].tags.forEach(function (el) {
-                                    if (!tags.some(e => e == el)) {
-                                        tags.push(el);
-                                    }
-                }); */
             }
             
             var myYaml;
@@ -1670,6 +1388,13 @@ export default {
                 });
             }
         },
+        toDevices: function (para) {
+            this.$router.push({
+                path: "/home", props: {
+                    devices: this.fullDevices,
+                }
+            });
+        }, 
     },
     mounted() {
 
@@ -1710,7 +1435,7 @@ export default {
                 });
             }
         });
-        // console.log(markers);
+       
 
         this.map.addLayer(this.markers);
     },
