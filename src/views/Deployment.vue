@@ -277,13 +277,14 @@
                                 </div>
                             </div>
                             <div></div>
-                            <div style="text-align:right">
-                                 <button class="btn btn-primary" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px;margin-right:5px">Clear</button>
-                                <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
-                            </div>
                         </form>
+                       
                         <div ref="deployYaml" v-if="myYaml.show">
                             <textarea v-model="myYaml.y"  cols="30" rows="23" class="form-control" style="font-size:14px"></textarea>
+                        </div> 
+                        <div style="text-align:right;margin-top:10px">
+                                 <button class="btn btn-primary" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px;margin-right:5px">Clear</button>
+                                <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
                         </div>
                     </div>
                 </div>
@@ -944,6 +945,39 @@ export default {
                 
             }) */
         },   
+        generateTaskDer: function () {
+
+            let ids = [];
+            for (let i = 0; i < this.targetDevices.length; i++) {
+                ids.push(this.targetDevices[i].id);
+            }
+            var taskDer = {
+                description: this.deployDes ? this.deployDes.split("\n").join() : null,
+                source: { 
+                    order: this.typeSource =='1'? this.sourceOrder: null,
+                    zip: this.typeSource =='2'? 'Uploaded Files': null,
+                },
+                build: {
+                    commands: this.build_c ? this.build_c.split("\n") : null,
+                    artifacts: this.build_a ? this.build_a.split("\n") : null,
+                    host: this.host ? this.host : null
+                },
+                deploy: {
+                    install: {
+                        commands: this.install_c ? this.install_c.split("\n") : null
+                    },
+                    run: {
+                        commands: this.run_c ? this.run_c.split("\n") : null
+                    },
+                    target: {
+                        ids: ids
+                    }
+                },
+                debug: this.deployDebug ? this.deployDebug : false
+            };
+            return taskDer;
+
+        },
         getFinishnStatus: function (id, total) {
 
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
@@ -1087,6 +1121,21 @@ export default {
                 document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
             }   
         }, 
+        handleDeploy: function (taskDer) {
+            var myYaml = yaml.safeDump(taskDer);
+            //console.log(myYaml);
+            axios.post(this.address + "/orders", myYaml).then(response => {
+                //console.log(response);
+                response.data.deploy ? response.data.deploy : (response.data.deploy = "");
+                response.data.build ? response.data.deploy : (response.data.build = "");
+                $("#collapseOne").collapse("show");
+                this.clearForm();
+                this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
+                }).catch(error => {    
+                $("#mymodal-body").append(error.response.data.error);
+                $("#myAlert").modal();
+            });
+        },
         listen: function (id, deploy, target, host) {
 
             $("#mylog").empty();
@@ -1262,36 +1311,8 @@ export default {
                 this.myYaml.show=true;
                 document.getElementById('newDeployment').style.display ='none';
             }
-            let ids = [];
-            for (let i = 0; i < this.targetDevices.length; i++) {
-                ids.push(this.targetDevices[i].id);
-            }
-            var taskDer = {
-                description: this.deployDes ? this.deployDes.split("\n").join() : null,
-                source: {
-                    zip: null,
-                    order: null,
-                },
-                build: {
-                    commands: this.build_c ? this.build_c.split("\n") : null,
-                    artifacts: this.build_a ? this.build_a.split("\n") : null,
-                    host: this.host ? this.host : null
-                },
-                deploy: {
-                    install: {
-                        commands: this.install_c ? this.install_c.split("\n") : null
-                    },
-                    run: {
-                        commands: this.run_c ? this.run_c.split("\n") : null
-                    },
-                    target: {
-                        ids: ids
-                    }
-                },
-                debug: this.deployDebug ? this.deployDebug : false
-            };
-            this.myYaml.y = yaml.safeDump(taskDer);
-            
+            let taskDer = this.generateTaskDer();
+            this.myYaml.y = yaml.safeDump(taskDer);      
         },
         stopOrder: function (order) {
 
@@ -1308,84 +1329,14 @@ export default {
         submitDeploy: function () {
 
             $('#mymodal-body').empty();
-            let ids = [];
-            let tags = [];
-            for (let i = 0; i < this.targetDevices.length; i++) {
-                ids.push(this.targetDevices[i].id);
-            }
-            
-            var myYaml;
-            var taskDer = {
-                description: this.deployDes ? this.deployDes.split("\n").join() : null,
-                source: {
-                    zip: null,
-                    order: null,
-                },
-                build: {
-                    commands: this.build_c ? this.build_c.split("\n") : null,
-                    artifacts: this.build_a ? this.build_a.split("\n") : null,
-                    host: this.host ? this.host : null
-                },
-                deploy: {
-                    install: {
-                        commands: this.install_c ? this.install_c.split("\n") : null
-                    },
-                    run: {
-                        commands: this.run_c ? this.run_c.split("\n") : null
-                    },
-                    target: {
-                        ids: ids
-                    }
-                },
-                debug: this.deployDebug ? this.deployDebug : false
-            };
-            switch(this.typeSource){
-                case '1': taskDer.source.order = this.sourceOrder
-                    break;
-                case '2': this.sourceOrder ="";
-                    break;
-            }
+            var taskDer = this.generateTaskDer();
             if (this.source) {
                 this.source.then(data => {
                     taskDer.source.zip = data;
-                    //console.log(taskDer)
-                    myYaml = yaml.safeDump(taskDer);
-                    //console.log(myYaml);
-                    axios.post(this.address + "/orders", myYaml).then(response => {
-                        //console.log(response);
-                        response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-                        response.data.build ? response.data.deploy : (response.data.build = "");
-
-                        $("#collapseOne").collapse("show");
-
-                        this.clearForm();
-                        this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
-
-                    }).catch(error => {
-                        console.log(error.response);
-                        $("#mymodal-body").append(error.response.data.error);
-                        $("#myAlert").modal();
-                    });
+                    this.handleDeploy(taskDer);
                 });
-            } else {
-                
-                myYaml = yaml.safeDump(taskDer);
-                //console.log(myYaml);    
-                axios.post(this.address + "/orders", myYaml).then(response => {
-                    //console.log(response);
-                    response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-                    response.data.build ? response.data.deploy : (response.data.build = "");
-
-                    $("#collapseOne").collapse("show");
-                        
-                    this.clearForm();
-                    this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
-
-                }).catch(error => {
-                    console.log(error.response);
-                    $("#mymodal-body").append(error.response.data.error);
-                    $("#myAlert").modal();
-                });
+            } else {     
+                this.handleDeploy(taskDer);
             }
         },
         toDevices: function (para) {
