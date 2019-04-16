@@ -336,15 +336,15 @@
                         <div>Run</div>
                     </div>
                     <div>
-                        <svg id="mytree_b" width="200" height="110">
-                            <g transform="translate(5, 5)">
+                        <svg id="mytree_b" width="200" height="150">
+                            <g transform="translate(0, 20)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
                             </g>
                         </svg>
                         <br>
-                         <svg id="mytree_d" width="200" height="220">
-                            <g transform="translate(5, 5)">
+                         <svg id="mytree_d" width="200" height="300">
+                            <g transform="translate(0, 20)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
                             </g>
@@ -728,11 +728,11 @@ export default {
                 // Get all logs for host
                 var oneLog = logs.filter(log => log.stage == "build");
                 if (oneLog.length > 0) {
-                    let endLog = oneLog.filter(el => {return el.output == "STAGE-END" }); //In case, 'STAGE-END' coming before the other logs at the same second
+                    let endLog = oneLog.filter(el => {return el.output == "STAGE-END" }); 
                     if (endLog) {
-                        hostStatus.get(endLog.target).set("build", [endLog.error? "STAGE-END-e":"STAGE-END", oneLog.filter(el => el.stage == "build")])                    
+                        hostStatus.get(endLog[0].target).set("build", [endLog.error? "STAGE-END-e":"STAGE-END", oneLog])                    
                     } else { 
-                        hostStatus.get(endLog.target).set("build", [endLog.output, oneLog.filter(el => el.stage == "build")])
+                        hostStatus.get(endLog[0].target).set("build", [endLog.output, oneLog])
                     }
                 }    
                 hostStatus.forEach((value,key)=>{
@@ -745,8 +745,7 @@ export default {
                             myTree_b.class = 'node-s';
                             myTree_b.commands = value.get('build')[1];
                     }
-                })
-                           
+                })                     
                 var c= "";
                 oneLog.forEach(log => {
                     let s = "";
@@ -754,7 +753,6 @@ export default {
                     c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
                 });
                 $('#'+ host).append(c);              
-                
                 document.getElementById(host).scrollTop = document.getElementById(host).scrollHeight;
               
             }  
@@ -765,11 +763,16 @@ export default {
                 // Get all logs for one devices
                 var oneLog = logs.filter(log => log.target == targets[i]);
                 if (oneLog.length > 0) {
-                    let endLogs = oneLog.filter(el => { return el.output == "STAGE-END" }); //In case, 'STAGE-END' coming before the other logs at the same second
-                    if (endLogs) {
-                        endLogs.forEach(item => {                  
+                    let runLogs = oneLog.filter(el => { return el.stage == "run" }); 
+
+
+
+                    if (runLogs) { 
+                        targetsStatus.get(targets[i]).set('deploy', ['END','']); 
+                        targetsStatus.get(targets[i]).set('install', ['STAGE-END','']);
+                        runLogs.forEach(item => {                  
                                 targetsStatus.get(item.target).set(item.stage, [item.error? "STAGE-END-e":"STAGE-END", oneLog.filter(el => el.stage == item.stage)])
-                                targetsStatus.get(item.target).set('deploy', ['END','']);                 
+                                               
                         })
                     } else {
                         if (targetsStatus.get(item.target).get(item.stage)[0].substring(0, 9) != "STAGE-END") {
@@ -777,12 +780,20 @@ export default {
                             targetsStatus.get(item.target).set('deploy', ['END','']);
                         }
                     } 
-                }
+                }    
+                var c= "";
+                oneLog.forEach(log => {
+                    let s = "";
+                    log.error ? s = "f" : s = "s";
+                    c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
+                });
+                $('#'+targets[i]).append(c);              
+                document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
+                }  
                 
                 targetsStatus.forEach((value, key) => { 
-               
-                if (value.get('run')) {
-                    //onsole.log("run", value.get('run')[0])
+                if (value.get('run')[0]) {
+                    console.log("run", value.get('run'))
                     switch (value.get('run')[0]) {
                         case 'STAGE-END-e':
                             myTree_d.children[0].children[2].name = "run";
@@ -794,7 +805,7 @@ export default {
                             myTree_d.children[0].children[1].name = "run";
                             myTree_d.children[0].children[1].value++;
                             myTree_d.children[0].children[1].class = 'node-s';
-                            myTree_d.children[0].children[1].commands = value[2];
+                            myTree_d.children[0].children[1].commands = value.get('run')[1];
                             break;
                         default:
                             myTree_d.children[0].children[0].name = "run";
@@ -803,27 +814,28 @@ export default {
                             myTree_d.children[0].children[0].commands = value.get('run')[1];
                     }
 
-                } else if (value.get('install')) {
-                    //console.log("install", value.get('install')[0])
+                } else if (value.get('install')[0]) {
+                    console.log("install", value.get('install')[0])
                     switch (value.get('install')[0]) {      
                         case 'STAGE-END-e':  
                                 myTree_d.children[2].name = "install";
                                 myTree_d.children[2].value++;
-                                myTree_d.children[2].commands = value[2];
+                                myTree_d.children[2].commands = value.get('install')[1];
                                 break;
                         case 'STAGE-END': 
                                 myTree_d.children[1].name = "install";
                                 myTree_d.children[1].value++;
                                 myTree_d.children[1].class = 'node-s';
-                                myTree_d.children[1].commands = value[2];
+                                myTree_d.children[1].commands = value.get('install')[1];
+                                break;
                         default:
-                             myTree_d.children[0].name = "install"
+                            myTree_d.children[0].name = "install"
                             myTree_d.children[0].value++;
                             myTree_d.children[0].class = 'node-i';
-                            myTree_d.children[0].commands = value[2];
+                            myTree_d.children[0].commands = value.get('install')[1];
                     }
-                }else if(value.get('deploy')){
-                    //console.log("deploy", value.get('deploy')[0])
+                }else if(value.get('deploy')[0]){
+                    console.log("deploy", value.get('deploy')[0])
                     if (value.get('deploy')[0] == 'STAGE-START' ) {
                             myTree_d.name = "deploy";
                             myTree_d.value++;
@@ -831,34 +843,29 @@ export default {
                     }
                 }
             })
-                var c= "";
-                oneLog.forEach(log => {
-                    let s = "";
-                    log.error ? s = "f" : s = "s";
-                    c += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                });
-                $('#'+targets[i]).append(c);              
-                document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
-                }
             }
-            if(myTree_d.value==1){
+          /* if(myTree_d.value==1){
                 myTree_d.class == 'node-s'
             }
             if(myTree_d.children[0].value ==1){
+
                 myTree_d.children[0].class = 'node-s'
                 myTree_d.children[0].value = myTree_d.children[1].value;
                 myTree_d.children[0].commands = myTree_d.children[1].commands;
                 myTree_d.children[1].class = 'node-f';
                 myTree_d.children[1].value = myTree_d.children[2].value;   
-                 myTree_d.children[1].commands = myTree_d.children[2].commands;     
+                myTree_d.children[1].commands = myTree_d.children[2].commands;
+                
+
             }
-                 if(myTree_d.children[0].children[0].value ==1){
+            if(myTree_d.children[0].children[0].value ==1){
                 myTree_d.children[0].children[0].class = 'node-s'
                 myTree_d.children[0].children[0].value = myTree_d.children[0].children[1].value;
                 myTree_d.children[0].commands = myTree_d.children[0].children[1].commands;
                 myTree_d.children[0].children[1].class = 'node-f';
                 myTree_d.children[0].children[1].value = myTree_d.children[0].children[2].value;        
-            }
+            }   */
+            console.log(myTree_d)
             var tree_b = d3.tree().size([200, 100]);
             var root_b = d3.hierarchy(myTree_b);
             tree_b(root_b);
@@ -958,9 +965,9 @@ export default {
                     zip: this.typeSource =='2'? 'Uploaded Files': null,
                 },
                 build: {
-                    commands: this.build_c ? this.build_c.split("\n") : null,
-                    artifacts: this.build_a ? this.build_a.split("\n") : null,
-                    host: this.host ? this.host : null
+                    commands: this.typeSource !='1' && this.build_c ? this.build_c.split("\n") : null,
+                    artifacts: this.typeSource !='1' && this.build_a ? this.build_a.split("\n") : null,
+                    host: this.typeSource !='1' && this.host ? this.host : null
                 },
                 deploy: {
                     install: {
@@ -1141,7 +1148,6 @@ export default {
             $("#mylog").empty();
             $("#myTree").modal();
       
-            var logs = [];
             var hostStatus = new Map();
             var targetsStatus = new Map();
              
@@ -1164,11 +1170,10 @@ export default {
                     targetsStatus.set(el, status);
                 });
                 target.map(t=>{
-                    $('#mylog').append('<h6 style="margin:0">Deploy: </h6><div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
+                   $('#mylog').append('<h6 style="margin:0">Deploy: </h6><div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
                 })
             }else{
                    $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
-       
             }
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
@@ -1182,23 +1187,19 @@ export default {
                 alert("WebSocket is not supported by your Browser!");
                 return;
             }
-            // Clear the WebSocket
             if (this.ws) {
                 this.ws.close();
                 this.ws = "";
             } else {
-                if(this.address.indexOf('https')>-1){            
-                    this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
-                }else{
-                    this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
-                }
+                let address;
+                this.address.indexOf('https')>-1? address = "wss://": address = "ws://";         
+                this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
                 this.ws.onopen = function () {
-                    console.log("Socket connected.");
+                    //console.log("Socket connected.");
                 };
                 this.ws.onmessage = event => {
                     //console.log(event.data);
-                    var obj = JSON.parse(event.data);
-                   
+                    var obj = JSON.parse(event.data);   
                     this.generateTree(obj.payload, hostStatus, targetsStatus, host, target);
                 };
                 this.ws.onclose = function () {
