@@ -358,15 +358,15 @@
         </div>
     </div>
      <div id="myTimeline" ref="myTimeline">
-               <button ref="pre" disabled class="btn btn-sm btn-light" style="width: 20px;height: 20px;position: relative;float: left;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="previous">
+               <button ref="pre"  class="btn btn-sm btn-light" style="width: 20px;height: 20px;position: relative;float: left;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="previous">
                     <span style="left: -5px;font-size: 9px;position: relative;top: -8px;">&#9668;</span> 
                 </button> 
-                <button ref="next" class="btn btn-sm btn-light"  style="width: 20px;height: 20px;position: relative;float: right;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="next">
+                <button ref="next" disabled class="btn btn-sm btn-light"  style="width: 20px;height: 20px;position: relative;float: right;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="next">
                     <span style="left: -4px;font-size: 9px;position: relative;top: -8px;">&#9658;</span>
                 </button>
                <div style="height:70px; overflow:hidden">
                 <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
-                <div id="timeline_lis" ref="timeline_lis" style="position: relative;top:-54px;width:max-content">
+                <div id="timeline_lis" ref="timeline_lis" style="position: relative;top:-54px;width:max-content;float:right">
                     <li v-for="order in orders.slice().reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
@@ -1211,30 +1211,32 @@ export default {
             }
         },
         next: function () {
-             if(this.$refs.timeline_lis.offsetWidth+this.offset > (this.map.getSize().x - 20)){
-                this.$refs.pre.disabled=false
+            
+             if(this.offset > 0){
+                this.$refs.pre.disabled=false;
                 this.offset -= 100;
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
                 this.$refs.timeline_lis.style.transition = 'all .6s'; 
             }else{
                     if(this.offset <=0){
-                         this.$refs.next.disabled=true
+                         this.$refs.next.disabled=true;
                     }else{
-                         this.$refs.pre.disabled=true
+                         this.$refs.pre.disabled=true;
                 }           
-            }  
+            }   
         },
         previous: function () {
-            if(this.offset < 0){
+           
+            if(this.$refs.timeline_lis.offsetWidth-this.offset > (this.map.getSize().x - 20)){
                 this.offset += 100;
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
                 this.$refs.timeline_lis.style.transition = 'all .6s'; 
                 this.$refs.next.disabled=false
             }else{
                 if(this.offset >= 0){
-                     this.$refs.pre.disabled=true
+                     this.$refs.pre.disabled=true;
                 }else{
-                     this.$refs.next.disabled=true
+                     this.$refs.next.disabled=true;
                 }           
             }  
         }, 
