@@ -1075,7 +1075,7 @@ export default {
             e.path[5].childNodes[0].style.display = 'grid';
             e.path[5].childNodes[2].style.display = 'none';
         },
-       next: function () {
+        next: function () {
             
             if(this.offset > 0){
                 this.$refs.pre.disabled=false;
@@ -1164,6 +1164,7 @@ export default {
             }
         },
         selectItem: function (tag) {
+            this.searchText="";
             var badge = document.createElement("span");
             badge.innerHTML = tag;
             badge.setAttribute("class", "btn btn-primary btn-sm");
@@ -1174,6 +1175,7 @@ export default {
             document.getElementById("searchTarget").appendChild(badge);
         },
         selectItem2: function (tag) {
+            this.searchText="";
             var badge = document.createElement("span");
             badge.innerHTML = tag;
             badge.setAttribute("class", "btn btn-primary btn-sm");
