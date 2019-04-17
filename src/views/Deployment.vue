@@ -1333,7 +1333,6 @@ export default {
                     document.getElementById("customFile").value = "";
                     }
                 
-
                 this.chooseSource();
                 this.deployDebug = obj.debug;
 
@@ -1344,14 +1343,14 @@ export default {
                 this.install_c = obj.deploy.install.commands ? obj.deploy.install.commands.join("\n") : "";
                 this.run_c = obj.deploy.run.commands ? obj.deploy.run.commands.join("\n") : "";
                 this.targetDevices = [];
-                if (obj.deploy) {
-                for (var i = 0; i < obj.deploy.target.ids; i++) {
+                
+                for (var i = 0; i < obj.deploy.target.ids.length; i++) {
                     this.targetDevices.push({
                         id: obj.deploy.target.ids[i],
                         tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
                     });
                 }
-                }
+            
                 }catch(error) {
                     $('#mymodal-body').empty();
                     $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" +  error);
