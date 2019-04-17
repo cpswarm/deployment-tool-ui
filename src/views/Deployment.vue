@@ -276,16 +276,17 @@
                                     </div>
                                 </div>
                             </div>
-                            <div></div>
+                            <div></div> 
+                            <div style="text-align:right;margin-top:10px">
+                                 <button class="btn btn-primary" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px;margin-right:5px">Clear</button>
+                                <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
+                            </div>
                         </form>
                        
                         <div ref="deployYaml" v-if="myYaml.show">
                             <textarea v-model="myYaml.y"  cols="30" rows="23" class="form-control" style="font-size:14px"></textarea>
                         </div> 
-                        <div style="text-align:right;margin-top:10px">
-                                 <button class="btn btn-primary" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px;margin-right:5px">Clear</button>
-                                <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
@@ -1316,6 +1317,47 @@ export default {
                 this.myYaml.show=false;
                 event.target.innerHTML = 'View Yaml'
                 document.getElementById('newDeployment').style.display ='grid';
+
+                var obj = yaml.safeLoad(this.myYaml.y);
+                try {
+                   this.deployDes = obj.description?obj.description:"";
+
+                    if(obj.source.order){
+                    this.sourceOrder = obj.source.order;
+                    this.typeSource ='1';
+                    }else{
+                    this.sourceOrder ='';
+                    this.typeSource ='2';
+                    this.source = "";
+                    document.getElementById("mySourcelabel").innerHTML = "Choose File";
+                    document.getElementById("customFile").value = "";
+                    }
+                
+
+                this.chooseSource();
+                this.deployDebug = obj.debug;
+
+                this.build_c = obj.build.commands ? obj.build.commands.join("\n") : "";
+                this.build_a = obj.build.artifacts ? obj.build.artifacts.join("\n") : "";
+                this.host = obj.build.host ? obj.build.host : "";
+
+                this.install_c = obj.deploy.install.commands ? obj.deploy.install.commands.join("\n") : "";
+                this.run_c = obj.deploy.run.commands ? obj.deploy.run.commands.join("\n") : "";
+                this.targetDevices = [];
+                if (obj.deploy) {
+                for (var i = 0; i < obj.deploy.target.ids; i++) {
+                    this.targetDevices.push({
+                        id: obj.deploy.target.ids[i],
+                        tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
+                    });
+                }
+                }
+                }catch(error) {
+                    $('#mymodal-body').empty();
+                    $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" +  error);
+                    $('#mymodal-body').append("<br><strong>Please check the syntax!</strong>")
+                    $('#myAlert').modal();
+                }
             }else{
                 event.target.innerHTML = 'View Form'
                 this.myYaml.show=true;
