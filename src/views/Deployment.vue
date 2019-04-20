@@ -337,7 +337,7 @@
                         <div>End</div>
                     </div>
                     <div>
-                        <svg id="mytree_b" width="200" height="50">
+                        <svg id="mytree_b" width="200" height="60">
                             <g transform="translate(15, 20)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
@@ -701,12 +701,6 @@ export default {
                                 value: 1,   
                                 class:"node-n",                             
                                 commands: "",
-                                children:[
-                                    {
-                                        value:1,
-                                        class:"node-n",
-                                        commands:""
-                                    }]
                             },
                             {                                 
                                 value: 0,   
@@ -755,27 +749,28 @@ export default {
                 });
                 $('#'+ host).append(c_b);              
                 document.getElementById(host).scrollTop = document.getElementById(host).scrollHeight;
-              
-            }  
+            }
             
             //If there is a deploy process
             if(targets){
+
                 for (let i = 0; i < targets.length; i++) {
                 // Get all logs for one devices
                 var oneLog = logs.filter(log => log.target == targets[i]); 
                 var c_d= "";
+
                 if (oneLog.length > 0) {
                     oneLog.forEach(log=>{
                         switch(log.stage){
                             case 'run': 
                                 if(targetsStatus.get(log.target).get('run')[0].substring(0, 9) != "STAGE-END"){
-                                    targetsStatus.get(log.target).set('run', [log.output, oneLog.filter(el => el.stage == 'run')])
+                                    targetsStatus.get(log.target).set('run', [log.output?log.output:"", oneLog.filter(el => el.stage == 'run')])
                                 }
                                 targetsStatus.get(log.target).set('deploy', ['END', ''])
                                 break;
                             case 'install':
                                 if(targetsStatus.get(log.target).get('install')[0].substring(0, 9) != "STAGE-END"){
-                                    targetsStatus.get(log.target).set('install', [log.output, oneLog.filter(el => el.stage == 'install')])
+                                    targetsStatus.get(log.target).set('install', [log.output?log.output:"", oneLog.filter(el => el.stage == 'install')])
                                 }
                                 targetsStatus.get(log.target).set('deploy', ['END', ''])
                                 break;
@@ -791,7 +786,7 @@ export default {
                 
                 targetsStatus.forEach((value, key) => { 
                 if (value.get('run')[0]) {
-                    console.log("run", value.get('run')[0])
+                    //console.log("run", value.get('run')[0])
                     switch (value.get('run')[0]) {
                         case 'STAGE-END':
                             if(value.get('run')[1].some(l=>{return l.error == true && l.output=='STAGE-END'})){
@@ -800,10 +795,10 @@ export default {
                                 myTree_d.children[0].children[1].class = 'node-f';
                                 myTree_d.children[0].children[1].commands = value.get('run')[1];
                             }else{
-                                myTree_d.children[0].children[0].children[0].name = "run";
-                                myTree_d.children[0].children[0].children[0].value++;
-                                myTree_d.children[0].children[0].children[0].class = 'node-s';
-                                myTree_d.children[0].children[0].children[0].commands = value.get('run')[1];
+                                myTree_d.children[0].children[0].name = "run";
+                                myTree_d.children[0].children[0].value++;
+                                myTree_d.children[0].children[0].class = 'node-s';
+                                myTree_d.children[0].children[0].commands = value.get('run')[1];
                             }
                             break;
                         default:
@@ -812,9 +807,8 @@ export default {
                             myTree_d.children[0].children[0].class = 'node-s';
                             myTree_d.children[0].children[0].commands = value.get('run')[1];
                     }
-
                 } else if (value.get('install')[0]) {
-                    console.log("install", value.get('install')[0])
+                    //console.log("install", value.get('install')[0])
                     switch (value.get('install')[0]) {      
                         case 'STAGE-END': 
                      
@@ -847,36 +841,16 @@ export default {
                 }
             })
             }
-          /* if(myTree_d.value==1){
-                myTree_d.class == 'node-s'
-            }
-            if(myTree_d.children[0].value ==1){
-
-                myTree_d.children[0].class = 'node-s'
-                myTree_d.children[0].value = myTree_d.children[1].value;
-                myTree_d.children[0].commands = myTree_d.children[1].commands;
-                myTree_d.children[1].class = 'node-f';
-                myTree_d.children[1].value = myTree_d.children[2].value;   
-                myTree_d.children[1].commands = myTree_d.children[2].commands;
-                
-
-            }
-            if(myTree_d.children[0].children[0].value ==1){
-                myTree_d.children[0].children[0].class = 'node-s'
-                myTree_d.children[0].children[0].value = myTree_d.children[0].children[1].value;
-                myTree_d.children[0].commands = myTree_d.children[0].children[1].commands;
-                myTree_d.children[0].children[1].class = 'node-f';
-                myTree_d.children[0].children[1].value = myTree_d.children[0].children[2].value;        
-            }   */
-            //console.log(myTree_d)
-            var tree_b = d3.tree().size([200, 100]);
+            
+            var tree_b = d3.tree().size([200, 60]);
             var root_b = d3.hierarchy(myTree_b);
             tree_b(root_b);
+            
 
             var tree_d = d3.tree().size([200, 200]);
             var root_d = d3.hierarchy(myTree_d);
             tree_d(root_d);
-
+            console.log(root_d)
             //Build-Tree Nodes
             d3.select("#mytree_b g.nodes")
                 .selectAll("circle.node")
@@ -950,6 +924,263 @@ export default {
                     }
                 })
        
+            //$('#mylog').append(code);
+           /*  targets.forEach(el=>{
+                
+            }) */
+        },  
+        generateTree2: function (logs, hostStatus, targetsStatus, host, targets) {
+
+            d3.selectAll("circle").remove();
+            d3.selectAll("line").remove();
+
+            var code = ""; 
+            var build = {
+                value:1,
+                class:"node-n",
+                children:[]
+            };
+            var install = {
+                value:1,
+                class:"node-n", 
+                children:[{
+                    value:0,
+                    class:'node-s'
+                },
+                {
+                    value:0,
+                    class:'node-f'
+                },
+                {
+                    value:0,
+                    class:'node-i'
+                }]   
+            };
+            var run = {
+                value:1,
+                class:"node-n", 
+                children:[{
+                    value:0,
+                    class:'node-s'
+                },
+                {
+                    value:0,
+                    class:'node-f'
+                },
+                {
+                    value:0,
+                    class:'node-i'
+                }]    
+            }; 
+            
+
+            //If there is a build process
+            if(host){
+                // Get all logs for host
+                var oneLog = logs.filter(log => log.stage == "build");             
+                oneLog.forEach(log =>{
+                     if(hostStatus.get(log.target).get('build')[0].substring(0, 9) != "STAGE-END"){
+                            hostStatus.get(log.target).set('build', [log.output, oneLog])
+                      }
+                }) 
+                build.class = 'node-i'; 
+                hostStatus.forEach((value,key)=>{
+                    let child = {class: '', value: 0, commands: ''};
+                    child.value++;
+                    child.commands=value.get('build')[1];              
+                    if(value.get('build')[1].some(l=>{return l.error == true && l.output=='STAGE-END'})){
+                        child.class = 'node-f';              
+                    }else{
+                        child.class = 'node-s';             
+                    }
+                    build.children.push(child);
+                })      
+                                     
+                let c_b= "";
+                oneLog.forEach(log => {
+                    let s = "";
+                    log.error ? s = "f" : s = "s";
+                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
+                });
+                $('#'+ host).append(c_b);              
+                document.getElementById(host).scrollTop = document.getElementById(host).scrollHeight;
+            }else{    
+                build.children.push({class:'node-n',value:1})
+            }    
+            
+            //If there is a deploy process
+            if(targets){
+
+                install.value = targets.length;
+                install.class = 'node-i';
+
+                for (let i = 0; i < targets.length; i++) {
+                var oneLog = logs.filter(log => log.target == targets[i]); 
+                var c_d= "";
+
+                if (oneLog.length > 0) {
+                    oneLog.forEach(log=>{ 
+                        if(targetsStatus.get(log.target).get(log.stage)[0].substring(0, 9) != "STAGE-END"){
+                            targetsStatus.get(log.target).set(log.stage, [log.output, oneLog.filter(el => el.stage == log.stage)])
+                        }
+                        targetsStatus.get(log.target).set('deploy', ['END', ''])
+                        let s = "";
+                        log.error ? s = "f" : s = "s";
+                        c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
+                    })
+                }    
+                $('#'+targets[i]).append(c_d);              
+                document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
+                }  
+                console.log(targetsStatus)
+                targetsStatus.forEach((value, key) => {
+                    install.value--;
+                    let child = {class: '', value: 0, commands: ''};
+                    let i = value.get('install');
+                    let i_e = i[1]?i[1].some(l=>{return l.error == true && l.stage =='install' && l.output=='STAGE-END'}):'';
+
+                    let r = value.get('run');
+                    let r_e =r[1]? r[1].some(l=>{return l.error == true && l.stage =='run' && l.output=='STAGE-END'}):'';
+                    
+                    if (i[0]=="STAGE-END" && i_e){ 
+                  
+                            install.children[1].value++;
+                            install.children[1].commands = i[1];
+                    
+                    }else if (i[0]=="STAGE-END" && r[0]==""){
+                    
+                            install.children[0].value++;
+                         
+                            install.children[0].commands = i[1];
+                      
+                    }else if (i[0]=="STAGE-END" && r[0] != "STAGE-END"){
+                   
+                            run.children[2].value++;
+                         
+                            run.children[2].commands = i[1];
+                       
+                    }else if(r[0] == "STAGE-END" && r_e && i[0]==""){
+                         
+                            run.children[1].value++;
+                         
+                            run.children[1].commands = i[1];
+                       
+                    }else if(r[0] == "STAGE-END" && !r_e && i[0]=="STAGE-END"){
+
+                        
+                            run.children[0].value++;
+                          
+                            run.children[0].commands = i[1];
+                      
+                    }else if (r[0] == "STAGE-END" && r_e && i[0] == "STAGE-END"){
+                        
+                            run.children[1].value++;
+                          
+                            run.children[1].commands = i[1];
+
+                    }else if(r[0] == "STAGE-END" && i[0]=="" && !r_e){
+                       
+                            run.children[0].value++;
+                           
+                            run.children[0].commands = i[1];
+        
+                    }else if(r[0] != "STAGE-END" && i[0]==""){
+                       
+                            run.children[2].value++;
+                          
+                            run.children[2].commands = i[1];
+                    
+                    }else if(i[0]!="STAGE-END"){
+                         
+                            install.children[2].value++;
+                        
+                            install.children[2].commands = i[1];
+                    }
+                })
+            }
+            install.children[0]?install.children[0] = run: install.children.push(run);
+      
+            //console.log(myTree_d)
+            var tree_b = d3.tree().size([200, 30]);        
+            var tree_d = d3.tree().size([200, 200]);
+            var root_b = d3.hierarchy(build); 
+            var root_d = d3.hierarchy(install); 
+
+            //Build-Tree Nodes
+            d3.select("#mytree_b g.nodes")
+                .selectAll("circle.node")
+                .data(tree_b(root_b).descendants())
+                .enter()
+                .append("circle")
+                .attr("class", function (d) { return d.data.class; })
+                .attr("cx", function (d) { return d.x; })
+                .attr("cy", function (d) { return d.y; })
+                .attr("r", function (d) { return d.data.value * 1.5; })
+                .on('click', function (d) {
+                    $('#mylog').empty();
+                    code = "";
+                    d.data.commands.forEach(el => {
+                        code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                    });
+                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                }); 
+               //Deploy-Tree Nodes 
+            d3.select("#mytree_d g.nodes")
+                .selectAll("circle.node")
+                .data(tree_d(root_d).descendants())
+                .enter()
+                .append("circle")
+                .attr("class", function (d) { return d.data.class; })
+                .attr("cx", function (d) { return d.x; })
+                .attr("cy", function (d) { return d.y; })
+                .attr("r", function (d) { return d.data.value * 1.5; })
+                .on('click', function (d) {
+                    $('#mylog').empty();
+                    code = "";
+                    d.data.commands.forEach(el => {
+                        code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                    });
+                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                })
+
+            // Build-Tree Links
+            d3.select("#mytree_b g.links")
+                .selectAll("line.link")
+                .data(tree_b(root_b).links())
+                .enter()
+                .append("line")
+                .classed("link", true)
+                .attr("x1", function (d) { return d.source.x; })
+                .attr("y1", function (d) { return d.source.y; })
+                .attr("x2", function (d) { return d.target.x; })
+                .attr("y2", function (d) { return d.target.y; })
+                .style("stroke-width", function (d) {
+                    if (d.target.data.value == 0 ) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                })
+             
+            //Deploy-Tree Links
+            d3.select("#mytree_d g.links")
+                .selectAll("line.link")
+                .data(tree_d(root_d).links())
+                .enter()
+                .append("line")
+                .classed("link", true)
+                .attr("x1", function (d) { return d.source.x; })
+                .attr("y1", function (d) { return d.source.y; })
+                .attr("x2", function (d) { return d.target.x; })
+                .attr("y2", function (d) { return d.target.y; })
+                .style("stroke-width", function (d) {
+                    if (d.target.data.value == 0 ) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                })
+              
             //$('#mylog').append(code);
            /*  targets.forEach(el=>{
                 
@@ -1184,7 +1415,7 @@ export default {
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                     .then(response => {
-                        this.generateTree(response.data.items, hostStatus, targetsStatus, host, target);
+                        this.generateTree2(response.data.items, hostStatus, targetsStatus, host, target);
                     }).catch(error => {
                         console.log(error);
                 });
@@ -1206,7 +1437,7 @@ export default {
                 this.ws.onmessage = event => {
                     //console.log(event.data);
                     var obj = JSON.parse(event.data);   
-                    this.generateTree(obj.payload, hostStatus, targetsStatus, host, target);
+                    this.generateTree2(obj.payload, hostStatus, targetsStatus, host, target);
                 };
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
@@ -1313,58 +1544,59 @@ export default {
         }, 
         showYaml: function () {
 
-            if(this.myYaml.show){
-                this.myYaml.show=false;
-                event.target.innerHTML = 'View Yaml'
-                document.getElementById('newDeployment').style.display ='grid';
+    if (this.myYaml.show) {
+        this.myYaml.show = false;
+        event.target.innerHTML = 'View Yaml'
+        document.getElementById('newDeployment').style.display = 'grid';
 
-                var obj = yaml.safeLoad(this.myYaml.y);
-                try {
-                   this.deployDes = obj.description?obj.description:"";
+        var obj = yaml.safeLoad(this.myYaml.y);
+        try {
+            this.deployDes = obj.description ? obj.description : "";
 
-                    if(obj.source.order){
-                    this.sourceOrder = obj.source.order;
-                    this.typeSource ='1';
-                    }else{
-                    this.sourceOrder ='';
-                    this.typeSource ='2';
-                    this.source = "";
-                    document.getElementById("mySourcelabel").innerHTML = "Choose File";
-                    document.getElementById("customFile").value = "";
-                    }
-                
-                this.chooseSource();
-                this.deployDebug = obj.debug;
-
-                this.build_c = obj.build.commands ? obj.build.commands.join("\n") : "";
-                this.build_a = obj.build.artifacts ? obj.build.artifacts.join("\n") : "";
-                this.host = obj.build.host ? obj.build.host : "";
-
-                this.install_c = obj.deploy.install.commands ? obj.deploy.install.commands.join("\n") : "";
-                this.run_c = obj.deploy.run.commands ? obj.deploy.run.commands.join("\n") : "";
-                this.targetDevices = [];
-                
-                for (var i = 0; i < obj.deploy.target.ids.length; i++) {
-                    this.targetDevices.push({
-                        id: obj.deploy.target.ids[i],
-                        tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
-                    });
-                }
-            
-                }catch(error) {
-                    $('#mymodal-body').empty();
-                    $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" +  error);
-                    $('#mymodal-body').append("<br><strong>Please check the syntax!</strong>")
-                    $('#myAlert').modal();
-                }
-            }else{
-                event.target.innerHTML = 'View Form'
-                this.myYaml.show=true;
-                document.getElementById('newDeployment').style.display ='none';
+            if (obj.source.order) {
+                this.sourceOrder = obj.source.order;
+                this.typeSource = '1';
+            } else {
+                this.sourceOrder = '';
+                this.typeSource = '2';
+                this.source = "";
+                document.getElementById("mySourcelabel").innerHTML = "Choose File";
+                document.getElementById("customFile").value = "";
             }
-            let taskDer = this.generateTaskDer();
-            this.myYaml.y = yaml.safeDump(taskDer);      
-        },
+
+            this.chooseSource();
+            this.deployDebug = obj.debug;
+
+            this.build_c = obj.build.commands ? obj.build.commands.join("\n") : "";
+            this.build_a = obj.build.artifacts ? obj.build.artifacts.join("\n") : "";
+            this.host = obj.build.host ? obj.build.host : "";
+
+            this.install_c = obj.deploy.install.commands ? obj.deploy.install.commands.join("\n") : "";
+            this.run_c = obj.deploy.run.commands ? obj.deploy.run.commands.join("\n") : "";
+            this.targetDevices = [];
+
+            for (var i = 0; i < obj.deploy.target.ids.length; i++) {
+                this.targetDevices.push({
+                    id: obj.deploy.target.ids[i],
+                    tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
+                });
+            }
+
+        } catch (error) {
+            $('#mymodal-body').empty();
+            $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" + error);
+            $('#mymodal-body').append("<br><strong>Please check the syntax!</strong>")
+            $('#myAlert').modal();
+        }
+    } else {
+        event.target.innerHTML = 'View Form'
+        this.myYaml.show = true;
+        document.getElementById('newDeployment').style.display = 'none';
+    }
+    let taskDer = this.generateTaskDer();
+    this.myYaml.y = yaml.safeDump(taskDer);
+},
+
         stopOrder: function (order) {
 
             $('#mymodal-body').empty();
