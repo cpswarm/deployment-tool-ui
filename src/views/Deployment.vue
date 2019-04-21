@@ -329,6 +329,29 @@
                     </button>
                 </div>
                 <div id="mytree-body" class="modal-body">
+                    <div>
+                        <svg id="myTree" width="500" height="450">
+                            <g>
+                            </g>
+                        </svg>
+                    </div>
+                    <div style="text-align:left">
+                       <div id="mylog" style="text-align:left" class="myfont_c"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <div id="myTree2" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div id="myTree_dialog2" class="modal-dialog" role="document" style="margin: 50px 100px;">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h5 class="modal-title">Process Tree</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="mytree-body2" class="modal-body">
                     <div id="stage" style="height:320px">
                         <div>Build</div>
                         <div>Deploy</div>
@@ -337,14 +360,14 @@
                         <div>End</div>
                     </div>
                     <div>
-                        <svg id="mytree_b" width="200" height="60">
+                        <svg id="mytree_b2" width="200" height="60">
                             <g transform="translate(15, 20)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
                             </g>
                         </svg>
                         <br>
-                         <svg id="mytree_d" width="200" height="300">
+                         <svg id="mytree_d2" width="200" height="300">
                             <g transform="translate(0, 20)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
@@ -352,7 +375,7 @@
                         </svg>
                     </div>
                     <div style="text-align:left">
-                       <div id="mylog" style="text-align:left" class="myfont_c"></div>
+                       <div id="mylog2" style="text-align:left" class="myfont_c"></div>
                     </div>
                 </div>
             </div>
@@ -454,6 +477,8 @@ export default {
             failed: [],
             success: [],
             newDiscover: [],
+            host:"",
+            targets:""
         };
     },
     components: {
@@ -677,257 +702,123 @@ export default {
             var value = source.toLowerCase();
             this.filter(this.orders,'id','name',value);
         },
-        generateTree: function (logs, hostStatus, targetsStatus, host, targets) {
+        generateTree: function (logs) {
 
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
 
-            var code = ""; 
-            var myTree_b = {
-                name:"build",
-                value:1,
-                class:"node-n",
-            };
-            var myTree_d = {
-                value:1,
-                class:"node-n",                
-                children: [
-                    {                      
-                        value: 1,                         
-                        commands: "",
-                        class:"node-n",
-                        children: [
-                            {                                 
-                                value: 1,   
-                                class:"node-n",                             
-                                commands: "",
-                            },
-                            {                                 
-                                value: 0,   
-                                class:"node-n",                             
-                                commands: ""
-                            },
-                        ]
-                    },
-                    {                      
-                        value: 0,                         
-                        commands: "",
-                        class:"node-n",
-                    },]
-            };
+            var xCenter = [250,250,250,150,250,350,50,150,250];
+            var yCenter = [0,100,200,300,300,300,400,400,400];
+            var nodes = [];
 
-            //If there is a build process
-            if(host){
-                // Get all logs for host
-                var oneLog = logs.filter(log => log.stage == "build");
-                oneLog.forEach(log =>{
-                     if(hostStatus.get(log.target).get('build')[0].substring(0, 9) != "STAGE-END"){
-                            hostStatus.get(log.target).set('build', [log.output, oneLog])
-                      }
-                })
-                hostStatus.forEach((value,key)=>{
-                    switch (value.get('build')[0]) {
-                        case "STAGE-END": 
-                            if(value.get('build')[1].some(l=>{return l.error == true && l.output=='STAGE-END'})){
-                                myTree_b.class = 'node-f';
-                                myTree_b.commands = value.get('build')[1];
-                            }else{
-                                myTree_b.class = 'node-s';
-                                myTree_b.commands = value.get('build')[1];
-                            }
-                            break;
-                        default:
-                            myTree_b.class = 'node-s';
-                            myTree_b.commands = value.get('build')[1];
-                    }
-                })                     
-                let c_b= "";
-                oneLog.forEach(log => {
-                    let s = "";
-                    log.error ? s = "f" : s = "s";
-                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
-                });
-                $('#'+ host).append(c_b);              
-                document.getElementById(host).scrollTop = document.getElementById(host).scrollHeight;
-            }
-            
-            //If there is a deploy process
-            if(targets){
-
-                for (let i = 0; i < targets.length; i++) {
-                // Get all logs for one devices
-                var oneLog = logs.filter(log => log.target == targets[i]); 
+            if(this.targets){
+               
+                for (let i = 0; i < this.targets.length; i++) { 
+                
+                let oneLog = logs.filter(log => log.target == this.targets[i].name); 
                 var c_d= "";
+                    if (oneLog.length > 0) {
 
-                if (oneLog.length > 0) {
-                    oneLog.forEach(log=>{
-                        switch(log.stage){
-                            case 'run': 
-                                if(targetsStatus.get(log.target).get('run')[0].substring(0, 9) != "STAGE-END"){
-                                    targetsStatus.get(log.target).set('run', [log.output?log.output:"", oneLog.filter(el => el.stage == 'run')])
-                                }
-                                targetsStatus.get(log.target).set('deploy', ['END', ''])
-                                break;
-                            case 'install':
-                                if(targetsStatus.get(log.target).get('install')[0].substring(0, 9) != "STAGE-END"){
-                                    targetsStatus.get(log.target).set('install', [log.output?log.output:"", oneLog.filter(el => el.stage == 'install')])
-                                }
-                                targetsStatus.get(log.target).set('deploy', ['END', ''])
-                                break;
+                        let install = oneLog.find(l=>{return l.output=="STAGE-END" && l.stage == 'install'}); 
+                        let run = oneLog.filter(l=>{return l.stage == 'run'});
+
+                        if(install && install.error == true){ 
+                            this.targets[i].stage = 4;
+                            this.targets[i].class ='node-f';
+                            this.targets[i].commands = oneLog;
+                        
+                        }else if (install && run.length == 0){
+                    
+                            this.targets[i].stage = 3;
+                            this.targets[i].class ='node-s';
+                            this.targets[i].commands = oneLog;
+                      
+                        }else if (run.some(r=>{ return r.output == 'STAGE-END' && r.error == true })){
+                            this.targets[i].stage = 7;
+                            this.targets[i].class ='node-f';
+                            this.targets[i].commands = oneLog;
+                       
+                        }else if(run.some(r=>{ return r.output == 'STAGE-END' && r.error != true })){
+                            
+                            this.targets[i].stage = 6;
+                            this.targets[i].class ='node-s';
+                            this.targets[i].commands = oneLog;
+                       
+                        }else if(run.length > 0){
+
+                            this.targets[i].stage = 8;
+                            this.targets[i].class ='node-i';
+                            this.targets[i].commands = oneLog;
+                        }else{
+                            this.targets[i].stage = 5;
+                            this.targets[i].class ='node-i';
+                            this.targets[i].commands = oneLog;
                         }
+                    oneLog.forEach(log=>{               
                         let s = "";
                         log.error ? s = "f" : s = "s";
                         c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
                     })
                 }    
-                $('#'+targets[i]).append(c_d);              
-                document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
+                $('#'+this.targets[i].name).append(c_d);              
+                document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;           
                 }  
-                
-                targetsStatus.forEach((value, key) => { 
-                if (value.get('run')[0]) {
-                    //console.log("run", value.get('run')[0])
-                    switch (value.get('run')[0]) {
-                        case 'STAGE-END':
-                            if(value.get('run')[1].some(l=>{return l.error == true && l.output=='STAGE-END'})){
-                                myTree_d.children[0].children[1].name = "run";
-                                myTree_d.children[0].children[1].value++;
-                                myTree_d.children[0].children[1].class = 'node-f';
-                                myTree_d.children[0].children[1].commands = value.get('run')[1];
-                            }else{
-                                myTree_d.children[0].children[0].name = "run";
-                                myTree_d.children[0].children[0].value++;
-                                myTree_d.children[0].children[0].class = 'node-s';
-                                myTree_d.children[0].children[0].commands = value.get('run')[1];
-                            }
-                            break;
-                        default:
-                            myTree_d.children[0].children[0].name = "run";
-                            myTree_d.children[0].children[0].value++;
-                            myTree_d.children[0].children[0].class = 'node-s';
-                            myTree_d.children[0].children[0].commands = value.get('run')[1];
-                    }
-                } else if (value.get('install')[0]) {
-                    //console.log("install", value.get('install')[0])
-                    switch (value.get('install')[0]) {      
-                        case 'STAGE-END': 
-                     
-                            if(value.get('install')[1].some(l=>{return l.error == true && l.output=='STAGE-END'})){
-                                myTree_d.children[1].name = "install";
-                                myTree_d.children[1].class = 'node-f';
-                                myTree_d.children[1].value++;
-                                myTree_d.children[1].commands = value.get('install')[1];
-                            }else{
-                                myTree_d.children[0].name = "install"
-                                myTree_d.children[0].value++;
-                                myTree_d.children[0].class = 'node-s';
-                                myTree_d.children[0].commands = value.get('install')[1];
-                            };
-                            break;
-                        default:
-                            myTree_d.children[0].name = "install"
-                            myTree_d.children[0].value++;
-                            myTree_d.children[0].class = 'node-s';
-                            myTree_d.children[0].commands = value.get('install')[1];
-                    }
-                }
-                if(value.get('deploy')[0]){
-                    //console.log("deploy", value.get('deploy')[0])
-                    if (value.get('deploy')[0] == 'STAGE-START' ) {
-                            myTree_d.name = "deploy";
-                            myTree_d.value++;
-                            myTree_d.class = 'node-s';
-                    }
-                }
-            })
             }
-            
-            var tree_b = d3.tree().size([200, 60]);
-            var root_b = d3.hierarchy(myTree_b);
-            tree_b(root_b);
-            
 
-            var tree_d = d3.tree().size([200, 200]);
-            var root_d = d3.hierarchy(myTree_d);
-            tree_d(root_d);
-            console.log(root_d)
-            //Build-Tree Nodes
-            d3.select("#mytree_b g.nodes")
-                .selectAll("circle.node")
-                .data(root_b.descendants())
-                .enter()
-                .append("circle")
-                .attr("class", function (d) { return d.data.class; })
-                .attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; })
-                .attr("r", function (d) { return d.data.value * 1.5; })
-                .on('click', function (d) {
-                    $('#mylog').empty();
-                    code = "";
-                    d.data.commands.forEach(el => {
-                        code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+            //If there is a build process
+            if(this.host){
+                // Get all logs for host
+                let one = logs.filter(log => log.stage == "build");    
+                if(one.some(l =>{ return l.error == true && l.output =='STAGE-END'})){ 
+                    this.host.stage = 1;
+                    this.host.commands = one;
+                    this.host.class = 'node-f';
+                }else if(one.some(l =>{ return l.output =='STAGE-END'})){
+                    this.host.stage = 1;
+                    this.host.commands = one;
+                    this.host.class = 'node-s';
+                }             
+                let c_b= "";
+                one.forEach(log => {
+                    let s = "";
+                    log.error ? s = "f" : s = "s";
+                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
+                });
+                $('#'+ this.host.name).append(c_b);              
+                document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
+            }
+            nodes = this.targets.concat(this.host)
+            //If there is a deploy process          
+            var simulation = d3.forceSimulation(nodes)
+                    .force('charge', d3.forceManyBody().strength(20))
+                    .force('x', d3.forceX().x(function(d) {
+                        return xCenter[d.stage];
+                    }))
+                    .force('y', d3.forceY().y(function(d) {
+                        return yCenter[d.stage];
+                    }))
+                    .force('collision', d3.forceCollide().radius(5))
+                    .on('tick', ()=>{
+                        let u = d3.select('#myTree g')
+                            .selectAll('circle')
+                            .data(nodes);
+
+                        u.enter().append('circle')
+                            .attr('r', 5)
+                            .attr('class', function(d) {return d.class; })
+                            .merge(u)
+                            .attr('cx', function(d) { return d.x;})
+                            .attr('cy', function(d) { return d.y;})
+                            .on('click', function(d){
+                                $('#mylog').empty();
+                                let code = "";
+                                d.commands.forEach(el => {
+                                    code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                                });
+                                $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                            })
+                        u.exit().remove();
                     });
-                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                });
-               //Deploy-Tree Nodes 
-            d3.select("#mytree_d g.nodes")
-                .selectAll("circle.node")
-                .data(root_d.descendants())
-                .enter()
-                .append("circle")
-                .attr("class", function (d) { return d.data.class; })
-                .attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; })
-                .attr("r", function (d) { return d.data.value * 1.5; })
-                .on('click', function (d) {
-                    $('#mylog').empty();
-                    code = "";
-                    d.data.commands.forEach(el => {
-                        code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                    });
-                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                });
-            // Build-Tree Links
-            d3.select("#mytree_b g.links")
-                .selectAll("line.link")
-                .data(root_b.links())
-                .enter()
-                .append("line")
-                .classed("link", true)
-                .attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; })
-                .style("stroke-width", function (d) {
-                    if (d.target.data.value == 0 ) {
-                        return 0;
-                    } else {
-                        return 1;
-                    }
-                });
-            //Deploy-Tree Links
-            d3.select("#mytree_d g.links")
-                .selectAll("line.link")
-                .data(root_d.links())
-                .enter()
-                .append("line")
-                .classed("link", true)
-                .attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; })
-                .style("stroke-width", function (d) {
-                    if (d.target.data.value == 0 ) {
-                        return 0;
-                    } else {
-                        return 1;
-                    }
-                })
-       
-            //$('#mylog').append(code);
-           /*  targets.forEach(el=>{
-                
-            }) */
         },  
         generateTree2: function (logs, hostStatus, targetsStatus, host, targets) {
 
@@ -1011,8 +902,8 @@ export default {
             //If there is a deploy process
             if(targets){
 
-                install.value = targets.length;
-                install.class = 'node-i';
+                install.value = targets.length+1;
+                install.class = 'node-s';
 
                 for (let i = 0; i < targets.length; i++) {
                 var oneLog = logs.filter(log => log.target == targets[i]); 
@@ -1032,7 +923,6 @@ export default {
                 $('#'+targets[i]).append(c_d);              
                 document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
                 }  
-                console.log(targetsStatus)
                 targetsStatus.forEach((value, key) => {
                     install.value--;
                     let child = {class: '', value: 0, commands: ''};
@@ -1043,57 +933,47 @@ export default {
                     let r_e =r[1]? r[1].some(l=>{return l.error == true && l.stage =='run' && l.output=='STAGE-END'}):'';
                     
                     if (i[0]=="STAGE-END" && i_e){ 
-                  
+                            
                             install.children[1].value++;
                             install.children[1].commands = i[1];
                     
                     }else if (i[0]=="STAGE-END" && r[0]==""){
                     
                             install.children[0].value++;
-                         
                             install.children[0].commands = i[1];
                       
                     }else if (i[0]=="STAGE-END" && r[0] != "STAGE-END"){
-                   
+
+                            run.class = 'node-s';
                             run.children[2].value++;
-                         
                             run.children[2].commands = i[1];
                        
                     }else if(r[0] == "STAGE-END" && r_e && i[0]==""){
-                         
+                            run.class = 'node-s';
                             run.children[1].value++;
-                         
                             run.children[1].commands = i[1];
                        
                     }else if(r[0] == "STAGE-END" && !r_e && i[0]=="STAGE-END"){
-
-                        
+                            run.class = 'node-s';
                             run.children[0].value++;
-                          
                             run.children[0].commands = i[1];
                       
                     }else if (r[0] == "STAGE-END" && r_e && i[0] == "STAGE-END"){
-                        
+                            run.class = 'node-s';
                             run.children[1].value++;
-                          
                             run.children[1].commands = i[1];
 
                     }else if(r[0] == "STAGE-END" && i[0]=="" && !r_e){
-                       
+                           run.class = 'node-s';
                             run.children[0].value++;
-                           
                             run.children[0].commands = i[1];
         
                     }else if(r[0] != "STAGE-END" && i[0]==""){
-                       
+                          run.class = 'node-s';
                             run.children[2].value++;
-                          
                             run.children[2].commands = i[1];
-                    
-                    }else if(i[0]!="STAGE-END"){
-                         
+                    }else if(i[0]!="STAGE-END"){    
                             install.children[2].value++;
-                        
                             install.children[2].commands = i[1];
                     }
                 })
@@ -1161,6 +1041,7 @@ export default {
                         return 1;
                     }
                 })
+            
              
             //Deploy-Tree Links
             d3.select("#mytree_d g.links")
@@ -1180,6 +1061,9 @@ export default {
                         return 1;
                     }
                 })
+                .transition()
+                    .duration(2500)
+                 
               
             //$('#mylog').append(code);
            /*  targets.forEach(el=>{
@@ -1383,6 +1267,64 @@ export default {
 
             $("#mylog").empty();
             $("#myTree").modal();
+          
+            //If there is a build process
+            if (host) {   
+                this.host={name:host, stage:0, class:'node-i'}
+                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: '+ host +'</h6><div id="'+ host +'" class="myCommandCard"></div></div>')
+            }else{
+                $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
+            }
+            //If there is a deploy process
+            if (target) { 
+                $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
+                this.targets = target.map(t => {
+                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
+                    return {name:t, stage:2, class:'node-i'}
+                })
+               
+            }else{
+                $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
+            }
+            if (!deploy) {
+                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
+                    .then(response => {
+                        this.generateTree(response.data.items);
+                    }).catch(error => {
+                        console.log(error);
+                });
+            }
+            if (!("WebSocket" in window)) {
+                alert("WebSocket is not supported by your Browser!");
+                return;
+            }
+            if (this.ws) {
+                this.ws.close();
+                this.ws = "";
+            } else {
+                let address;
+                this.address.indexOf('https')>-1? address = "wss://": address = "ws://";         
+                this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
+                this.ws.onopen = function () {
+                    //console.log("Socket connected.");
+                };
+                this.ws.onmessage = event => {
+                    //console.log(event.data);
+                    var obj = JSON.parse(event.data);   
+                    this.generateTree(obj.payload);
+                };
+                this.ws.onclose = function () {
+                    console.log("Socket disconnected.");
+                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
+                    // If socket disconnected, try to connect again after 5s.
+                    /* setTimeout(function () { listen(1, true);}, 5000); */
+                };
+            }
+        },
+        listen2: function (id, deploy, target, host) {
+
+            $("#mylog").empty();
+            $("#myTree").modal();
       
             var hostStatus = new Map();
             var targetsStatus = new Map();
@@ -1544,12 +1486,13 @@ export default {
         }, 
         showYaml: function () {
 
-    if (this.myYaml.show) {
+        if (this.myYaml.show) {
         this.myYaml.show = false;
         event.target.innerHTML = 'View Yaml'
         document.getElementById('newDeployment').style.display = 'grid';
 
         var obj = yaml.safeLoad(this.myYaml.y);
+
         try {
             this.deployDes = obj.description ? obj.description : "";
 
@@ -1559,9 +1502,10 @@ export default {
             } else {
                 this.sourceOrder = '';
                 this.typeSource = '2';
-                this.source = "";
+                
+               /*  this.source = "";
                 document.getElementById("mySourcelabel").innerHTML = "Choose File";
-                document.getElementById("customFile").value = "";
+                document.getElementById("customFile").value = ""; */
             }
 
             this.chooseSource();
@@ -1581,7 +1525,6 @@ export default {
                     tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
                 });
             }
-
         } catch (error) {
             $('#mymodal-body').empty();
             $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" + error);
@@ -1732,7 +1675,7 @@ export default {
 }
 #mytree-body {
   display: grid;
-  grid-template-columns: 0.5fr 2.6fr 6fr;
+  grid-template-columns: 2.5fr 6fr;
   grid-gap: 5px;
 }
 #stage {
