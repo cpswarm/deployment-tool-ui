@@ -47,11 +47,11 @@
                                     <div class="mycard-title">Devices:</div>
                                     <div class="mycard-content">
                                     <img src="../assets/done.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false, order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
                                         <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
                                     </button>
                                     <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen(order.id,false, order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
                                         <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
                                     </button>
                                 </div>
@@ -716,13 +716,12 @@ export default {
             d3.select('#myTree_b').selectAll("line").remove();
 
             var xCenter = [300,300,300,200,300,400,100,200,300];
-            var yCenter = [0,150,250,350,350,350,450,450,450];
+            var yCenter = [50,150,250,350,350,350,450,450,450];
             var nodes = [];
 
             if(this.targets){
                
-                for (let i = 0; i < this.targets.length; i++) { 
-                
+                for (let i = 0; i < this.targets.length; i++) {     
                 let oneLog = logs.filter(log => log.target == this.targets[i].name); 
                 var c_d= "";
                     if (oneLog.length > 0) {
@@ -1084,7 +1083,128 @@ export default {
            /*  targets.forEach(el=>{
                 
             }) */
-        },   
+        },
+        generateTree3: function (logs) {
+
+            d3.select('#myTree_b').selectAll("circle").remove();
+            d3.select('#myTree_b').selectAll("line").remove();
+
+            var yCenter = [50,150,250,350,450];
+            var nodes = [];
+
+            if(this.targets){
+                for (let i = 0; i < this.targets.length; i++) {     
+                    let oneLog = logs.filter(log => log.target == this.targets[i].name); 
+                    var c_d= "";
+                    if (oneLog.length > 0) {
+
+                        let install = oneLog.find(l=>{return l.output=="STAGE-END" && l.stage == 'install'}); 
+                        let run = oneLog.filter(l=>{return l.stage == 'run'});
+
+                        if(install && install.error == true){ 
+                            this.targets[i].stage = 3;
+                            this.targets[i].class ='node-f';
+                            this.targets[i].commands = oneLog;
+                        
+                        }else if (install && run.length == 0){
+                    
+                            this.targets[i].stage = 3;
+                            this.targets[i].class ='node-s';
+                            this.targets[i].commands = oneLog;
+                      
+                        }else if (run.some(r=>{ return r.output == 'STAGE-END' && r.error == true })){
+                            this.targets[i].stage = 4;
+                            this.targets[i].class ='node-f';
+                            this.targets[i].commands = oneLog;
+                       
+                        }else if(run.some(r=>{ return r.output == 'STAGE-END' && r.error != true })){
+                            
+                            this.targets[i].stage = 4;
+                            this.targets[i].class ='node-s';
+                            this.targets[i].commands = oneLog;
+                       
+                        }else if(run.length > 0){
+
+                            this.targets[i].stage = 4;
+                            this.targets[i].class ='node-i';
+                            this.targets[i].commands = oneLog;
+                        }else{
+                            this.targets[i].stage = 3;
+                            this.targets[i].class ='node-i';
+                            this.targets[i].commands = oneLog;
+                        }
+                    oneLog.forEach(log=>{               
+                        let s = "";
+                        log.error ? s = "f" : s = "s";
+                        c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
+                    })
+                }    
+                $('#'+this.targets[i].name).append(c_d);              
+                document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;           
+                }  
+                nodes = this.targets
+            }
+            //If there is a build process
+            if(this.host){
+                // Get all logs for host
+                let one = logs.filter(log => log.stage == "build");    
+                if(one.some(l =>{ return l.error == true && l.output =='STAGE-END'})){ 
+                    this.host.stage = 1;
+                    this.host.commands = one;
+                    this.host.class = 'node-f';
+                }else if(one.some(l =>{ return l.output =='STAGE-END'})){
+                    this.host.stage = 1;
+                    this.host.commands = one;
+                    this.host.class = 'node-s';
+                }             
+                let c_b= "";
+                one.forEach(log => {855
+                    let s = "";
+                    log.error ? s = "f" : s = "s";
+                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
+                });
+                $('#'+ this.host.name).append(c_b);       
+                document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
+                nodes = this.targets.concat(this.host)
+            }
+            
+            var size = 0;
+            let r = 50/this.targets.length;
+            if(r < 1){ size = 1;
+            }else if(r>5){ size= 5;
+            }else{ size =  r }
+            //If there is a deploy process          
+            var simulation = d3.forceSimulation(nodes)
+                    .force('charge', d3.forceManyBody().strength(5))
+                    .force('x', d3.forceX().x(function(d) {
+                        return 250;
+                    }))
+                    .force('y', d3.forceY().y(function(d) {
+                        return yCenter[d.stage];
+                    }))
+                    .force('collision', d3.forceCollide().radius(5))
+                    .on('tick', ()=>{
+                        let u = d3.select("#myTree_b g")
+                            .selectAll('circle')
+                            .data(nodes);
+
+                        u.enter().append('circle')
+                            .attr('r', size)
+                            .attr('class', function(d) {return d.class; })
+                            .merge(u)
+                            .attr('cx', function(d) { return d.x;})
+                            .attr('cy', function(d) { return d.y;})
+                            .on('click', function(d){
+                                $('#mylog').empty();
+                                let code = "";
+                                d.commands.forEach(el => {
+                                    code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                                });
+                                $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                            })
+                        u.exit().remove();
+                    });
+        },    
         generateTaskDer: function () {
 
             let ids = [];
@@ -1271,7 +1391,7 @@ export default {
                 response.data.build ? response.data.deploy : (response.data.build = "");
                 $("#collapseOne").collapse("show");
                 this.clearForm();
-                this.listen(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
+                this.listen3(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
                 }).catch(error => {    
                 $("#mymodal-body").append(error.response.data.error);
                 $("#myAlert").modal();
@@ -1282,6 +1402,9 @@ export default {
 
             $("#mylog").empty();
             $("#myTree").modal();
+
+            d3.select('#myTree_b').selectAll("circle").remove();
+            d3.select('#myTree_b').selectAll("line").remove();
 
             //If there is a build process
             if (host) {   
@@ -1297,8 +1420,7 @@ export default {
                 this.targets = target.map(t => {
                     $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
                     return {name:t, stage:2, class:'node-i'}
-                })
-               
+                })  
             }else{
                 this.targets ="";
                 $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
@@ -1308,7 +1430,7 @@ export default {
             else if(this.targets.length < 10){ size =  5*this.targets.length}
             else{ size = 50}
                         
-             var data = {
+            var data = {
                 name: 'build',
                 value:5,
                 children:[{
@@ -1321,38 +1443,39 @@ export default {
                             { name:'install-s',value: size, children:[
                                 {name: 'run-s',value: size},
                                 {name: 'run-f',value: size},
-                                {name: 'run-i',value:size}]
+                                {name: 'run-i',value: size}]
                             },
-                            {name: 'install-f',value:size},
-                            {name:'install-i', value:size}
+                            {name: 'install-f',value: size},
+                            {name:'install-i', value: size}
                         ]
                     }]
                 }]
             }
         
-          //Build-Tree Nodes
+            //Build-Tree Nodes
             var treeLayout = d3.tree().size([500, 400])
             var root = d3.hierarchy(data)
             treeLayout(root)
-        // Nodes
+            // Nodes
             var nodes = d3.select("#myTree_p g.nodes")
                 .selectAll('circle.node')
                 .data(root.descendants())
                 .enter();
+
             nodes.append('circle')
                 .classed('node', true)
                 .attr('cx', function(d) {return d.x;})
                 .attr('cy', function(d) {return d.y;})
                 .attr('r', function(d) {return d.value;})
                 .attr('fill', '#ececec')
-                .attr('stroke', '#e4e4e4')
+                .attr('stroke', '#e4e4e4');
          
             nodes.append('text')
                 .attr('x', function(d) {return d.x-25;})
                 .attr('y', function(d) {return d.y;})
                 .text(function(d){ return d.data.name})
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
-                .attr("fill", "#e4e4e4")
+                .attr("fill", "#e4e4e4");
 
             // Links
             d3.select("#myTree_p g.links")
@@ -1365,7 +1488,7 @@ export default {
                 .attr('y1', function(d) {return d.source.y;})
                 .attr('x2', function(d) {return d.target.x;})
                 .attr('y2', function(d) {return d.target.y;})
-                .attr('stroke', '#e4e4e4')
+                .attr('stroke', '#e4e4e4');
 
 
             if (!deploy) {
@@ -1394,6 +1517,132 @@ export default {
                     //console.log(event.data);
                     var obj = JSON.parse(event.data);   
                     this.generateTree(obj.payload);
+                };
+                this.ws.onclose = function () {
+                    console.log("Socket disconnected.");
+                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
+                    // If socket disconnected, try to connect again after 5s.
+                    /* setTimeout(function () { listen(1, true);}, 5000); */
+                };
+            }
+        },
+        listen3: function (id, deploy, target, host) {
+
+            $("#mylog").empty();
+            $("#myTree").modal();
+
+            d3.select('#myTree_b').selectAll("circle").remove();
+            d3.select('#myTree_b').selectAll("line").remove();
+
+            //If there is a build process
+            if (host) {   
+                this.host={name:host, stage:0, class:'node-i'}
+                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: '+ host +'</h6><div id="'+ host +'" class="myCommandCard"></div></div>')
+            }else{
+                this.host = "";
+                $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
+            }
+            //If there is a deploy process
+            if (target) { 
+                $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
+                this.targets = target.map(t => {
+                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
+                    return {name:t, stage:2, class:'node-i'}
+                })
+               
+            }else{
+                this.targets ="";
+                $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
+            }
+            var size = 0;
+            if(this.targets.length >=50){ size= 50}
+            else if(this.targets.length < 10){ size =  5*this.targets.length}
+            else{ size = 50}
+                        
+             var data = {
+                name: 'BUILD',
+                value:5,
+                children:[{
+                    name: 'BUILD-END',
+                    value: 5,
+                    children: [{
+                        name: 'DEPLOY',
+                        value: size,
+                        children:[
+                            { name:'INSTALL',value: size, children:[
+                                {name: 'RUN',value: size}]
+                        }]
+                    }]
+                }]
+            }
+        
+          //Build-Tree Nodes
+            var treeLayout = d3.tree().size([500, 400])
+            var root = d3.hierarchy(data)
+            treeLayout(root)
+            // Nodes
+            var nodes = d3.select("#myTree_p g.nodes")
+                .selectAll('circle.node')
+                .data(root.descendants())
+                .enter();
+            nodes.append('circle')
+                .classed('node', true)
+                .attr('cx', function(d) {return d.x;})
+                .attr('cy', function(d) {return d.y;})
+                .attr('r', function(d) {return d.value;})
+                .attr('fill', '#ececec')
+         
+            nodes.append('text')
+                .text(function(d){ return d.data.name})
+                .attr('x', function(d) {      
+                    return d.x - 5 * d.data.name.length;
+                })
+                .attr('y', function(d) {return d.y +5;})
+                .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
+                .attr("fill", "#acacac");
+
+           
+
+            // Links
+            d3.select("#myTree_p g.links")
+                .selectAll('line.link')
+                .data(root.links())
+                .enter()
+                .append('line')
+                .classed('link', true)
+                .attr('x1', function(d) {return d.source.x;})
+                .attr('y1', function(d) {return d.source.y;})
+                .attr('x2', function(d) {return d.target.x;})
+                .attr('y2', function(d) {return d.target.y;})
+                .attr('stroke', '#ececec')
+
+
+            if (!deploy) {
+                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
+                    .then(response => {
+                        this.generateTree3(response.data.items);
+                    }).catch(error => {
+                        console.log(error);
+                });
+            }
+            if (!("WebSocket" in window)) {
+                alert("WebSocket is not supported by your Browser!");
+                return;
+            }
+            if (this.ws) {
+                this.ws.close();
+                this.ws = "";
+            } else {
+                let address;
+                this.address.indexOf('https')>-1? address = "wss://": address = "ws://";         
+                this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
+                this.ws.onopen = function () {
+                    //console.log("Socket connected.");
+                };
+                this.ws.onmessage = event => {
+                    //console.log(event.data);
+                    var obj = JSON.parse(event.data);   
+                    this.generateTree3(obj.payload);
                 };
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
@@ -1568,14 +1817,14 @@ export default {
         }, 
         showYaml: function () {
 
-        if (this.myYaml.show) {
-        this.myYaml.show = false;
-        event.target.innerHTML = 'View Yaml'
-        document.getElementById('newDeployment').style.display = 'grid';
+            if (this.myYaml.show) {
+            this.myYaml.show = false;
+            event.target.innerHTML = 'View Yaml'
+            document.getElementById('newDeployment').style.display = 'grid';
 
-        var obj = yaml.safeLoad(this.myYaml.y);
+            var obj = yaml.safeLoad(this.myYaml.y);
 
-        try {
+            try {
             this.deployDes = obj.description ? obj.description : "";
 
             if (obj.source.order) {
@@ -1607,20 +1856,20 @@ export default {
                     tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
                 });
             }
-        } catch (error) {
+            } catch (error) {
             $('#mymodal-body').empty();
             $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" + error);
             $('#mymodal-body').append("<br><strong>Please check the syntax!</strong>")
             $('#myAlert').modal();
-        }
-    } else {
-        event.target.innerHTML = 'View Form'
-        this.myYaml.show = true;
-        document.getElementById('newDeployment').style.display = 'none';
-    }
-    let taskDer = this.generateTaskDer();
-    this.myYaml.y = yaml.safeDump(taskDer);
-},
+            }
+            } else {
+            event.target.innerHTML = 'View Form'
+            this.myYaml.show = true;
+            document.getElementById('newDeployment').style.display = 'none';
+            }           
+            let taskDer = this.generateTaskDer();
+            this.myYaml.y = yaml.safeDump(taskDer);
+            },
 
         stopOrder: function (order) {
 
