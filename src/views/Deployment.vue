@@ -330,10 +330,16 @@
                 </div>
                 <div id="mytree-body" class="modal-body">
                     <div>
-                        <svg id="myTree" width="500" height="450">
-                            <g>
-                            </g>
+                        <svg id="myTree_p" width="500" height="550">
+                            <g transform="translate(0, 50)">
+                                <g class="links"></g>
+                                <g class="nodes"></g>
+                        </g>
                         </svg>
+                        <svg id="myTree_b" width="500" height="550" style="position:relative; top: -550px">
+                            <g></g>
+                        </svg>
+                        
                     </div>
                     <div style="text-align:left">
                        <div id="mylog" style="text-align:left" class="myfont_c"></div>
@@ -545,6 +551,8 @@ export default {
                 this.ws.close();
                 this.ws = "";
             }
+            this.host = "";
+            this.targets = "";
             this.source="";
             this.orders=[];
             this.getOrders();
@@ -704,11 +712,11 @@ export default {
         },
         generateTree: function (logs) {
 
-            d3.selectAll("circle").remove();
-            d3.selectAll("line").remove();
+            d3.select('#myTree_b').selectAll("circle").remove();
+            d3.select('#myTree_b').selectAll("line").remove();
 
-            var xCenter = [250,250,250,150,250,350,50,150,250];
-            var yCenter = [0,100,200,300,300,300,400,400,400];
+            var xCenter = [300,300,300,200,300,400,100,200,300];
+            var yCenter = [0,150,250,350,350,350,450,450,450];
             var nodes = [];
 
             if(this.targets){
@@ -763,6 +771,7 @@ export default {
                 $('#'+this.targets[i].name).append(c_d);              
                 document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;           
                 }  
+                nodes = this.targets
             }
 
             //If there is a build process
@@ -779,18 +788,24 @@ export default {
                     this.host.class = 'node-s';
                 }             
                 let c_b= "";
-                one.forEach(log => {
+                one.forEach(log => {855
                     let s = "";
                     log.error ? s = "f" : s = "s";
                     c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
                 });
-                $('#'+ this.host.name).append(c_b);              
+                $('#'+ this.host.name).append(c_b);       
                 document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
+                nodes = this.targets.concat(this.host)
             }
-            nodes = this.targets.concat(this.host)
+            
+            var size = 0;
+            let r = 50/this.targets.length;
+            if(r < 1){ size = 1;
+            }else if(r>5){ size= 5;
+            }else{ size =  r }
             //If there is a deploy process          
             var simulation = d3.forceSimulation(nodes)
-                    .force('charge', d3.forceManyBody().strength(20))
+                    .force('charge', d3.forceManyBody().strength(0))
                     .force('x', d3.forceX().x(function(d) {
                         return xCenter[d.stage];
                     }))
@@ -799,12 +814,12 @@ export default {
                     }))
                     .force('collision', d3.forceCollide().radius(5))
                     .on('tick', ()=>{
-                        let u = d3.select('#myTree g')
+                        let u = d3.select("#myTree_b g")
                             .selectAll('circle')
                             .data(nodes);
 
                         u.enter().append('circle')
-                            .attr('r', 5)
+                            .attr('r', size)
                             .attr('class', function(d) {return d.class; })
                             .merge(u)
                             .attr('cx', function(d) { return d.x;})
@@ -1267,12 +1282,13 @@ export default {
 
             $("#mylog").empty();
             $("#myTree").modal();
-          
+
             //If there is a build process
             if (host) {   
                 this.host={name:host, stage:0, class:'node-i'}
                 $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: '+ host +'</h6><div id="'+ host +'" class="myCommandCard"></div></div>')
             }else{
+                this.host = "";
                 $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
             }
             //If there is a deploy process
@@ -1284,8 +1300,74 @@ export default {
                 })
                
             }else{
+                this.targets ="";
                 $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
             }
+             var size = 0;
+            if(this.targets.length >=50){ size= 50}
+            else if(this.targets.length < 10){ size =  5*this.targets.length}
+            else{ size = 50}
+                        
+             var data = {
+                name: 'build',
+                value:5,
+                children:[{
+                    name: 'build-E',
+                    value: 5,
+                    children: [{
+                        name: 'install',
+                        value: size,
+                        children:[
+                            { name:'install-s',value: size, children:[
+                                {name: 'run-s',value: size},
+                                {name: 'run-f',value: size},
+                                {name: 'run-i',value:size}]
+                            },
+                            {name: 'install-f',value:size},
+                            {name:'install-i', value:size}
+                        ]
+                    }]
+                }]
+            }
+        
+          //Build-Tree Nodes
+            var treeLayout = d3.tree().size([500, 400])
+            var root = d3.hierarchy(data)
+            treeLayout(root)
+        // Nodes
+            var nodes = d3.select("#myTree_p g.nodes")
+                .selectAll('circle.node')
+                .data(root.descendants())
+                .enter();
+            nodes.append('circle')
+                .classed('node', true)
+                .attr('cx', function(d) {return d.x;})
+                .attr('cy', function(d) {return d.y;})
+                .attr('r', function(d) {return d.value;})
+                .attr('fill', '#ececec')
+                .attr('stroke', '#e4e4e4')
+         
+            nodes.append('text')
+                .attr('x', function(d) {return d.x-25;})
+                .attr('y', function(d) {return d.y;})
+                .text(function(d){ return d.data.name})
+                .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
+                .attr("fill", "#e4e4e4")
+
+            // Links
+            d3.select("#myTree_p g.links")
+                .selectAll('line.link')
+                .data(root.links())
+                .enter()
+                .append('line')
+                .classed('link', true)
+                .attr('x1', function(d) {return d.source.x;})
+                .attr('y1', function(d) {return d.source.y;})
+                .attr('x2', function(d) {return d.target.x;})
+                .attr('y2', function(d) {return d.target.y;})
+                .attr('stroke', '#e4e4e4')
+
+
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                     .then(response => {
