@@ -61,18 +61,18 @@
                                         </div>
                                         <div class="mycard-title">Latest Task:</div>
                                         <div class="mycard-content" style="font-size:12px">
-                                            <span v-if="device.logs.log.length > 0">
-                                            {{device.logs.log[0].task}}</span>
+                                            <span v-if="device.logs.tasks[0][1]!='none'">
+                                            {{device.logs.tasks[0][0]}}</span>
                                             </div>
                                         <div class="mycard-title">Latest Logs:</div>
                                         <div v-if="device.logs.tasks[0][1]==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/error.png" style="width:14px" @click="showLog(device.logs.log,device.logs.log[0].task)">
+                                                <img src="../assets/error.png" style="width:14px" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
                                             </button>
                                         </div>
                                         <div v-else-if="device.logs.tasks[0][1]==false" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/done.png" style="width:14px" @click="showLog(device.logs.log,device.logs.log[0].task)">
+                                                <img src="../assets/done.png" style="width:14px" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
                                             </button>
                                         </div>
                                         <div v-else></div>
@@ -588,22 +588,6 @@ export default {
             this.getTargets();
 
         },
-        /* checkStatus: function (id, total) {
-            // Get all STAGE-END with error logs of one task, every task only has one logs with this condition, host doesn't count
-            return axios.get(this.address+"/logs?task=" + id + "&error=true&output=STAGE-END").then(response => {
-                if (!response.data.items) {
-                    return [total, 0];
-                } else {
-                    if (response.data.items[0].stage == "build") {
-                        return [0, 0]
-                    } else {
-                        return [total - response.data.items.length, response.data.items.length];
-                    }
-                }
-            }).catch(error => {
-                console.log(error);
-            });
-        }, */ 
         checkLogs: function (target) {
             var des = "target=" + target;
             return axios.get(this.address+"/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
@@ -613,7 +597,7 @@ export default {
                     response.data.items.forEach(el => {
                         fulltask.add(el.task)
                     });
-                    let task = Array.from(fulltask).slice(0,15).reverse();
+                    let task = Array.from(fulltask).slice(0,15);
 
                     //console.log(task)
                     let tasks = task.map(t =>{
@@ -626,7 +610,7 @@ export default {
                     });
                     return {
                             tasks: tasks,
-                            log: response.data.items,
+                            log: response.data.items.reverse(),
                    }
                 } else {
                     return {
@@ -660,35 +644,6 @@ export default {
                             return de.id === el      
                           })
                     this.devices.push(d);      
-                    //console.log(d)
-                   /*  if (!d.location) {
-                        d.location = {
-                            lon: rand(50.749523),
-                            lat: rand(7.203923),
-                        }
-                    } */
-                  /*   let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: el,
-                        alt: d.tags ? d.tags : []
-                    });
-                    marker.on("click", event => {
-                        if(this.polyline){
-                            this.polyline.remove();
-                        }
-                        this.devices.splice(0,this.devices.length, d);
-                        if (!this.targetDevices.some(
-                            e => e.id === event.target.options.title
-                        )) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
-                    }); */
                    this.markers.addLayer(d.marker);
                 })
                 }
@@ -697,20 +652,8 @@ export default {
                 //console.log(filteredData);
                 //markerGroup.addTo(map);
         },  
-        clickCard: function (marker) {
-            //console.log(event.target.tagName)
-            
-           /*  if(event.target.tagName == "DIV"){
-                 let cards = document.getElementById('deviceList').getElementsByClassName('mycard my-card-body');
-                 Array.from(cards).map(item=>{
-                  item.setAttribute('class','mycard my-card-body');
-                })
-              //console.log(event.path[1])
-              event.path[1].setAttribute('class','mycard my-card-body active');
-           } */
+        clickCard: function (marker) {  
              this.map.panTo(marker.getLatLng());
-            //L.Marker.stopAllBouncingMarkers();
-            //L.Marker.getBouncingMarkers().forEach(el => el.toggleBouncing()); 
         },
         closeSearch: function () {
             //console.log(document.getElementById("collapseTwo").className)
@@ -749,53 +692,6 @@ export default {
             })
             
         },
-        //The marker click function of add a timeline extends L.control
-        /* getDataAddMarkers: function( {label, value, map, exclamation} ) {
-                
-                map.eachLayer(function (layer) {
-                        if (layer instanceof L.Marker) {
-                            map.removeLayer(layer);
-                        }
-                }); 
-                if(this.polyline){
-                    this.polyline.remove();
-                }
-                this.markers.clearLayers();
-                this.devices = [];
-                var filteredData = this.orders.find((i, n)=> { 
-                    return i.id === label
-                });
-                //console.log(filteredData)
-                if(filteredData.deploy){
-                    filteredData.deploy.match.list.forEach(el=>{
-                          let d = this.fullDevices.find(function (de) {
-                            return de.id === el      
-                          })
-                    this.devices.push(d);      
-                    //console.log(d)
-                    if (!d.location) {
-                        d.location = {
-                            lon: rand(50.749523),
-                            lat: rand(7.203923),
-                        }
-                    }
-                    let marker = L.marker(L.latLng(d.location.lon, d.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: el,
-                        alt: d.tags ? d.tags : []
-                    });
-                   this.markers.addLayer(marker);
-                    })
-                }
-                this.map.addLayer(this.markers)
-                this.map.fitBounds(this.markers.getBounds());
-                //console.log(filteredData);
-                //markerGroup.addTo(map);
-               
-        }, */ 
         //Search device
         filterDevice: function () {
             var value = this.searchText.toLowerCase();
@@ -906,16 +802,8 @@ export default {
                         a.status = [0, 0]
                         a.deploy = ""; 
                         this.orders.push(a);
-                    } 
-                     
-                }
-                //console.log(this.orders)
-               /* L.control.timelineSlider({
-                    timelineItems: this.orders,
-                    changeMap: this.getDataAddMarkers,
-                    mapWidth: this.map.getSize().x
-                }).addTo(this.map);  */
-            
+                    }    
+                }     
             });
         }, 
         getTargets: function () {
@@ -945,8 +833,7 @@ export default {
                     a.marker = marker;
              
                     this.checkLogs(a.id).then(data => {
-                        a.logs = data;
-                       
+                        a.logs = data;                 
                         if(data.tasks[0][1] == true){
                             this.failed.push(a);
                             marker.setIcon(L.icon({
@@ -1033,10 +920,6 @@ export default {
                             }
                         }
                     }
-                    /* let n = $('#notification').children();
-                    n[0].setAttribute('style', 'color:#ffda44; display: inline');
-                    n[1].setAttribute('style', 'color:#ffda44; display: inline;margin-top:2.5px'); */
-                    //Markers click function
                     marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
                     marker.on("click", event => {
                         marker.openPopup();
@@ -1064,7 +947,6 @@ export default {
             e.path[5].childNodes[2].style.display = 'none';
         },
         next: function () {
-            
             if(this.offset > 0){
                 this.$refs.pre.disabled=false;
                 this.offset -= 100;
@@ -1195,9 +1077,9 @@ export default {
         showLog: function (log,id) {
 
             $("#logTitle").empty();
-            $("#collapsebuild").empty();
-            $("#collapseinstall").empty();
-            $("#collapserun").empty();
+            $("#collapsebuild").empty().collapse('show');
+            $("#collapseinstall").empty().collapse('show');
+            $("#collapserun").empty().collapse('show');
 
             $("#logTitle").append('Logs of Task: '+id);
 
@@ -1326,28 +1208,6 @@ export default {
 
                     this.map.panTo(this.devices[i].marker.getLatLng())
                     
-                  /*   let marker = L.marker(L.latLng(myUpdate.location.lon, myUpdate.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/done.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: myUpdate.id,
-                        alt: myUpdate.tags
-                    })
-                    marker.on("click", event => {
-                        if(this.polyline){
-                            this.polyline.remove();
-                        }
-                        this.devices.splice(0,this.devices.length, myUpdate);
-                        if (!this.targetDevices.some(
-                            e => e.id === event.target.options.title
-                        )) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
-                    }); */
                     this.$set(this.devices[i], 'id', myUpdate.id);
                     this.$set(this.devices[i], 'tags', myUpdate.tags);
                     this.$set(this.devices[i], 'location', myUpdate.location);
@@ -1381,6 +1241,7 @@ export default {
         this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px'
         //console.log(this.$refs.map.style.width)
         //Custermize the markerCluster style
+        var i =0;
         this.markers = L.markerClusterGroup({
             spiderLegPolylineOptions: {
                 weight: 1,
@@ -1389,16 +1250,22 @@ export default {
             },
             iconCreateFunction: function (cluster) {
                 var childCount = cluster.getChildCount();
-
-                //console.log(cluster)
-                //cluster.unspiderfy();
+                var childs = cluster.getAllChildMarkers();
+                var name='';
+                
+                if(childs.some(c=> {return c.options.icon.options.iconUrl =='/error.png'})){
+                    name ='myCluster-e';
+                }else{
+                    name = 'myCluster';
+                }         
                 return L.divIcon({
                     html: "<div><span>" + childCount + "</span></div>",
-                    className: "myCluster",
+                    className:name,
                     iconSize: new L.Point(40, 40)
                 });
             }
         });
+        //this.markers.refreshClusters();
         this.getTargets();
         this.getOrders();
        
@@ -1459,7 +1326,9 @@ export default {
         })     
     },
     updated(){
-        $('[data-toggle="popover"]').popover();   
+        $('[data-toggle="popover"]').popover(); 
+        this.markers.refreshClusters(); 
+
     }
 };
 </script>
