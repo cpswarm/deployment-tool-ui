@@ -42,12 +42,9 @@
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)"
                                                 style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
                                         </div>
-                                    </div>  
-                                    
+                                    </div>                                 
                                 </form>
-                              
-                            </div>
-                            
+                            </div>                           
                             <div id="deviceList" ref="list" style="overflow:scroll">
                                 <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
                                 
@@ -84,8 +81,7 @@
                                             <div v-if="device.logs.tasks[0][1]!='none'">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
                                                 <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task[0])">    
-                                                    {{task[0].substring(0,2)}}
-                                                 
+                                                    {{task[0].substring(0,2)}}  
                                                     <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >  
                                                     <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >                
                                                 </li>
@@ -399,7 +395,7 @@
         </div>
         </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div id="myLog-dialog"class="modal-dialog" role="document" style="margin: 50px 100px;">
+            <div id="myLog-dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content" style="">
                     <div class="modal-header">
                         <h5 id="logTitle" class="modal-title">Logs for Task:</h5>
@@ -610,14 +606,14 @@ export default {
         }, */ 
         checkLogs: function (target) {
             var des = "target=" + target;
-            return axios.get(this.address+"/logs?perPage=1000&sortOrder=asc&" + des).then(function (response) {
+            return axios.get(this.address+"/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
 
                 if (response.data.items) { 
                     let fulltask = new Set();
                     response.data.items.forEach(el => {
                         fulltask.add(el.task)
                     });
-                    let task = Array.from(fulltask).slice(0,13).reverse();
+                    let task = Array.from(fulltask).slice(0,15).reverse();
 
                     //console.log(task)
                     let tasks = task.map(t =>{

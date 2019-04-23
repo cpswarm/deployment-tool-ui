@@ -1102,34 +1102,34 @@ export default {
                         let run = oneLog.filter(l=>{return l.stage == 'run'});
 
                         if(install && install.error == true){ 
-                            this.targets[i].stage = 3;
+                            this.targets[i].stage = 350;
                             this.targets[i].class ='node-f';
                             this.targets[i].commands = oneLog;
                         
                         }else if (install && run.length == 0){
                     
-                            this.targets[i].stage = 3;
+                            this.targets[i].stage = 450;
                             this.targets[i].class ='node-s';
                             this.targets[i].commands = oneLog;
                       
                         }else if (run.some(r=>{ return r.output == 'STAGE-END' && r.error == true })){
-                            this.targets[i].stage = 4;
+                            this.targets[i].stage = 450;
                             this.targets[i].class ='node-f';
                             this.targets[i].commands = oneLog;
                        
                         }else if(run.some(r=>{ return r.output == 'STAGE-END' && r.error != true })){
                             
-                            this.targets[i].stage = 4;
+                            this.targets[i].stage = 450;
                             this.targets[i].class ='node-s';
                             this.targets[i].commands = oneLog;
                        
                         }else if(run.length > 0){
 
-                            this.targets[i].stage = 4;
+                            this.targets[i].stage = 450;
                             this.targets[i].class ='node-i';
                             this.targets[i].commands = oneLog;
                         }else{
-                            this.targets[i].stage = 3;
+                            this.targets[i].stage = 350;
                             this.targets[i].class ='node-i';
                             this.targets[i].commands = oneLog;
                         }
@@ -1149,11 +1149,11 @@ export default {
                 // Get all logs for host
                 let one = logs.filter(log => log.stage == "build");    
                 if(one.some(l =>{ return l.error == true && l.output =='STAGE-END'})){ 
-                    this.host.stage = 1;
+                    this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-f';
                 }else if(one.some(l =>{ return l.output =='STAGE-END'})){
-                    this.host.stage = 1;
+                    this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-s';
                 }             
@@ -1178,7 +1178,7 @@ export default {
                     .force('charge', d3.forceManyBody().strength(5))
                     .force('x', d3.forceX().x(250))
                     .force('y', d3.forceY().y(function(d) {
-                        return yCenter[d.stage];
+                        return d.stage;
                     }))
                     .force('collision', d3.forceCollide().radius(5))
                     .on('tick', ()=>{
@@ -1534,7 +1534,7 @@ export default {
 
             //If there is a build process
             if (host) {   
-                this.host={name:host, stage:0, class:'node-i'}
+                this.host={name:host, stage:50, class:'node-i'}
                 $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: '+ host +'</h6><div id="'+ host +'" class="myCommandCard"></div></div>')
             }else{
                 this.host = "";
@@ -1545,7 +1545,7 @@ export default {
                 $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
                 this.targets = target.map(t => {
                     $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
-                    return {name:t, stage:2, class:'node-i'}
+                    return {name:t, stage:250, class:'node-i'}
                 })
                
             }else{
