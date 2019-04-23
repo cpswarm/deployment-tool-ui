@@ -334,15 +334,15 @@
                             <g transform="translate(0, 50)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
-                        </g>
+                            </g>
                         </svg>
                         <svg id="myTree_b" width="500" height="550" style="position:relative; top: -550px">
                             <g></g>
                         </svg>
-                        
                     </div>
                     <div style="text-align:left">
-                       <div id="mylog" style="text-align:left" class="myfont_c"></div>
+                        <strong>Logs: </strong>  
+                       <div id="mylog" style="text-align:left; height:1000px; overflow: auto" class="myfont_c"></div>
                     </div>
                 </div>
             </div>
@@ -1176,9 +1176,7 @@ export default {
             //If there is a deploy process          
             var simulation = d3.forceSimulation(nodes)
                     .force('charge', d3.forceManyBody().strength(5))
-                    .force('x', d3.forceX().x(function(d) {
-                        return 250;
-                    }))
+                    .force('x', d3.forceX().x(250))
                     .force('y', d3.forceY().y(function(d) {
                         return yCenter[d.stage];
                     }))
@@ -1202,6 +1200,7 @@ export default {
                                 });
                                 $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
                             })
+
                         u.exit().remove();
                     });
         },    
@@ -1368,7 +1367,6 @@ export default {
         },
         handleFileSelect: function (event) {     
             var files = event.target.files;
-            console.log(files)
             // FileList object
             var archive = new jsZip().folder("archive");
             for (var i = 0, f; (f = files[i]); i++) {
@@ -1403,8 +1401,8 @@ export default {
             $("#mylog").empty();
             $("#myTree").modal();
 
-            d3.select('#myTree_b').selectAll("circle").remove();
-            d3.select('#myTree_b').selectAll("line").remove();
+            d3.selectAll("circle").remove();
+            d3.selectAll("line").remove();
 
             //If there is a build process
             if (host) {   
@@ -1531,8 +1529,8 @@ export default {
             $("#mylog").empty();
             $("#myTree").modal();
 
-            d3.select('#myTree_b').selectAll("circle").remove();
-            d3.select('#myTree_b').selectAll("line").remove();
+            d3.selectAll("circle").remove();
+            d3.selectAll("line").remove();
 
             //If there is a build process
             if (host) {   
