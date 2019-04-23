@@ -985,15 +985,7 @@ export default {
                         if(this.polyline){
                             this.polyline.remove();
                         }
-                        this.devices.splice(0,this.devices.length, a);
-                        if (!this.targetDevices.some(
-                            e => e.id === event.target.options.title
-                        )) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
+                        this.devices.splice(0,this.devices.length, a);       
                     });
                     this.markers.addLayer(marker);
                 }
@@ -1412,11 +1404,11 @@ export default {
        
         //console.log(this.devices)
 
-         if(this.address.indexOf('https')>-1){
-                    var ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=targetAdded");
-                }else{
-                    var ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=targetAdded");
-                }
+        if(this.address.indexOf('https')>-1){
+            var ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=targetAdded");
+        }else{
+            var ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=targetAdded");
+        }
         ws.onopen = function () {
             console.log("Socket connected.");
         };
@@ -1442,11 +1434,32 @@ export default {
         ).addTo(this.map);
     
         this.map.addLayer(this.markers); 
-          
+
+        $('#collapseTwo').on('show.bs.collapse', ()=> {
+            this.markers.on('clusterclick', a =>{
+                a.layer.getAllChildMarkers().forEach(m =>{
+                    if (!(this.targetDevices.some(e => e.id == m.options.title))) {
+                        this.targetDevices.push({
+                            id: m.options.title,
+                            tags: m.options.alt
+                        });
+                    }
+                })
+            })
+            this.fullDevices.map(d =>{
+                d.marker.on('click', event =>{
+                    if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
+                        this.targetDevices.push({
+                            id: event.target.options.title,
+                            tags: event.target.options.alt
+                        });
+                    }
+                })
+            })
+        })     
     },
     updated(){
-        $('[data-toggle="popover"]').popover(); 
-        
+        $('[data-toggle="popover"]').popover();   
     }
 };
 </script>

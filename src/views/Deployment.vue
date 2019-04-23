@@ -1352,12 +1352,6 @@ export default {
                     marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
                     marker.on("click", event => {
                         marker.openPopup();
-                        if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
-                            });
-                        }
                     });
                     this.markers.addLayer(marker);
                 }
@@ -1944,9 +1938,30 @@ export default {
                 });
             }
         });
-       
-
         this.map.addLayer(this.markers);
+
+        $('#collapseThree').on('show.bs.collapse', ()=> {
+            this.markers.on('clusterclick', a =>{
+                a.layer.getAllChildMarkers().forEach(m =>{
+                    if (!(this.targetDevices.some(e => e.id == m.options.title))) {
+                        this.targetDevices.push({
+                            id: m.options.title,
+                            tags: m.options.alt
+                        });
+                    }
+                })
+            })
+            this.fullDevices.map(d =>{
+                d.marker.on('click', event =>{
+                    if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
+                        this.targetDevices.push({
+                            id: event.target.options.title,
+                            tags: event.target.options.alt
+                        });
+                    }
+                })
+            })
+        })
     },
     updated() {
         $('[data-toggle="popover"]').popover();
