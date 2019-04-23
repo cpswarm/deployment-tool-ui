@@ -1563,12 +1563,13 @@ export default {
                 children:[{
                     name: 'BUILD-END',
                     value: 5,
+                    line: true,
                     children: [{
                         name: 'DEPLOY',
                         value: size,
                         children:[
-                            { name:'INSTALL',value: size, children:[
-                                {name: 'RUN',value: size}]
+                            {name:'INSTALL',value: size, children:[
+                            {name: 'RUN',value: size}]
                         }]
                     }]
                 }]
@@ -1599,8 +1600,6 @@ export default {
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
                 .attr("fill", "#acacac");
 
-           
-
             // Links
             d3.select("#myTree_p g.links")
                 .selectAll('line.link')
@@ -1613,6 +1612,9 @@ export default {
                 .attr('x2', function(d) {return d.target.x;})
                 .attr('y2', function(d) {return d.target.y;})
                 .attr('stroke', '#ececec')
+                .style('stroke-width', function(d){
+                    return d.source.data.line? 0:1;
+                })
 
 
             if (!deploy) {
