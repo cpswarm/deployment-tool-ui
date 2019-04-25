@@ -262,7 +262,7 @@
                                 </form>
                                 <div style="height:350px;overflow: scroll">
                                     <div v-for="device in targetDevices" class="simpleDeviceCard">
-                                        <div class="input-group" style="padding:2.5px;">Name:
+                                        <div style="padding:2.5px;">Name:
                                             <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
                                             <button type="button" class="close" aria-label="Close" @click="removeDevice(device.id)"
                                                 style="height:20px">
@@ -1797,6 +1797,7 @@ export default {
             this.targetText = "";
             var badge = this.createBadge(tag);
             document.getElementById("searchTarget").appendChild(badge);
+            this.searchTarget();
         },
         selectOrder: function (id) {
             this.orderSearchT = "";

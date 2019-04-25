@@ -66,12 +66,12 @@
                                         <div class="mycard-title">Latest Logs:</div>
                                         <div v-if="device.logs.tasks[0][1]==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/error.png" style="width:14px" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
+                                                <img src="../assets/error.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
                                             </button>
                                         </div>
                                         <div v-else-if="device.logs.tasks[0][1]==false" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/done.png" style="width:14px" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
+                                                <img src="../assets/done.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
                                             </button>
                                         </div>
                                         <div v-else></div>
@@ -225,7 +225,7 @@
                                     </form>
                                 </div>
                                 <div v-for="device in targetDevices" class="simpleDeviceCard">
-                                    <div class="input-group" style="padding:2.5px;">Name:
+                                    <div style="padding:2.5px;">Name:
                                         <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
                                         <button type="button" class="close" aria-label="Close" @click="removeDevice(device.id)"
                                             style="height:20px">
