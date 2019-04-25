@@ -911,9 +911,9 @@ export default {
                     })
                     a.marker = marker;
                     a.logs = {
-                        tasks:"",
-                        log:"",
-                        error: "none"
+                        tasks:[['','none']],
+                        log:[],
+                        //error: "none"
                     };
                     this.newDiscover.push(a);
                     var tags = "";
@@ -1098,7 +1098,9 @@ export default {
             event.path[2].childNodes[3].style.background = '#fff';
             event.path[2].childNodes[4].style.background = '#fff';
             event.path[2].childNodes[5].style.background = '#fff';
+          
             this.devices = this.newDiscover;
+              console.log(this.devices)
             this.newDiscover = [];
             this.markers.clearLayers();
             this.devices.map(item=>{
