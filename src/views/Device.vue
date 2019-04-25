@@ -16,8 +16,7 @@
                     <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample"
                         ref="collapseOne">
                         <div style="padding:5px">
-                            <div id="search" style="margin-bottom:5px">
-                                
+                            <div id="search" style="margin-bottom:5px">    
                                 <form class="form-inline">
                                     <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 5px 0 0px;" @click="refresh">
                                         <img src="../assets/refresh.svg" style="width:16px">
@@ -204,7 +203,7 @@
                                         <div class="input-group" style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
                                             <div id="searchTarget2"></div>
                                             <input class="dropdown-toggle form-control form-control-sm" type="text"
-                                                v-model="searchText" data-toggle="dropdown" aria-haspopup="true"
+                                                v-model="searchText2" data-toggle="dropdown" aria-haspopup="true"
                                                 aria-expanded="false" @keyup="filterDevice" style="font-size: 14px;height: 26px;padding: 5px; border:none">
                                             <div class="input-group-append">
                                                 <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
@@ -527,6 +526,7 @@ export default {
             targetDevices: [],
             markers: [],
             searchText: "",
+            searchText2: "",
             terminal: new Date().toUTCString() + ':~'
         };
     },
@@ -662,6 +662,14 @@ export default {
             } else {
                 document.getElementById("search").style.display = "inline";
             }
+        },
+        createBadge: function (content) {
+            var badge = document.createElement("span");
+            badge.innerHTML = content;
+            badge.setAttribute("class", "btn btn-primary btn-sm");
+            badge.setAttribute("style", "padding: 2px 5px");
+            badge.onclick = function () { this.style.display = "none"; };
+            return badge;
         },
         deleteTarget: function (id) {
          
@@ -994,23 +1002,21 @@ export default {
         },
         // All device -> search devices
         searchTarget: function () {
-
             var tagsNodes = document.getElementById("searchTarget").childNodes;
             //console.log(tagsNodes);
             this.devices = this.fullDevices;
-            for (var i = 0; i < tagsNodes.length; i++) {
-                if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.devices.length; j++) {
-                        if ((this.devices[j].tags && this.devices[j].tags.some(e => e == tagsNodes[i].innerHTML)) || this.devices[j].id == tagsNodes[i].innerHTML ) {
-                            //console.log(this.devices[j].tags, tagsNodes[i].innerHTML)
-                            this.devices[j].isActive = true;
-                        } else {
-                            this.devices[j].isActive = false;
-                        }
-
+            this.devices.map( d=>{
+                for (var i = 0; i < tagsNodes.length; i++) {         
+                    if (tagsNodes[i].style.display != "none") {
+                        if ((d.tags && d.tags.some(e => e == tagsNodes[i].innerHTML)) || d.id == tagsNodes[i].innerHTML ) {                 
+                            d.isActive = true;
+                            break;
+                        }  else {
+                            d.isActive = false;
+                        }         
                     }
                 }
-            }
+            })   
         },
         //Update device -> search devices
         searchTarget2: function () {
@@ -1035,25 +1041,15 @@ export default {
         },
         selectItem: function (tag) {
             this.searchText="";
-            var badge = document.createElement("span");
-            badge.innerHTML = tag;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () {
-                this.style.display = "none";
-            };
+            var badge = this.createBadge(tag);
             document.getElementById("searchTarget").appendChild(badge);
+            this.searchTarget()
         },
         selectItem2: function (tag) {
-            this.searchText="";
-            var badge = document.createElement("span");
-            badge.innerHTML = tag;
-            badge.setAttribute("class", "btn btn-primary btn-sm");
-            badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () {
-                this.style.display = "none";
-            };
+            this.searchText2="";
+            var badge = this.createBadge(tag);
             document.getElementById("searchTarget2").appendChild(badge);
+            this.searchTarget2()
         },
         showEditForm: function (device) {
             event.path[3].style.display = 'none';

@@ -29,7 +29,7 @@
                                     <img src="../assets/search.png" style="height:20px">
                                 </a>
                             </div>
-                            <div class="dropdown-menu" style="padding:2.5px">
+                            <div class="dropdown-menu" style="padding:2.5px; max-height:550px;overflow:auto">
                                 <p class="dropdown-header" style="padding:2px 5px"> You can also search by description!</p>
                                 <div class="dropdown-divider"></div>
                              <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
@@ -176,7 +176,7 @@
                                     <div class="input-group-append" style="width:63%">
                                         <input ref="emptySource" type="text" class="form-control form-control-sm"  style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" disabled>
                                         <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(sourceOrder)" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;display:none" v-model="sourceOrder">
-                                        <div class="dropdown-menu" style="padding:2.5px;max-height:500px;overflow:auto">
+                                        <div class="dropdown-menu" style="padding:2.5px;max-height:400px;overflow:auto">
                                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectArtifacts(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
                                         </div>
@@ -1760,26 +1760,18 @@ export default {
         searchOrder: function () {
             var tagsNodes = document.getElementById("searchOrder").childNodes;
             var value = this.orderSearchT.toLowerCase();
-            for (var i = 0; i < tagsNodes.length; i++) {
-                if (tagsNodes[i].style.display != "none") {
-                    for (var j = 0; j < this.orders.length; j++) {
-                        if (this.orders[j].id == tagsNodes[i].innerHTML) {
-                            this.orders[j].cardActive = true;
+            this.orders.map(o =>{
+                for (var i = 0; i < tagsNodes.length; i++) {
+                    if (tagsNodes[i].style.display != "none") {
+                        if (o.id == tagsNodes[i].innerHTML || (value.length >0 && o.description && o.description.toLowerCase().indexOf(value) > -1)) {
+                            o.cardActive = true; 
+                            break;
                         } else {
-                            this.orders[j].cardActive = false;
+                           o.cardActive = false;
                         }
                     }
                 }
-            }
-            if (value.length > 0) {
-                this.orders.forEach(o => {
-                    if (o.description && o.description.toLowerCase().indexOf(value) > -1) {
-                        o.cardActive = true;
-                    } else {
-                        o.cardActive = false;
-                    }
-                })
-            }
+            })
         },
         searchTarget: function () {
             var tagsNodes = document.getElementById("searchTarget").childNodes;
@@ -1810,6 +1802,7 @@ export default {
             this.orderSearchT = "";
             var badge = this.createBadge(id);
             document.getElementById("searchOrder").appendChild(badge);
+            this.searchOrder();
         },
         showYaml: function () {
 
@@ -1883,7 +1876,6 @@ export default {
             let taskDer = this.generateTaskDer();
             this.myYaml.y = yaml.safeDump(taskDer);
         },
-
         stopOrder: function (order) {
 
             $('#mymodal-body').empty();
