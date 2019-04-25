@@ -454,13 +454,13 @@ function rand(n) {
 export default {
     data() {
         return {
-            myYaml:{
-                show:false,
-                y:"",
+            myYaml: {
+                show: false,
+                y: "",
             },
-            typeSource:"0",
-            sourceOrder:"",
-            offset:0,
+            typeSource: "0",
+            sourceOrder: "",
+            offset: 0,
             address: "",
             map: "",
             ws: "",
@@ -483,8 +483,8 @@ export default {
             failed: [],
             success: [],
             newDiscover: [],
-            host:"",
-            targets:""
+            host: "",
+            targets: ""
         };
     },
     components: {
@@ -497,14 +497,14 @@ export default {
             })
         }
     },
-    methods: {   
+    methods: {
         clearForm: function () {
 
             this.deployDes = '';
-            this.typeSource ='0';
-            this.sourceOrder='';
+            this.typeSource = '0';
+            this.sourceOrder = '';
             this.source = '';
-            
+
             document.getElementById("mySourcelabel").innerHTML = "Choose File";
             document.getElementById("customFile").value = "";
             this.$refs.emptySource.style.display = 'flex';
@@ -512,7 +512,7 @@ export default {
             this.$refs.custom_file.style.display = 'none';
             this.$refs.build.childNodes[0].style.display = 'none';
             this.$refs.build.childNodes[1].style.display = 'inline';
-                      
+
             this.deployDebug = false
             this.build_c = "";
             this.build_a = "";
@@ -535,17 +535,17 @@ export default {
         },
         clickCard: function (order) {
             if (order.deploy) {
-                this.refreshmap(order.deploy.match.list);       
+                this.refreshmap(order.deploy.match.list);
             }
-        }, 
-        clickDeployment: function (id) {     
+        },
+        clickDeployment: function (id) {
             var filteredData = this.orders.find((i) => {
                 return i.id === id
-            });     
+            });
             if (filteredData.deploy) {
-                this.refreshmap(filteredData.deploy.match.list);          
-            } 
-        },   
+                this.refreshmap(filteredData.deploy.match.list);
+            }
+        },
         closeModal: function () {
             if (this.ws) {
                 this.ws.close();
@@ -553,8 +553,8 @@ export default {
             }
             this.host = "";
             this.targets = "";
-            this.source="";
-            this.orders=[];
+            this.source = "";
+            this.orders = [];
             this.getOrders();
             this.fullDevices = [];
             this.failed = [];
@@ -596,11 +596,11 @@ export default {
             }).catch(error => {
                 console.log(error);
             });
-        }, 
+        },
         chooseSource: function () {
-            switch(this.typeSource){
+            switch (this.typeSource) {
                 //Choose... no source
-                case '0': 
+                case '0':
                     this.$refs.emptySource.style.display = 'flex';
                     this.$refs.sourceOrder.style.display = 'none';
                     this.$refs.custom_file.style.display = 'none';
@@ -608,16 +608,16 @@ export default {
                     this.$refs.build.childNodes[1].style.display = 'inline';
                     break;
                 //From Artifacts
-                case '1':  
+                case '1':
                     this.$refs.emptySource.style.display = 'none';
                     this.$refs.custom_file.style.display = 'none';
                     this.$refs.sourceOrder.style.display = 'flex';
                     this.$refs.build.childNodes[0].style.display = 'block';
                     this.$refs.build.childNodes[1].style.display = 'none';
-                    this.source='';
+                    this.source = '';
                     break;
                 //Upload File
-                case '2': 
+                case '2':
                     this.$refs.emptySource.style.display = 'none';
                     this.$refs.custom_file.style.display = 'flex';
                     this.$refs.sourceOrder.style.display = 'none';
@@ -626,7 +626,7 @@ export default {
                     break;
             }
         },
-        createBadge:function(content){
+        createBadge: function (content) {
             var badge = document.createElement("span");
             badge.innerHTML = content;
             badge.setAttribute("class", "btn btn-primary btn-sm");
@@ -639,29 +639,29 @@ export default {
             $('#mymessage-body').empty();
             axios.delete(this.address + "/orders/" + order.id).then(
                 response => {
-                    let index = this.orders.indexOf(this.orders.find(el => el.id == order.id))                
-                    this.orders.splice(index, 1);                 
+                    let index = this.orders.indexOf(this.orders.find(el => el.id == order.id))
+                    this.orders.splice(index, 1);
                     $('#myMessage').modal();
-                    $('#mymessage-body').append("Delete order with " + order.id + "  " + response.statusText)   
+                    $('#mymessage-body').append("Delete order with " + order.id + "  " + response.statusText)
                 }
             ).catch(error => {
                 $('#mymodal-body').append("Delete order with " + order.id + "  " + error)
                 $('#myAlert').modal();
             })
-        }, 
+        },
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
-            this.deployDes = order.description?order.description:"";
+            this.deployDes = order.description ? order.description : "";
 
             this.source = "";
             document.getElementById("mySourcelabel").innerHTML = "Choose File";
             document.getElementById("customFile").value = "";
 
             this.sourceOrder = order.id;
-            this.typeSource = '1';  
+            this.typeSource = '1';
             this.chooseSource();
-        
+
             this.deployDebug = order.debug;
 
             this.build_c = order.build ? order.build.commands.join("\n") : "";
@@ -689,316 +689,319 @@ export default {
             require("brace/snippets/javascript");
         },
         filter: function (list, key, value, word) {
-            list.forEach(l =>{
-                if(!(l[key].toLowerCase().indexOf(word)> -1)){
-                    this.$set(l, value+'Active', false)
-                }else{
-                     this.$set(l, value+'Active', true)
+            list.forEach(l => {
+                if (!(l[key].toLowerCase().indexOf(word) > -1)) {
+                    this.$set(l, value + 'Active', false)
+                } else {
+                    this.$set(l, value + 'Active', true)
                 }
             })
-        },  
+        },
         filterTarget: function () {
             var value = this.targetText.toLowerCase();
-            this.filter(this.tags,'tag','is',value);
-            this.filter(this.fullDevices,'id','name',value);
+            this.filter(this.tags, 'tag', 'is', value);
+            this.filter(this.fullDevices, 'id', 'name', value);
         },
         filterHost: function () {
             var value = this.host.toLowerCase();
-            this.filter(this.fullDevices,'id','host',value);
+            this.filter(this.fullDevices, 'id', 'host', value);
         },
         filterOrder: function (source) {
             var value = source.toLowerCase();
-            this.filter(this.orders,'id','name',value);
+            this.filter(this.orders, 'id', 'name', value);
         },
         generateTree: function (logs) {
 
             d3.select('#myTree_b').selectAll("circle").remove();
             d3.select('#myTree_b').selectAll("line").remove();
 
-            var xCenter = [300,300,300,200,300,400,100,200,300];
-            var yCenter = [50,150,250,350,350,350,450,450,450];
+            var xCenter = [300, 300, 300, 200, 300, 400, 100, 200, 300];
+            var yCenter = [50, 150, 250, 350, 350, 350, 450, 450, 450];
             var nodes = [];
 
-            if(this.targets){
-               
-                for (let i = 0; i < this.targets.length; i++) {     
-                let oneLog = logs.filter(log => log.target == this.targets[i].name); 
-                var c_d= "";
+            if (this.targets) {
+
+                for (let i = 0; i < this.targets.length; i++) {
+                    let oneLog = logs.filter(log => log.target == this.targets[i].name);
+                    var c_d = "";
                     if (oneLog.length > 0) {
 
-                        let install = oneLog.find(l=>{return l.output=="STAGE-END" && l.stage == 'install'}); 
-                        let run = oneLog.filter(l=>{return l.stage == 'run'});
+                        let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
+                        let run = oneLog.filter(l => { return l.stage == 'run' });
 
-                        if(install && install.error == true){ 
+                        if (install && install.error == true) {
                             this.targets[i].stage = 4;
-                            this.targets[i].class ='node-f';
+                            this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
-                        
-                        }else if (install && run.length == 0){
-                    
+
+                        } else if (install && run.length == 0) {
+
                             this.targets[i].stage = 3;
-                            this.targets[i].class ='node-s';
+                            this.targets[i].class = 'node-s';
                             this.targets[i].commands = oneLog;
-                      
-                        }else if (run.some(r=>{ return r.output == 'STAGE-END' && r.error == true })){
+
+                        } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
                             this.targets[i].stage = 7;
-                            this.targets[i].class ='node-f';
+                            this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
-                       
-                        }else if(run.some(r=>{ return r.output == 'STAGE-END' && r.error != true })){
-                            
+
+                        } else if (run.some(r => { return r.output == 'STAGE-END' && r.error != true })) {
+
                             this.targets[i].stage = 6;
-                            this.targets[i].class ='node-s';
+                            this.targets[i].class = 'node-s';
                             this.targets[i].commands = oneLog;
-                       
-                        }else if(run.length > 0){
+
+                        } else if (run.length > 0) {
 
                             this.targets[i].stage = 8;
-                            this.targets[i].class ='node-i';
+                            this.targets[i].class = 'node-i';
                             this.targets[i].commands = oneLog;
-                        }else{
+                        } else {
                             this.targets[i].stage = 5;
-                            this.targets[i].class ='node-i';
+                            this.targets[i].class = 'node-i';
                             this.targets[i].commands = oneLog;
                         }
-                    oneLog.forEach(log=>{               
-                        let s = "";
-                        log.error ? s = "f" : s = "s";
-                        c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                    })
-                }    
-                $('#'+this.targets[i].name).append(c_d);              
-                document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;           
-                }  
+                        oneLog.forEach(log => {
+                            let s = "";
+                            log.error ? s = "f" : s = "s";
+                            c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
+                        })
+                    }
+                    $('#' + this.targets[i].name).append(c_d);
+                    document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;
+                }
                 nodes = this.targets
             }
 
             //If there is a build process
-            if(this.host){
+            if (this.host) {
                 // Get all logs for host
-                let one = logs.filter(log => log.stage == "build");    
-                if(one.some(l =>{ return l.error == true && l.output =='STAGE-END'})){ 
+                let one = logs.filter(log => log.stage == "build");
+                if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 1;
                     this.host.commands = one;
                     this.host.class = 'node-f';
-                }else if(one.some(l =>{ return l.output =='STAGE-END'})){
+                } else if (one.some(l => { return l.output == 'STAGE-END' })) {
                     this.host.stage = 1;
                     this.host.commands = one;
                     this.host.class = 'node-s';
-                }             
-                let c_b= "";
-                one.forEach(log => {855
+                }
+                let c_b = "";
+                one.forEach(log => {
+                    855
                     let s = "";
                     log.error ? s = "f" : s = "s";
-                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
+                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
                 });
-                $('#'+ this.host.name).append(c_b);       
+                $('#' + this.host.name).append(c_b);
                 document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
                 nodes = this.targets.concat(this.host)
             }
-            
+
             var size = 0;
-            let r = 50/this.targets.length;
-            if(r < 1){ size = 1;
-            }else if(r>5){ size= 5;
-            }else{ size =  r }
+            let r = 50 / this.targets.length;
+            if (r < 1) {
+                size = 1;
+            } else if (r > 5) {
+                size = 5;
+            } else { size = r }
             //If there is a deploy process          
             var simulation = d3.forceSimulation(nodes)
-                    .force('charge', d3.forceManyBody().strength(0))
-                    .force('x', d3.forceX().x(function(d) {
-                        return xCenter[d.stage];
-                    }))
-                    .force('y', d3.forceY().y(function(d) {
-                        return yCenter[d.stage];
-                    }))
-                    .force('collision', d3.forceCollide().radius(5))
-                    .on('tick', ()=>{
-                        let u = d3.select("#myTree_b g")
-                            .selectAll('circle')
-                            .data(nodes);
+                .force('charge', d3.forceManyBody().strength(0))
+                .force('x', d3.forceX().x(function (d) {
+                    return xCenter[d.stage];
+                }))
+                .force('y', d3.forceY().y(function (d) {
+                    return yCenter[d.stage];
+                }))
+                .force('collision', d3.forceCollide().radius(5))
+                .on('tick', () => {
+                    let u = d3.select("#myTree_b g")
+                        .selectAll('circle')
+                        .data(nodes);
 
-                        u.enter().append('circle')
-                            .attr('r', size)
-                            .attr('class', function(d) {return d.class; })
-                            .merge(u)
-                            .attr('cx', function(d) { return d.x;})
-                            .attr('cy', function(d) { return d.y;})
-                            .on('click', function(d){
-                                $('#mylog').empty();
-                                let code = "";
-                                d.commands.forEach(el => {
-                                    code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                                });
-                                $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                            })
-                        u.exit().remove();
-                    });
-        },  
+                    u.enter().append('circle')
+                        .attr('r', size)
+                        .attr('class', function (d) { return d.class; })
+                        .merge(u)
+                        .attr('cx', function (d) { return d.x; })
+                        .attr('cy', function (d) { return d.y; })
+                        .on('click', function (d) {
+                            $('#mylog').empty();
+                            let code = "";
+                            d.commands.forEach(el => {
+                                code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                            });
+                            $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                        })
+                    u.exit().remove();
+                });
+        },
         generateTree2: function (logs, hostStatus, targetsStatus, host, targets) {
 
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
 
-            var code = ""; 
+            var code = "";
             var build = {
-                value:1,
-                class:"node-n",
-                children:[]
+                value: 1,
+                class: "node-n",
+                children: []
             };
             var install = {
-                value:1,
-                class:"node-n", 
-                children:[{
-                    value:0,
-                    class:'node-s'
+                value: 1,
+                class: "node-n",
+                children: [{
+                    value: 0,
+                    class: 'node-s'
                 },
                 {
-                    value:0,
-                    class:'node-f'
+                    value: 0,
+                    class: 'node-f'
                 },
                 {
-                    value:0,
-                    class:'node-i'
-                }]   
+                    value: 0,
+                    class: 'node-i'
+                }]
             };
             var run = {
-                value:1,
-                class:"node-n", 
-                children:[{
-                    value:0,
-                    class:'node-s'
+                value: 1,
+                class: "node-n",
+                children: [{
+                    value: 0,
+                    class: 'node-s'
                 },
                 {
-                    value:0,
-                    class:'node-f'
+                    value: 0,
+                    class: 'node-f'
                 },
                 {
-                    value:0,
-                    class:'node-i'
-                }]    
-            }; 
-            
+                    value: 0,
+                    class: 'node-i'
+                }]
+            };
+
 
             //If there is a build process
-            if(host){
+            if (host) {
                 // Get all logs for host
-                var oneLog = logs.filter(log => log.stage == "build");             
-                oneLog.forEach(log =>{
-                     if(hostStatus.get(log.target).get('build')[0].substring(0, 9) != "STAGE-END"){
-                            hostStatus.get(log.target).set('build', [log.output, oneLog])
-                      }
-                }) 
-                build.class = 'node-i'; 
-                hostStatus.forEach((value,key)=>{
-                    let child = {class: '', value: 0, commands: ''};
+                var oneLog = logs.filter(log => log.stage == "build");
+                oneLog.forEach(log => {
+                    if (hostStatus.get(log.target).get('build')[0].substring(0, 9) != "STAGE-END") {
+                        hostStatus.get(log.target).set('build', [log.output, oneLog])
+                    }
+                })
+                build.class = 'node-i';
+                hostStatus.forEach((value, key) => {
+                    let child = { class: '', value: 0, commands: '' };
                     child.value++;
-                    child.commands=value.get('build')[1];              
-                    if(value.get('build')[1].some(l=>{return l.error == true && l.output=='STAGE-END'})){
-                        child.class = 'node-f';              
-                    }else{
-                        child.class = 'node-s';             
+                    child.commands = value.get('build')[1];
+                    if (value.get('build')[1].some(l => { return l.error == true && l.output == 'STAGE-END' })) {
+                        child.class = 'node-f';
+                    } else {
+                        child.class = 'node-s';
                     }
                     build.children.push(child);
-                })      
-                                     
-                let c_b= "";
+                })
+
+                let c_b = "";
                 oneLog.forEach(log => {
                     let s = "";
                     log.error ? s = "f" : s = "s";
-                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
+                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
                 });
-                $('#'+ host).append(c_b);              
+                $('#' + host).append(c_b);
                 document.getElementById(host).scrollTop = document.getElementById(host).scrollHeight;
-            }else{    
-                build.children.push({class:'node-n',value:1})
-            }    
-            
-            //If there is a deploy process
-            if(targets){
+            } else {
+                build.children.push({ class: 'node-n', value: 1 })
+            }
 
-                install.value = targets.length+1;
+            //If there is a deploy process
+            if (targets) {
+
+                install.value = targets.length + 1;
                 install.class = 'node-s';
 
                 for (let i = 0; i < targets.length; i++) {
-                var oneLog = logs.filter(log => log.target == targets[i]); 
-                var c_d= "";
+                    var oneLog = logs.filter(log => log.target == targets[i]);
+                    var c_d = "";
 
-                if (oneLog.length > 0) {
-                    oneLog.forEach(log=>{ 
-                        if(targetsStatus.get(log.target).get(log.stage)[0].substring(0, 9) != "STAGE-END"){
-                            targetsStatus.get(log.target).set(log.stage, [log.output, oneLog.filter(el => el.stage == log.stage)])
-                        }
-                        targetsStatus.get(log.target).set('deploy', ['END', ''])
-                        let s = "";
-                        log.error ? s = "f" : s = "s";
-                        c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                    })
-                }    
-                $('#'+targets[i]).append(c_d);              
-                document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;           
-                }  
+                    if (oneLog.length > 0) {
+                        oneLog.forEach(log => {
+                            if (targetsStatus.get(log.target).get(log.stage)[0].substring(0, 9) != "STAGE-END") {
+                                targetsStatus.get(log.target).set(log.stage, [log.output, oneLog.filter(el => el.stage == log.stage)])
+                            }
+                            targetsStatus.get(log.target).set('deploy', ['END', ''])
+                            let s = "";
+                            log.error ? s = "f" : s = "s";
+                            c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
+                        })
+                    }
+                    $('#' + targets[i]).append(c_d);
+                    document.getElementById(targets[i]).scrollTop = document.getElementById(targets[i]).scrollHeight;
+                }
                 targetsStatus.forEach((value, key) => {
                     install.value--;
-                    let child = {class: '', value: 0, commands: ''};
+                    let child = { class: '', value: 0, commands: '' };
                     let i = value.get('install');
-                    let i_e = i[1]?i[1].some(l=>{return l.error == true && l.stage =='install' && l.output=='STAGE-END'}):'';
+                    let i_e = i[1] ? i[1].some(l => { return l.error == true && l.stage == 'install' && l.output == 'STAGE-END' }) : '';
 
                     let r = value.get('run');
-                    let r_e =r[1]? r[1].some(l=>{return l.error == true && l.stage =='run' && l.output=='STAGE-END'}):'';
-                    
-                    if (i[0]=="STAGE-END" && i_e){ 
-                            
-                            install.children[1].value++;
-                            install.children[1].commands = i[1];
-                    
-                    }else if (i[0]=="STAGE-END" && r[0]==""){
-                    
-                            install.children[0].value++;
-                            install.children[0].commands = i[1];
-                      
-                    }else if (i[0]=="STAGE-END" && r[0] != "STAGE-END"){
+                    let r_e = r[1] ? r[1].some(l => { return l.error == true && l.stage == 'run' && l.output == 'STAGE-END' }) : '';
 
-                            run.class = 'node-s';
-                            run.children[2].value++;
-                            run.children[2].commands = i[1];
-                       
-                    }else if(r[0] == "STAGE-END" && r_e && i[0]==""){
-                            run.class = 'node-s';
-                            run.children[1].value++;
-                            run.children[1].commands = i[1];
-                       
-                    }else if(r[0] == "STAGE-END" && !r_e && i[0]=="STAGE-END"){
-                            run.class = 'node-s';
-                            run.children[0].value++;
-                            run.children[0].commands = i[1];
-                      
-                    }else if (r[0] == "STAGE-END" && r_e && i[0] == "STAGE-END"){
-                            run.class = 'node-s';
-                            run.children[1].value++;
-                            run.children[1].commands = i[1];
+                    if (i[0] == "STAGE-END" && i_e) {
 
-                    }else if(r[0] == "STAGE-END" && i[0]=="" && !r_e){
-                           run.class = 'node-s';
-                            run.children[0].value++;
-                            run.children[0].commands = i[1];
-        
-                    }else if(r[0] != "STAGE-END" && i[0]==""){
-                          run.class = 'node-s';
-                            run.children[2].value++;
-                            run.children[2].commands = i[1];
-                    }else if(i[0]!="STAGE-END"){    
-                            install.children[2].value++;
-                            install.children[2].commands = i[1];
+                        install.children[1].value++;
+                        install.children[1].commands = i[1];
+
+                    } else if (i[0] == "STAGE-END" && r[0] == "") {
+
+                        install.children[0].value++;
+                        install.children[0].commands = i[1];
+
+                    } else if (i[0] == "STAGE-END" && r[0] != "STAGE-END") {
+
+                        run.class = 'node-s';
+                        run.children[2].value++;
+                        run.children[2].commands = i[1];
+
+                    } else if (r[0] == "STAGE-END" && r_e && i[0] == "") {
+                        run.class = 'node-s';
+                        run.children[1].value++;
+                        run.children[1].commands = i[1];
+
+                    } else if (r[0] == "STAGE-END" && !r_e && i[0] == "STAGE-END") {
+                        run.class = 'node-s';
+                        run.children[0].value++;
+                        run.children[0].commands = i[1];
+
+                    } else if (r[0] == "STAGE-END" && r_e && i[0] == "STAGE-END") {
+                        run.class = 'node-s';
+                        run.children[1].value++;
+                        run.children[1].commands = i[1];
+
+                    } else if (r[0] == "STAGE-END" && i[0] == "" && !r_e) {
+                        run.class = 'node-s';
+                        run.children[0].value++;
+                        run.children[0].commands = i[1];
+
+                    } else if (r[0] != "STAGE-END" && i[0] == "") {
+                        run.class = 'node-s';
+                        run.children[2].value++;
+                        run.children[2].commands = i[1];
+                    } else if (i[0] != "STAGE-END") {
+                        install.children[2].value++;
+                        install.children[2].commands = i[1];
                     }
                 })
             }
-            install.children[0]?install.children[0] = run: install.children.push(run);
-      
+            install.children[0] ? install.children[0] = run : install.children.push(run);
+
             //console.log(myTree_d)
-            var tree_b = d3.tree().size([200, 30]);        
+            var tree_b = d3.tree().size([200, 30]);
             var tree_d = d3.tree().size([200, 200]);
-            var root_b = d3.hierarchy(build); 
-            var root_d = d3.hierarchy(install); 
+            var root_b = d3.hierarchy(build);
+            var root_d = d3.hierarchy(install);
 
             //Build-Tree Nodes
             d3.select("#mytree_b g.nodes")
@@ -1017,8 +1020,8 @@ export default {
                         code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                     });
                     $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                }); 
-               //Deploy-Tree Nodes 
+                });
+            //Deploy-Tree Nodes 
             d3.select("#mytree_d g.nodes")
                 .selectAll("circle.node")
                 .data(tree_d(root_d).descendants())
@@ -1049,14 +1052,14 @@ export default {
                 .attr("x2", function (d) { return d.target.x; })
                 .attr("y2", function (d) { return d.target.y; })
                 .style("stroke-width", function (d) {
-                    if (d.target.data.value == 0 ) {
+                    if (d.target.data.value == 0) {
                         return 0;
                     } else {
                         return 1;
                     }
                 })
-            
-             
+
+
             //Deploy-Tree Links
             d3.select("#mytree_d g.links")
                 .selectAll("line.link")
@@ -1069,141 +1072,138 @@ export default {
                 .attr("x2", function (d) { return d.target.x; })
                 .attr("y2", function (d) { return d.target.y; })
                 .style("stroke-width", function (d) {
-                    if (d.target.data.value == 0 ) {
+                    if (d.target.data.value == 0) {
                         return 0;
                     } else {
                         return 1;
                     }
                 })
                 .transition()
-                    .duration(2500)
-                 
-              
-            //$('#mylog').append(code);
-           /*  targets.forEach(el=>{
-                
-            }) */
+                .duration(2500)
         },
         generateTree3: function (logs) {
 
             d3.select('#myTree_b').selectAll("circle").remove();
             d3.select('#myTree_b').selectAll("line").remove();
 
-            var yCenter = [50,150,250,350,450];
+            var yCenter = [50, 150, 250, 350, 450];
             var nodes = [];
 
-            if(this.targets){
-                for (let i = 0; i < this.targets.length; i++) {     
-                    let oneLog = logs.filter(log => log.target == this.targets[i].name); 
-                    var c_d= "";
+            if (this.targets) {
+                for (let i = 0; i < this.targets.length; i++) {
+                    let oneLog = logs.filter(log => log.target == this.targets[i].name);
+                    var c_d = "";
                     if (oneLog.length > 0) {
 
-                        let install = oneLog.find(l=>{return l.output=="STAGE-END" && l.stage == 'install'}); 
-                        let run = oneLog.filter(l=>{return l.stage == 'run'});
+                        let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
+                        let run = oneLog.filter(l => { return l.stage == 'run' });
 
-                        if(install && install.error == true){ 
+                        if (install && install.error == true) {
                             this.targets[i].stage = 350;
-                            this.targets[i].class ='node-f';
+                            this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
-                        
-                        }else if (install && run.length == 0){
-                    
-                            this.targets[i].stage = 450;
-                            this.targets[i].class ='node-s';
-                            this.targets[i].commands = oneLog;
-                      
-                        }else if (run.some(r=>{ return r.output == 'STAGE-END' && r.error == true })){
-                            this.targets[i].stage = 450;
-                            this.targets[i].class ='node-f';
-                            this.targets[i].commands = oneLog;
-                       
-                        }else if(run.some(r=>{ return r.output == 'STAGE-END' && r.error != true })){
-                            
-                            this.targets[i].stage = 450;
-                            this.targets[i].class ='node-s';
-                            this.targets[i].commands = oneLog;
-                       
-                        }else if(run.length > 0){
+
+                        } else if (install && run.length == 0) {
 
                             this.targets[i].stage = 450;
-                            this.targets[i].class ='node-i';
+                            this.targets[i].class = 'node-s';
                             this.targets[i].commands = oneLog;
-                        }else{
+
+                        } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
+                            this.targets[i].stage = 450;
+                            this.targets[i].class = 'node-f';
+                            this.targets[i].commands = oneLog;
+
+                        } else if (run.some(r => { return r.output == 'STAGE-END' && r.error != true })) {
+
+                            this.targets[i].stage = 450;
+                            this.targets[i].class = 'node-s';
+                            this.targets[i].commands = oneLog;
+
+                        } else if (run.length > 0) {
+
+                            this.targets[i].stage = 450;
+                            this.targets[i].class = 'node-i';
+                            this.targets[i].commands = oneLog;
+                        } else {
                             this.targets[i].stage = 350;
-                            this.targets[i].class ='node-i';
+                            this.targets[i].class = 'node-i';
                             this.targets[i].commands = oneLog;
                         }
-                    oneLog.forEach(log=>{               
-                        let s = "";
-                        log.error ? s = "f" : s = "s";
-                        c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                    })
-                }    
-                $('#'+this.targets[i].name).append(c_d);              
-                document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;           
-                }  
+                        oneLog.forEach(log => {
+                            let s = "";
+                            log.error ? s = "f" : s = "s";
+                            c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
+                        })
+                    }
+                    $('#' + this.targets[i].name).append(c_d);
+                    document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;
+                }
                 nodes = this.targets
             }
             //If there is a build process
-            if(this.host){
+            if (this.host) {
                 // Get all logs for host
-                let one = logs.filter(log => log.stage == "build");    
-                if(one.some(l =>{ return l.error == true && l.output =='STAGE-END'})){ 
+                let one = logs.filter(log => log.stage == "build");
+                if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-f';
-                }else if(one.some(l =>{ return l.output =='STAGE-END'})){
+                } else if (one.some(l => { return l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-s';
-                }             
-                let c_b= "";
-                one.forEach(log => {855
+                }
+                let c_b = "";
+                one.forEach(log => {
+                    855
                     let s = "";
                     log.error ? s = "f" : s = "s";
-                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  "+ log.command + "  " + log.output + "</div>";
+                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
                 });
-                $('#'+ this.host.name).append(c_b);       
+                $('#' + this.host.name).append(c_b);
                 document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
                 nodes = this.targets.concat(this.host)
             }
-            
+
             var size = 0;
-            let r = 50/this.targets.length;
-            if(r < 1){ size = 1;
-            }else if(r>5){ size= 5;
-            }else{ size =  r }
+            let r = 50 / this.targets.length;
+            if (r < 1) {
+                size = 1;
+            } else if (r > 5) {
+                size = 5;
+            } else { size = r }
             //If there is a deploy process          
             var simulation = d3.forceSimulation(nodes)
-                    .force('charge', d3.forceManyBody().strength(5))
-                    .force('x', d3.forceX().x(250))
-                    .force('y', d3.forceY().y(function(d) {
-                        return d.stage;
-                    }))
-                    .force('collision', d3.forceCollide().radius(5))
-                    .on('tick', ()=>{
-                        let u = d3.select("#myTree_b g")
-                            .selectAll('circle')
-                            .data(nodes);
+                .force('charge', d3.forceManyBody().strength(5))
+                .force('x', d3.forceX().x(250))
+                .force('y', d3.forceY().y(function (d) {
+                    return d.stage;
+                }))
+                .force('collision', d3.forceCollide().radius(5))
+                .on('tick', () => {
+                    let u = d3.select("#myTree_b g")
+                        .selectAll('circle')
+                        .data(nodes);
 
-                        u.enter().append('circle')
-                            .attr('r', size)
-                            .attr('class', function(d) {return d.class; })
-                            .merge(u)
-                            .attr('cx', function(d) { return d.x;})
-                            .attr('cy', function(d) { return d.y;})
-                            .on('click', function(d){
-                                $('#mylog').empty();
-                                let code = "";
-                                d.commands.forEach(el => {
-                                    code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                                });
-                                $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                            })
+                    u.enter().append('circle')
+                        .attr('r', size)
+                        .attr('class', function (d) { return d.class; })
+                        .merge(u)
+                        .attr('cx', function (d) { return d.x; })
+                        .attr('cy', function (d) { return d.y; })
+                        .on('click', function (d) {
+                            $('#mylog').empty();
+                            let code = "";
+                            d.commands.forEach(el => {
+                                code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                            });
+                            $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                        })
 
-                        u.exit().remove();
-                    });
-        },    
+                    u.exit().remove();
+                });
+        },
         generateTaskDer: function () {
 
             let ids = [];
@@ -1212,14 +1212,14 @@ export default {
             }
             var taskDer = {
                 description: this.deployDes ? this.deployDes.split("\n").join() : null,
-                source: { 
-                    order: this.typeSource =='1'? this.sourceOrder: null,
-                    zip: this.typeSource =='2'? 'Uploaded Files': null,
+                source: {
+                    order: this.typeSource == '1' ? this.sourceOrder : null,
+                    zip: this.typeSource == '2' ? 'Uploaded Files' : null,
                 },
                 build: {
-                    commands: this.typeSource !='1' && this.build_c ? this.build_c.split("\n") : null,
-                    artifacts: this.typeSource !='1' && this.build_a ? this.build_a.split("\n") : null,
-                    host: this.typeSource !='1' && this.host ? this.host : null
+                    commands: this.typeSource != '1' && this.build_c ? this.build_c.split("\n") : null,
+                    artifacts: this.typeSource != '1' && this.build_a ? this.build_a.split("\n") : null,
+                    host: this.typeSource != '1' && this.host ? this.host : null
                 },
                 deploy: {
                     install: {
@@ -1263,9 +1263,9 @@ export default {
             }).catch(error => {
                 console.log(error);
             });
-        }, 
+        },
         getOrders: function () {
-            axios.get(this.address + "/orders?sortOrder=desc").then(response => {     
+            axios.get(this.address + "/orders?sortOrder=desc").then(response => {
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
                     a.build ? a.build : (a.build = "");
@@ -1295,19 +1295,19 @@ export default {
                         a.status = [0, 0]
                         a.deploy = "";
                         this.orders.push(a);
-                    }          
+                    }
                 }
             });
         },
         getTargets: function () {
             axios.get(this.address + "/targets").then(response => {
-                
+
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
                     a.targetActive = true;
                     a.hostActive = true;
                     a.nameActive = true;
-                 
+
                     var tags = "";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
@@ -1359,7 +1359,7 @@ export default {
                 console.log(error);
             });
         },
-        handleFileSelect: function (event) {     
+        handleFileSelect: function (event) {
             var files = event.target.files;
             // FileList object
             var archive = new jsZip().folder("archive");
@@ -1370,10 +1370,10 @@ export default {
                 //archive.file(f.name, f);
             }
             this.source = archive.generateAsync({ type: "base64" });
-            if(files){
+            if (files) {
                 document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
-            }   
-        }, 
+            }
+        },
         handleDeploy: function (taskDer) {
             var myYaml = yaml.safeDump(taskDer);
             //console.log(myYaml);
@@ -1384,11 +1384,11 @@ export default {
                 $("#collapseOne").collapse("show");
                 this.clearForm();
                 this.listen3(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
-                }).catch(error => {    
+            }).catch(error => {
                 $("#mymodal-body").append(error.response.data.error);
                 $("#myAlert").modal();
             });
-            this.source='';
+            this.source = '';
         },
         listen: function (id, deploy, target, host) {
 
@@ -1399,51 +1399,52 @@ export default {
             d3.selectAll("line").remove();
 
             //If there is a build process
-            if (host) {   
-                this.host={name:host, stage:0, class:'node-i'}
-                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: '+ host +'</h6><div id="'+ host +'" class="myCommandCard"></div></div>')
-            }else{
+            if (host) {
+                this.host = { name: host, stage: 0, class: 'node-i' }
+                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>')
+            } else {
                 this.host = "";
                 $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
             }
             //If there is a deploy process
-            if (target) { 
+            if (target) {
                 $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
                 this.targets = target.map(t => {
-                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
-                    return {name:t, stage:2, class:'node-i'}
-                })  
-            }else{
-                this.targets ="";
+                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>');
+                    return { name: t, stage: 2, class: 'node-i' }
+                })
+            } else {
+                this.targets = "";
                 $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
             }
-             var size = 0;
-            if(this.targets.length >=50){ size= 50}
-            else if(this.targets.length < 10){ size =  5*this.targets.length}
-            else{ size = 50}
-                        
+            var size = 0;
+            if (this.targets.length >= 50) { size = 50 }
+            else if (this.targets.length < 10) { size = 5 * this.targets.length }
+            else { size = 50 }
+
             var data = {
                 name: 'build',
-                value:5,
-                children:[{
+                value: 5,
+                children: [{
                     name: 'build-E',
                     value: 5,
                     children: [{
                         name: 'install',
                         value: size,
-                        children:[
-                            { name:'install-s',value: size, children:[
-                                {name: 'run-s',value: size},
-                                {name: 'run-f',value: size},
-                                {name: 'run-i',value: size}]
+                        children: [
+                            {
+                                name: 'install-s', value: size, children: [
+                                    { name: 'run-s', value: size },
+                                    { name: 'run-f', value: size },
+                                    { name: 'run-i', value: size }]
                             },
-                            {name: 'install-f',value: size},
-                            {name:'install-i', value: size}
+                            { name: 'install-f', value: size },
+                            { name: 'install-i', value: size }
                         ]
                     }]
                 }]
             }
-        
+
             //Build-Tree Nodes
             var treeLayout = d3.tree().size([500, 400])
             var root = d3.hierarchy(data)
@@ -1456,16 +1457,16 @@ export default {
 
             nodes.append('circle')
                 .classed('node', true)
-                .attr('cx', function(d) {return d.x;})
-                .attr('cy', function(d) {return d.y;})
-                .attr('r', function(d) {return d.value;})
+                .attr('cx', function (d) { return d.x; })
+                .attr('cy', function (d) { return d.y; })
+                .attr('r', function (d) { return d.value; })
                 .attr('fill', '#ececec')
                 .attr('stroke', '#e4e4e4');
-         
+
             nodes.append('text')
-                .attr('x', function(d) {return d.x-25;})
-                .attr('y', function(d) {return d.y;})
-                .text(function(d){ return d.data.name})
+                .attr('x', function (d) { return d.x - 25; })
+                .attr('y', function (d) { return d.y; })
+                .text(function (d) { return d.data.name })
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
                 .attr("fill", "#e4e4e4");
 
@@ -1476,10 +1477,10 @@ export default {
                 .enter()
                 .append('line')
                 .classed('link', true)
-                .attr('x1', function(d) {return d.source.x;})
-                .attr('y1', function(d) {return d.source.y;})
-                .attr('x2', function(d) {return d.target.x;})
-                .attr('y2', function(d) {return d.target.y;})
+                .attr('x1', function (d) { return d.source.x; })
+                .attr('y1', function (d) { return d.source.y; })
+                .attr('x2', function (d) { return d.target.x; })
+                .attr('y2', function (d) { return d.target.y; })
                 .attr('stroke', '#e4e4e4');
 
 
@@ -1489,7 +1490,7 @@ export default {
                         this.generateTree(response.data.items);
                     }).catch(error => {
                         console.log(error);
-                });
+                    });
             }
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
@@ -1500,14 +1501,14 @@ export default {
                 this.ws = "";
             } else {
                 let address;
-                this.address.indexOf('https')>-1? address = "wss://": address = "ws://";         
+                this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
                 this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
                 this.ws.onopen = function () {
                     //console.log("Socket connected.");
                 };
                 this.ws.onmessage = event => {
                     //console.log(event.data);
-                    var obj = JSON.parse(event.data);   
+                    var obj = JSON.parse(event.data);
                     this.generateTree(obj.payload);
                 };
                 this.ws.onclose = function () {
@@ -1527,49 +1528,50 @@ export default {
             d3.selectAll("line").remove();
 
             //If there is a build process
-            if (host) {   
-                this.host={name:host, stage:50, class:'node-i'}
-                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: '+ host +'</h6><div id="'+ host +'" class="myCommandCard"></div></div>')
-            }else{
+            if (host) {
+                this.host = { name: host, stage: 50, class: 'node-i' }
+                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>')
+            } else {
                 this.host = "";
                 $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
             }
             //If there is a deploy process
-            if (target) { 
+            if (target) {
                 $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
                 this.targets = target.map(t => {
-                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
-                    return {name:t, stage:250, class:'node-i'}
+                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>');
+                    return { name: t, stage: 250, class: 'node-i' }
                 })
-               
-            }else{
-                this.targets ="";
+
+            } else {
+                this.targets = "";
                 $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
             }
             var size = 0;
-            if(this.targets.length >=50){ size= 50}
-            else if(this.targets.length < 10){ size =  5*this.targets.length}
-            else{ size = 50}
-                        
-             var data = {
+            if (this.targets.length >= 50) { size = 50 }
+            else if (this.targets.length < 10) { size = 5 * this.targets.length }
+            else { size = 50 }
+
+            var data = {
                 name: 'BUILD',
-                value:5,
-                children:[{
+                value: 5,
+                children: [{
                     name: 'BUILD-END',
                     value: 5,
                     line: true,
                     children: [{
                         name: 'DEPLOY',
                         value: size,
-                        children:[
-                            {name:'INSTALL',value: size, children:[
-                            {name: 'RUN',value: size}]
-                        }]
+                        children: [
+                            {
+                                name: 'INSTALL', value: size, children: [
+                                    { name: 'RUN', value: size }]
+                            }]
                     }]
                 }]
             }
-        
-          //Build-Tree Nodes
+
+            //Build-Tree Nodes
             var treeLayout = d3.tree().size([500, 400])
             var root = d3.hierarchy(data)
             treeLayout(root)
@@ -1580,17 +1582,17 @@ export default {
                 .enter();
             nodes.append('circle')
                 .classed('node', true)
-                .attr('cx', function(d) {return d.x;})
-                .attr('cy', function(d) {return d.y;})
-                .attr('r', function(d) {return d.value;})
+                .attr('cx', function (d) { return d.x; })
+                .attr('cy', function (d) { return d.y; })
+                .attr('r', function (d) { return d.value; })
                 .attr('fill', '#ececec')
-         
+
             nodes.append('text')
-                .text(function(d){ return d.data.name})
-                .attr('x', function(d) {      
+                .text(function (d) { return d.data.name })
+                .attr('x', function (d) {
                     return d.x - 5 * d.data.name.length;
                 })
-                .attr('y', function(d) {return d.y +5;})
+                .attr('y', function (d) { return d.y + 5; })
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
                 .attr("fill", "#acacac");
 
@@ -1601,13 +1603,13 @@ export default {
                 .enter()
                 .append('line')
                 .classed('link', true)
-                .attr('x1', function(d) {return d.source.x;})
-                .attr('y1', function(d) {return d.source.y;})
-                .attr('x2', function(d) {return d.target.x;})
-                .attr('y2', function(d) {return d.target.y;})
+                .attr('x1', function (d) { return d.source.x; })
+                .attr('y1', function (d) { return d.source.y; })
+                .attr('x2', function (d) { return d.target.x; })
+                .attr('y2', function (d) { return d.target.y; })
                 .attr('stroke', '#ececec')
-                .style('stroke-width', function(d){
-                    return d.source.data.line? 0:1;
+                .style('stroke-width', function (d) {
+                    return d.source.data.line ? 0 : 1;
                 })
 
 
@@ -1617,7 +1619,7 @@ export default {
                         this.generateTree3(response.data.items);
                     }).catch(error => {
                         console.log(error);
-                });
+                    });
             }
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
@@ -1628,14 +1630,14 @@ export default {
                 this.ws = "";
             } else {
                 let address;
-                this.address.indexOf('https')>-1? address = "wss://": address = "ws://";         
+                this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
                 this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
                 this.ws.onopen = function () {
                     //console.log("Socket connected.");
                 };
                 this.ws.onmessage = event => {
                     //console.log(event.data);
-                    var obj = JSON.parse(event.data);   
+                    var obj = JSON.parse(event.data);
                     this.generateTree3(obj.payload);
                 };
                 this.ws.onclose = function () {
@@ -1650,34 +1652,34 @@ export default {
 
             $("#mylog").empty();
             $("#myTree").modal();
-      
+
             var hostStatus = new Map();
             var targetsStatus = new Map();
-             
+
             //If there is a build process
             if (host) {
                 let status = new Map();
                 status.set('build', 'STAGE-START');
                 hostStatus.set(host, status);
-                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: '+ host +'</h6><div id="'+ host +'" class="myCommandCard"></div></div>')
-            }else{
+                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>')
+            } else {
                 $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
             }
             //If there is a deploy process
             if (target) {
                 target.forEach(el => {
                     let status = new Map();
-                    status.set('deploy',['STAGE-START',""]);
-                    status.set('install', ['','']);
-                    status.set('run', ['','']);
+                    status.set('deploy', ['STAGE-START', ""]);
+                    status.set('install', ['', '']);
+                    status.set('run', ['', '']);
                     targetsStatus.set(el, status);
                 });
                 $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
-                target.map(t=>{
-                   $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: '+t+'</h6><div id="'+t+'" class="myCommandCard"></div></div>');
+                target.map(t => {
+                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>');
                 })
-            }else{
-                   $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
+            } else {
+                $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
             }
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
@@ -1685,7 +1687,7 @@ export default {
                         this.generateTree2(response.data.items, hostStatus, targetsStatus, host, target);
                     }).catch(error => {
                         console.log(error);
-                });
+                    });
             }
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
@@ -1696,14 +1698,14 @@ export default {
                 this.ws = "";
             } else {
                 let address;
-                this.address.indexOf('https')>-1? address = "wss://": address = "ws://";         
+                this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
                 this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
                 this.ws.onopen = function () {
                     //console.log("Socket connected.");
                 };
                 this.ws.onmessage = event => {
                     //console.log(event.data);
-                    var obj = JSON.parse(event.data);   
+                    var obj = JSON.parse(event.data);
                     this.generateTree2(obj.payload, hostStatus, targetsStatus, host, target);
                 };
                 this.ws.onclose = function () {
@@ -1715,35 +1717,35 @@ export default {
             }
         },
         next: function () {
-            
-             if(this.offset > 0){
-                this.$refs.pre.disabled=false;
+
+            if (this.offset > 0) {
+                this.$refs.pre.disabled = false;
                 this.offset -= 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-            }else{
-                    if(this.offset <=0){
-                         this.$refs.next.disabled=true;
-                    }else{
-                         this.$refs.pre.disabled=true;
-                }           
-            }   
+                this.$refs.timeline_lis.style.transform = 'translateX(' + this.offset + 'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s';
+            } else {
+                if (this.offset <= 0) {
+                    this.$refs.next.disabled = true;
+                } else {
+                    this.$refs.pre.disabled = true;
+                }
+            }
         },
         previous: function () {
-           
-            if(this.$refs.timeline_lis.offsetWidth-this.offset > (this.map.getSize().x - 20)){
+
+            if (this.$refs.timeline_lis.offsetWidth - this.offset > (this.map.getSize().x - 20)) {
                 this.offset += 100;
-                this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)';
-                this.$refs.timeline_lis.style.transition = 'all .6s'; 
-                this.$refs.next.disabled=false
-            }else{
-                if(this.offset >= 0){
-                     this.$refs.pre.disabled=true;
-                }else{
-                     this.$refs.next.disabled=true;
-                }           
-            }  
-        }, 
+                this.$refs.timeline_lis.style.transform = 'translateX(' + this.offset + 'px)';
+                this.$refs.timeline_lis.style.transition = 'all .6s';
+                this.$refs.next.disabled = false
+            } else {
+                if (this.offset >= 0) {
+                    this.$refs.pre.disabled = true;
+                } else {
+                    this.$refs.next.disabled = true;
+                }
+            }
+        },
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
                 if (this.targetDevices[i].id == name) {
@@ -1754,7 +1756,7 @@ export default {
         refresh: function () {
             this.orders = [];
             this.getOrders();
-        },  
+        },
         searchOrder: function () {
             var tagsNodes = document.getElementById("searchOrder").childNodes;
             var value = this.orderSearchT.toLowerCase();
@@ -1778,7 +1780,7 @@ export default {
                     }
                 })
             }
-        },  
+        },
         searchTarget: function () {
             var tagsNodes = document.getElementById("searchTarget").childNodes;
             for (var i = 0; i < tagsNodes.length; i++) {
@@ -1798,7 +1800,7 @@ export default {
         },
         selectArtifacts: function (id) {
             this.sourceOrder = id;
-        },  
+        },
         selectItem: function (tag) {
             this.targetText = "";
             var badge = this.createBadge(tag);
@@ -1808,62 +1810,79 @@ export default {
             this.orderSearchT = "";
             var badge = this.createBadge(id);
             document.getElementById("searchOrder").appendChild(badge);
-        }, 
+        },
         showYaml: function () {
 
             if (this.myYaml.show) {
-            this.myYaml.show = false;
-            event.target.innerHTML = 'View Yaml'
-            document.getElementById('newDeployment').style.display = 'grid';
+                console.log('show')
 
-            var obj = yaml.safeLoad(this.myYaml.y);
+                var obj = yaml.safeLoad(this.myYaml.y);
 
-            try {
-            this.deployDes = obj.description ? obj.description : "";
+                try {
+                    this.deployDes = obj.description ? obj.description : "";
 
-            if (obj.source.order) {
-                this.sourceOrder = obj.source.order;
-                this.typeSource = '1';
+                    if(obj.source.order && obj.source.zip){
+
+                        $('#mymodal-body').empty();
+                        $('#mymodal-body').append("<strong>Inviald Yaml: </strong>");
+                        $('#mymodal-body').append("<br><strong>You can't set source.order and source.zip at same time!</strong>")
+                        $('#myAlert').modal();
+
+                    }else {
+
+                        if (obj.source.order) {
+
+                        this.sourceOrder = obj.source.order;
+                        this.typeSource = '1';
+
+                        } else if (obj.source.zip) {
+
+                        this.sourceOrder = '';
+                        this.typeSource = '2';
+                        /*  this.source = "";
+                         document.getElementById("mySourcelabel").innerHTML = "Choose File";
+                         document.getElementById("customFile").value = ""; */
+                        }
+
+                        this.chooseSource();
+                        this.deployDebug = obj.debug;
+
+                        this.build_c = obj.build.commands ? obj.build.commands.join("\n") : "";
+                        this.build_a = obj.build.artifacts ? obj.build.artifacts.join("\n") : "";
+                        this.host = obj.build.host ? obj.build.host : "";
+
+                        this.install_c = obj.deploy.install.commands ? obj.deploy.install.commands.join("\n") : "";
+                        this.run_c = obj.deploy.run.commands ? obj.deploy.run.commands.join("\n") : "";
+                        this.targetDevices = [];
+
+                        for (var i = 0; i < obj.deploy.target.ids.length; i++) {
+                            this.targetDevices.push({
+                                id: obj.deploy.target.ids[i],
+                                tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
+                            });
+                        }
+
+                        this.myYaml.show = false;
+                        event.target.innerHTML = 'View Yaml'
+                        document.getElementById('newDeployment').style.display = 'grid';
+                    }
+                   
+                } catch (error) {
+                    $('#mymodal-body').empty();
+                    $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" + error);
+                    $('#mymodal-body').append("<br><strong>Please check the syntax!</strong>")
+                    $('#myAlert').modal();
+                }
             } else {
-                this.sourceOrder = '';
-                this.typeSource = '2';
-                
-               /*  this.source = "";
-                document.getElementById("mySourcelabel").innerHTML = "Choose File";
-                document.getElementById("customFile").value = ""; */
+                console.log('hide')
+                event.target.innerHTML = 'View Form'
+                this.myYaml.show = true;
+                document.getElementById('newDeployment').style.display = 'none';
             }
 
-            this.chooseSource();
-            this.deployDebug = obj.debug;
-
-            this.build_c = obj.build.commands ? obj.build.commands.join("\n") : "";
-            this.build_a = obj.build.artifacts ? obj.build.artifacts.join("\n") : "";
-            this.host = obj.build.host ? obj.build.host : "";
-
-            this.install_c = obj.deploy.install.commands ? obj.deploy.install.commands.join("\n") : "";
-            this.run_c = obj.deploy.run.commands ? obj.deploy.run.commands.join("\n") : "";
-            this.targetDevices = [];
-
-            for (var i = 0; i < obj.deploy.target.ids.length; i++) {
-                this.targetDevices.push({
-                    id: obj.deploy.target.ids[i],
-                    tags: this.fullDevices.find(el => el.id == obj.deploy.target.ids[i]).tags,
-                });
-            }
-            } catch (error) {
-            $('#mymodal-body').empty();
-            $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" + error);
-            $('#mymodal-body').append("<br><strong>Please check the syntax!</strong>")
-            $('#myAlert').modal();
-            }
-            } else {
-            event.target.innerHTML = 'View Form'
-            this.myYaml.show = true;
-            document.getElementById('newDeployment').style.display = 'none';
-            }           
             let taskDer = this.generateTaskDer();
             this.myYaml.y = yaml.safeDump(taskDer);
-            },
+        },
 
         stopOrder: function (order) {
 
@@ -1871,7 +1890,7 @@ export default {
             $('#mymessage-body').empty();
             axios.put(this.address + "/orders/" + order.id + "/stop").then(response => {
                 $('#myMessage').modal();
-                $('#mymessage-body').append("Stop order with " + order.id + "  " + response.data.message)    
+                $('#mymessage-body').append("Stop order with " + order.id + "  " + response.data.message)
             }).catch(error => {
                 $('#mymodal-body').append("Stop order with " + order.id + "  " + error)
                 $('#myAlert').modal();
@@ -1886,7 +1905,7 @@ export default {
                     taskDer.source.zip = data;
                     this.handleDeploy(taskDer);
                 });
-            } else {     
+            } else {
                 this.handleDeploy(taskDer);
             }
 
@@ -1897,7 +1916,7 @@ export default {
                     devices: this.fullDevices,
                 }
             });
-        }, 
+        },
     },
     mounted() {
 
@@ -1912,7 +1931,7 @@ export default {
         */
         this.getOrders();
         this.getTargets();
-        this.map = L.map("map").setView([45.749523, 18.20343],5);
+        this.map = L.map("map").setView([45.749523, 18.20343], 5);
         this.$refs.myTimeline.style.width = this.map.getSize().x - 20 + 'px'
         L.tileLayer(
             "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
@@ -1929,28 +1948,28 @@ export default {
                 opacity: 0.1
             },
             // Customize marker cluster style
-           iconCreateFunction: function (cluster) {
+            iconCreateFunction: function (cluster) {
                 var childCount = cluster.getChildCount();
                 var childs = cluster.getAllChildMarkers();
-                var name='';
-               
-                if(childs.some(c=> {return c.options.icon.options.iconUrl =='/error.png'})){
-                    name ='myCluster-e';
-                }else{
+                var name = '';
+
+                if (childs.some(c => { return c.options.icon.options.iconUrl == '/error.png' })) {
+                    name = 'myCluster-e';
+                } else {
                     name = 'myCluster';
-                }         
+                }
                 return L.divIcon({
                     html: "<div><span>" + childCount + "</span></div>",
-                    className:name,
+                    className: name,
                     iconSize: new L.Point(40, 40)
                 });
             }
         });
         this.map.addLayer(this.markers);
 
-        $('#collapseThree').on('show.bs.collapse', ()=> {
-            this.markers.on('clusterclick', a =>{
-                a.layer.getAllChildMarkers().forEach(m =>{
+        $('#collapseThree').on('show.bs.collapse', () => {
+            this.markers.on('clusterclick', a => {
+                a.layer.getAllChildMarkers().forEach(m => {
                     if (!(this.targetDevices.some(e => e.id == m.options.title))) {
                         this.targetDevices.push({
                             id: m.options.title,
@@ -1959,8 +1978,8 @@ export default {
                     }
                 })
             })
-            this.fullDevices.map(d =>{
-                d.marker.on('click', event =>{
+            this.fullDevices.map(d => {
+                d.marker.on('click', event => {
                     if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                         this.targetDevices.push({
                             id: event.target.options.title,
@@ -1973,7 +1992,7 @@ export default {
     },
     updated() {
         $('[data-toggle="popover"]').popover();
-        this.markers.refreshClusters(); 
+        this.markers.refreshClusters();
     }
 };
 </script>
