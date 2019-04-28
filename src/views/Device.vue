@@ -241,29 +241,16 @@
                             <p style="margin-bottom:5px;font-size:14px">This update settings will apply to all selected
                                 deivces.</p>
                             <form id="updateTags">
-                                <div class="mycard-title">Name Base:</div>
-                                <div class="mycard-content">
-                                    <div class="form-check input-group">
-                                        <input class="form-check-input" type="radio" name="radio" disabled>
-                                        <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" disabled>
-                                        <label>- 1/2/3...</label>
-                                    </div>
-                                    <div class="form-check input-group">
-                                        <input class="form-check-input" type="radio" name="radio" disabled>
-                                        <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" disabled>
-                                        <label class="form-check-label" for="exampleCheck1">- a/b/c...</label>
-                                    </div>
-                                </div>
                                 <div class="mycard-title">Tags:</div>
                                 <div class="mycard-content">
                                     <div class="input-group">
-                                        <label style="margin-top:2.5px">Type:</label>
+                                        <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="drone"> drone
+                                                <input type="checkbox" autocomplete="off" value="drone" > drone
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="swarm"> swarm
+                                                <input type="checkbox" autocomplete="off" value="swarm" > swarm
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
                                                 <input type="checkbox" autocomplete="off" value="robot"> robot
@@ -271,39 +258,40 @@
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label style="margin-top:2.5px">HW Arch:</label>
+                                        <h6 class="mycard-content" style="margin-top:2.5px">HW Arch:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="amd64"> amd64
+                                                <input type="checkbox" autocomplete="off" value="amd64" > amd64
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="arm32"> arm32
+                                                <input type="checkbox" autocomplete="off" value="arm32" > arm32
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="mcs51"> mcs51
+                                                <input type="checkbox" autocomplete="off" value="mcs51" > mcs51
                                             </label>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label style="margin-top:2.5px">OS:</label>
+                                        <h6 class="mycard-content" style="margin-top:2.5px">OS:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="freebsd"> freebsd
+                                                <input value="freebsd" type="checkbox"> freebsd
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="netbsd"> netbsd
+                                                <input type="checkbox"  value="netbsd" > netbsd
                                             </label>
                                             <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
-                                                <input type="checkbox" autocomplete="off" value="darwin"> darwin
+                                                <input type="checkbox" value="darwin"> darwin
                                             </label>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mycard-title">Location:</div>
-                                <div class="mycard-content"> <input type="text" class="form-control form-control-sm"
-                                        style="font-size: 14px;height: 22px;padding: 5px;"></div>
+                                <div class="mycard-content"> 
+                                    <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" v-model="location"></div>
                             </form>
                             <div style="text-align:right;margin-top:5px;">
+                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;margin-right:5px" @click="clearForm">Clear</button>
                                 <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;" @click="batchUpdate">Update</button>
                             </div>
                         </div>
@@ -527,7 +515,8 @@ export default {
             markers: [],
             searchText: "",
             searchText2: "",
-            terminal: new Date().toUTCString() + ':~'
+            terminal: new Date().toUTCString() + ':~',
+            location:"",
         };
     },
     components: {
@@ -577,6 +566,24 @@ export default {
             });
 
             
+        },
+        clearForm: function () {
+
+            let input = document.getElementById('updateTags').getElementsByTagName('input');
+            let label = document.getElementById('updateTags').getElementsByTagName('label');
+            $('#searchTarget2').empty();
+        
+            Array.from(input).map(item =>{
+               item.checked = false
+            });
+            Array.from(label).map(item =>{
+               item.setAttribute('class','btn btn-light');
+            });
+
+            this.targetDevices=[];
+            this.updateTags =[];
+            this.location = "";
+
         },
         closeModal: function () {
 
@@ -986,7 +993,7 @@ export default {
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
 
-                if (this.targetDevices[i].id == name) {
+                if (this.targetDevices[i].id === name) {
                     this.targetDevices.splice(i, 1);
                 }
             }
