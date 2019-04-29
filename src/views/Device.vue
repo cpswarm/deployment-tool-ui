@@ -665,6 +665,7 @@ export default {
         },  
         clickCard: function (marker) {  
              this.map.panTo(marker.getLatLng());
+             marker.openPopup();
         },
         closeSearch: function () {
             //console.log(document.getElementById("collapseTwo").className)
@@ -713,6 +714,7 @@ export default {
         },
         //Search device
         filterDevice: function () {
+           
             var value = this.searchText.toLowerCase();
             this.tags.forEach(function (tag) {
                 if (!(tag.tag.toLowerCase().indexOf(value) > -1)) {
@@ -731,11 +733,13 @@ export default {
         },
         //Click notification card item and filtering device
         filterDevices: function (para) {
+            $('#searchTarget').empty();
             switch(para){
                 case 'failed': 
                     this.devices = this.failed;
                     event.path[2].childNodes[2].style.background = '#ececec';
                     event.path[2].childNodes[3].style.background = '#ececec';
+
                     event.path[2].childNodes[4].style.background = '#fff';
                     event.path[2].childNodes[5].style.background = '#fff';
                     event.path[2].childNodes[0].style.background = '#fff';
@@ -753,6 +757,7 @@ export default {
             }
             this.markers.clearLayers()
             this.devices.forEach(d=>{
+                d.isActive = true;
                 this.markers.addLayer(d.marker)
             });
             this.map.fitBounds(this.markers.getBounds())
@@ -1003,6 +1008,7 @@ export default {
             }
         }, 
         refresh: function () {
+        $('#searchTarget').empty(); 
           this.devices=[];
           this.fullDevices=[];
           this.failed=[];
