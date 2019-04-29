@@ -46,7 +46,6 @@
                             </div>                           
                             <div id="deviceList" ref="list" style="overflow:scroll">
                                 <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
-                                
                                     <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
                                         <div class="mycard-content" >{{device.id}}</div>
@@ -533,13 +532,18 @@ export default {
     methods: {
         batchUpdate: function () {
 
-            let input = document.getElementById('updateTags').getElementsByTagName('input'); 
+            let input = document.getElementById('updateTags').getElementsByTagName('input');
+            
             let myUpdate = {
                 tags:[],
-                location:{
-                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
-                    lat: parseFloat(input[input.length-1].value.split(',')[1])
+                location: {
+                        lon: null,
+                        lat: null   
                 }
+            }
+            if(this.location){
+                myUpdate.location.lon = parseFloat(input[input.length-1].value.split(',')[0]);
+                myUpdate.location.lat = parseFloat(input[input.length-1].value.split(',')[1]);
             }
             Array.from(input).map(item =>{
                 if(item.checked){
@@ -1185,12 +1189,15 @@ export default {
 
             let input= event.path[2].getElementsByTagName('input'); 
             let myUpdate = {
-                id: input[0].value,
                 tags:[],
-                location:{
-                    lon: parseFloat(input[input.length-1].value.split(',')[0]),
-                    lat: parseFloat(input[input.length-1].value.split(',')[1])
+                location: {
+                        lon: null,
+                        lat: null   
                 }
+            }
+            if(this.location){
+                myUpdate.location.lon = parseFloat(input[input.length-1].value.split(',')[0]);
+                myUpdate.location.lat = parseFloat(input[input.length-1].value.split(',')[1]);
             }
             Array.from(input).map(item =>{
                 if(item.checked){
