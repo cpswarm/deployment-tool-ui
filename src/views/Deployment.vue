@@ -923,11 +923,12 @@ export default {
                 install.class = 'node-s';
 
                 for (let i = 0; i < targets.length; i++) {
-                    var oneLog = logs.filter(log => log.target == targets[i]);
+                    var oneLog = logs.filter(log => log.target == targets[i] && log.stage != 'build');
                     var c_d = "";
 
                     if (oneLog.length > 0) {
                         oneLog.forEach(log => {
+                            console.log(log.stage)
                             if (targetsStatus.get(log.target).get(log.stage)[0].substring(0, 9) != "STAGE-END") {
                                 targetsStatus.get(log.target).set(log.stage, [log.output, oneLog.filter(el => el.stage == log.stage)])
                             }
@@ -1004,7 +1005,7 @@ export default {
             var root_d = d3.hierarchy(install);
 
             //Build-Tree Nodes
-            d3.select("#mytree_b g.nodes")
+            d3.select("#mytree_b2 g.nodes")
                 .selectAll("circle.node")
                 .data(tree_b(root_b).descendants())
                 .enter()
@@ -1014,15 +1015,15 @@ export default {
                 .attr("cy", function (d) { return d.y; })
                 .attr("r", function (d) { return d.data.value * 1.5; })
                 .on('click', function (d) {
-                    $('#mylog').empty();
+                    $('#mylog2').empty();
                     code = "";
                     d.data.commands.forEach(el => {
                         code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                     });
-                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                    $('#mylog2').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
                 });
             //Deploy-Tree Nodes 
-            d3.select("#mytree_d g.nodes")
+            d3.select("#mytree_d2 g.nodes")
                 .selectAll("circle.node")
                 .data(tree_d(root_d).descendants())
                 .enter()
@@ -1032,16 +1033,16 @@ export default {
                 .attr("cy", function (d) { return d.y; })
                 .attr("r", function (d) { return d.data.value * 1.5; })
                 .on('click', function (d) {
-                    $('#mylog').empty();
+                    $('#mylog2').empty();
                     code = "";
                     d.data.commands.forEach(el => {
                         code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                     });
-                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                    $('#mylog2').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
                 })
 
             // Build-Tree Links
-            d3.select("#mytree_b g.links")
+            d3.select("#mytree_b2 g.links")
                 .selectAll("line.link")
                 .data(tree_b(root_b).links())
                 .enter()
@@ -1061,7 +1062,7 @@ export default {
 
 
             //Deploy-Tree Links
-            d3.select("#mytree_d g.links")
+            d3.select("#mytree_d2 g.links")
                 .selectAll("line.link")
                 .data(tree_d(root_d).links())
                 .enter()
@@ -1078,8 +1079,6 @@ export default {
                         return 1;
                     }
                 })
-                .transition()
-                .duration(2500)
         },
         generateTree3: function (logs) {
 
@@ -1650,8 +1649,8 @@ export default {
         },
         listen2: function (id, deploy, target, host) {
 
-            $("#mylog").empty();
-            $("#myTree").modal();
+            $("#mylog2").empty();
+            $("#myTree2").modal();
 
             var hostStatus = new Map();
             var targetsStatus = new Map();
@@ -1661,9 +1660,9 @@ export default {
                 let status = new Map();
                 status.set('build', 'STAGE-START');
                 hostStatus.set(host, status);
-                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>')
+                $('#mylog2').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>')
             } else {
-                $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
+                $('#mylog2').append('<h6 style="margin:0">Build: No Build process.</h6>')
             }
             //If there is a deploy process
             if (target) {
@@ -1674,12 +1673,12 @@ export default {
                     status.set('run', ['', '']);
                     targetsStatus.set(el, status);
                 });
-                $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
+                $('#mylog2').append('<h6 style="margin:0">Deploy: </h6>');
                 target.map(t => {
-                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>');
+                    $('#mylog2').append('<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>');
                 })
             } else {
-                $('#mylog').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
+                $('#mylog2').append('<h6 style="margin:0">Deploy: No Deploy process.</h6>')
             }
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
@@ -1710,7 +1709,7 @@ export default {
                 };
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
-                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
+                    $("#mylog2").prepend("<p>WebSocket Disconnected!</p>");
                     // If socket disconnected, try to connect again after 5s.
                     /* setTimeout(function () { listen(1, true);}, 5000); */
                 };
@@ -2062,6 +2061,11 @@ export default {
   grid-template-columns: 2.5fr 6fr;
   grid-gap: 5px;
 }
+#mytree-body2 {
+  display: grid;
+  grid-template-columns:  0.5fr 2.6fr 6fr;
+  grid-gap: 5px;
+}
 #stage {
   display: grid;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
@@ -2134,7 +2138,7 @@ export default {
     width: 110px;
 }
 @media (min-width: 576px){
-    #myTree_dialog{
+    #myTree_dialog, #myTree_dialog2{
         max-width:110% !important;
     }
 }
