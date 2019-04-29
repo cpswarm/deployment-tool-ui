@@ -614,7 +614,7 @@ export default {
                     this.$refs.sourceOrder.style.display = 'flex';
                     this.$refs.build.childNodes[0].style.display = 'block';
                     this.$refs.build.childNodes[1].style.display = 'none';
-                    this.source = '';
+                    //this.source = '';
                     break;
                 //Upload File
                 case '2':
@@ -1893,11 +1893,13 @@ export default {
 
             $('#mymodal-body').empty();
             var taskDer = this.generateTaskDer();
-            if (this.source) {
-                this.source.then(data => {
+            if (this.typeSource == '2') {
+                if(this.source){
+                    this.source.then(data => {
                     taskDer.source.zip = data;
                     this.handleDeploy(taskDer);
                 });
+                }
             } else {
                 this.handleDeploy(taskDer);
             }
