@@ -538,13 +538,16 @@ export default {
                 this.refreshmap(order.deploy.match.list);
             }
         },
-        clickDeployment: function (id) {
-            var filteredData = this.orders.find((i) => {
-                return i.id === id
-            });
-            if (filteredData.deploy) {
-                this.refreshmap(filteredData.deploy.match.list);
-            }
+        clickDeployment: function (id) { 
+           $('#searchOrder').empty();     
+           this.orders.map((i) => {
+                if(i.id !== id){
+                    i.cardActive = false;
+                }else{
+                    i.cardActive = true; 
+                    this.clickCard(i);
+                }
+            }); 
         },
         closeModal: function () {
             if (this.ws) {
@@ -1755,18 +1758,19 @@ export default {
         refresh: function () {
             this.orders = [];
             this.getOrders();
+            $('#searchOrder').empty();
         },
         searchOrder: function () {
             var tagsNodes = document.getElementById("searchOrder").childNodes;
             var value = this.orderSearchT.toLowerCase();
-            this.orders.map(o =>{
+            this.orders.map(o => {
                 for (var i = 0; i < tagsNodes.length; i++) {
                     if (tagsNodes[i].style.display != "none") {
-                        if (o.id == tagsNodes[i].innerHTML || (value.length >0 && o.description && o.description.toLowerCase().indexOf(value) > -1)) {
-                            o.cardActive = true; 
+                        if (o.id == tagsNodes[i].innerHTML || (value.length > 0 && o.description && o.description.toLowerCase().indexOf(value) > -1)) {
+                            o.cardActive = true;
                             break;
                         } else {
-                           o.cardActive = false;
+                            o.cardActive = false;
                         }
                     }
                 }
@@ -1807,34 +1811,33 @@ export default {
         showYaml: function () {
 
             if (this.myYaml.show) {
-                console.log('show')
 
                 var obj = yaml.safeLoad(this.myYaml.y);
 
                 try {
                     this.deployDes = obj.description ? obj.description : "";
 
-                    if(obj.source.order && obj.source.zip){
+                    if (obj.source.order && obj.source.zip) {
 
                         $('#mymodal-body').empty();
                         $('#mymodal-body').append("<strong>Inviald Yaml: </strong>");
                         $('#mymodal-body').append("<br><strong>You can't set source.order and source.zip at same time!</strong>")
                         $('#myAlert').modal();
 
-                    }else {
+                    } else {
 
                         if (obj.source.order) {
 
-                        this.sourceOrder = obj.source.order;
-                        this.typeSource = '1';
+                            this.sourceOrder = obj.source.order;
+                            this.typeSource = '1';
 
                         } else if (obj.source.zip) {
 
-                        this.sourceOrder = '';
-                        this.typeSource = '2';
-                        /*  this.source = "";
-                         document.getElementById("mySourcelabel").innerHTML = "Choose File";
-                         document.getElementById("customFile").value = ""; */
+                            this.sourceOrder = '';
+                            this.typeSource = '2';
+                            /*  this.source = "";
+                             document.getElementById("mySourcelabel").innerHTML = "Choose File";
+                             document.getElementById("customFile").value = ""; */
                         }
 
                         this.chooseSource();
@@ -1859,7 +1862,7 @@ export default {
                         event.target.innerHTML = 'View Yaml'
                         document.getElementById('newDeployment').style.display = 'grid';
                     }
-                   
+
                 } catch (error) {
                     $('#mymodal-body').empty();
                     $('#mymodal-body').append("<strong>Inviald Yaml: </strong>" + error);
@@ -1893,11 +1896,11 @@ export default {
             $('#mymodal-body').empty();
             var taskDer = this.generateTaskDer();
             if (this.typeSource == '2') {
-                if(this.source){
+                if (this.source) {
                     this.source.then(data => {
-                    taskDer.source.zip = data;
-                    this.handleDeploy(taskDer);
-                });
+                        taskDer.source.zip = data;
+                        this.handleDeploy(taskDer);
+                    });
                 }
             } else {
                 this.handleDeploy(taskDer);
