@@ -45,7 +45,7 @@
                                 </form>
                             </div>                           
                             <div id="deviceList" ref="list" style="overflow:scroll">
-                                <div v-for="device in devices" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
+                                <div v-for="device in orderTargets" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
                                     <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
                                         <div class="mycard-content" >{{device.id}}</div>
@@ -527,6 +527,11 @@ export default {
             return this.orders.sort(function (a, b) {
                 return a.finishedAt - b.finishedAt
             })
+        },
+        orderTargets: function(){
+            return this.devices.sort(function (a, b) {
+                return b.updatedAt - a.updatedAt
+            })
         }
     },
     methods: {
@@ -552,24 +557,20 @@ export default {
             });
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
-      
+            
             //console.log(myUpdate);
             this.targetDevices.forEach(el=>{
                 axios.put(this.address+"/targets/" + el.id, myUpdate).then(response=>{
                     //console.log(response)
                     $('#myMessage').modal();
-            
                     $("#collapseOne").collapse("show");
                     $('#mymessage-body').append("Update target with "+ el.id + "  " + response.statusText + "<br>")
                     //console.log(this.devices.length)
-                }
-            ).catch(error => {
-                $('#myAlert').modal();
-                $('#mymodal-body').append("Update target with " + el.id + "  " + error);
+                }).catch(error => {
+                    $('#myAlert').modal();
+                    $('#mymodal-body').append("Update target with " + el.id + "  " + error);
                 });
-            });
-
-            
+            });          
         },
         clearForm: function () {
 
