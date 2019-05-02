@@ -1289,6 +1289,7 @@ export default {
                             a.finishedAt = data[0];
                             a.status = data[1];
                             this.orders.push(a);
+                             console.log(a)
                         });
                     } else {
                         this.getFinishTime(a.id).then(data => {
@@ -1297,6 +1298,7 @@ export default {
                         a.status = [0, 0]
                         a.deploy = "";
                         this.orders.push(a);
+                        console.log(a)
                     }
                 }
             });

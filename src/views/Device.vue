@@ -53,7 +53,7 @@
                                         <div class="mycard-content">
                                             <span>
                                                 <button v-for="tag in device.tags" class="badge badge-pill" :class="tag"
-                                                    @click="device.relations=showRelationship(tag,device)">{{tag}}
+                                                    @click="showRelationship(tag,device)">{{tag}}
                                                 </button>
                                             </span>
                                         </div>
@@ -841,7 +841,7 @@ export default {
 
                     let a = response.data.items[i];
                     a.isActive = true;
-                    a.relations = true;
+                    a.relations = false;
                     a.nameActive = true;
                    
                     if (!a.location) {
@@ -1009,7 +1009,7 @@ export default {
             }
         }, 
         refresh: function () {
-        $('#searchTarget').empty(); 
+            $('#searchTarget').empty(); 
           this.devices=[];
           this.fullDevices=[];
           this.failed=[];
@@ -1127,26 +1127,17 @@ export default {
             //console.log(this.devices);
         },
         showRelationship: function (tag, device) {
-            //console.log()
-            //device.marker.bounce(4);
-            device.marker.openPopup()
-            if (this.polyline) {
-                this.polyline.remove();
-                this.polyline = "";
-            }
-            if (device.relations == true) {
-
-                var latlngs = [];
-                this.devices.forEach(function (target) {
-                 
-                    if (target.tags && target.tags.some(el => el == tag)) {
-                        latlngs.push([
-                            [target.location.lon, target.location.lat],
-                            [device.location.lon, device.location.lat]])
-                    }
-                });
-                let color;
-                switch (tag) {
+            device.marker.openPopup();
+            var latlngs = [];
+            this.devices.forEach(function (target) {
+                if (target.tags && target.tags.some(el => el == tag)) {
+                    latlngs.push([
+                        [target.location.lon, target.location.lat],
+                        [device.location.lon, device.location.lat]])
+                }
+            });
+            let color;
+            switch (tag) {
                     case 'amd64':
                         color = "#376b6d";
                         break;
@@ -1175,17 +1166,15 @@ export default {
                         color = "#516E41";
                         break;
                 }
-                this.polyline = L.polyline(latlngs,
-                    {
-                        color: color,
-                        weight: 2,
-                    }).addTo(this.map);
-                //console.log(this.polyline)
-                this.map.fitBounds(this.polyline.getBounds());
-
-                //console.log(polyline)
-            }
-            return device.relations ? false : true;
+            
+            if(this.polyline) this.polyline.remove();
+            this.polyline = L.polyline(latlngs,
+                {
+                    color: color,
+                    weight: 2,
+                })
+            this.polyline.addTo(this.map);
+            this.map.fitBounds(this.polyline.getBounds());
         }, 
         showTerminal: function (e) {
             e.path[3].style.display = 'none';
@@ -1198,13 +1187,9 @@ export default {
             let myUpdate = {
                 tags:[],
                 location: {
-                        lon: null,
-                        lat: null   
+                        lon: parseFloat(input[input.length-1].value.split(',')[0]),
+                        lat: parseFloat(input[input.length-1].value.split(',')[1])
                 }
-            }
-            if(this.location){
-                myUpdate.location.lon = parseFloat(input[input.length-1].value.split(',')[0]);
-                myUpdate.location.lat = parseFloat(input[input.length-1].value.split(',')[1]);
             }
             Array.from(input).map(item =>{
                 if(item.checked){
