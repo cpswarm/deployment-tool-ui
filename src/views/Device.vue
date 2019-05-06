@@ -109,7 +109,7 @@
                                             </button>
                                         </div>
                                         <textarea v-model="terminal" class="myTerminal" style="width: 100%" rows="10"
-                                            @input="submitTerminal"></textarea>
+                                            @input="submitTerminal(device.id)"></textarea>
                                     </div>
                                     <div style="display:none">
                                         <form class="updateDevice">
@@ -514,7 +514,7 @@ export default {
             markers: [],
             searchText: "",
             searchText2: "",
-            terminal: new Date().toUTCString() + ':~',
+            terminal: '$ ',
             location:"",
         };
     },
@@ -1227,9 +1227,39 @@ export default {
             });
             //console.log(event.path)
         },
-        submitTerminal: function () {
-            //Post one line command
-            //console.log(this.terminal.split('\n'));
+        submitTerminal: function (id) {
+
+            var commands = this.terminal.split("\n");
+            //console.log(commands[commands.length - 1] == '');
+            
+            if (commands[commands.length - 1] == '') {
+            //console.log(commands[commands.length - 2].substring(2));
+            var command = {
+                command: commands[commands.length - 2].substring(2)
+            }
+            axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
+                    //console.log(response)
+                    if (this.address.indexOf('https') > -1) {
+                        this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
+                    } else {
+                        this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
+                    }
+                    this.ws.onopen = function () {
+                        console.log("Socket connected.");
+                    };
+                    this.ws.onmessage = event => {
+                        console.log(event.data);
+                        var obj = JSON.parse(event.data);
+                        obj.payload.forEach(l => { this.terminal += l.output; })
+                        this.terminal += '\n$ ';
+                    };
+                    this.ws.onclose = function () {
+                        console.log("Socket disconnected.");
+                    };
+                }).catch(error => {
+                    this.terminal += this.terminal += '\n' + error +'\n$ ';
+                })
+            } 
         },
     },
     mounted() {
