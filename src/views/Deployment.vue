@@ -442,6 +442,7 @@ import yaml from "js-yaml";
 import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
+import { constants } from 'crypto';
 
 
 // Generate fake latitude and logitude
@@ -1087,7 +1088,7 @@ export default {
 
             d3.select('#myTree_b').selectAll("circle").remove();
             d3.select('#myTree_b').selectAll("line").remove();
-
+            var xCenter = [];
             var yCenter = [50, 150, 250, 350, 450];
             var nodes = [];
 
@@ -1101,6 +1102,9 @@ export default {
                         let run = oneLog.filter(l => { return l.stage == 'run' });
 
                         if (install && install.error == true) {
+
+                            // var diff(this.targets[i].commands)
+
                             this.targets[i].stage = 350;
                             this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
@@ -1132,11 +1136,11 @@ export default {
                             this.targets[i].class = 'node-i';
                             this.targets[i].commands = oneLog;
                         }
-                        oneLog.forEach(log => {
+                       oneLog.forEach(log => {
                             let s = "";
                             log.error ? s = "f" : s = "s";
                             c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                        })
+                        }) 
                     }
                     $('#' + this.targets[i].name).append(c_d);
                     document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;
@@ -1157,12 +1161,11 @@ export default {
                     this.host.class = 'node-s';
                 }
                 let c_b = "";
-                one.forEach(log => {
-                    855
+                 one.forEach(log => {
                     let s = "";
                     log.error ? s = "f" : s = "s";
                     c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
-                });
+                }); 
                 $('#' + this.host.name).append(c_b);
                 document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
                 nodes = this.targets.concat(this.host)
@@ -1184,6 +1187,7 @@ export default {
                 }))
                 .force('collision', d3.forceCollide().radius(5))
                 .on('tick', () => {
+                  
                     let u = d3.select("#myTree_b g")
                         .selectAll('circle')
                         .data(nodes);
@@ -1289,7 +1293,7 @@ export default {
                             a.finishedAt = data[0];
                             a.status = data[1];
                             this.orders.push(a);
-                             console.log(a)
+                             //console.log(a)
                         });
                     } else {
                         this.getFinishTime(a.id).then(data => {
@@ -1298,7 +1302,7 @@ export default {
                         a.status = [0, 0]
                         a.deploy = "";
                         this.orders.push(a);
-                        console.log(a)
+                        //console.log(a)
                     }
                 }
             });
@@ -1594,7 +1598,7 @@ export default {
             nodes.append('text')
                 .text(function (d) { return d.data.name })
                 .attr('x', function (d) {
-                    return d.x - 5 * d.data.name.length;
+                    return d.x - 150;
                 })
                 .attr('y', function (d) { return d.y + 5; })
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
