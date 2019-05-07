@@ -6,13 +6,13 @@
             </div>
             <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
                 <div class="card">
-                    <div class="card-header" id="headingOne">
+                 
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/device.png" style="width:18px">
                             Devices List
                         </button>
-                    </div>
+                
                     <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample"
                         ref="collapseOne">
                         <div style="padding:5px">
@@ -186,13 +186,11 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header" id="headingTwo">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
                             aria-expanded="false" aria-controls="collapseTwo" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/edit.png" style="width:20px">
                             Update Devices
                         </button>
-                    </div>
                     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
                         <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:scroll">
                             <p style="margin-bottom:5px;font-size:14px">Updating Targets:</p>
@@ -297,13 +295,12 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header" id="headingThree">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                             aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/add.png" style="height:20px">
                             Add New Tokens
                         </button>
-                    </div>
+                   
                     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
                         <div ref="collapseThree" style="overflow:scroll">
                         <div style="margin:10px 12.5px 5px;">
@@ -382,7 +379,7 @@
         </div>
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div id="myLog-dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
-                <div class="modal-content" style="">
+                <div class="modal-content">
                     <div class="modal-header">
                         <h5 id="logTitle" class="modal-title">Logs for Task:</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -392,7 +389,7 @@
                     <div id="mylog-body" class="modal-body">
                         <div class="accordion" id="accordionLog">
                             <div class="card" style="background-color:#f1f1f1">
-                                <div id="headingbuild">
+                                <div class="myHeading">
                                     <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapsebuild"
                                         aria-expanded="true" aria-controls="collapsebuild" style="padding: 0 10px">
                                         <span>&#9656;</span>
@@ -400,11 +397,10 @@
                                     Build
                                 </div>
                                 <div id="collapsebuild" class="collapse show" aria-labelledby="headingBuild" style="padding: 0 0px 0px 35px;">
-                                
                                 </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
-                                <div id="headinginstall">
+                                <div class="myHeading">
                                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
                                         data-target="#collapseinstall" aria-expanded="false" aria-controls="collapseinstall"
                                         style="padding: 0 10px">
@@ -417,7 +413,7 @@
                                 </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
-                                <div id="headingrun">
+                                <div class="myHeading">
                                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
                                         data-target="#collapserun" aria-expanded="false" aria-controls="collapserun"
                                         style="padding: 0 10px">
@@ -1522,9 +1518,7 @@ export default {
   width: 400px;
 }
 
-#headingOne,
-#headingTwo,
-#headingThree {
+.myHeading{
   padding: 0;
   width: 100%
 }

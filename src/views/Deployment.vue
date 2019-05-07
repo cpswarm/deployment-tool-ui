@@ -6,13 +6,13 @@
         </div>
         <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
             <div class="card">
-                <div class="card-header" id="headingOne" style="text-align:left;width:100%">
+             
                   <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/device.png" style="width:18px">
                             Deployment List
                     </button>
-                </div>
+               
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
                     <form class="form-inline" style="margin-bottom:5px"> 
@@ -142,13 +142,12 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-header" id="headingThree" style="text-align:left">
                     <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                         aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                         <img src="../assets/add.png" style="height:20px">
                         Add New Deployment
                     </button>
-                </div>
+           
                 <div id="collapseThree"  class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" style="overflow:scroll">
                     <div class="card-body" style="padding:7.5px" ref="collapseThree">
                         <h6 style="text-align:left">
@@ -1513,16 +1512,18 @@ export default {
             //If there is a build process
             if (host) {
                 this.host = { name: host, stage: 50, class: 'node-i' }
-                $('#mylog').append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>')
+                $('#mylog').append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light" type="button" data-toggle="collapse" data-target="#'+host+'" aria-expanded="true" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left">Device: ' + host + '</button>'
+                +'<div id="' + host + '" class="collapse myCommandCard"></div></div>')
             } else {
                 this.host = "";
-                $('#mylog').append('<h6 style="margin:0">Build: No Build process.</h6>')
+                $('#mylog').append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
             }
             //If there is a deploy process
             if (target) {
-                $('#mylog').append('<h6 style="margin:0">Deploy: </h6>');
+                $('#mylog').append('<h6 style="margin:2.5px 0">Deploy: </h6>');
                 this.targets = target.map(t => {
-                    $('#mylog').append('<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>');
+                    $('#mylog').append('<div class="myCommands card"><button class="btn btn-light" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left">Device: ' + t + '</button>'
+                    +'<div id="' + t + '" class="collapse myCommandCard"></div></div>');
                     return { name: t, stage: 250, class: 'node-i' }
                 })
 
@@ -1573,7 +1574,7 @@ export default {
             nodes.append('text')
                 .text(function (d) { return d.data.name })
                 .attr('x', function (d) {
-                    return d.x - 5 * d.data.name.length;
+                    return d.x - 150;
                 })
                 .attr('y', function (d) { return d.y + 5; })
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
@@ -1635,7 +1636,7 @@ export default {
                                     d.commands.forEach(el => {
                                         code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                                     });
-                                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                                    $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
                             	});
 
                         simulation.nodes(nodes).force('collision', d3.forceCollide().radius(5));
@@ -1675,7 +1676,7 @@ export default {
                                     d.commands.forEach(el => {
                                         code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
                                     });
-                                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                                    $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
                             	});
 
                     simulation.nodes(nodes)
@@ -2075,7 +2076,7 @@ export default {
   margin-bottom: 5px;
 }
 .myCommandCard{
-    height: 320px;
+    max-height: 320px;
     background: #fcfcfc;
     padding: 5px;
     overflow: auto;
