@@ -1085,9 +1085,9 @@ export default {
         },
         generateTree3: function (logs) {
 
-            d3.select('#myTree_b').selectAll("circle").remove();
+            /* d3.select('#myTree_b').selectAll("circle").remove();
             d3.select('#myTree_b').selectAll("line").remove();
-
+            */
             var yCenter = [50, 150, 250, 350, 450];
             var nodes = [];
 
@@ -1158,7 +1158,7 @@ export default {
                 }
                 let c_b = "";
                 one.forEach(log => {
-                    855
+
                     let s = "";
                     log.error ? s = "f" : s = "s";
                     c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
@@ -1168,43 +1168,23 @@ export default {
                 nodes = this.targets.concat(this.host)
             }
 
-            var size = 0;
+            return nodes;
+            /* var size = 0;
             let r = 50 / this.targets.length;
             if (r < 1) {
                 size = 1;
             } else if (r > 5) {
                 size = 5;
-            } else { size = r }
+            } else { size = r } */
             //If there is a deploy process          
-            var simulation = d3.forceSimulation(nodes)
+            /* var simulation = d3.forceSimulation(nodes)
                 .force('charge', d3.forceManyBody().strength(5))
                 .force('x', d3.forceX().x(250))
                 .force('y', d3.forceY().y(function (d) {
                     return d.stage;
                 }))
                 .force('collision', d3.forceCollide().radius(5))
-                .on('tick', () => {
-                    let u = d3.select("#myTree_b g")
-                        .selectAll('circle')
-                        .data(nodes);
-
-                    u.enter().append('circle')
-                        .attr('r', size)
-                        .attr('class', function (d) { return d.class; })
-                        .merge(u)
-                        .attr('cx', function (d) { return d.x; })
-                        .attr('cy', function (d) { return d.y; })
-                        .on('click', function (d) {
-                            $('#mylog').empty();
-                            let code = "";
-                            d.commands.forEach(el => {
-                                code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                            });
-                            $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                        })
-
-                    u.exit().remove();
-                });
+                .on('tick', this.ticked   ); */
         },
         generateTaskDer: function () {
 
@@ -1613,17 +1593,57 @@ export default {
                 .attr('stroke', '#ececec')
                 .style('stroke-width', function (d) {
                     return d.source.data.line ? 0 : 1;
-                })
+            })
+            
+            var nodeSize = 0;
+            let r = 50 / this.targets.length;
+            if (r < 1) {
+                nodeSize = 1;
+            } else if (r > 5) {
+                nodeSize = 5;
+            } else { nodeSize = r }
 
+            var nodes = [];
+            var node = d3.select("#myTree_b g").selectAll('circle');
 
+            var simulation = d3.forceSimulation(nodes)
+                .force('charge', d3.forceManyBody().strength(5))
+                .force('x', d3.forceX().x(250))
+                .force('y', d3.forceY().y(function (d) { return d.stage;}))    
+                .alphaTarget(1) 
+                .on('tick', ()=>{
+                     node.attr("cx", function(d) { return d.x; })
+                         .attr("cy", function(d) { return d.y; })
+                         .attr("class", function(d) { return d.class; })
+                });
+            
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                     .then(response => {
-                        this.generateTree3(response.data.items);
+
+                        nodes = this.generateTree3(response.data.items);
+
+                        node = node.data(nodes);
+                        node.exit().remove();
+                        node = node.enter().append('circle')
+                                .attr('r', nodeSize)
+                                .attr('class', function (d) {return d.class; })
+                                .merge(node)
+                                .on('click', function (d) {
+                                    $('#mylog').empty();
+                                    let code = "";
+                                    d.commands.forEach(el => {
+                                        code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                                    });
+                                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                            	});
+
+                        simulation.nodes(nodes).force('collision', d3.forceCollide().radius(5));
                     }).catch(error => {
                         console.log(error);
-                    });
+                });
             }
+
             if (!("WebSocket" in window)) {
                 alert("WebSocket is not supported by your Browser!");
                 return;
@@ -1641,7 +1661,26 @@ export default {
                 this.ws.onmessage = event => {
                     //console.log(event.data);
                     var obj = JSON.parse(event.data);
-                    this.generateTree3(obj.payload);
+                    nodes = this.generateTree3(obj.payload);
+
+                    node = node.data(nodes);
+                    node.exit().remove();
+                    node = node.enter().append('circle')
+                                .attr('r', nodeSize)
+                                .attr('class', function (d) {return d.class; })
+                                .merge(node)
+                                .on('click', function (d) {
+                                    $('#mylog').empty();
+                                    let code = "";
+                                    d.commands.forEach(el => {
+                                        code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
+                                    });
+                                    $('#mylog').prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
+                            	});
+
+                    simulation.nodes(nodes)
+                            .force('y', d3.forceY().y(function (d) { return d.stage;}))   
+                            .force('collision', d3.forceCollide().radius(5));
                 };
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
