@@ -100,16 +100,16 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div style="display:none">
+                                    <div class="myT" style="display:none">
                                         <div style="background-color:#dedede;height:22px">
                                             <div style="font-size:14px; display:inline-block">$agent: {{device.id}}</div>
                                             <button type="button" class="close" aria-label="Close" style="height:20px"
-                                                @click="hideTerminal">
+                                                @click="hideTerminal(device.id)">
                                                 <span style="height:20px">&times;</span>
                                             </button>
                                         </div>
-                                        <textarea v-model="terminal" class="myTerminal" style="width: 100%" rows="10"
-                                         @keydown="executeTerminal(device.id)"></textarea>
+                                        <textarea class="myTerminal" style="width: 100%" rows="10" v-bind:id="device.id"
+                                         @keydown="executeTerminal(device.id)">$ </textarea>
                                     </div>
                                     <div style="display:none">
                                         <form class="updateDevice">
@@ -964,12 +964,23 @@ export default {
                         }
                     });
         },
-        hideTerminal: function (e) {
-            e.path[4].childNodes[0].style.display = 'grid';
-            e.path[4].childNodes[1].style.display = 'none';
-            this.terminal ='$ ';
+        hideTerminal: function (id) {
+            event.path[4].childNodes[0].style.display = 'grid';
+            event.path[4].childNodes[1].style.display = 'none';
+            let close = true;
+            let terminals = document.getElementsByClassName('myT')
+            for(let i =0; i<terminals.length;i++){
+               if(terminals[i].style.display!='none'){
+                   close = false;
+                   break;
+               }
+            } 
+            if (close && this.ws){
+                this.ws.close();
+                this.ws = "";
+            }
+            $('#' + id).val('$ ');
             this.crt='';
-            //console.log(e.path)
         },
         hideEdit: function (e) {
             e.path[5].childNodes[0].style.display = 'grid';
@@ -1184,13 +1195,17 @@ export default {
             e.path[3].style.display = 'none';
             e.path[4].childNodes[1].style.display = 'inline';
 
-            if (!this.ws){
+           /*  if (this.ws){
+                this.ws.close();
+                this.ws = "";
+            } */
+            if(!this.ws){
                 if(this.address.indexOf('https') > -1) {
-                this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
-            } else {
-                this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
-            }
-        }
+                    this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
+                } else {
+                    this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
+                }
+            } 
             //console.log(e.path)
         },
         submitEdit: function (id) {
@@ -1239,44 +1254,46 @@ export default {
             });
             //console.log(event.path)
         },
-        executeTerminal:function (id) {
+        executeTerminal: function (id) {
 
-            this.crt += event.keyCode +',';
-            if(this.crt.substring(this.crt.length - 6) == '17,67,'){
-               axios.delete(this.address + "/targets/" + id + "/command").then(response => {
-                //console.log(response.data)
-                this.terminal += 'This Terminal disconnected!'+ response.data +'\n$ '
-            }).catch(error => {
-                this.terminal += error +'\n$ ';
-            })  
-            }else if(this.crt.substring(this.crt.length - 3) == '13,'){
-                this.submitTerminal(id)
+            this.crt += event.keyCode + ',';
+            var terminal = $('#' + id).val();
+
+            if (this.crt.substring(this.crt.length - 6) == '17,67,') {
+                axios.delete(this.address + "/targets/" + id + "/command").then(response => {
+               
+                    terminal += '\nThis Terminal disconnected!' + response.data + '\n$ ';
+                    $('#' + id).val(terminal);
+                }).catch(error => {
+                    terminal +='\n' +error + '\n$ ';
+                    $('#' + id).val(terminal);
+                })
+            } else if (this.crt.substring(this.crt.length - 3) == '13,') {
+                this.submitTerminal(id, terminal)
             }
         },
-        submitTerminal: function (id) {
+        submitTerminal: function (id,terminal) {
 
-            var commands = this.terminal.split("\n");
-            //console.log(commands);
+            var commands = terminal.split("\n");
             var command = {
                 command: commands[commands.length - 1].substring(2)
             }
-            axios.put(this.address + "/targets/" + id + "/command", command).then(response => {               
-                    this.ws.onopen = function () {
-                        console.log("Socket connected.");
-                    };
-                    this.ws.onmessage = event => {
-                        //console.log('sss')
-                        var obj = JSON.parse(event.data);
-                        obj.payload.forEach(l => {this.terminal += l.output; })
-                        this.terminal += '\n$ ';
-                    };
-                    this.ws.onclose = function () {
-                        console.log("Socket disconnected.");
-                    };
-                }).catch(error => {
-                    //console.log(error.response)
-                    this.terminal += error.response.data.error +'\n$ ';
-            })  
+            var element = $('#'+id);
+           
+            axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
+                    //console.log(response.data)  
+            }).catch(error => {         
+                    element.val( terminal + error.response.data.error +'\n$ ');
+            })   
+            this.ws.onmessage = event => {
+            
+                var obj = JSON.parse(event.data);
+                obj.payload.forEach(l => {
+                    if(l.target == id) terminal += '\n'+l.output;            
+                })
+                element.val( terminal +'\n$ ');
+                element.scrollTop(element.prop('scrollHeight'));
+            };
         },
     },
     mounted() {
@@ -1396,7 +1413,7 @@ export default {
     z-index: 1000;
     overflow: hidden;
     background-color: #ffffff96;
-    border-radius: 5px
+    border-radius: 5pxweb
 }
 .timeline-li{
     height: 68px;
