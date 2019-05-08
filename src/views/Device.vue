@@ -1489,11 +1489,6 @@ export default {
     cursor: pointer;
     list-style: none;
 }
-.mybtn{
-    font-size: 13px;
-    padding: 0 5px;
-    margin: 0 2.5px
-}
 .mycard {
   display: grid;
   grid-template-columns: 1fr 2.5fr;

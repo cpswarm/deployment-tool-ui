@@ -1103,6 +1103,7 @@ export default {
                             this.targets[i].stage = 350;
                             this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
+                            $('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (install && run.length == 0) {
 
@@ -1114,12 +1115,14 @@ export default {
                             this.targets[i].stage = 450;
                             this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
+                           $('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error != true })) {
 
                             this.targets[i].stage = 450;
                             this.targets[i].class = 'node-s';
                             this.targets[i].commands = oneLog;
+                            $('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (run.length > 0) {
 
@@ -1150,10 +1153,13 @@ export default {
                     this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-f';
+
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
+
                     this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-s';
+
                 }
                 let c_b = "";
                 one.forEach(log => {
@@ -1163,27 +1169,13 @@ export default {
                     c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
                 });
                 $('#' + this.host.name).append(c_b);
+                $('#' + this.host.name).prev().children().remove()
+            
                 document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
                 nodes = this.targets.concat(this.host)
             }
 
             return nodes;
-            /* var size = 0;
-            let r = 50 / this.targets.length;
-            if (r < 1) {
-                size = 1;
-            } else if (r > 5) {
-                size = 5;
-            } else { size = r } */
-            //If there is a deploy process          
-            /* var simulation = d3.forceSimulation(nodes)
-                .force('charge', d3.forceManyBody().strength(5))
-                .force('x', d3.forceX().x(250))
-                .force('y', d3.forceY().y(function (d) {
-                    return d.stage;
-                }))
-                .force('collision', d3.forceCollide().radius(5))
-                .on('tick', this.ticked   ); */
         },
         generateTaskDer: function () {
 
@@ -1512,7 +1504,7 @@ export default {
             //If there is a build process
             if (host) {
                 this.host = { name: host, stage: 50, class: 'node-i' }
-                $('#mylog').append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light" type="button" data-toggle="collapse" data-target="#'+host+'" aria-expanded="true" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left">Device: ' + host + '</button>'
+                $('#mylog').append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
                 +'<div id="' + host + '" class="collapse myCommandCard"></div></div>')
             } else {
                 this.host = "";
@@ -1522,7 +1514,7 @@ export default {
             if (target) {
                 $('#mylog').append('<h6 style="margin:2.5px 0">Deploy: </h6>');
                 this.targets = target.map(t => {
-                    $('#mylog').append('<div class="myCommands card"><button class="btn btn-light" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left">Device: ' + t + '</button>'
+                    $('#mylog').append('<div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + t + '</button>'
                     +'<div id="' + t + '" class="collapse myCommandCard"></div></div>');
                     return { name: t, stage: 250, class: 'node-i' }
                 })
@@ -1659,8 +1651,12 @@ export default {
                 this.ws.onopen = function () {
                     //console.log("Socket connected.");
                 };
-                this.ws.onmessage = event => {
+
+                    $('#mylog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>')
+                    
+                    this.ws.onmessage = event => {
                     //console.log(event.data);
+
                     var obj = JSON.parse(event.data);
                     nodes = this.generateTree3(obj.payload);
 
@@ -2129,6 +2125,11 @@ export default {
 .mycom-content {
   text-align: left;
   font-size: 11px;
+}
+.myBtn{
+    padding:2.5px 7.5px !important;
+    width:100%;
+    text-align:left !important;
 }
 .myfont_t {
   font: 12px / normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas",
