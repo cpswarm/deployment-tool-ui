@@ -18,7 +18,7 @@
                         <div style="padding:5px">
                             <div id="search" style="margin-bottom:5px">    
                                 <form class="form-inline">
-                                    <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 5px 0 0px;" @click="refresh">
+                                    <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh">
                                         <img src="../assets/refresh.svg" style="width:16px">
                                     </button>
                                     <div class="input-group" style="width:92%;">
@@ -27,7 +27,7 @@
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
                                             style="font-size: 14px;height: 26px;padding: 5px;">
                                         <div class="input-group-append">
-                                            <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                                            <a class="btn btn-outline-secondary" aria-expanded="true" style="padding: 0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
                                                 @click="searchTarget">
                                                 <img src="../assets/search.png" style="height:20px">
                                             </a>
@@ -35,16 +35,16 @@
                                         <div class="dropdown-menu" style="padding:2.5px">
                                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem(device.id)"
-                                                style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                                style="font-size:14px;padding:0 15px">{{device.id}}</a>
                                              <div class="dropdown-divider"></div>
                                              <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)"
-                                                style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
+                                                style="font-size:14px;padding:0 15px">{{tag.tag}}</a>
                                         </div>
                                     </div>                                 
                                 </form>
                             </div>                           
-                            <div id="deviceList" ref="list" style="overflow:scroll">
+                            <div id="deviceList" ref="list" style="overflow:auto">
                                 <div v-for="device in orderTargets" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
                                     <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
@@ -192,9 +192,12 @@
                             Update Devices
                         </button>
                     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-                        <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:scroll">
-                            <p style="margin-bottom:5px;font-size:14px">Updating Targets:</p>
-                            <div style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: scroll">
+                        <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:auto">
+                            <p style="margin-bottom:0;font-size:14px">Updating Targets:</p>
+                             <small>
+                               (CLICK cluster or DOUBLE CLICK marker to select Target.)
+                            </small>
+                            <div style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: auto">
                                 <div>
                                     <form class="form-inline">
                                         <div class="input-group" style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
@@ -203,7 +206,7 @@
                                                 v-model="searchText2" data-toggle="dropdown" aria-haspopup="true"
                                                 aria-expanded="false" @keyup="filterDevice" style="font-size: 14px;height: 26px;padding: 5px; border:none">
                                             <div class="input-group-append">
-                                                <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                                                <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
                                                     @click="searchTarget2">
                                                     <img src="../assets/search.png" style="height:20px">
                                                 </a>
@@ -211,11 +214,11 @@
                                             <div class="dropdown-menu" style="padding:2.5px">
                                                     <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem2(device.id)"
-                                                style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                                style="font-size:14px;padding:0 15px">{{device.id}}</a>
                                              <div class="dropdown-divider"></div>
                                              <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem2(tag.tag)"
-                                                style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
+                                                style="font-size:14px;padding:0 15px">{{tag.tag}}</a>
                     
                                             </div>
                                         </div>
@@ -302,7 +305,7 @@
                         </button>
                    
                     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
-                        <div ref="collapseThree" style="overflow:scroll">
+                        <div ref="collapseThree" style="overflow:auto">
                         <div style="margin:10px 12.5px 5px;">
                             <form id="newDevice" class="form-inline">
                                 <h6 style="font-size:15px;margin:0">#Tokens:</h6>
@@ -396,7 +399,7 @@
                                     </button>
                                     Build
                                 </div>
-                                <div id="collapsebuild" class="collapse show" aria-labelledby="headingBuild" style="padding: 0 0px 0px 35px;">
+                                <div id="collapsebuild" class="collapse show" aria-labelledby="headingBuild" style="padding: 0 0 0 35px;">
                                 </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
@@ -408,7 +411,7 @@
                                     </button>
                                     Install
                                 </div>
-                                <div id="collapseinstall" class="collapse show" aria-labelledby="headinginstall" style="padding: 0 0px 0px 35px;">
+                                <div id="collapseinstall" class="collapse show" aria-labelledby="headinginstall" style="padding: 0 0 0 35px;">
                                   
                                 </div>
                             </div>
@@ -421,7 +424,7 @@
                                     </button>
                                     Run
                                 </div>
-                                <div id="collapserun" class="collapse show" aria-labelledby="headingrun" style="padding: 0 0px 0px 35px;">
+                                <div id="collapserun" class="collapse show" aria-labelledby="headingrun" style="padding: 0 0 0 35px;">
                                   
                                 </div>
                             </div>
@@ -950,7 +953,9 @@ export default {
                             this.polyline.remove();
                         }
                         this.devices.splice(0,this.devices.length, a);
-                        if (!this.targetDevices.some(
+                    });
+                    marker.on('dblclick', event =>{
+                         if (!this.targetDevices.some(
                             e => e.id === event.target.options.title
                         )) {
                             this.targetDevices.push({
@@ -958,7 +963,7 @@ export default {
                                 tags: event.target.options.alt
                             });
                         }
-                    });
+                    })
         },
         hideTerminal: function (id) {
             event.path[4].childNodes[0].style.display = 'grid';
@@ -1378,7 +1383,7 @@ export default {
                 })
             })
             this.fullDevices.map(d =>{
-                d.marker.on('click', event =>{
+                d.marker.on('dblclick', event =>{
                     if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                         this.targetDevices.push({
                             id: event.target.options.title,
@@ -1404,7 +1409,7 @@ export default {
 }
 #myTimeline{
     position: absolute;
-    bottom: 0px;
+    bottom: 0;
     right: 5px;
     z-index: 1000;
     overflow: hidden;

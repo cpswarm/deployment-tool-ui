@@ -16,7 +16,7 @@
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
                     <form class="form-inline" style="margin-bottom:5px"> 
-                        <button type="button" class="btn" style="padding: 0px 5px;border: 1px solid;margin: 0 5px 0 0px;" @click="refresh">
+                        <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh">
                             <img src="../assets/refresh.svg" style="width:16px">
                         </button>
                         <div class="input-group" style="width:92%">
@@ -25,7 +25,7 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(orderSearchT)"
                                 style="font-size: 14px;height: 26px;padding: 5px;">
                             <div class="input-group-append">
-                                <a class="btn btn-outline-secondary" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchOrder">
+                                <a class="btn btn-outline-secondary" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchOrder">
                                     <img src="../assets/search.png" style="height:20px">
                                 </a>
                             </div>
@@ -33,11 +33,11 @@
                                 <p class="dropdown-header" style="padding:2px 5px"> You can also search by description!</p>
                                 <div class="dropdown-divider"></div>
                              <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
-                               <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectOrder(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
+                               <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectOrder(order.id)" style="font-size:14px;padding:0 15px">{{order.id}}</a>
                             </div>
                         </div>
                     </form>
-                        <div id="deploymentList" ref="list" style="overflow:scroll">
+                        <div id="deploymentList" ref="list" style="overflow:auto">
                             <div v-for="order in orderOrders"   v-show="order.cardActive" :key="order.id" @click="clickCard(order)">
                                 <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
                                     <div class="mycard-title">Name:</div>
@@ -148,7 +148,7 @@
                         Add New Deployment
                     </button>
            
-                <div id="collapseThree"  class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" style="overflow:scroll">
+                <div id="collapseThree"  class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" style="overflow:auto">
                     <div class="card-body" style="padding:7.5px" ref="collapseThree">
                         <h6 style="text-align:left">
                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" data-toggle="collapse"
@@ -177,7 +177,7 @@
                                         <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(sourceOrder)" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;display:none" v-model="sourceOrder">
                                         <div class="dropdown-menu" style="padding:2.5px;max-height:400px;overflow:auto">
                                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
-                                            <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectArtifacts(order.id)" style="font-size:14px;padding:0px 15px">{{order.id}}</a>
+                                            <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectArtifacts(order.id)" style="font-size:14px;padding:0 15px">{{order.id}}</a>
                                         </div>
                                         <div ref="custom_file" class="custom-file" style="height:26px; display:none">
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
@@ -199,20 +199,20 @@
                                     <div>
                                         <div class="myfont_t">commands:</div>
                                         <editor ref="editor_build_c" v-model="build_c" @init="editorInit" lang="golang"
-                                            theme="github" width="100%" height="70"></editor>
+                                            theme="github" width="100%" height="80"></editor>
                                   
                                         <div class="myfont_t">artifacts:</div>
                                         <editor ref="editor_build_a" v-model="build_a" @init="editorInit" lang="golang"
-                                            theme="github" width="100%" height="70"></editor>
+                                            theme="github" width="100%" height="80"></editor>
                                     
                                         <div class="input-group">
-                                            <label class="myfont_t" style="padding: 7.5px 0;margin-bottom: 0px;">host:</label>
+                                            <label class="myfont_t" style="padding: 7.5px 0;margin-bottom: 0;">host:</label>
                                             <input ref="hostInput" type="text" v-model="host" class="dropdown-toggle form-control form-control-sm"
                                                 style="border-radius: .2rem; height:22px;margin: 5px 0" data-toggle="dropdown"
                                                 aria-haspopup="true" aria-expanded="false" @keyup="filterHost">
                                             <div class="dropdown-menu" style="padding:2.5px">
                                             <a v-for="device in fullDevices" class="dropdown-item" v-show="device.hostActive"
-                                                @click=" host = device.id " style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                                @click=" host = device.id " style="font-size:14px;padding:0 15px">{{device.id}}</a>
                                         </div>
                                     </div>
                                     </div> 
@@ -223,18 +223,21 @@
                                 <div>
                                     <div class="myfont_t">commands:</div>
                                     <editor ref="editor_install_c" v-model="install_c" @init="editorInit" lang="golang"
-                                        theme="github" width="100%" height="70"></editor>
+                                        theme="github" width="100%" height="80"></editor>
                                 </div>
                             </div>
                             <div class="mycard-title" >Run:</div>
-                            <div class="mycard-content" >
+                            <div class="mycard-content">
                                 <div>
                                     <div class="myfont_t">commands:</div>
                                     <editor ref="editor_run_c" v-model="run_c" @init="editorInit" lang="golang" theme="github"
-                                        width="100%" height="70"></editor>
+                                        width="100%" height="80"></editor>
                                 </div>
                             </div>
                             <div class="mycard-title" >Target:</div>
+                            <div class="mycard-content" style="font-size:13px">
+                               (CLICK cluster or DOUBLE CLICK marker to select Target.)
+                            </div>
                             <div class="mycard-content" style="grid-column: 1/3; border: 1px solid grey;border-style:dashed">
                                 <form class="form-inline">
                                     <div class="input-group" style="width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
@@ -243,7 +246,7 @@
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterTarget"
                                             style="font-size: 14px;height: 26px;padding: 5px; border:none">
                                         <div class="input-group-append">
-                                            <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0px 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                                            <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
                                                 @click="searchTarget">
                                                 <img src="../assets/search.png" style="height:20px">
                                             </a>
@@ -251,15 +254,16 @@
                                         <div class="dropdown-menu" style="padding:2.5px">
                                                    <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem(device.id)"
-                                                style="font-size:14px;padding:0px 15px">{{device.id}}</a>
+                                                style="font-size:14px;padding:0 15px">{{device.id}}</a>
                                              <div class="dropdown-divider"></div>
                                              <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
                                             <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem(tag.tag)"
-                                                style="font-size:14px;padding:0px 15px">{{tag.tag}}</a>
+                                                style="font-size:14px;padding:0 15px">{{tag.tag}}</a>
                                         </div>
                                     </div>
                                 </form>
-                                <div style="height:350px;overflow: scroll">
+                                <div style="height:350px;overflow: auto">
+                                    
                                     <div v-for="device in targetDevices" class="simpleDeviceCard">
                                         <div style="padding:2.5px;">Name:
                                             <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
@@ -2013,7 +2017,7 @@ export default {
                 })
             })
             this.fullDevices.map(d => {
-                d.marker.on('click', event => {
+                d.marker.on('dblclick', event => {
                     if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                         this.targetDevices.push({
                             id: event.target.options.title,
@@ -2175,7 +2179,7 @@ export default {
   stroke-width: 1px;
 }
 .mySelect{
-    padding: 0px 5px;
+    padding: 0 5px;
     height: 26px;
     border: 1px solid #ced4da;
     border-radius: .25rem 0 0 .25rem;
