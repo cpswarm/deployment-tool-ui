@@ -5,14 +5,12 @@
             <h5 draggable="true" style="display: inline-block; margin:5px">Deployment Management</h5>
         </div>
         <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
-            <div class="card">
-             
+            <div class="card">       
                   <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/device.png" style="width:18px">
                             Deployment List
-                    </button>
-               
+                    </button>        
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
                     <form class="form-inline" style="margin-bottom:5px"> 
@@ -134,8 +132,7 @@
                                         <img src="../assets/duplicate.png" style="width:18px">
                                     </button>
                                 </div>
-                                </div>
-                                
+                                </div>    
                             </div>
                         </div>
                     </div>
@@ -445,7 +442,8 @@ import yaml from "js-yaml";
 import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
-
+import crypto from 'crypto';
+import CRC32 from 'crc-32'
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -1086,27 +1084,49 @@ export default {
                     }
                 })
         },
-        generateTree3: function (logs) {
+        generateTree3: function (logs, tree) {
 
             /* d3.select('#myTree_b').selectAll("circle").remove();
             d3.select('#myTree_b').selectAll("line").remove();
             */
-            var yCenter = [50, 150, 250, 350, 450];
+            var installError = [[0,200]], runError = [[0,200]];
             var nodes = [];
 
             if (this.targets) {
                 for (let i = 0; i < this.targets.length; i++) {
                     let oneLog = logs.filter(log => log.target == this.targets[i].name);
-                    var c_d = "";
+                    var c_d = "", fullLog = "", checksum =0;
                     if (oneLog.length > 0) {
+
+                        oneLog.forEach(log => {
+                            let s = "";
+                            log.error ? s = "f" : s = "s";
+                            fullLog += log.stage + log.command + log.output;
+                            c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
+                        });
+
+                        checksum = CRC32.str(fullLog);
+                        let nodecksm=crypto.createHash('md5').update(fullLog).digest("hex");
+                        //console.log(this.targets[i].name, checksum, nodecksm)
 
                         let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
                         let run = oneLog.filter(l => { return l.stage == 'run' });
 
                         if (install && install.error == true) {
+
                             this.targets[i].stage = 350;
                             this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
+                            
+                            // Check which error it belongs to 
+                            let pos = installError.find(e=>{return e[0] === checksum});
+                            if(pos){
+                                this.targets[i].error = pos[1]
+                            }else{
+                                let newPos = installError[installError.length-1][1] + 50;
+                                 this.targets[i].error = newPos;
+                                installError.push([checksum,newPos])
+                            }
                             $('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (install && run.length == 0) {
@@ -1114,11 +1134,23 @@ export default {
                             this.targets[i].stage = 450;
                             this.targets[i].class = 'node-s';
                             this.targets[i].commands = oneLog;
+                            this.targets[i].error = 150;
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
                             this.targets[i].stage = 450;
                             this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
+                            
+                             // Check which error it belongs to
+                            let pos = runError.find(e=>{return e[0] === checksum});
+                            if(pos){
+                                this.targets[i].error = pos[1]
+                            }else{
+                                let newPos = runError[runError.length-1][1] + 50;
+                                this.targets[i].error = newPos;
+                                runError.push([checksum,newPos])
+                            }
+
                            $('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error != true })) {
@@ -1126,23 +1158,21 @@ export default {
                             this.targets[i].stage = 450;
                             this.targets[i].class = 'node-s';
                             this.targets[i].commands = oneLog;
+                            this.targets[i].error = 150;
                             $('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (run.length > 0) {
 
                             this.targets[i].stage = 450;
                             this.targets[i].class = 'node-i';
+                            this.targets[i].error = 150;
                             this.targets[i].commands = oneLog;
                         } else {
                             this.targets[i].stage = 350;
                             this.targets[i].class = 'node-i';
+                            this.targets[i].error = 150;
                             this.targets[i].commands = oneLog;
                         }
-                        oneLog.forEach(log => {
-                            let s = "";
-                            log.error ? s = "f" : s = "s";
-                            c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                        })
                     }
                     $('#' + this.targets[i].name).append(c_d);
                     document.getElementById(this.targets[i].name).scrollTop = document.getElementById(this.targets[i].name).scrollHeight;
@@ -1157,9 +1187,10 @@ export default {
                     this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-f';
+                    this.host.error = 150;
 
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
-
+                    this.host.error = 150;
                     this.host.stage = 150;
                     this.host.commands = one;
                     this.host.class = 'node-s';
@@ -1553,8 +1584,8 @@ export default {
 
             //Build-Tree Nodes
             var treeLayout = d3.tree().size([500, 400])
-            var root = d3.hierarchy(data)
-            treeLayout(root)
+            var root = d3.hierarchy(data);
+            treeLayout(root);
             // Nodes
             var nodes = d3.select("#myTree_p g.nodes")
                 .selectAll('circle.node')
@@ -1562,7 +1593,7 @@ export default {
                 .enter();
             nodes.append('circle')
                 .classed('node', true)
-                .attr('cx', function (d) { return d.x; })
+                .attr('cx', function (d) { return d.x-100; })
                 .attr('cy', function (d) { return d.y; })
                 .attr('r', function (d) { return d.value; })
                 .attr('fill', '#ececec')
@@ -1570,7 +1601,7 @@ export default {
             nodes.append('text')
                 .text(function (d) { return d.data.name })
                 .attr('x', function (d) {
-                    return d.x - 150;
+                    return d.x - 250;
                 })
                 .attr('y', function (d) { return d.y + 5; })
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
@@ -1583,9 +1614,9 @@ export default {
                 .enter()
                 .append('line')
                 .classed('link', true)
-                .attr('x1', function (d) { return d.source.x; })
+                .attr('x1', function (d) { return d.source.x-100; })
                 .attr('y1', function (d) { return d.source.y; })
-                .attr('x2', function (d) { return d.target.x; })
+                .attr('x2', function (d) { return d.target.x-100; })
                 .attr('y2', function (d) { return d.target.y; })
                 .attr('stroke', '#ececec')
                 .style('stroke-width', function (d) {
@@ -1600,15 +1631,15 @@ export default {
                 nodeSize = 5;
             } else { nodeSize = r }
 
-            var nodes = [];
+            var targetNodes = [];
             var node = d3.select("#myTree_b g").selectAll('circle');
 
-            var simulation = d3.forceSimulation(nodes)
+            var simulation = d3.forceSimulation(targetNodes)
                 .force('charge', d3.forceManyBody().strength(5))
-                .force('x', d3.forceX().x(250))
+                .force('x', d3.forceX().x(function (d) { return d.error;}))
                 .force('y', d3.forceY().y(function (d) { return d.stage;}))    
                 .alphaTarget(1) 
-                .on('tick', ()=>{
+                .on('tick', ()=>{               
                      node.attr("cx", function(d) { return d.x; })
                          .attr("cy", function(d) { return d.y; })
                          .attr("class", function(d) { return d.class; })
@@ -1617,10 +1648,8 @@ export default {
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                     .then(response => {
-
-                        nodes = this.generateTree3(response.data.items);
-
-                        node = node.data(nodes);
+                    targetNodes = this.generateTree3(response.data.items, data);
+                        node = node.data(targetNodes);
                         node.exit().remove();
                         node = node.enter().append('circle')
                                 .attr('r', nodeSize)
@@ -1635,7 +1664,7 @@ export default {
                                     $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
                             	});
 
-                        simulation.nodes(nodes).force('collision', d3.forceCollide().radius(5));
+                        simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
                     }).catch(error => {
                         console.log(error);
                 });
@@ -1653,18 +1682,17 @@ export default {
                 this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
                 this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
                 this.ws.onopen = function () {
-                    //console.log("Socket connected.");
+                    console.log("Socket connected.");
                 };
-
                     $('#mylog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>')
                     
                     this.ws.onmessage = event => {
                     //console.log(event.data);
 
                     var obj = JSON.parse(event.data);
-                    nodes = this.generateTree3(obj.payload);
+                    targetNodes = this.generateTree3(obj.payload,data);
 
-                    node = node.data(nodes);
+                    node = node.data(targetNodes);
                     node.exit().remove();
                     node = node.enter().append('circle')
                                 .attr('r', nodeSize)
@@ -1678,8 +1706,8 @@ export default {
                                     });
                                     $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
                             	});
-
-                    simulation.nodes(nodes)
+                    simulation.nodes(targetNodes)
+                            .force('x', d3.forceX().x(function (d) { return d.error;}))   
                             .force('y', d3.forceY().y(function (d) { return d.stage;}))   
                             .force('collision', d3.forceCollide().radius(5));
                 };
