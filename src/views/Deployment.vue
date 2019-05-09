@@ -323,7 +323,7 @@
         <div id="myTree_dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
             <div class="modal-content" >
                 <div class="modal-header">
-                    <h5 class="modal-title">Process Tree</h5>
+                    <h5 id="treeTitle" class="modal-title">Process Tree</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -336,7 +336,12 @@
                                 <g class="nodes"></g>
                             </g>
                         </svg>
-                        <svg id="myTree_b" width="500" height="550" style="position:relative; top: -550px">
+                        <svg id="myTree_e" width="500" height="550" style="position:relative; top: -550px">
+                            <g transform="translate(0, 50)">
+                                <g class="nodes"></g>
+                            </g>
+                        </svg>
+                        <svg id="myTree_b" width="500" height="550" style="position:relative; top: -1100px">
                             <g></g>
                         </svg>
                     </div>
@@ -1086,10 +1091,8 @@ export default {
         },
         generateTree3: function (logs, tree) {
 
-            /* d3.select('#myTree_b').selectAll("circle").remove();
-            d3.select('#myTree_b').selectAll("line").remove();
-            */
-            var installError = [[0,200]], runError = [[0,200]];
+            var installError = [[0,150,300]];
+            var runError = [[0,150,400]];
             var nodes = [];
 
             if (this.targets) {
@@ -1123,9 +1126,9 @@ export default {
                             if(pos){
                                 this.targets[i].error = pos[1]
                             }else{
-                                let newPos = installError[installError.length-1][1] + 50;
-                                 this.targets[i].error = newPos;
-                                installError.push([checksum,newPos])
+                                let newPos = installError[installError.length-1][1] + 70;
+                                this.targets[i].error = newPos;
+                                installError.push([checksum,newPos,300])
                             }
                             $('#' + this.targets[i].name).prev().children().remove()
 
@@ -1137,6 +1140,7 @@ export default {
                             this.targets[i].error = 150;
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
+                            
                             this.targets[i].stage = 450;
                             this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
@@ -1146,9 +1150,9 @@ export default {
                             if(pos){
                                 this.targets[i].error = pos[1]
                             }else{
-                                let newPos = runError[runError.length-1][1] + 50;
+                                let newPos = runError[runError.length-1][1] + 70;
                                 this.targets[i].error = newPos;
-                                runError.push([checksum,newPos])
+                                runError.push([checksum,newPos,400]);
                             }
 
                            $('#' + this.targets[i].name).prev().children().remove()
@@ -1209,8 +1213,11 @@ export default {
                 document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
                 nodes = this.targets.concat(this.host)
             }
-
-            return nodes;
+            
+            installError.pop();
+            runError.pop();
+            installError = installError.concat(runError);
+            return [nodes, installError];
         },
         generateTaskDer: function () {
 
@@ -1532,6 +1539,7 @@ export default {
 
             $("#mylog").empty();
             $("#myTree").modal();
+            $('#treeTitle').append(': '+id);
 
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
@@ -1600,9 +1608,7 @@ export default {
 
             nodes.append('text')
                 .text(function (d) { return d.data.name })
-                .attr('x', function (d) {
-                    return d.x - 250;
-                })
+                .attr('x', function (d) {  return d.x - 220;})
                 .attr('y', function (d) { return d.y + 5; })
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
                 .attr("fill", "#acacac");
@@ -1647,8 +1653,12 @@ export default {
             
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
-                    .then(response => {
-                    targetNodes = this.generateTree3(response.data.items, data);
+                     .then(response => {
+
+                    var result = this.generateTree3(response.data.items, data);
+                    targetNodes = result[0];
+                    var installError = result[1];
+
                         node = node.data(targetNodes);
                         node.exit().remove();
                         node = node.enter().append('circle')
@@ -1665,6 +1675,16 @@ export default {
                             	});
 
                         simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
+
+                        var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
+                                                  .data(installError)
+                                                  .enter()
+                                                  .append("circle");
+                        var circleAttributes = circles.attr("cx", function (d) { return d[1] +70 })
+                                                      .attr("cy", function (d) { return d[2] })
+                                                      .attr("r", function (d) { return size; })
+                                                      .style('fill', '#ececec');
+
                     }).catch(error => {
                         console.log(error);
                 });
@@ -1690,11 +1710,13 @@ export default {
                     //console.log(event.data);
 
                     var obj = JSON.parse(event.data);
-                    targetNodes = this.generateTree3(obj.payload,data);
+                    var result = this.generateTree3(response.data.items, data);
+                    targetNodes = result[0];
+                    var installError = result[1];
 
-                    node = node.data(targetNodes);
-                    node.exit().remove();
-                    node = node.enter().append('circle')
+                        node = node.data(targetNodes);
+                        node.exit().remove();
+                        node = node.enter().append('circle')
                                 .attr('r', nodeSize)
                                 .attr('class', function (d) {return d.class; })
                                 .merge(node)
@@ -1706,10 +1728,21 @@ export default {
                                     });
                                     $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
                             	});
-                    simulation.nodes(targetNodes)
+
+                        simulation.nodes(targetNodes)
                             .force('x', d3.forceX().x(function (d) { return d.error;}))   
                             .force('y', d3.forceY().y(function (d) { return d.stage;}))   
                             .force('collision', d3.forceCollide().radius(5));
+
+                        var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
+                                                  .data(installError)
+                                                  .enter()
+                                                  .append("circle");
+                        var circleAttributes = circles.attr("cx", function (d) { return d[1] +70 })
+                                                      .attr("cy", function (d) { return d[2] })
+                                                      .attr("r", function (d) { return size; })
+                                                      .style('fill', '#ececec');
+                   
                 };
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
