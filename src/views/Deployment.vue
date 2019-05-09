@@ -1536,10 +1536,11 @@ export default {
             }
         },
         listen3: function (id, deploy, target, host) {
-
+            
+            $('#treeTitle').empty();
             $("#mylog").empty();
             $("#myTree").modal();
-            $('#treeTitle').append(': '+id);
+            $('#treeTitle').append('Process Tree: '+id);
 
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
