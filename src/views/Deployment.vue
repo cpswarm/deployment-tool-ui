@@ -1097,7 +1097,7 @@ export default {
 
             if (this.targets) {
                 for (let i = 0; i < this.targets.length; i++) {
-                    let oneLog = logs.filter(log => log.target == this.targets[i].name);
+                    let oneLog = logs.filter(log => log.target == this.targets[i].name && log.stage != 'build');
                     var c_d = "", fullLog = "", checksum =0;
                     if (oneLog.length > 0) {
 
@@ -1207,10 +1207,10 @@ export default {
                     log.error ? s = "f" : s = "s";
                     c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
                 });
-                $('#' + this.host.name).append(c_b);
-                $('#' + this.host.name).prev().children().remove()
+                $('#' + this.host.name + 'build').append(c_b);
+                $('#' + this.host.name + 'build').prev().children().remove()
             
-                document.getElementById(this.host.name).scrollTop = document.getElementById(this.host.name).scrollHeight;
+                document.getElementById(this.host.name  + 'build').scrollTop = document.getElementById(this.host.name  + 'build').scrollHeight;
                 nodes = this.targets.concat(this.host)
             }
             
@@ -1548,8 +1548,8 @@ export default {
             //If there is a build process
             if (host) {
                 this.host = { name: host, stage: 50, class: 'node-i' }
-                $('#mylog').append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
-                +'<div id="' + host + '" class="collapse myCommandCard"></div></div>')
+                $('#mylog').append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
+                +'<div id="' + host +'build' + '" class="collapse myCommandCard"></div></div>')
             } else {
                 this.host = "";
                 $('#mylog').append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
