@@ -4,13 +4,13 @@
                 <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
                     <label class="btn btn-light active">
                         <input type="radio" name="options" id="option1" autocomplete="off" checked>
-                            <router-link class="" to="/home">
+                            <router-link class="" to="/home/management">
                                 <img src="../assets/devices.png" width="30" height="30" alt="">
                             </router-link>
                     </label>
                     <label class="btn btn-light">
                         <input type="radio" name="options" id="option2" autocomplete="off">  
-                            <router-link class="" to="/home/deployment">
+                            <router-link class="" to="/home/management/deployment">
                                 <img src="../assets/deployment.png" width="30" height="30" alt="">
                             </router-link>
                     </label>
@@ -22,7 +22,7 @@
                     </label>
                 </div>
             </div>
-            <div id="mappanel">
+            <div>
                 <router-view></router-view>
             </div>
         </div>

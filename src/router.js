@@ -1,7 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+
 import Signin from './views/Signin.vue'
+
 import Home from './views/Home.vue'
+import management from './views/Management.vue'
 import setting from './views/Setting.vue'
 import devices from './views/Device.vue'
 import deployment from './views/Deployment.vue'
@@ -21,20 +24,26 @@ export default new Router({
       path: '/home',
       name: 'home',
       component: Home,
-      children: [    
+      children: [
         {
-          path: '',
-          name:'device',
-          component: devices,
+          path: 'management',
+          component: management,
+          children: [
+            {
+              path: '',
+              component: devices,
+            },
+            {
+              path: 'deployment',
+              component: deployment
+            },
+          ]
         },
-        {
-          path: 'deployment',
-          component: deployment
-        },
+
         {
           path: 'setting',
           component: setting
-        },  
+        },
       ]
     },
   ]

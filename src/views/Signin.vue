@@ -48,7 +48,7 @@ export default {
      /*  this.$router.push({ name: "device", params:{
         address: this.address
       }}); */
-       this.$router.push({ path: "/home", params:{
+       this.$router.push({ path: "/home/management", params:{
         address: this.address
       }});
     }

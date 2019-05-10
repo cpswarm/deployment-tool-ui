@@ -274,7 +274,6 @@
                 </div>
             </div>
         </div>
-        <div id="map"  ref="map"></div>
         <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
                 <div class="modal-content" >
@@ -1085,15 +1084,15 @@ export default {
     },
     mounted() {
 
-        this.$refs.map.style.height = window.innerHeight + "px";
+        
         this.$refs.list.style.height = window.innerHeight - 32 - 32 - 32 - 27 - 34 - 15 + "px";
         this.$refs.collapseTwo.style.height = window.innerHeight - 32 - 32 - 32 - 34 - 5 + "px";
         this.$refs.collapseThree.style.height = window.innerHeight - 32 - 32 - 32 - 34 - 5 + "px";
 
         this.address = localStorage.getItem('address');
 
-        this.map = L.map("map").setView([45.749523, 18.20343], 5);
-        this.$refs.myTimeline.style.width = this.map.getSize().x - 20 + 'px'
+    
+        
         //console.log(this.$refs.map.style.width)
         //Custermize the markerCluster style
         var i = 0;
@@ -1147,14 +1146,6 @@ export default {
             /* setTimeout(function () { listen(1, true);}, 5000); */
         };
 
-        L.tileLayer(
-            "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
-            {
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }
-        ).addTo(this.map);
-
         this.map.addLayer(this.markers);
 
         $('#collapseTwo').on('show.bs.collapse', () => {
@@ -1192,10 +1183,10 @@ export default {
 </script>
 
 <style>
-.mappanelContainer {
+/* .mappanelContainer {
   display: grid;
   grid-template-columns: 1fr 2fr;
-}
+} */
 #myTimeline{
     position: absolute;
     bottom: 0px;
