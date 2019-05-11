@@ -449,6 +449,7 @@ import $ from "jquery";
 import * as d3 from "d3";
 import crypto from 'crypto';
 import CRC32 from 'crc-32'
+import { rejects } from 'assert';
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -1089,10 +1090,10 @@ export default {
                     }
                 })
         },
-        generateTree3: function (logs, tree) {
+        generateTree3: function (logs, installError, runError) {
 
-            var installError = [[0,150,300]];
-            var runError = [[0,150,400]];
+            /* var installError = [[0,150,300]];
+            var runError = [[0,150,400]]; */
             var nodes = [];
 
             if (this.targets) {
@@ -1150,6 +1151,7 @@ export default {
                             if(pos){
                                 this.targets[i].error = pos[1]
                             }else{
+                                //console.log(runError,checksum, this.targets[i].name)
                                 let newPos = runError[runError.length-1][1] + 70;
                                 this.targets[i].error = newPos;
                                 runError.push([checksum,newPos,400]);
@@ -1214,10 +1216,7 @@ export default {
                 nodes = this.targets.concat(this.host)
             }
             
-            installError.pop();
-            runError.pop();
-            installError = installError.concat(runError);
-            return [nodes, installError];
+            return [nodes, installError, runError];
         },
         generateTaskDer: function () {
 
@@ -1639,6 +1638,8 @@ export default {
             } else { nodeSize = r }
 
             var targetNodes = [];
+            var installError = [[0,150,300]];
+            var runError = [[0,150,400]];
             var node = d3.select("#myTree_b g").selectAll('circle');
 
             var simulation = d3.forceSimulation(targetNodes)
@@ -1656,9 +1657,15 @@ export default {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                      .then(response => {
 
-                    var result = this.generateTree3(response.data.items, data);
+                    var result = this.generateTree3(response.data.items, installError, runError);
                     targetNodes = result[0];
-                    var installError = result[1];
+                    if(result[1][0][0]==0){
+                        result[1].pop();
+                    }
+                    if(result[2][0][0]==0){
+                        result[2].pop();
+                    }
+                    var errorNodes = result[1].concat(result[2]);
 
                         node = node.data(targetNodes);
                         node.exit().remove();
@@ -1678,7 +1685,7 @@ export default {
                         simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
 
                         var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
-                                                  .data(installError)
+                                                  .data(errorNodes)
                                                   .enter()
                                                   .append("circle");
                         var circleAttributes = circles.attr("cx", function (d) { return d[1] +70 })
@@ -1709,11 +1716,19 @@ export default {
                     
                     this.ws.onmessage = event => {
                     //console.log(event.data);
-
+      
                     var obj = JSON.parse(event.data);
-                    var result = this.generateTree3(response.data.items, data);
+                    var result = this.generateTree3(obj.payload, installError, runError);
                     targetNodes = result[0];
-                    var installError = result[1];
+                    installError = result[1];
+                    runError = result[2];
+                    if(installError[0][0]==0 && installError.length >=2 ){
+                        installError.pop();
+                    }
+                    if(runError[0][0]==0 && runError.length >=2){
+                        runError.pop();
+                    }
+                    var errorNodes = installError.concat(runError);
 
                         node = node.data(targetNodes);
                         node.exit().remove();
@@ -1736,7 +1751,7 @@ export default {
                             .force('collision', d3.forceCollide().radius(5));
 
                         var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
-                                                  .data(installError)
+                                                  .data(errorNodes)
                                                   .enter()
                                                   .append("circle");
                         var circleAttributes = circles.attr("cx", function (d) { return d[1] +70 })

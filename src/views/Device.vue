@@ -108,7 +108,7 @@
                                                 <span style="height:20px">&times;</span>
                                             </button>
                                         </div>
-                                        <textarea class="myTerminal" style="width: 100%" rows="10" v-bind:id="device.id"
+                                        <textarea class="myTerminal" style="width: 100%" rows="13" v-bind:id="device.id"
                                          @keydown="executeTerminal(device.id)">$ </textarea>
                                     </div>
                                     <div style="display:none">
@@ -1196,10 +1196,6 @@ export default {
             e.path[3].style.display = 'none';
             e.path[4].childNodes[1].style.display = 'inline';
 
-           /*  if (this.ws){
-                this.ws.close();
-                this.ws = "";
-            } */
             if(!this.ws){
                 if(this.address.indexOf('https') > -1) {
                     this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
@@ -1207,7 +1203,6 @@ export default {
                     this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
                 }
             } 
-            //console.log(e.path)
         },
         submitEdit: function (id) {
 
@@ -1226,7 +1221,7 @@ export default {
             });
             $('#mymodal-body').empty();
             $('#mymessage-body').empty();
-            //console.log(myUpdate)
+            
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
 
@@ -1258,16 +1253,17 @@ export default {
         executeTerminal: function (id) {
 
             this.crt += event.keyCode + ',';
-            var terminal = $('#' + id).val();
+            //console.log(this.crt)
+            var element = $('#' + id);
+            var terminal = element.val();
 
             if (this.crt.substring(this.crt.length - 6) == '17,67,') {
                 axios.delete(this.address + "/targets/" + id + "/command").then(response => {
-               
-                    terminal += '\nThis Terminal disconnected!' + response.data + '\n$ ';
-                    $('#' + id).val(terminal);
+                    terminal += 'This Terminal disconnected!' + response.data + '\n$ ';
+                    element.val(terminal).scrollTop(element.prop('scrollHeight'));
                 }).catch(error => {
                     terminal +='\n' +error + '\n$ ';
-                    $('#' + id).val(terminal);
+                    element.val(terminal).scrollTop(element.prop('scrollHeight'));
                 })
             } else if (this.crt.substring(this.crt.length - 3) == '13,') {
                 this.submitTerminal(id, terminal)
@@ -1275,25 +1271,29 @@ export default {
         },
         submitTerminal: function (id,terminal) {
 
+            //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
+
             var commands = terminal.split("\n");
             var command = {
                 command: commands[commands.length - 1].substring(2)
             }
             var element = $('#'+id);
-           
-            axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
-                    //console.log(response.data)  
-            }).catch(error => {         
-                    element.val( terminal + error.response.data.error +'\n$ ');
-            })   
+            if(command.command){
+                axios.put(this.address + "/targets/" + id + "/command", command).catch(error => {         
+                element.val( terminal + error.response.data.error +'\n$ ');
+                }) 
+            }else{
+                //console.log(newStr.charCodeAt(newStr.length-3),newStr.charCodeAt(newStr.length-2),newStr.charCodeAt(newStr.length-1))
+                element.val(terminal +'\n$ ddd');
+            } 
             this.ws.onmessage = event => {
-            
+                
+                //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
                 var obj = JSON.parse(event.data);
-                obj.payload.forEach(l => {
-                    if(l.target == id) terminal += '\n'+l.output;            
-                })
-                element.val( terminal +'\n$ ');
-                element.scrollTop(element.prop('scrollHeight'));
+                obj.payload.forEach(l => { if(l.target == id) terminal += '\n'+l.output; })
+                element.val( terminal +'\n$ ').scrollTop(element.prop('scrollHeight'));
+                
+           
             };
         },
     },
