@@ -1915,9 +1915,8 @@ export default {
 
                     if (obj.source.order && obj.source.zip) {
 
-                        $('#mymodal-body').empty();
-                        $('#mymodal-body').append("<strong>Inviald Yaml: </strong>");
-                        $('#mymodal-body').append("<br><strong>You can't set source.order and source.zip at same time!</strong>")
+                        $('#mymodal-body').empty()
+                                          .append("<strong>Inviald Yaml: </strong><br><strong>You can't set source.order and source.zip at same time!</strong>");
                         $('#myAlert').modal();
 
                     } else {
@@ -1997,6 +1996,10 @@ export default {
                         taskDer.source.zip = data;
                         this.handleDeploy(taskDer);
                     });
+                }else{
+                    console.log('typesouce')
+                    $("#mymodal-body").append("You selected source type is 'uploaded file', but you haven't upload one.<br> If you dont need a package, please select 'choose..' option.");
+                    $("#myAlert").modal();
                 }
             } else {
                 this.handleDeploy(taskDer);
