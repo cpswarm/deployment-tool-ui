@@ -491,7 +491,9 @@ export default {
             success: [],
             newDiscover: [],
             host: "",
-            targets: ""
+            targets: "",
+            installError: '',
+            runError: '',
         };
     },
     components: {
@@ -1090,7 +1092,7 @@ export default {
                     }
                 })
         },
-        generateTree3: function (logs, installError, runError) {
+        generateTree3: function (logs) {
 
             /* var installError = [[0,150,300]];
             var runError = [[0,150,400]]; */
@@ -1123,13 +1125,14 @@ export default {
                             this.targets[i].commands = oneLog;
                             
                             // Check which error it belongs to 
-                            let pos = installError.find(e=>{return e[0] === checksum});
+                            let pos = this.installError.find(e=>{return e[0] === checksum});
                             if(pos){
                                 this.targets[i].error = pos[1]
                             }else{
-                                let newPos = installError[installError.length-1][1] + 70;
+                                let newPos;
+                                this.installError.length==0? newPos = 220 : newPos = this.installError[this.installError.length-1][1] + 70;
                                 this.targets[i].error = newPos;
-                                installError.push([checksum,newPos,300])
+                                this.installError.push([checksum,newPos,300])
                             }
                             $('#' + this.targets[i].name).prev().children().remove()
 
@@ -1147,14 +1150,14 @@ export default {
                             this.targets[i].commands = oneLog;
                             
                              // Check which error it belongs to
-                            let pos = runError.find(e=>{return e[0] === checksum});
+                            let pos = this.runError.find(e=>{return e[0] === checksum});
                             if(pos){
                                 this.targets[i].error = pos[1]
                             }else{
-                                //console.log(runError,checksum, this.targets[i].name)
-                                let newPos = runError[runError.length-1][1] + 70;
+                                let newPos;
+                                this.runError.length==0? newPos = 220 : newPos = this.runError[this.runError.length-1][1] + 70;
                                 this.targets[i].error = newPos;
-                                runError.push([checksum,newPos,400]);
+                                this.runError.push([checksum,newPos,400]);
                             }
 
                            $('#' + this.targets[i].name).prev().children().remove()
@@ -1216,7 +1219,7 @@ export default {
                 nodes = this.targets.concat(this.host)
             }
             
-            return [nodes, installError, runError];
+            return nodes;
         },
         generateTaskDer: function () {
 
@@ -1638,8 +1641,8 @@ export default {
             } else { nodeSize = r }
 
             var targetNodes = [];
-            var installError = [[0,150,300]];
-            var runError = [[0,150,400]];
+            this.installError = [];
+            this.runError = [];
             var node = d3.select("#myTree_b g").selectAll('circle');
 
             var simulation = d3.forceSimulation(targetNodes)
@@ -1657,19 +1660,10 @@ export default {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000")
                      .then(response => {
 
-                    var result = this.generateTree3(response.data.items, installError, runError);
-                    targetNodes = result[0];
-                    if(result[1][0][0]==0){
-                        result[1].pop();
-                    }
-                    if(result[2][0][0]==0){
-                        result[2].pop();
-                    }
-                    var errorNodes = result[1].concat(result[2]);
-
-                        node = node.data(targetNodes);
-                        node.exit().remove();
-                        node = node.enter().append('circle')
+                    targetNodes = this.generateTree3(response.data.items);
+                    node = node.data(targetNodes);
+                    node.exit().remove();
+                    node = node.enter().append('circle')
                                 .attr('r', nodeSize)
                                 .attr('class', function (d) {return d.class; })
                                 .merge(node)
@@ -1682,16 +1676,18 @@ export default {
                                     $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
                             	});
 
-                        simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
+                    simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
 
-                        var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
+                    var errorNodes = this.installError.concat(this.runError); 
+
+                    var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
                                                   .data(errorNodes)
                                                   .enter()
                                                   .append("circle");
-                        var circleAttributes = circles.attr("cx", function (d) { return d[1] +70 })
-                                                      .attr("cy", function (d) { return d[2] })
-                                                      .attr("r", function (d) { return size; })
-                                                      .style('fill', '#ececec');
+                    var circleAttributes = circles.attr("cx", function (d) { return d[1] })
+                                                  .attr("cy", function (d) { return d[2] })
+                                                  .attr("r", function (d) { return size; })
+                                                 .style('fill', '#ececec'); 
 
                     }).catch(error => {
                         console.log(error);
@@ -1718,17 +1714,7 @@ export default {
                     //console.log(event.data);
       
                     var obj = JSON.parse(event.data);
-                    var result = this.generateTree3(obj.payload, installError, runError);
-                    targetNodes = result[0];
-                    installError = result[1];
-                    runError = result[2];
-                    if(installError[0][0]==0 && installError.length >=2 ){
-                        installError.pop();
-                    }
-                    if(runError[0][0]==0 && runError.length >=2){
-                        runError.pop();
-                    }
-                    var errorNodes = installError.concat(runError);
+                    targetNodes = this.generateTree3(obj.payload);
 
                         node = node.data(targetNodes);
                         node.exit().remove();
@@ -1749,15 +1735,17 @@ export default {
                             .force('x', d3.forceX().x(function (d) { return d.error;}))   
                             .force('y', d3.forceY().y(function (d) { return d.stage;}))   
                             .force('collision', d3.forceCollide().radius(5));
-
-                        var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
+                    
+                    var errorNodes = this.installError.concat(this.runError);
+ 
+                    var circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
                                                   .data(errorNodes)
                                                   .enter()
                                                   .append("circle");
-                        var circleAttributes = circles.attr("cx", function (d) { return d[1] +70 })
-                                                      .attr("cy", function (d) { return d[2] })
-                                                      .attr("r", function (d) { return size; })
-                                                      .style('fill', '#ececec');
+                    circles.attr("cx", function (d) { return d[1]})
+                            .attr("cy", function (d) { return d[2] })
+                            .attr("r", function (d) { return size; })
+                            .style('fill', '#ececec'); 
                    
                 };
                 this.ws.onclose = function () {
