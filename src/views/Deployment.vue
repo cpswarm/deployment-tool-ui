@@ -1119,7 +1119,7 @@ export default {
                         let run = oneLog.filter(l => { return l.stage == 'run' });
 
                         if (install && install.error == true) {
-
+                            
                             this.targets[i].stage = 350;
                             this.targets[i].class = 'node-f';
                             this.targets[i].commands = oneLog;
@@ -1668,12 +1668,7 @@ export default {
                                 .attr('class', function (d) {return d.class; })
                                 .merge(node)
                                 .on('click', function (d) {
-                                    $('#mylog').empty();
-                                    let code = "";
-                                    d.commands.forEach(el => {
-                                        code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                                    });
-                                    $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
+                                    $('#'+ d.name).collapse('toggle');
                             	});
 
                     simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
@@ -1723,13 +1718,8 @@ export default {
                                 .attr('class', function (d) {return d.class; })
                                 .merge(node)
                                 .on('click', function (d) {
-                                    $('#mylog').empty();
-                                    let code = "";
-                                    d.commands.forEach(el => {
-                                        code += '<div class="myfont_' + d.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                                    });
-                                    $('#mylog').prepend('<div class="myCommands">' + code + '</div>')
-                            	});
+                                    $('#'+ d.name).collapse('toggle');
+                                });
 
                         simulation.nodes(targetNodes)
                             .force('x', d3.forceX().x(function (d) { return d.error;}))   
