@@ -307,43 +307,40 @@
                     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
                         <div ref="collapseThree" style="overflow:auto">
                         <div style="margin:10px 12.5px 5px;">
-                            <form id="newDevice" class="form-inline">
-                                <h6 style="font-size:15px;margin:0">#Tokens:</h6>
-                                <input class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
-                                <a>
-                                    <img src="../assets/add.png" style="width:20px; margin-left:10px">
-                                </a>
+                            <form id="newToken" class="form-inline">
+                                <div class="mycard-title">
+                                    <h6 style="font-size:15px;margin:0">Token Set Name:</h6>
+                                </div>
+                                <div class="mycard-content">
+                                    <input v-model ="tokenName" class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
+                                </div>
+                                <div class="mycard-title">
+                                    <h6 style="font-size:15px;margin:0">#Tokens:</h6></div>
+                                <div class="mycard-content">
+                                    <input v-model ="tokenSize" class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
+                                </div>
+                                <div></div>
+                                <div style="text-align:right">
+                                    <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px" @click="postToken">Get</button>
+                                </div>
                             </form>
                         </div>
                         <div style="padding:5px">
                             <table id="mytable" class="table" style="text-align:left;font-size:15px">
                                 <thead>
                                     <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Token</th>
-                                        <th scope="col">Remaining Time</th>
+                                       <th scope="col">Name</th>
+                                        <th scope="col">#Available </th>
+                                        <th scope="col">Expires Time</th>
+                                        <th scope="col"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <th scope="row">1</th>
-                                        <td>djksie3juuh</td>
-                                        <td>6 days</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>ndsi48dujhrz</td>
-                                        <td>3 days 2 hours</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">3</th>
-                                        <td>hdsk33kxoplsc</td>
-                                        <td>expired</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">4</th>
-                                        <td>33jdueufoplsc</td>
-                                        <td>expired</td>
+                                    <tr v-for="tokenSet in token">
+                                        <td>{{tokenSet.name}}</td>
+                                        <td>{{tokenSet.available}}</td>
+                                        <td>{{tokenSet.expiresAt}}</td>
+                                        <td><button class="btn btn-danger btn-sm" @click="deleteToken(tokenSet.name)">Delete</button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -516,7 +513,24 @@ export default {
             terminal: '$ ',
             location:"",
             crt:'',
-            ws:''
+            ws:'',
+            tokenName: '',
+            tokenSize:'',
+            token: [{
+                name: 'pilot1',
+                available: 10,
+                expiresAt: 1546304461000
+            },
+            {
+                name: 'pilot1',
+                available: 10,
+                expiresAt: 1546304461000
+            },
+            {
+                name: 'pilot1',
+                available: 10,
+                expiresAt: 1546304461000
+            }],
         };
     },
     components: {
@@ -599,6 +613,7 @@ export default {
             this.success = [];
             this.markers.clearLayers();
             this.getTargets();
+            //this.getTokens();
 
         },
         checkLogs: function (target) {
@@ -714,6 +729,19 @@ export default {
             })
             
         },
+        deleteToken: function (name) {
+            axios.delete(this.address+"/token_sets/" + name).then(response => {
+                    let index = this.token.indexOf(this.token.find(el => el.name === name));
+                    this.token.splice(index, 1);
+                    $('#myMessage').modal();
+                    $('#mymessage-body').append("Delete target with " + name + "  " + response.statusText)
+                }
+            ).catch(error => {
+                $('#myAlert').modal();
+                $('#mymodal-body').append("Delete target with " + name + "  " + error);
+            })  
+        },
+
         //Search device
         filterDevice: function () {
            
@@ -906,6 +934,18 @@ export default {
                 console.log(error);
             });
         },
+        getTokens: function(){      
+            axios.get(this.address + "/token_sets").then(response =>{
+                for(let i =0; i<response.data.length; i++){
+                    let a = response.data[i];
+                    this.token.push({
+                        name: a.name,
+                        available: a.available,
+                        expiresAt: new Date(a.expiresAt).toLocaleString(),
+                    })
+                }
+            })
+        },
         handelNewDiscover: function (devices) {
            /*  console.log(devices)
             for (let i = 0; i < devices.length; i++) { */
@@ -1015,7 +1055,33 @@ export default {
                      this.$refs.next.disabled=true;
                 }           
             }  
-        },   
+        },  
+        postToken: function () {
+
+            // axios.post(this.address + '/token_sets&total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{
+                
+            //  let a = response.data;
+                let a = {
+                    "name": "pilot1",
+                    "available": 3,
+                    "expiresAt": 1546304461000,
+                    "tokens": [
+                         "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc"
+                        ]
+                }
+                let str = '<h6>This view will be unaccesable after you close this modal!</h6><div class="myToken">' + '<div class="mycard-title">Name:</div><div class="mycard-content">'+ a.name + '</div>';
+                str += '<div class="mycard-title">Size:</div><div class="mycard-content">'+ a.available + '</div>';
+                str += '<div class="mycard-title">Expires Time:</div><div class="mycard-content">'+ new Date(a.expiresAt).toLocaleString() + '</div>';
+                str += '<div class="mycard-title">Tokens:</div><div class="mycard-content">';
+                a.tokens.forEach(t =>{
+                    str += t + '<br>'
+                });
+                str += '</div></div>';
+                $('#mymessage-body').empty().append(str);
+                $('#myMessage').modal();
+            //})
+
+        }, 
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
 
@@ -1584,6 +1650,16 @@ export default {
   color: white;
   font: 11.5px Inconsolata, monospace;
   text-shadow: 0 0 5px #C8C8C8;
+}
+#newToken{
+    display: grid;
+    grid-template-columns: 1.5fr 2fr;
+    grid-gap: 2.5px;
+}
+.myToken{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-gap: 2.5px;
 }
 @media (min-width: 576px){
     #myLog-dialog{
