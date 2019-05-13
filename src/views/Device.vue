@@ -121,8 +121,7 @@
                                             </div>
                                             <div class="mycard-title">Name:</div>
                                             <div class="mycard-content">
-                                                <input type="text" class="form-control form-control-sm"
-                                                    style="font-size: 14px;height: 22px;padding: 5px;">
+                                                <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;">
                                             </div>
                                             <div></div>
                                             <div class="mycard-title">Tags:</div>
@@ -130,13 +129,13 @@
                                                 <div class="input-group">
                                                     <p style="margin:2.5px 0">Type:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                            <input type="checkbox" autocomplete="off"  value="drone"> drone
                                                         </label>
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="swarm"> swarm
                                                         </label>
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="robot"> robot
                                                         </label>
                                                     </div>
@@ -144,13 +143,13 @@
                                                 <div class="input-group">
                                                      <p style="margin:2.5px 0">HW Arch:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="amd64"> amd64
                                                         </label>
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox" autocomplete="off" value="arm32"> arm32
                                                         </label>
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="mcs51"> mcs51
                                                         </label>
                                                     </div>
@@ -158,13 +157,13 @@
                                                 <div class="input-group">
                                                      <p style="margin:2.5px 0">OS:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox" autocomplete="off" value="freebsd"> freebsd
                                                         </label>
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="netbsd"> netbsd
                                                         </label>
-                                                        <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                                        <label class="btn btn-light">
                                                             <input type="checkbox" autocomplete="off" value="darwin"> darwin
                                                         </label>
                                                     </div>
@@ -246,13 +245,13 @@
                                     <div class="input-group">
                                         <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="drone" > drone
                                             </label>
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="swarm" > swarm
                                             </label>
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="robot"> robot
                                             </label>
                                         </div>
@@ -260,13 +259,13 @@
                                     <div class="input-group">
                                         <h6 class="mycard-content" style="margin-top:2.5px">HW Arch:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="amd64" > amd64
                                             </label>
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light" >
                                                 <input type="checkbox" autocomplete="off" value="arm32" > arm32
                                             </label>
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light" >
                                                 <input type="checkbox" autocomplete="off" value="mcs51" > mcs51
                                             </label>
                                         </div>
@@ -274,13 +273,13 @@
                                     <div class="input-group">
                                         <h6 class="mycard-content" style="margin-top:2.5px">OS:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light">
                                                 <input value="freebsd" type="checkbox"> freebsd
                                             </label>
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light">
                                                 <input type="checkbox"  value="netbsd" > netbsd
                                             </label>
-                                            <label class="btn btn-light" style=" font-size: 13px; padding: 0 5px;margin:2.5px">
+                                            <label class="btn btn-light">
                                                 <input type="checkbox" value="darwin"> darwin
                                             </label>
                                         </div>
@@ -340,7 +339,7 @@
                                         <td>{{tokenSet.name}}</td>
                                         <td>{{tokenSet.available}}</td>
                                         <td>{{tokenSet.expiresAt}}</td>
-                                        <td><button class="btn btn-danger btn-sm" @click="deleteToken(tokenSet.name)">Delete</button></td>
+                                        <td><button class="btn btn-danger btn-sm" @click="deleteToken(tokenSet.name)" style="padding: 0 5px">Delete</button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -409,7 +408,6 @@
                                     Install
                                 </div>
                                 <div id="collapseinstall" class="collapse show" aria-labelledby="headinginstall" style="padding: 0 0 0 35px;">
-                                  
                                 </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
@@ -421,8 +419,7 @@
                                     </button>
                                     Run
                                 </div>
-                                <div id="collapserun" class="collapse show" aria-labelledby="headingrun" style="padding: 0 0 0 35px;">
-                                  
+                                <div id="collapserun" class="collapse show" aria-labelledby="headingrun" style="padding: 0 0 0 35px;">   
                                 </div>
                             </div>
                         </div>
@@ -430,50 +427,46 @@
                 </div>
             </div>
         </div>
-        <div id="myTimeline" ref="myTimeline">
-               <button ref="pre" class="btn btn-sm btn-light" style="width: 20px;height: 20px;position: relative;float: left;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="previous">
-                    <span style="left: -5px;font-size: 9px;position: relative;top: -8px;">&#9668;</span> 
+        <div class="myTimeline" ref="myTimeline">
+               <button ref="pre" class="btn btn-sm btn-light" @click="previous">
+                    <span style="left: -5px">&#9668;</span> 
                 </button> 
-                <button ref="next" disabled class="btn btn-sm btn-light"  style="width: 20px;height: 20px;position: relative;float: right;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="next">
-                    <span style="left: -4px;font-size: 9px;position: relative;top: -8px;">&#9658;</span>
+                <button ref="next" disabled class="btn btn-sm btn-light"  style="float: right" @click="next">
+                    <span style="left: -4px">&#9658;</span>
                 </button>
                <div style="height:70px; overflow:hidden">
                 <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
                 <div ref="timeline_lis" style="position: relative;top:-54px;width:max-content;float:right">
-                    <li v-for="order in orderOrders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
+                    <li v-for="order in orderOrders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
                         <img v-if="order.status[1]==0 && order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
                         <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
                     </div>
-                     <!--   <div>{{order.id.substring(0,6)}}</div>  -->
+             
                     </li> 
                 </div>
             </div>
         </div>
-        <div id="notification"> 
-            <div class="mycard-title" style="color:#ffda44; padding:0 5px" >New Discovered:
-                <img src="../assets/star.png" style="width:15px"></div>
-            <div class="mycard-content">
-                 <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="showNewDevices">
-                        {{this.newDiscover.length}} 
-                </button>
-                </div> 
-            <div class="mycard-title" style="color:#d80027;padding:0 5px">Failed:
-                <img src="../assets/error.png" style="width:15px">
+        <div class="notification"> 
+            <div class="mycard-title" style="color:#ffda44" >New Discovered:
+                <img src="../assets/star.png">
             </div>
             <div class="mycard-content">
-                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027;padding: 0 2px" @click="filterDevices('failed')">
-                {{this.failed.length}}
-                  </button>
-                </div>
-            <div class="mycard-title" style="color:#00ae31;padding:0 5px">Success:
-                 <img src="../assets/done.png" style="width:15px">
+                <button type="button" class="btn btn-light btn-sm" style="color:#ffda44" @click="showNewDevices">{{this.newDiscover.length}}</button>
+            </div> 
+            <div class="mycard-title" style="color:#d80027">Failed:
+                <img src="../assets/error.png">
+            </div>
+            <div class="mycard-content">
+                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="filterDevices('failed')">{{this.failed.length}}</button>
+            </div>
+            <div class="mycard-title" style="color:#00ae31">Success:
+                 <img src="../assets/done.png">
             </div>
             <div class="mycard-content" >
-                  <button type="button" class="btn btn-light btn-sm" style="color:#00ae31;padding: 0 2px" @click="filterDevices('success')">
-                        {{this.success.length}} </button>
-                </div>
+                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="filterDevices('success')">{{this.success.length}} </button>
+            </div>
         </div>
     </div>
 </template>
@@ -551,9 +544,7 @@ export default {
     },
     methods: {
         batchUpdate: function () {
-
-            let input = document.getElementById('updateTags').getElementsByTagName('input');
-            
+            let input = document.getElementById('updateTags').getElementsByTagName('input');         
             let myUpdate = {
                 tags:[],
                 location: {
@@ -567,46 +558,42 @@ export default {
             }
             Array.from(input).map(item =>{
                 if(item.checked){
-                    myUpdate.tags.push(item.value)
+                    myUpdate.tags.push(item.value);
                 }
             });
-            $('#mymodal-body').empty();
-            $('#mymessage-body').empty();
-            
             //console.log(myUpdate);
+            let alert = $('#mymodal-body'), message = $('#mymessage-body');
+            alert.empty();
+            message.empty();
+            
+            $("#collapseOne").collapse("show");
+
             this.targetDevices.forEach(el=>{
-                axios.put(this.address+"/targets/" + el.id, myUpdate).then(response=>{
+                axios.put(this.address + "/targets/" + el.id, myUpdate).then(response=>{
                     //console.log(response)
                     $('#myMessage').modal();
-                    $("#collapseOne").collapse("show");
-                    $('#mymessage-body').append("Update target with "+ el.id + "  " + response.statusText + "<br>")
-                    //console.log(this.devices.length)
+                    message.append("Update target with "+ el.id + "  " + response.statusText + "<br>");
                 }).catch(error => {
                     $('#myAlert').modal();
-                    $('#mymodal-body').append("Update target with " + el.id + "  " + error);
+                    alert.append("Update target with " + el.id + "  " + error);
                 });
             });          
         },
         clearForm: function () {
+            let t = document.getElementById('updateTags');
+            let input = t.getElementsByTagName('input');
+            let label = t.getElementsByTagName('label');
 
-            let input = document.getElementById('updateTags').getElementsByTagName('input');
-            let label = document.getElementById('updateTags').getElementsByTagName('label');
             $('#searchTarget2').empty();
         
-            Array.from(input).map(item =>{
-               item.checked = false
-            });
-            Array.from(label).map(item =>{
-               item.setAttribute('class','btn btn-light');
-            });
+            Array.from(input).map(item =>{ item.checked = false });
+            Array.from(label).map(item =>{ item.setAttribute('class','btn btn-light') });
 
             this.targetDevices=[];
             this.updateTags =[];
             this.location = "";
-
         },
         closeModal: function () {
-
             this.devices = [];
             this.fullDevices = [];
             this.failed = [];
@@ -614,37 +601,32 @@ export default {
             this.markers.clearLayers();
             this.getTargets();
             //this.getTokens();
-
         },
         checkLogs: function (target) {
-            var des = "target=" + target;
-            return axios.get(this.address+"/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+
+            let des = "target=" + target;
+            return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
 
                 if (response.data.items) { 
                     let fulltask = new Set();
-                    response.data.items.forEach(el => {
-                        fulltask.add(el.task)
-                    });
+                    response.data.items.forEach( el =>  fulltask.add(el.task) );
                     let task = Array.from(fulltask).slice(0,15);
-
                     //console.log(task)
+
                     let tasks = task.map(t =>{
-                         let lastLog = response.data.items.filter(el => el.task == t); 
-                         if (lastLog.some(el => el.error == true)) {
+                        let lastLog = response.data.items.filter(el => el.task == t); 
+                        if (lastLog.some(el => el.error == true)) {
                              return t = [t,true]
                         }else{
                              return t = [t,false]
                         }
                     });
-                    return {
-                            tasks: tasks,
-                            log: response.data.items.reverse(),
-                   }
+
+                    return { 'tasks': tasks,
+                             'log': response.data.items.reverse(),  };
                 } else {
-                    return {
-                        tasks:[['','none']],
-                        log: [],
-                    };
+                    return { 'tasks':[['','none']],
+                             'log': [],                             };
                 }
             }).catch(error => {
                 console.log(error);
@@ -652,40 +634,29 @@ export default {
         }, 
         clickDeployment: function (id) {
 
-                this.map.eachLayer(layer=> {
-                        if (layer instanceof L.Marker) {
-                            this.map.removeLayer(layer);
-                        }
-                }); 
-                if(this.polyline){
-                    this.polyline.remove();
-                }
-                this.markers.clearLayers();
-                this.devices = [];
-                var filteredData = this.orders.find((i, n)=> { 
-                    return i.id === id
-                });
-                //console.log(filteredData)
-                if(filteredData.deploy){
-                    filteredData.deploy.match.list.forEach(el=>{
-                          var d = this.fullDevices.find(function (de) {
-                            return de.id === el      
-                          })
+            if(this.polyline) this.polyline.remove();
+            
+            this.markers.clearLayers();
+            this.devices = [];
+            let filteredData = this.orders.find(i=> { return i.id === id });
+            //console.log(filteredData)
+
+            if(filteredData.deploy){
+                filteredData.deploy.match.list.forEach(el=>{
+                    let d = this.fullDevices.find(function (de) { return de.id === el  });
                     this.devices.push(d);      
-                   this.markers.addLayer(d.marker);
+                    this.markers.addLayer(d.marker);
                 })
-                }
-                this.map.addLayer(this.markers)
-                this.map.fitBounds(this.markers.getBounds());
-                //console.log(filteredData);
-                //markerGroup.addTo(map);
+            }
+            this.map.addLayer(this.markers)
+            this.map.fitBounds(this.markers.getBounds());
         },  
         clickCard: function (marker) {  
              this.map.panTo(marker.getLatLng());
              marker.openPopup();
         },
         closeSearch: function () {
-            //console.log(document.getElementById("collapseTwo").className)
+           
             if (document.getElementById("collapseTwo").className == "collapse") {
                 document.getElementById("search").style.display = "none";
             } else {
@@ -693,7 +664,7 @@ export default {
             }
         },
         createBadge: function (content) {
-            var badge = document.createElement("span");
+            let badge = document.createElement("span");
             badge.innerHTML = content;
             badge.setAttribute("class", "btn btn-primary btn-sm");
             badge.setAttribute("style", "padding: 2px 5px");
@@ -701,58 +672,49 @@ export default {
             return badge;
         },
         deleteTarget: function (id) {
-         
-            $('#mymodal-body').empty();
-            $('#mymessage-body').empty();
+            
+            let alert = $('#mymodal-body'), message=$('#mymessage-body');
+            alert.empty();
+            message.empty();
 
-            axios.delete(this.address+"/targets/" + id).then(
-                response => {
-                    let index = this.devices.indexOf(this.devices.find(el => el.id === id));
-                    this.devices.splice(index, 1);
-                    this.failed = [];
-                    this.success = [];
-                    this.devices.forEach(el=>{
-                        if(el.logs.error == true){
-                            this.failed.push(el);
-                        }else{
-                            this.success.push(el); 
-                        }
-                    })
-                    //console.log(response)
-                    $('#myMessage').modal();
-                    $('#mymessage-body').append("Delete target with " + id + "  " + response.statusText)
-                    //console.log(this.devices.length)
-                }
-            ).catch(error => {
+            axios.delete(this.address+"/targets/" + id).then(response => {
+
+                let index = this.devices.indexOf(this.devices.find(el => el.id === id));
+                this.devices.splice(index, 1);
+                this.failed = [];
+                this.success = [];
+                this.devices.forEach(el=>{ el.logs.error == true ? this.failed.push(el): this.success.push(el); })
+                $('#myMessage').modal();
+                message.append("Delete target with " + id + "  " + response.statusText);
+
+            }).catch(error => {
                 $('#myAlert').modal();
-                $('#mymodal-body').append("Delete target with " + id + "  " + error);
+                alert.append("Delete target with " + id + "  " + error);
             })
             
         },
         deleteToken: function (name) {
+
+            let alert = $('#mymodal-body'), message=$('#mymessage-body');
+            alert.empty();
+            message.empty();
+
             axios.delete(this.address+"/token_sets/" + name).then(response => {
-                    let index = this.token.indexOf(this.token.find(el => el.name === name));
-                    this.token.splice(index, 1);
-                    $('#myMessage').modal();
-                    $('#mymessage-body').append("Delete target with " + name + "  " + response.statusText)
-                }
-            ).catch(error => {
+                let index = this.token.indexOf(this.token.find(el => el.name === name));
+                this.token.splice(index, 1);
+                $('#myMessage').modal();
+                message.append("Delete target with " + name + "  " + response.statusText);
+
+            }).catch(error => {
                 $('#myAlert').modal();
-                $('#mymodal-body').append("Delete target with " + name + "  " + error);
+                alert.append("Delete target with " + name + "  " + error);
             })  
         },
-
         //Search device
         filterDevice: function () {
            
             var value = this.searchText.toLowerCase();
-            this.tags.forEach(function (tag) {
-                if (!(tag.tag.toLowerCase().indexOf(value) > -1)) {
-                    tag.isActive = false;
-                } else {
-                    tag.isActive = true;
-                }
-            });
+            this.tags.forEach(function (tag) { tag.tag.toLowerCase().indexOf(value) > -1 ? tag.isActive = true: tag.isActive = false; });
             this.fullDevices.forEach(d=>{
                  if (!(d.id.toLowerCase().indexOf(value) > -1)) {
                     d.nameActive = false;
@@ -1479,14 +1441,28 @@ export default {
   display: grid;
   grid-template-columns: 1fr 2fr;
 }
-#myTimeline{
+.myTimeline{
     position: absolute;
     bottom: 0;
     right: 5px;
     z-index: 1000;
-    overflow: hidden;
     background-color: #ffffff96;
-    border-radius: 5pxweb
+    border-radius: 5px
+}
+.myTimeline button{
+    width: 20px;
+    height: 20px;
+    position: relative;
+    float: left;
+    top: 25px;
+    border-radius: 50%;
+    color: rgb(44, 62, 80);
+    border: 2px solid rgb(44, 62, 80);
+}
+.myTimeline button span{
+    font-size: 9px;
+    position: relative;
+    top: -8px;
 }
 .timeline-li{
     height: 68px;
@@ -1494,7 +1470,6 @@ export default {
     font-size: 14px;
     list-style: none;
     width: 100px;
-    position: relative;
     float: left;
     cursor: pointer;
 }
@@ -1504,7 +1479,7 @@ export default {
     background-color: #ffffff;
     outline: none;
 }
-#notification{
+.notification{
     position: absolute;
     top: 15px;
     right: 15px;
@@ -1512,10 +1487,14 @@ export default {
     display:grid;
     grid-template-columns: 6fr 1fr;
     padding: 2.5px 5px;
-    font-size: 14px;
-    list-style: none;
     background-color: #fff;
     box-shadow: 0 1px 1px #8e8e8e50
+}
+.notification button{
+    padding: 0 2px
+}
+.notification img{
+    width: 15px
 }
 .mycollapse{
     display: grid;
@@ -1546,6 +1525,11 @@ export default {
   border: 1px solid #e4e4e4;
   border-radius: 2px;
   padding: 5px 2.5px;
+}
+#updateTags label, .updateDevice label{
+    font-size: 13px; 
+    padding: 0 5px;
+    margin:2.5px
 }
 .updateDevice {
   display: grid;

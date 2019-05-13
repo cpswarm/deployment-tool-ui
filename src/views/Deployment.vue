@@ -392,15 +392,15 @@
             </div>
         </div>
     </div>
-     <div id="myTimeline" ref="myTimeline">
-               <button ref="pre"  class="btn btn-sm btn-light" style="width: 20px;height: 20px;position: relative;float: left;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="previous">
-                    <span style="left: -5px;font-size: 9px;position: relative;top: -8px;">&#9668;</span> 
-                </button> 
-                <button ref="next" disabled class="btn btn-sm btn-light"  style="width: 20px;height: 20px;position: relative;float: right;top: 25px;border-radius: 50%;color: rgb(44, 62, 80);border: 2px solid rgb(44, 62, 80);" @click="next">
-                    <span style="left: -4px;font-size: 9px;position: relative;top: -8px;">&#9658;</span>
-                </button>
-               <div style="height:70px; overflow:hidden">
-                <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
+    <div class="myTimeline" ref="myTimeline">
+        <button ref="pre" class="btn btn-sm btn-light" @click="previous">
+            <span style="left: -5px">&#9668;</span> 
+        </button> 
+        <button ref="next" disabled class="btn btn-sm btn-light" style="float: right" @click="next">
+            <span style="left: -4px">&#9658;</span>
+        </button>
+        <div style="height:70px; overflow:hidden">
+            <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
                 <div id="timeline_lis" ref="timeline_lis" style="position: relative;top:-54px;width:max-content;float:right">
                     <li v-for="order in orders.slice().reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
@@ -408,35 +408,31 @@
                         <img v-if="order.status[1]==0&&order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
                         <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
                     </div>
-                     <!--   <div>{{order.id.substring(0,6)}}</div>  -->
+               
                     </li> 
                 </div>
             </div>
-        </div> 
-        <div id="notification" class="notification"> 
+    </div> 
+    <div class="notification"> 
             <div class="mycard-title" style="color:#ffda44;" >New Discovered:
-                <img src="../assets/star.png" style="width:15px"></div>
-            <div class="mycard-content">
-                 <button type="button" class="btn btn-light btn-sm" style="color:#ffda44; padding: 0 2px" @click="toDevices('new')">
-                        {{this.newDiscover.length}} 
-                </button>
-                </div> 
-            <div class="mycard-title" style="color:#d80027">Failed:
-                <img src="../assets/error.png" style="width:15px">
+                <img src="../assets/star.png">
             </div>
             <div class="mycard-content">
-                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027;padding: 0 2px" @click="toDevices('failed')">
-                {{this.failed.length}}
-                  </button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#ffda44" @click="toDevices('new')"> {{this.newDiscover.length}}</button>
+            </div> 
+            <div class="mycard-title" style="color:#d80027">Failed:
+                <img src="../assets/error.png">
+            </div>
+            <div class="mycard-content">
+                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="toDevices('failed')">{{this.failed.length}}</button>
                 </div>
             <div class="mycard-title" style="color:#00ae31">Success:
-                 <img src="../assets/done.png" style="width:15px">
+                 <img src="../assets/done.png">
             </div>
             <div class="mycard-content" >
-                  <button type="button" class="btn btn-light btn-sm" style="color:#00ae31;padding: 0 2px" @click="toDevices('success')">
-                        {{this.success.length}} </button>
-                </div>
-        </div>
+                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="toDevices('success')">{{this.success.length}} </button>
+            </div>
+    </div>
 </div>
 </template>
 
