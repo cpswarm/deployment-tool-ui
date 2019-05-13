@@ -2129,6 +2129,11 @@ export default {
   padding: 5px;
   margin-bottom: 5px;
 }
+#newDeployment {
+  display: grid;
+  grid-template-columns: 1fr 4.5fr;
+  grid-gap: 2.5px;
+}
 .myCommandCard{
     max-height: 320px;
     background: #fcfcfc;

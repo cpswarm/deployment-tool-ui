@@ -715,16 +715,11 @@ export default {
            
             var value = this.searchText.toLowerCase();
             this.tags.forEach(function (tag) { tag.tag.toLowerCase().indexOf(value) > -1 ? tag.isActive = true: tag.isActive = false; });
-            this.fullDevices.forEach(d=>{
-                 if (!(d.id.toLowerCase().indexOf(value) > -1)) {
-                    d.nameActive = false;
-                } else {
-                    d.nameActive = true;
-                }
-            })
+            this.fullDevices.forEach(d=>{ !(d.id.toLowerCase().indexOf(value) > -1) ? d.nameActive = false: d.nameActive = true; })
         },
         //Click notification card item and filtering device
         filterDevices: function (para) {
+
             $('#searchTarget').empty();
             switch(para){
                 case 'failed': 
@@ -747,10 +742,10 @@ export default {
                     event.path[2].childNodes[1].style.background = '#fff';
                     break;
             }
-            this.markers.clearLayers()
+            this.markers.clearLayers();
             this.devices.forEach(d=>{
                 d.isActive = true;
-                this.markers.addLayer(d.marker)
+                this.markers.addLayer(d.marker);
             });
             this.map.fitBounds(this.markers.getBounds())
         },
@@ -772,23 +767,17 @@ export default {
             }).catch(error => {
                 console.log(error);
             });
-
         },
         getFinishTime: function (id) {
-            //Request the latest logs time
             return axios.get(this.address+"/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
-                //console.log(response.data)
                 return response.data.items[0].time;
             }).catch(error => {
                 console.log(error);
             })
-            //return new Date(1551800395755).toLocaleString();
         },
         getOrders: function () {
-            //http://"+this.address+"/orders
-            // /deployment.json
+    
             axios.get(this.address+"/orders").then(response => {
-                //console.log(this.orders)
                 for (let i = 0; i < response.data.total; i++) {
 
                     let a = response.data.items[i];
@@ -804,7 +793,6 @@ export default {
                     a.date = date.toUTCString().substring(5,11);
                     a.time = date.toUTCString().substring(17,22);
          
-                    //a.date= day+'-'+ month + ' ' +date.getHours()+ ':'+ minute;
                     if (a.deploy) {
                         this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
                             a.finishedAt = data[0];
@@ -823,11 +811,8 @@ export default {
             });
         }, 
         getTargets: function () {
-            //http://"+this.address+"/targets
-            // /device.json
-            //console.log(this.devices);
+          
             axios.get(this.address+"/targets").then(response => {
-                //console.log(response.data);
                 for (let i = 0; i < response.data.total; i++) {
 
                     let a = response.data.items[i];
@@ -836,15 +821,26 @@ export default {
                     a.nameActive = true;
                    
                     if (!a.location) {
-                        a.location = {
-                            lon: rand(50.749523),
-                            lat: rand(7.203923),
+                        a.location = { lon: rand(50.749523), 
+                                       lat: rand(7.203923), }
+                    }
+                    let tags = "";
+                    if (a.tags) {
+                        for (let j = 0; j < a.tags.length; j++) {
+                            tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
+                            if (!this.tags.some(e => e.tag === a.tags[j])) {
+                                this.tags.push({
+                                    'isActive': true,
+                                    'tag': a.tags[j]
+                                });
+                            }
                         }
                     }
+
                     let icon ="";
                     let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
-                        title: a.id,
-                        alt: a.tags ? a.tags : []
+                        'title': a.id,
+                        'alt': a.tags ? a.tags : []
                     })
                     a.marker = marker;
              
@@ -853,43 +849,28 @@ export default {
                         if(data.tasks[0][1] == true){
                             this.failed.push(a);
                             marker.setIcon(L.icon({
-                                iconUrl: "/error.png",
-                                iconSize: [20, 20]
+                                'iconUrl': "/error.png",
+                                'iconSize': [20, 20]
                             }))
                         }else{
                             this.success.push(a); 
                             marker.setIcon(L.icon({
-                                iconUrl: "/done.png",
-                                iconSize: [20, 20]
+                                'iconUrl': "/done.png",
+                                'iconSize': [20, 20]
                             }))
                         }
                         this.devices.push(a);
                         this.fullDevices.push(a);
                     }); 
-                   
-                   //console.log(this.devices)
-                    var tags = "";
-                    if (a.tags) {
-                        for (let j = 0; j < a.tags.length; j++) {
-                             tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
-                            if (!this.tags.some(e => e.tag === a.tags[j])) {
-                                this.tags.push({
-                                    isActive: true,
-                                    tag: a.tags[j]
-                                });
-                            }
-                        }
-                    }
-                    //console.log(this.tags);
+
                     //Markers click function
                     marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
                     marker.on("click", event => {
                         marker.openPopup();
-                        if(this.polyline){
-                            this.polyline.remove();
-                        }
+                        if(this.polyline) this.polyline.remove();
                         this.devices.splice(0,this.devices.length, a);       
                     });
+
                     this.markers.addLayer(marker);
                 }
             }).catch(error => {
@@ -901,77 +882,71 @@ export default {
                 for(let i =0; i<response.data.length; i++){
                     let a = response.data[i];
                     this.token.push({
-                        name: a.name,
-                        available: a.available,
-                        expiresAt: new Date(a.expiresAt).toLocaleString(),
+                        'name': a.name,
+                        'available': a.available,
+                        'expiresAt': new Date(a.expiresAt).toLocaleString(),
                     })
                 }
             })
         },
         handelNewDiscover: function (devices) {
-           /*  console.log(devices)
-            for (let i = 0; i < devices.length; i++) { */
-                    let a = devices;
-                    a.isActive = true;
-                    a.relations = true;
-                    //console.log(a);
-                    if (!a.location) {
-                        a.location = {
+           
+                let a = devices;
+                a.isActive = true;
+                a.relations = true;
+                  
+                if (!a.location) {
+                    a.location = {
                             lon: rand(50.749523),
                             lat: rand(7.203923),
-                        }
                     }
-                    let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
-                        icon: L.icon({
-                            iconUrl: "/star.png",
-                            iconSize: [20, 20]
-                        }),
-                        title: a.id,
-                        alt: a.tags ? a.tags : []
-                    })
-                    a.marker = marker;
-                    a.logs = {
-                        tasks:[['','none']],
-                        log:[],
-                        //error: "none"
-                    };
-                    this.newDiscover.push(a);
-                    var tags = "";
-                    if (a.tags) {
-                        for (let j = 0; j < a.tags.length; j++) {
-                            tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
-                            if (!this.tags.some(e => e.tag === a.tags[j])) {
-                                this.tags.push({
-                                    isActive: true,
-                                    tag: a.tags[j]
-                                });
-                            }
-                        }
-                    }
-                    marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
-                    marker.on("click", event => {
-                        marker.openPopup();
-                        if(this.polyline){
-                            this.polyline.remove();
-                        }
-                        this.devices.splice(0,this.devices.length, a);
-                    });
-                    marker.on('dblclick', event =>{
-                         if (!this.targetDevices.some(
-                            e => e.id === event.target.options.title
-                        )) {
-                            this.targetDevices.push({
-                                id: event.target.options.title,
-                                tags: event.target.options.alt
+                }
+                let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
+                    icon: L.icon({
+                        'iconUrl': "/star.png",
+                        'iconSize': [20, 20]
+                    }),
+                    'title': a.id,
+                    'alt': a.tags ? a.tags : []
+                });
+                a.marker = marker;
+                a.logs = {
+                    'tasks':[['','none']],
+                    'log':[],
+                };
+                this.newDiscover.push(a);
+                let tags = "";
+                if (a.tags) {
+                    for (let j = 0; j < a.tags.length; j++) {
+                        tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
+                        if (!this.tags.some(e => e.tag === a.tags[j])) {
+                            this.tags.push({
+                                    'isActive': true,
+                                    'tag': a.tags[j]
                             });
                         }
-                    })
+                    }
+                }
+                marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
+                marker.on("click", event => {
+                    marker.openPopup();
+                    if(this.polyline) this.polyline.remove();
+                    this.devices.splice(0,this.devices.length, a);
+                });
+                marker.on('dblclick', event =>{
+                    if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
+                        this.targetDevices.push({
+                            'id': event.target.options.title,
+                            'tags': event.target.options.alt
+                        });
+                    }
+                })
         },
         hideTerminal: function (id) {
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[1].style.display = 'none';
             let close = true;
-            let terminals = document.getElementsByClassName('myT')
+            let terminals = document.getElementsByClassName('myT');
             for(let i =0; i<terminals.length;i++){
                if(terminals[i].style.display!='none'){
                    close = false;
@@ -1020,16 +995,13 @@ export default {
         },  
         postToken: function () {
 
-            // axios.post(this.address + '/token_sets&total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{
-                
+            // axios.post(this.address + '/token_sets&total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{            
             //  let a = response.data;
                 let a = {
                     "name": "pilot1",
                     "available": 3,
                     "expiresAt": 1546304461000,
-                    "tokens": [
-                         "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc"
-                        ]
+                    "tokens": [ "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc"]
                 }
                 let str = '<h6>This view will be unaccesable after you close this modal!</h6><div class="myToken">' + '<div class="mycard-title">Name:</div><div class="mycard-content">'+ a.name + '</div>';
                 str += '<div class="mycard-title">Size:</div><div class="mycard-content">'+ a.available + '</div>';
@@ -1042,25 +1014,21 @@ export default {
                 $('#mymessage-body').empty().append(str);
                 $('#myMessage').modal();
             //})
-
         }, 
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
-
-                if (this.targetDevices[i].id === name) {
-                    this.targetDevices.splice(i, 1);
-                }
+                if (this.targetDevices[i].id === name) this.targetDevices.splice(i, 1);
             }
         }, 
         refresh: function () {
             $('#searchTarget').empty(); 
-          this.devices=[];
-          this.fullDevices=[];
-          this.failed=[];
-          this.success=[];
-          this.newDiscover=[];
-          this.markers.clearLayers();
-          this.getTargets();
+            this.devices=[];
+            this.fullDevices=[];
+            this.failed=[];
+            this.success=[];
+            this.newDiscover=[];
+            this.markers.clearLayers();
+            this.getTargets();
         },
         // All device -> search devices
         searchTarget: function () {
@@ -1082,7 +1050,6 @@ export default {
         },
         //Update device -> search devices
         searchTarget2: function () {
-
             var tagsNodes = document.getElementById("searchTarget2").childNodes;
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
@@ -1094,7 +1061,6 @@ export default {
                                     id: this.fullDevices[j].id,
                                     tags: this.fullDevices[j].tags
                                 });
-                                //console.log(i, j, m);
                             }
                         }
                     }
@@ -1105,50 +1071,51 @@ export default {
             this.searchText="";
             var badge = this.createBadge(tag);
             document.getElementById("searchTarget").appendChild(badge);
-            this.searchTarget()
+            this.searchTarget();
         },
         selectItem2: function (tag) {
             this.searchText2="";
             var badge = this.createBadge(tag);
             document.getElementById("searchTarget2").appendChild(badge);
-            this.searchTarget2()
+            this.searchTarget2();
         },
         showEditForm: function (device) {
             event.path[3].style.display = 'none';
             event.path[4].childNodes[2].style.display = 'inline';
-            //console.log(event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0])
             event.path[4].childNodes[2].childNodes[0].childNodes[2].childNodes[0].value= device.id;
             if(device.tags){
-                 device.tags.map(item => {
-                let tag = event.path[4].childNodes[2].childNodes[0].childNodes[5];
-                  Array.from(tag.getElementsByTagName('label')).forEach(el => {
-                    //console.log(el.childNodes[0].value, item)
-                    if(el.childNodes[0].value == item){
-                         el.childNodes[0].checked = "true"
-                         el.setAttribute('class','btn btn-light active');
-                    }
+                device.tags.map(item => {
+                    let tag = event.path[4].childNodes[2].childNodes[0].childNodes[5];
+                    Array.from(tag.getElementsByTagName('label')).forEach(el => {
+                        if(el.childNodes[0].value == item){
+                            el.childNodes[0].checked = "true"
+                            el.setAttribute('class','btn btn-light active');
+                        }
+                    })
                 })
-            })
             }
             event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0].value= [device.location.lon,device.location.lat];
         }, 
         showLog: function (log,id) {
 
-            $("#logTitle").empty();
+            $("#logTitle").empty().append('Logs of Task: '+id);
             $("#collapsebuild").empty().collapse('show');
             $("#collapseinstall").empty().collapse('show');
             $("#collapserun").empty().collapse('show');
 
-            $("#logTitle").append('Logs of Task: '+id);
+            let logs =  log.filter(el => el.task == id);
 
-            let logs =  log.filter(el => el.task == id)
             for(let i =1; i<logs.length;i++){
                 let command = logs[i].command == logs[i-1].command? '': logs[i].command;
+                let c_1 ='', c_2='';
                 if (logs[i].error == true) {
-                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_f">' + new Date(logs[i].time).toLocaleString() +'</div><div class="myfont_f">' + logs[i].output + '</div><div class="myfont_f">' + command + '</div> </div> ')
+                    c_1 = 'f';
+                    c_2 = 'f';
                 } else {
-                    $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_s">' + new Date(logs[i].time).toLocaleString() + '</div><div class="myfont_s">' + logs[i].output + '</div><div class="myfont_t">' + command + '</div> </div> ')
+                    c_1 = 's';
+                    c_2 = 't';
                 }
+                $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_'+c_1+'">' + new Date(logs[i].time).toLocaleString() + '</div><div class="myfont_'+c_1+'">' + logs[i].output + '</div><div class="myfont_'+c_2+'">' + command + '</div> </div> ');
             }
             $("#myLog").modal();
         },       
@@ -1162,22 +1129,19 @@ export default {
             event.path[2].childNodes[5].style.background = '#fff';
           
             this.devices = this.newDiscover;
-              console.log(this.devices)
             this.newDiscover = [];
             this.markers.clearLayers();
             this.devices.map(item=>{
                 this.markers.addLayer(item.marker)
             })
-            //console.log(this.devices);
         },
         showRelationship: function (tag, device) {
             device.marker.openPopup();
-            var latlngs = [];
+            let latlngs = [];
             this.devices.forEach(function (target) {
                 if (target.tags && target.tags.some(el => el == tag)) {
-                    latlngs.push([
-                        [target.location.lon, target.location.lat],
-                        [device.location.lon, device.location.lat]])
+                    latlngs.push([[target.location.lon, target.location.lat],
+                                  [device.location.lon, device.location.lat]])
                 }
             });
             let color;
@@ -1188,35 +1152,32 @@ export default {
                     case 'swarm':
                         color = "#42602d";
                         break;
-                        case 'darwin':
+                    case 'darwin':
                         color = "#f17c67";
                         break;
-                        case 'netbsd':
+                    case 'netbsd':
                         color = "#b54434";
                         break;
-                        case 'freebsd':
+                    case 'freebsd':
                         color = "#cc543a";
                         break;
-                        case 'mcs51':
+                    case 'mcs51':
                         color = "#58b2dc";
                         break;
-                        case 'arm32':
+                    case 'arm32':
                         color = "#0d5661";
                         break;
-                        case 'robot':
+                    case 'robot':
                         color = "#36563c";
                         break;
-                        case 'drone':
+                    case 'drone':
                         color = "#516E41";
                         break;
                 }
             
             if(this.polyline) this.polyline.remove();
-            this.polyline = L.polyline(latlngs,
-                {
-                    color: color,
-                    weight: 2,
-                })
+            this.polyline = L.polyline(latlngs,{ 'color': color,
+                                                 'weight': 2,     })
             this.polyline.addTo(this.map);
             this.map.fitBounds(this.polyline.getBounds());
         }, 
@@ -1225,11 +1186,9 @@ export default {
             e.path[4].childNodes[1].style.display = 'inline';
 
             if(!this.ws){
-                if(this.address.indexOf('https') > -1) {
-                    this.ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
-                } else {
-                    this.ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=logs&task=terminal");
-                }
+                let protocol = '';
+                this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';
+                this.ws = new WebSocket(protocol + this.address.substring(7) + "/events?topics=logs&task=terminal");
             } 
         },
         submitEdit: function (id) {
@@ -1247,12 +1206,12 @@ export default {
                     myUpdate.tags.push(item.value)
                 }
             });
-            $('#mymodal-body').empty();
-            $('#mymessage-body').empty();
+            let alert = $('#mymodal-body'), message = $('#mymessage-body');
+            alert.empty();
+            message.empty();
             
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
-
             axios.put(this.address+"/targets/" +id, myUpdate).then(response=>{
 
                     let i = this.devices.findIndex(el =>el.id == id);
@@ -1260,21 +1219,17 @@ export default {
                     this.devices[i].marker.setLatLng(L.latLng(myUpdate.location.lon, myUpdate.location.lat));
                     this.devices[i].marker.title = myUpdate.id;
                     this.devices[i].marker.alt = myUpdate.tags;
-
-                    this.map.panTo(this.devices[i].marker.getLatLng())
-                    
                     this.$set(this.devices[i], 'id', myUpdate.id);
                     this.$set(this.devices[i], 'tags', myUpdate.tags);
                     this.$set(this.devices[i], 'location', myUpdate.location);
-                    //this.$set(this.devices[i], 'marker', marker)
-                    
+                    this.map.panTo(this.devices[i].marker.getLatLng());
+
                     $('#myMessage').modal();
-                    $('#mymessage-body').append("Update target with " + id + "  " + response.statusText)
-                    //console.log(this.devices.length)
+                    message.append("Update target with " + id + "  " + response.statusText);
                 }
             ).catch(error => {
                 $('#myAlert').modal();
-                $('#mymodal-body').append("Update target with " + id + "  " + error);
+                alert.append("Update target with " + id + "  " + error);
             });
             //console.log(event.path)
         },
@@ -1282,8 +1237,8 @@ export default {
 
             this.crt += event.keyCode + ',';
             //console.log(this.crt)
-            var element = $('#' + id);
-            var terminal = element.val();
+            let element = $('#' + id);
+            let terminal = element.val();
 
             if (this.crt.substring(this.crt.length - 6) == '17,67,') {
                 axios.delete(this.address + "/targets/" + id + "/command").then(response => {
@@ -1300,34 +1255,29 @@ export default {
         submitTerminal: function (id,terminal) {
 
             //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
-
-            var commands = terminal.split("\n");
-            var command = {
+            let commands = terminal.split("\n");
+            let command = {
                 command: commands[commands.length - 1].substring(2)
             }
-            var element = $('#'+id);
+            let element = $('#'+id);
             //if(command.command){
                 axios.put(this.address + "/targets/" + id + "/command", command).catch(error => {         
                    // element.val( terminal + error.response.data.error +'\n$ ');
                    element.val( terminal + '\n$ ');
                 })
             /* }else{
-
                 terminal +='\n$ ';
                 //console.log('no commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1));
                 console.log('no commands '+ terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length))
                 element.val(terminal);
             } */
-            this.ws.onmessage = event => {
-                
+            this.ws.onmessage = event => {    
                 //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
                 var obj = JSON.parse(event.data);
                 obj.payload.forEach(l => { if(l.target == id) terminal += '\n'+l.output; });
                 terminal += '\n$ ';
-                console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
-                element.val( terminal).scrollTop(element.prop('scrollHeight'));
-                
-           
+                //console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
+                element.val(terminal).scrollTop(element.prop('scrollHeight'));
             };
         },
     },
@@ -1341,8 +1291,8 @@ export default {
         this.address = localStorage.getItem('address');
         
         this.map = L.map("map").setView([45.749523, 18.20343],5);
-        this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px'
-        //console.log(this.$refs.map.style.width)
+        this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px';
+        
         //Custermize the markerCluster style
         var i =0;
         this.markers = L.markerClusterGroup({
@@ -1352,9 +1302,9 @@ export default {
                 opacity: 0.1
             },
             iconCreateFunction: function (cluster) {
-                var childCount = cluster.getChildCount();
-                var childs = cluster.getAllChildMarkers();
-                var name='';
+                let childCount = cluster.getChildCount();
+                let childs = cluster.getAllChildMarkers();
+                let name='';
                 
                 if(childs.some(c=> {return c.options.icon.options.iconUrl =='/error.png'})){
                     name ='myCluster-e';
@@ -1362,45 +1312,31 @@ export default {
                     name = 'myCluster';
                 }         
                 return L.divIcon({
-                    html: "<div><span>" + childCount + "</span></div>",
-                    className:name,
-                    iconSize: new L.Point(40, 40)
+                    'html': "<div><span>" + childCount + "</span></div>",
+                    'className':name,
+                    'iconSize': new L.Point(40, 40)
                 });
             }
         });
-        //this.markers.refreshClusters();
         this.getTargets();
         this.getOrders();
-       
-        //console.log(this.devices)
 
-        if(this.address.indexOf('https')>-1){
-            var ws = new WebSocket("wss://" + this.address.substring(7) + "/events?topics=targetAdded");
-        }else{
-            var ws = new WebSocket("ws://" + this.address.substring(7) + "/events?topics=targetAdded");
-        }
-        ws.onopen = function () {
-            console.log("Socket connected.");
-        };
+        let protocol = '';
+        this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';
+        let ws = new WebSocket(protocol + this.address.substring(7) + "/events?topics=logs&task=terminal");
+        ws.onopen = function () { console.log("Socket connected.") };
         ws.onmessage = event => {
-            //console.log(event.data);
-            var obj = JSON.parse(event.data);
+            let obj = JSON.parse(event.data);
             this.handelNewDiscover(obj.payload);
             console.log("new device!")
         };
         ws.onclose = function () {
-                    console.log("Socket disconnected.");
-                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
-                    // If socket disconnected, try to connect again after 5s.
-                    /* setTimeout(function () { listen(1, true);}, 5000); */
+            console.log("Socket disconnected.");
+            $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
         };
 
-        L.tileLayer(
-            "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
-            {
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }
+        L.tileLayer( "https://api.mapbox.com/styles/v1/jingyan/cj51kol9z1fnm2rmy82k24hqm/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamluZ3lhbiIsImEiOiJjajN5dDU5bXUwMDhwMzNwanBxeGZoZDZrIn0.-5_CMLp6GDZYhe-7Ra_w_g",
+            {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}
         ).addTo(this.map);
     
         this.map.addLayer(this.markers); 
@@ -1410,8 +1346,8 @@ export default {
                 a.layer.getAllChildMarkers().forEach(m =>{
                     if (!(this.targetDevices.some(e => e.id == m.options.title))) {
                         this.targetDevices.push({
-                            id: m.options.title,
-                            tags: m.options.alt
+                            'id': m.options.title,
+                            'tags': m.options.alt
                         });
                     }
                 })
@@ -1420,8 +1356,8 @@ export default {
                 d.marker.on('dblclick', event =>{
                     if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                         this.targetDevices.push({
-                            id: event.target.options.title,
-                            tags: event.target.options.alt
+                            'id': event.target.options.title,
+                            'tags': event.target.options.alt
                         });
                     }
                 })
@@ -1431,7 +1367,6 @@ export default {
     updated(){
         $('[data-toggle="popover"]').popover(); 
         this.markers.refreshClusters(); 
-
     }
 };
 </script>
@@ -1511,12 +1446,7 @@ export default {
   padding: 7.5px;
 }
 #mylog-body{
-    text-align: left
-}
-#newDeployment {
-  display: grid;
-  grid-template-columns: 1fr 4.5fr;
-  grid-gap: 2.5px;
+    text-align: left;
 }
 #updateTags {
   display: grid;
@@ -1570,65 +1500,39 @@ export default {
   text-align: left;
   font-size: 14px;
 }
-.card-header {
-  width: 400px;
-}
-
 .myHeading{
   padding: 0;
   width: 100%
 }
 .amd64{
-    color: #fff;
     background-color: #376b6d;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .swarm{
-    color: #fff;
     background-color: #42602d;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .drone{
-    color: #fff;
     background-color: #516E41;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .robot{
-    color: #fff;
     background-color: #36563c;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .arm32{
-    color: #fff;
     background-color: #0d5661;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .mcs51{
-    color: #fff;
     background-color: #58b2dc;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .freebsd{
-    color: #fff;
     background-color: #cc543a;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .netbsd{
-    color: #fff;
     background-color: #b54434;
-    border: 1px solid transparent;
-    margin-right:2.5px;
 }
 .darwin{
-    color: #fff;
     background-color: #f17c67;
+}
+.swarm, .amd64, .darwin, .arm32, .freebsd, .netbsd, .robot,.drone, .mcs51{
+    color: #fff;
     border: 1px solid transparent;
     margin-right:2.5px;
 }
