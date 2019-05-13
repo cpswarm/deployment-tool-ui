@@ -312,15 +312,15 @@
                                     <h6 style="font-size:15px;margin:0">Token Set Name:</h6>
                                 </div>
                                 <div class="mycard-content">
-                                    <input v-model ="tokenName" class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
+                                    <input v-model ="tokenName" class="form-control form-control-sm" type="text" style="height: 26px;">
                                 </div>
                                 <div class="mycard-title">
                                     <h6 style="font-size:15px;margin:0">#Tokens:</h6></div>
                                 <div class="mycard-content">
-                                    <input v-model ="tokenSize" class="form-control form-control-sm" type="text" style="font-size: 14px;height: 26px;padding: 5px;margin-left:10px;">
+                                    <input v-model ="tokenSize" class="form-control form-control-sm" type="text" style="height: 26px;">
                                 </div>
                                 <div></div>
-                                <div style="text-align:right">
+                                <div class="mycard-content">
                                     <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px" @click="postToken">Get</button>
                                 </div>
                             </form>
@@ -1344,20 +1344,26 @@ export default {
                 command: commands[commands.length - 1].substring(2)
             }
             var element = $('#'+id);
-            if(command.command){
+            //if(command.command){
                 axios.put(this.address + "/targets/" + id + "/command", command).catch(error => {         
-                element.val( terminal + error.response.data.error +'\n$ ');
-                }) 
-            }else{
-                //console.log(newStr.charCodeAt(newStr.length-3),newStr.charCodeAt(newStr.length-2),newStr.charCodeAt(newStr.length-1))
-                element.val(terminal +'\n$ ddd');
-            } 
+                   // element.val( terminal + error.response.data.error +'\n$ ');
+                   element.val( terminal + '\n$ ');
+                })
+            /* }else{
+
+                terminal +='\n$ ';
+                //console.log('no commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1));
+                console.log('no commands '+ terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length))
+                element.val(terminal);
+            } */
             this.ws.onmessage = event => {
                 
                 //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
                 var obj = JSON.parse(event.data);
-                obj.payload.forEach(l => { if(l.target == id) terminal += '\n'+l.output; })
-                element.val( terminal +'\n$ ').scrollTop(element.prop('scrollHeight'));
+                obj.payload.forEach(l => { if(l.target == id) terminal += '\n'+l.output; });
+                terminal += '\n$ ';
+                console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
+                element.val( terminal).scrollTop(element.prop('scrollHeight'));
                 
            
             };
@@ -1653,13 +1659,14 @@ export default {
 }
 #newToken{
     display: grid;
-    grid-template-columns: 1.5fr 2fr;
+    grid-template-columns: 1fr 2fr;
     grid-gap: 2.5px;
 }
 .myToken{
     display: grid;
     grid-template-columns: 1fr 2fr;
     grid-gap: 2.5px;
+    border: 1px solid #c4c4c4;
 }
 @media (min-width: 576px){
     #myLog-dialog{
