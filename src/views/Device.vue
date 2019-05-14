@@ -6,7 +6,6 @@
             </div>
             <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
                 <div class="card">
-                 
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/device.png" style="width:18px">
@@ -556,7 +555,7 @@ export default {
                 myUpdate.location.lon = parseFloat(input[input.length-1].value.split(',')[0]);
                 myUpdate.location.lat = parseFloat(input[input.length-1].value.split(',')[1]);
             }
-            Array.from(input).map(item =>{
+            Array.from(input).forEach(item =>{
                 if(item.checked){
                     myUpdate.tags.push(item.value);
                 }
@@ -586,8 +585,8 @@ export default {
 
             $('#searchTarget2').empty();
         
-            Array.from(input).map(item =>{ item.checked = false });
-            Array.from(label).map(item =>{ item.setAttribute('class','btn btn-light') });
+            Array.from(input).forEach(item =>{ item.checked = false });
+            Array.from(label).forEach(item =>{ item.setAttribute('class','btn btn-light') });
 
             this.targetDevices=[];
             this.updateTags =[];
@@ -613,7 +612,7 @@ export default {
                     let task = Array.from(fulltask).slice(0,15);
                     //console.log(task)
 
-                    let tasks = task.map(t =>{
+                    let tasks = task.forEach(t =>{
                         let lastLog = response.data.items.filter(el => el.task == t); 
                         if (lastLog.some(el => el.error == true)) {
                              return t = [t,true]
@@ -971,11 +970,7 @@ export default {
                 this.$refs.timeline_lis.style.transform = 'translateX('+ this.offset +'px)'; 
                 this.$refs.timeline_lis.style.transition = 'all .6s'; 
             }else{
-                    if(this.offset <=0){
-                         this.$refs.next.disabled=true;
-                    }else{
-                         this.$refs.pre.disabled=true;
-                }           
+                this.offset <= 0? this.$refs.next.disabled = true: this.$refs.pre.disabled = true;
             }   
         },
         previous: function () {
@@ -986,11 +981,7 @@ export default {
                 this.$refs.timeline_lis.style.transition = 'all .6s'; 
                 this.$refs.next.disabled=false
             }else{
-                if(this.offset >= 0){
-                     this.$refs.pre.disabled=true;
-                }else{
-                     this.$refs.next.disabled=true;
-                }           
+                this.offset >= 0? this.$refs.pre.disabled = true : this.$refs.next.disabled = true;       
             }  
         },  
         postToken: function () {
@@ -1035,7 +1026,7 @@ export default {
             var tagsNodes = document.getElementById("searchTarget").childNodes;
             //console.log(tagsNodes);
             this.devices = this.fullDevices;
-            this.devices.map( d=>{
+            this.devices.forEach( d=>{
                 for (var i = 0; i < tagsNodes.length; i++) {         
                     if (tagsNodes[i].style.display != "none") {
                         if ((d.tags && d.tags.some(e => e == tagsNodes[i].innerHTML)) || d.id == tagsNodes[i].innerHTML ) {                 
@@ -1084,7 +1075,7 @@ export default {
             event.path[4].childNodes[2].style.display = 'inline';
             event.path[4].childNodes[2].childNodes[0].childNodes[2].childNodes[0].value= device.id;
             if(device.tags){
-                device.tags.map(item => {
+                device.tags.forEach(item => {
                     let tag = event.path[4].childNodes[2].childNodes[0].childNodes[5];
                     Array.from(tag.getElementsByTagName('label')).forEach(el => {
                         if(el.childNodes[0].value == item){
@@ -1131,7 +1122,7 @@ export default {
             this.devices = this.newDiscover;
             this.newDiscover = [];
             this.markers.clearLayers();
-            this.devices.map(item=>{
+            this.devices.forEach(item=>{
                 this.markers.addLayer(item.marker)
             })
         },
@@ -1201,7 +1192,7 @@ export default {
                         lat: parseFloat(input[input.length-1].value.split(',')[1])
                 }
             }
-            Array.from(input).map(item =>{
+            Array.from(input).forEach(item =>{
                 if(item.checked){
                     myUpdate.tags.push(item.value)
                 }
@@ -1290,7 +1281,7 @@ export default {
 
         this.address = localStorage.getItem('address');
         
-        this.map = L.map("map").setView([45.749523, 18.20343],5);
+        this.map = L.forEach("map").setView([45.749523, 18.20343],5);
         this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px';
         
         //Custermize the markerCluster style
@@ -1352,7 +1343,7 @@ export default {
                     }
                 })
             })
-            this.fullDevices.map(d =>{
+            this.fullDevices.forEach(d =>{
                 d.marker.on('dblclick', event =>{
                     if (!this.targetDevices.some(e => e.id === event.target.options.title)) {
                         this.targetDevices.push({
