@@ -23,7 +23,7 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(orderSearchT)"
                                 style="font-size: 14px;height: 26px;padding: 5px;">
                             <div class="input-group-append">
-                                <a class="btn btn-outline-secondary" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchOrder">
+                                <a class="btn btn-outline-secondary" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchDes">
                                     <img src="../assets/search.png" style="height:20px">
                                 </a>
                             </div>
@@ -1748,14 +1748,21 @@ export default {
             this.getOrders();
             $('#searchOrder').empty();
         },
+        searchDes: function () {
+            let badge = this.createBadge(this.orderSearchT);
+            document.getElementById("searchOrder").appendChild(badge);
+            
+            this.searchOrder(); 
+        },
         searchOrder: function () {
+
             let tagsNodes = document.getElementById("searchOrder").childNodes;
-            let value = this.orderSearchT.toLowerCase();
+            let value = this.orderSearchT.toLowerCase(); 
             this.orders.forEach(o => {
-                for (var i = 0; i < tagsNodes.length; i++) {
+                for (var i = 0; i < tagsNodes.length; i++) {               
                     if (tagsNodes[i].style.display != "none") {
                         if (o.id == tagsNodes[i].innerHTML || (value.length > 0 && o.description && o.description.toLowerCase().indexOf(value) > -1)) {
-                            o.cardActive = true;
+                            o.cardActive = true;   
                             break;
                         } else {
                             o.cardActive = false;
@@ -1763,6 +1770,7 @@ export default {
                     }
                 }
             })
+            this.orderSearchT = "";
         },
         searchTarget: function () {
             let tagsNodes = document.getElementById("searchTarget").childNodes;
@@ -1791,7 +1799,7 @@ export default {
             this.searchTarget();
         },
         selectOrder: function (id) {
-            this.orderSearchT = "";
+         
             let badge = this.createBadge(id);
             document.getElementById("searchOrder").appendChild(badge);
             this.searchOrder();
@@ -2118,7 +2126,6 @@ export default {
     height: 26px;
     border: 1px solid #ced4da;
     border-radius: .25rem 0 0 .25rem;
-    width: px;
     width: 110px;
 }
 @media (min-width: 576px){

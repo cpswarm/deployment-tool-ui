@@ -195,7 +195,7 @@
                              <small>
                                (CLICK cluster or DOUBLE CLICK marker to select Target.)
                             </small>
-                            <div style="height:300px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: auto">
+                            <div style="height:380px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: auto">
                                 <div>
                                     <form class="form-inline">
                                         <div class="input-group" style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
@@ -316,10 +316,7 @@
                                     <h6 style="font-size:15px;margin:0">#Tokens:</h6></div>
                                 <div class="mycard-content">
                                     <input v-model ="tokenSize" class="form-control form-control-sm" type="text" style="height: 26px;">
-                                </div>
-                                <div></div>
-                                <div class="mycard-content">
-                                    <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px" @click="postToken">Get</button>
+                                    <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px; margin-left:20px" @click="postToken">Get</button>
                                 </div>
                             </form>
                         </div>
@@ -367,7 +364,7 @@
                 <div class="modal-content" >
                     <div class="modal-header">
                         <h5 class="modal-title">Message</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"  @click="closeModal">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
                             <span aria-hidden="true">&times;</span>
                         </button>
                 </div>
@@ -511,17 +508,17 @@ export default {
             token: [{
                 name: 'pilot1',
                 available: 10,
-                expiresAt: 1546304461000
+                expiresAt: '5/13/2019, 10:36:27'
             },
             {
-                name: 'pilot1',
-                available: 10,
-                expiresAt: 1546304461000
+                name: 'pilot2',
+                available: 2,
+                expiresAt: '10/1/2019, 00:06:27'
             },
             {
-                name: 'pilot1',
-                available: 10,
-                expiresAt: 1546304461000
+                name: 'pilot3',
+                available: 7,
+                expiresAt: '6/22/2019, 05:44:20'
             }],
         };
     },
@@ -702,11 +699,11 @@ export default {
                 let index = this.token.indexOf(this.token.find(el => el.name === name));
                 this.token.splice(index, 1);
                 $('#myMessage').modal();
-                message.append("Delete target with " + name + "  " + response.statusText);
+                message.append("Delete token set with name: " + name + "  " + response.statusText);
 
             }).catch(error => {
                 $('#myAlert').modal();
-                alert.append("Delete target with " + name + "  " + error);
+                alert.append("Delete token set with name:" + name + "  " + error);
             })  
         },
         //Search device
@@ -989,10 +986,10 @@ export default {
             // axios.post(this.address + '/token_sets&total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{            
             //  let a = response.data;
                 let a = {
-                    "name": "pilot1",
-                    "available": 3,
+                    "name": "drone-application-1",
+                    "available": 5,
                     "expiresAt": 1546304461000,
-                    "tokens": [ "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc", "1234-5678-9abc"]
+                    "tokens": [ "1234-5678-9dsc", "1234-5008-9abc", "1as4-5678-sasc", "1234-5sad-9abc","s334-5678-9abc"]
                 }
                 let str = '<h6>This view will be unaccesable after you close this modal!</h6><div class="myToken">' + '<div class="mycard-title">Name:</div><div class="mycard-content">'+ a.name + '</div>';
                 str += '<div class="mycard-title">Size:</div><div class="mycard-content">'+ a.available + '</div>';
@@ -1267,9 +1264,8 @@ export default {
                 //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
                 var obj = JSON.parse(event.data);
                 obj.payload.forEach(l => { if(l.target == id) terminal += '\n'+l.output; });
-                terminal += '\n$ ';
                 //console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
-                element.val(terminal).scrollTop(element.prop('scrollHeight'));
+                element.val(terminal + '\n$ ').scrollTop(element.prop('scrollHeight'));
             };
         },
     },
@@ -1455,7 +1451,7 @@ export default {
 }
 .updateDevice {
   display: grid;
-  grid-template-columns: 0.7fr 4fr 0.5fr;
+  grid-template-columns: 0.9fr 4fr 0.3fr;
   grid-gap: 2.5px;
   border: 1px solid #e4e4e4;
   border-radius: 2px;
