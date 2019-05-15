@@ -367,7 +367,7 @@
                 <div class="modal-content" >
                     <div class="modal-header">
                         <h5 class="modal-title">Message</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"  @click="closeModal">
                             <span aria-hidden="true">&times;</span>
                         </button>
                 </div>
@@ -612,7 +612,7 @@ export default {
                     let task = Array.from(fulltask).slice(0,15);
                     //console.log(task)
 
-                    let tasks = task.forEach(t =>{
+                    let tasks = task.map(t =>{
                         let lastLog = response.data.items.filter(el => el.task == t); 
                         if (lastLog.some(el => el.error == true)) {
                              return t = [t,true]
@@ -1186,6 +1186,7 @@ export default {
 
             let input= event.path[2].getElementsByTagName('input'); 
             let myUpdate = {
+                id: input[0].value,
                 tags:[],
                 location: {
                         lon: parseFloat(input[input.length-1].value.split(',')[0]),
@@ -1281,7 +1282,7 @@ export default {
 
         this.address = localStorage.getItem('address');
         
-        this.map = L.forEach("map").setView([45.749523, 18.20343],5);
+        this.map = L.map("map").setView([45.749523, 18.20343],5);
         this.$refs.myTimeline.style.width = this.map.getSize().x - 20 +'px';
         
         //Custermize the markerCluster style
@@ -1314,7 +1315,7 @@ export default {
 
         let protocol = '';
         this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';
-        let ws = new WebSocket(protocol + this.address.substring(7) + "/events?topics=logs&task=terminal");
+        let ws = new WebSocket(protocol + this.address.substring(7) + "/events?topics=targetAdded");
         ws.onopen = function () { console.log("Socket connected.") };
         ws.onmessage = event => {
             let obj = JSON.parse(event.data);
