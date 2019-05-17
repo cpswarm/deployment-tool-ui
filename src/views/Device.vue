@@ -505,21 +505,7 @@ export default {
             ws:'',
             tokenName: '',
             tokenSize:'',
-            token: [{
-                name: 'pilot1',
-                available: 10,
-                expiresAt: '5/13/2019, 10:36:27'
-            },
-            {
-                name: 'pilot2',
-                available: 2,
-                expiresAt: '10/1/2019, 00:06:27'
-            },
-            {
-                name: 'pilot3',
-                available: 7,
-                expiresAt: '6/22/2019, 05:44:20'
-            }],
+            token: [],
         };
     },
     components: {
@@ -594,9 +580,10 @@ export default {
             this.fullDevices = [];
             this.failed = [];
             this.success = [];
+            this.token=[];
             this.markers.clearLayers();
             this.getTargets();
-            //this.getTokens();
+            this.getTokens();
         },
         checkLogs: function (target) {
 
@@ -875,8 +862,8 @@ export default {
         },
         getTokens: function(){      
             axios.get(this.address + "/token_sets").then(response =>{
-                for(let i =0; i<response.data.length; i++){
-                    let a = response.data[i];
+                for(let i =0; i<response.data.items.length; i++){
+                    let a = response.data.items[i];
                     this.token.push({
                         'name': a.name,
                         'available': a.available,
@@ -983,14 +970,9 @@ export default {
         },  
         postToken: function () {
 
-            // axios.post(this.address + '/token_sets&total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{            
-            //  let a = response.data;
-                let a = {
-                    "name": "drone-application-1",
-                    "available": 5,
-                    "expiresAt": 1546304461000,
-                    "tokens": [ "1234-5678-9dsc", "1234-5008-9abc", "1as4-5678-sasc", "1234-5sad-9abc","s334-5678-9abc"]
-                }
+            axios.post(this.address + '/token_sets?total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{            
+                let a = response.data;
+                
                 let str = '<h6>This view will be unaccesable after you close this modal!</h6><div class="myToken">' + '<div class="mycard-title">Name:</div><div class="mycard-content">'+ a.name + '</div>';
                 str += '<div class="mycard-title">Size:</div><div class="mycard-content">'+ a.available + '</div>';
                 str += '<div class="mycard-title">Expires Time:</div><div class="mycard-content">'+ new Date(a.expiresAt).toLocaleString() + '</div>';
@@ -1001,7 +983,7 @@ export default {
                 str += '</div></div>';
                 $('#mymessage-body').empty().append(str);
                 $('#myMessage').modal();
-            //})
+            })
         }, 
         removeDevice: function (name) {
             for (var i = 0; i < this.targetDevices.length; i++) {
@@ -1308,6 +1290,7 @@ export default {
         });
         this.getTargets();
         this.getOrders();
+        this.getTokens();
 
         let protocol = '';
         this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';
