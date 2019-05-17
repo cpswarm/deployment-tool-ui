@@ -1272,7 +1272,8 @@ export default {
                 if (logs.length == 0) {
                     return [finishAt, [total, 0]];
                 } else {
-                    return logs[0].stage == "build" ?  [finishAt, [0, 0]] : [finishAt, [total - logs.length, logs.length]];
+                
+                    return logs[0].stage == "build" ?  [finishAt, [0, 1]] : [finishAt, [total - logs.length, logs.length]];
                 }
             }).catch(error => {
                 console.log(error);

@@ -132,10 +132,10 @@
                                                            <input type="checkbox" autocomplete="off"  value="drone"> drone
                                                         </label>
                                                         <label class="btn btn-light">
-                                                            <input type="checkbox"  autocomplete="off" value="swarm"> swarm
+                                                            <input type="checkbox"  autocomplete="off" value="raspi0"> raspi0
                                                         </label>
                                                         <label class="btn btn-light">
-                                                            <input type="checkbox"  autocomplete="off" value="robot"> robot
+                                                            <input type="checkbox"  autocomplete="off" value="actuator"> actuator
                                                         </label>
                                                     </div>
                                                 </div>
@@ -160,7 +160,7 @@
                                                             <input type="checkbox" autocomplete="off" value="freebsd"> freebsd
                                                         </label>
                                                         <label class="btn btn-light">
-                                                            <input type="checkbox"  autocomplete="off" value="netbsd"> netbsd
+                                                            <input type="checkbox"  autocomplete="off" value="linux"> linux
                                                         </label>
                                                         <label class="btn btn-light">
                                                             <input type="checkbox" autocomplete="off" value="darwin"> darwin
@@ -248,10 +248,10 @@
                                                 <input type="checkbox" autocomplete="off" value="drone" > drone
                                             </label>
                                             <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="swarm" > swarm
+                                                <input type="checkbox" autocomplete="off" value="raspi0" > raspi0
                                             </label>
                                             <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="robot"> robot
+                                                <input type="checkbox" autocomplete="off" value="actuator"> actuator
                                             </label>
                                         </div>
                                     </div>
@@ -276,7 +276,7 @@
                                                 <input value="freebsd" type="checkbox"> freebsd
                                             </label>
                                             <label class="btn btn-light">
-                                                <input type="checkbox"  value="netbsd" > netbsd
+                                                <input type="checkbox"  value="linux" > linux
                                             </label>
                                             <label class="btn btn-light">
                                                 <input type="checkbox" value="darwin"> darwin
@@ -1138,13 +1138,13 @@ export default {
                     case 'amd64':
                         color = "#376b6d";
                         break;
-                    case 'swarm':
+                    case 'raspi0':
                         color = "#42602d";
                         break;
                     case 'darwin':
                         color = "#f17c67";
                         break;
-                    case 'netbsd':
+                    case 'linux':
                         color = "#b54434";
                         break;
                     case 'freebsd':
@@ -1156,7 +1156,7 @@ export default {
                     case 'arm32':
                         color = "#0d5661";
                         break;
-                    case 'robot':
+                    case 'actuator':
                         color = "#36563c";
                         break;
                     case 'drone':
@@ -1497,13 +1497,13 @@ export default {
 .amd64{
     background-color: #376b6d;
 }
-.swarm{
+.raspi0{
     background-color: #42602d;
 }
 .drone{
     background-color: #516E41;
 }
-.robot{
+.actuator{
     background-color: #36563c;
 }
 .arm32{
@@ -1515,18 +1515,18 @@ export default {
 .freebsd{
     background-color: #cc543a;
 }
-.netbsd{
+.linux{
     background-color: #b54434;
 }
 .darwin{
     background-color: #f17c67;
 }
-.swarm, .amd64, .darwin, .arm32, .freebsd, .netbsd, .robot,.drone, .mcs51{
+.raspi0, .amd64, .darwin, .arm32, .freebsd, .linux, .actuator,.drone, .mcs51{
     color: #fff;
     border: 1px solid transparent;
     margin-right:2.5px;
 }
-.swarm:hover, .amd64:hover, .darwin:hover, .arm32:hover, .freebsd:hover, .netbsd:hover, .robot:hover,.drone:hover, .mcs51:hover{
+.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .freebsd:hover, .linux:hover, .actuator:hover,.drone:hover, .mcs51:hover{
     cursor: pointer;
 }
 .myTerminal{
