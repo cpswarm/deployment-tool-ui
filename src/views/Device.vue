@@ -64,12 +64,12 @@
                                         <div class="mycard-title">Latest Logs:</div>
                                         <div v-if="device.logs.tasks[0][1]==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/error.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
+                                                <img src="../assets/error.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0]),device.id">
                                             </button>
                                         </div>
                                         <div v-else-if="device.logs.tasks[0][1]==false" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/done.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0])">
+                                                <img src="../assets/done.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0]),device.id">
                                             </button>
                                         </div>
                                         <div v-else></div>
@@ -384,39 +384,22 @@
                     <div id="mylog-body" class="modal-body">
                         <div class="accordion" id="accordionLog">
                             <div class="card" style="background-color:#f1f1f1">
-                                <div class="myHeading">
-                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapsebuild"
-                                        aria-expanded="true" aria-controls="collapsebuild" style="padding: 0 10px">
-                                        <span>&#9656;</span>
-                                    </button>
-                                    Build
-                                </div>
-                                <div id="collapsebuild" class="collapse show" aria-labelledby="headingBuild" style="padding: 0 0 0 35px;">
-                                </div>
+                                <button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#collapsebuild" aria-expanded="true" aria-controls="collapsebuild">
+                                      Build
+                                </button>
+                                <div id="collapsebuild" class="collapse show  myCommandCard" aria-labelledby="headingBuild"> </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
-                                <div class="myHeading">
-                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                        data-target="#collapseinstall" aria-expanded="false" aria-controls="collapseinstall"
-                                        style="padding: 0 10px">
-                                        <span>&#9656;</span>
-                                    </button>
-                                    Install
-                                </div>
-                                <div id="collapseinstall" class="collapse show" aria-labelledby="headinginstall" style="padding: 0 0 0 35px;">
-                                </div>
+                                <button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#collapseinstall" aria-expanded="true" aria-controls="collapseinstall">
+                                      Install
+                                </button>
+                                <div id="collapseinstall" class="collapse show  myCommandCard" aria-labelledby="headinginstall">  </div>
                             </div>
                             <div class="card" style="background-color:#f1f1f1">
-                                <div class="myHeading">
-                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                        data-target="#collapserun" aria-expanded="false" aria-controls="collapserun"
-                                        style="padding: 0 10px">
-                                        <span>&#9656;</span>
-                                    </button>
-                                    Run
-                                </div>
-                                <div id="collapserun" class="collapse show" aria-labelledby="headingrun" style="padding: 0 0 0 35px;">   
-                                </div>
+                                <button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#collapserun" aria-expanded="true" aria-controls="collapserun">
+                                     Run
+                                </button>
+                                <div id="collapserun" class="collapse show  myCommandCard" aria-labelledby="headingrun"> </div>
                             </div>
                         </div>
                     </div>
@@ -1065,28 +1048,64 @@ export default {
                 })
             }
             event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0].value= [device.location.lon,device.location.lat];
-        }, 
-        showLog: function (log,id) {
+        },
+        appendLogs: function(log,id){
+
+            let build = $("#collapsebuild"), install = $("#collapseinstall"), run = $("#collapserun");
+            build.empty().collapse('show');
+            install.empty().collapse('show');
+            run.empty().collapse('show');
+            
+            let logs =  log.filter(el => el.task == id);
+            for(let i =1; i < logs.length;i++){
+                let c ='';
+                logs[i].error == true?  c = 'f':c= 's';
+                let l = '<div><div class="myfont_'+c+'">' + new Date(logs[i].time).toLocaleString() + "  " + logs[i].stage + "  " + logs[i].command + '  ' + logs[i].output + '</div>';
+                switch(logs[i].stage){
+                    case 'build':
+                        if(logs[i].output == 'STAGE-END')   build.prev().children().remove();
+                        build.append(l);
+                        break;
+                    case 'install':
+                        if(logs[i].output == 'STAGE-END')   install.prev().children().remove();
+                        install.append(l);
+                        break;
+                    case 'run':
+                        if(logs[i].output == 'STAGE-END')   run.prev().children().remove();
+                        run.append(l);
+                        break;
+                }
+            }
+            if(build.children().length==0){
+                build.prev().children().remove();
+            }
+            if(install.children().length==0){
+                install.prev().children().remove();
+            }
+            if(run.children().length==0){
+                run.prev().children().remove();
+            }
+        },
+        showLog: function (log,id,name) {
 
             $("#logTitle").empty().append('Logs of Task: '+id);
-            $("#collapsebuild").empty().collapse('show');
-            $("#collapseinstall").empty().collapse('show');
-            $("#collapserun").empty().collapse('show');
+            $('#accordionLog button span').remove();
+            $('#accordionLog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>');
+            this.appendLogs(log,id);
 
-            let logs =  log.filter(el => el.task == id);
+            let protocol = '';
+            this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';
+            let ws =  new WebSocket(protocol + this.address.substring(7) + "/events?topics=logs&task=" + id + "target=" + name );
 
-            for(let i =1; i<logs.length;i++){
-                let command = logs[i].command == logs[i-1].command? '': logs[i].command;
-                let c_1 ='', c_2='';
-                if (logs[i].error == true) {
-                    c_1 = 'f';
-                    c_2 = 'f';
-                } else {
-                    c_1 = 's';
-                    c_2 = 't';
-                }
-                $("#collapse" + logs[i].stage).append('<div class="mycollapse"><div class="myfont_'+c_1+'">' + new Date(logs[i].time).toLocaleString() + '</div><div class="myfont_'+c_1+'">' + logs[i].output + '</div><div class="myfont_'+c_2+'">' + command + '</div> </div> ');
-            }
+            ws.onopen = function () { console.log("Socket connected.") };
+            ws.onmessage = event => {
+                let obj = JSON.parse(event.data);
+                this.appendLog(obj.payload,id);                
+            };
+            ws.onclose = function () {
+                console.log("Socket disconnected.");
+                $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
+            };        
             $("#myLog").modal();
         },       
         showNewDevices: function () {

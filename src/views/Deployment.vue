@@ -1518,7 +1518,7 @@ export default {
             } else {
                 let address;
                 this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
-                this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
+                this.ws = new WebSocket(address + this.address.substring(7) + "/events?task=" + id + "&topics=logs");
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
                 };
