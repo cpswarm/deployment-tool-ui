@@ -1208,6 +1208,12 @@ export default {
                     this.host.stage = 150;
                     this.host.error = 150;
                     this.host.class = 'node-f';
+                    if(this.targets){
+                        this.targets.forEach(t =>{
+                            $('#' + t.name).prev().children().remove();
+                        })
+                    }
+
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
                     this.host.error = 150;
                     this.host.stage = 150;
@@ -1608,7 +1614,7 @@ export default {
 
             if (host) {
                 this.host = { name: host, error: 150, stage: 50, class: 'node-i' }
-                mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
+                mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'0build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
                 +'<div id="' + host +'0build' + '" class="collapse myCommandCard"></div></div>')
             } else {
                 this.host = "";
