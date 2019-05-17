@@ -1197,9 +1197,13 @@ export default {
             //If there is a build process
             if (this.host) {
                 // Get all logs for host
+               
                 let one = logs.filter(log => log.stage == "build");
                 this.host.commands = one;
-                this.host.name += 'build';
+                if(this.host.name.indexOf('0build') == -1){
+                    this.host.name += '0build';
+                }
+                //console.log(this.host.name, this.host.name.indexOf('0build'))
                 if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
                     this.host.error = 150;
@@ -1385,6 +1389,7 @@ export default {
                 $("#collapseOne").collapse("show");
                 this.clearForm();
                 this.listen3(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
+                this.source = '';
             }).catch(error => {
                 let message;
                 if(error.response){
@@ -1392,10 +1397,10 @@ export default {
                 }else{
                     message = error;
                 }
-                $("#mymodal-body").append(message);
+                $("#mymodal-body").empty().append(message);
                 $("#myAlert").modal();
             });
-            this.source = '';
+            
         },
         listen: function (id, deploy, target, host) {
 
@@ -1604,7 +1609,7 @@ export default {
             if (host) {
                 this.host = { name: host, error: 150, stage: 50, class: 'node-i' }
                 mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
-                +'<div id="' + host +'build' + '" class="collapse myCommandCard"></div></div>')
+                +'<div id="' + host +'0build' + '" class="collapse myCommandCard"></div></div>')
             } else {
                 this.host = "";
                 mylog.append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
@@ -1687,7 +1692,6 @@ export default {
                 }else if(!target && host){
                     targetNodes = this.hosts;
                 }
-                console.log(targetNodes)
                 node = node.data(targetNodes);
                     node.exit().remove();
                     node = node.enter().append('circle')
