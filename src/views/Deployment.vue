@@ -1115,10 +1115,13 @@ export default {
                 for (let i = 0; i < this.targets.length; i++) {
                     let oneLog = logs.filter(log => log.target == this.targets[i].name && log.stage != 'build');
                     let c_d = "", fullLog = "", checksum =0, nodecksm =0;
+                    let element = $('#' + this.targets[i].name);
+                    
                     if (oneLog.length > 0) {
                         oneLog.forEach(log => {
                             let s = "";
                             log.error ? s = "f" : s = "s";
+                            let line = 
                             fullLog += log.stage + log.command + log.output;
                             c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
                         });
@@ -1189,7 +1192,7 @@ export default {
                             this.targets[i].error = 150;     
                         }
                     }
-                    let element = $('#' + this.targets[i].name);
+                    
                     element.append(c_d).scrollTop(element.prop('scrollHeight'));
                 }
                 nodes = this.targets;

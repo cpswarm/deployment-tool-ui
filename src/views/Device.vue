@@ -149,7 +149,7 @@
                                                             <input type="checkbox" autocomplete="off" value="arm32"> arm32
                                                         </label>
                                                         <label class="btn btn-light">
-                                                            <input type="checkbox"  autocomplete="off" value="mcs51"> mcs51
+                                                            <input type="checkbox"  autocomplete="off" value="raspi2"> raspi2
                                                         </label>
                                                     </div>
                                                 </div>
@@ -157,7 +157,7 @@
                                                      <p style="margin:2.5px 0">OS:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
                                                         <label class="btn btn-light">
-                                                            <input type="checkbox" autocomplete="off" value="freebsd"> freebsd
+                                                            <input type="checkbox" autocomplete="off" value="builder"> builder
                                                         </label>
                                                         <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="linux"> linux
@@ -265,7 +265,7 @@
                                                 <input type="checkbox" autocomplete="off" value="arm32" > arm32
                                             </label>
                                             <label class="btn btn-light" >
-                                                <input type="checkbox" autocomplete="off" value="mcs51" > mcs51
+                                                <input type="checkbox" autocomplete="off" value="raspi2" > raspi2
                                             </label>
                                         </div>
                                     </div>
@@ -273,7 +273,7 @@
                                         <h6 class="mycard-content" style="margin-top:2.5px">OS:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
                                             <label class="btn btn-light">
-                                                <input value="freebsd" type="checkbox"> freebsd
+                                                <input value="builder" type="checkbox"> builder
                                             </label>
                                             <label class="btn btn-light">
                                                 <input type="checkbox"  value="linux" > linux
@@ -1094,7 +1094,7 @@ export default {
                             break;
                         case 'run':
                             if(logs[i].output == 'STAGE-END')   run.prev().children().remove();
-                            run.append(n);
+                            run.append();
                             break;
                     }
                 }
@@ -1171,10 +1171,10 @@ export default {
                     case 'linux':
                         color = "#b54434";
                         break;
-                    case 'freebsd':
+                    case 'builder':
                         color = "#cc543a";
                         break;
-                    case 'mcs51':
+                    case 'raspi2':
                         color = "#58b2dc";
                         break;
                     case 'arm32':
@@ -1533,10 +1533,10 @@ export default {
 .arm32{
     background-color: #0d5661;
 }
-.mcs51{
+.raspi2{
     background-color: #58b2dc;
 }
-.freebsd{
+.builder{
     background-color: #cc543a;
 }
 .linux{
@@ -1545,12 +1545,12 @@ export default {
 .darwin{
     background-color: #f17c67;
 }
-.raspi0, .amd64, .darwin, .arm32, .freebsd, .linux, .actuator,.drone, .mcs51{
+.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.drone, .raspi2{
     color: #fff;
     border: 1px solid transparent;
     margin-right:2.5px;
 }
-.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .freebsd:hover, .linux:hover, .actuator:hover,.drone:hover, .mcs51:hover{
+.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.drone:hover, .raspi2:hover{
     cursor: pointer;
 }
 .myTerminal{
