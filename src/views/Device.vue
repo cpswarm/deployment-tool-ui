@@ -456,6 +456,7 @@ import "leaflet.smooth_marker_bouncing";
 import $ from "jquery";
 import "@/timeline.js";
 import "@/timeline.css";
+import CRC32 from 'crc-32'
 
 
 function rand(n) {
@@ -1055,26 +1056,49 @@ export default {
             build.empty().collapse('show');
             install.empty().collapse('show');
             run.empty().collapse('show');
+
+            let checksum = 0, count =0;
             
             let logs =  log.filter(el => el.task == id);
             for(let i =1; i < logs.length;i++){
                 let c ='';
                 logs[i].error == true?  c = 'f':c= 's';
-                let l = '<div><div class="myfont_'+c+'">' + new Date(logs[i].time).toLocaleString() + "  " + logs[i].stage + "  " + logs[i].command + '  ' + logs[i].output + '</div>';
-                switch(logs[i].stage){
+
+                let line = logs[i].stage + '  ' + logs[i].command + '  ' + logs[i].output;
+                let l = new Date(logs[i].time).toLocaleString()+'  '+line;
+                let csm = CRC32.str(line);
+                if(checksum == csm){
+                    count++;
+                    switch(logs[i].stage){
                     case 'build':
-                        if(logs[i].output == 'STAGE-END')   build.prev().children().remove();
-                        build.append(l);
-                        break;
+                            build.children().last().html('<span class="badge badge-primary">'+count+'</span>'+l);
+                            break;
                     case 'install':
-                        if(logs[i].output == 'STAGE-END')   install.prev().children().remove();
-                        install.append(l);
-                        break;
+                            install.children().last().html('<span class="badge badge-primary">'+count+'</span>'+l);
+                            break;
                     case 'run':
-                        if(logs[i].output == 'STAGE-END')   run.prev().children().remove();
-                        run.append(l);
-                        break;
+                            run.children().last().html('<span class="badge badge-primary">'+count+'</span>'+l);
+                            break;
+                    }
+                }else{
+                    count = 0 ;
+                    let n = '<div class="myfont_'+c+'">' + l + '</div>';  
+                    switch(logs[i].stage){
+                        case 'build':
+                            if(logs[i].output == 'STAGE-END')   build.prev().children().remove();
+                            build.append(n);
+                            break;
+                        case 'install':
+                            if(logs[i].output == 'STAGE-END')   install.prev().children().remove();
+                            install.append(n);
+                            break;
+                        case 'run':
+                            if(logs[i].output == 'STAGE-END')   run.prev().children().remove();
+                            run.append(n);
+                            break;
+                    }
                 }
+                checksum = csm; 
             }
             if(build.children().length==0){
                 build.prev().children().remove();

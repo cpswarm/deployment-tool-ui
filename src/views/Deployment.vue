@@ -1124,7 +1124,7 @@ export default {
                         });
 
                         checksum = CRC32.str(fullLog);
-                        nodecksm = crypto.createHash('md5').update(fullLog).digest("hex");
+                        //nodecksm = crypto.createHash('md5').update(fullLog).digest("hex");
                         //console.log(this.targets[i].name, checksum, nodecksm)
 
                         let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
