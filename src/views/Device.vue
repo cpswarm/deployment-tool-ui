@@ -1279,9 +1279,12 @@ export default {
             });
             if(command.command){
                 axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
-                    element.val( terminal +'\n').scrollTop(element.prop('scrollHeight')); // wait for events
+                    terminal += '\n'
+                    element.val(terminal).scrollTop(element.prop('scrollHeight')); // wait for events
+                    console.log("reponse", response);
                 }).catch(error => {
-                    element.val( terminal +'\n'+ error.response.data.error +'\n$ ').scrollTop(element.prop('scrollHeight'));
+                    terminal += '\n'+ error.response.data.error +'\n$ '
+                    element.val(termina).scrollTop(element.prop('scrollHeight'));
                 })
             } else {
                 element.val( terminal +'\n$ ');
@@ -1292,9 +1295,9 @@ export default {
                 obj.payload.forEach(l => { 
                     if(l.target == id){
                         if(l.output == "EXEC-END")
-                            terminal += '\n$ ';
+                            terminal += '$ ';
                         else if(l.output != "EXEC-START")
-                            terminal += '\n'+l.output;
+                            terminal += l.output + '\n';
                     } 
                  });
                 //console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
