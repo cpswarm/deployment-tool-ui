@@ -1071,13 +1071,13 @@ export default {
                     count++;
                     switch(logs[i].stage){
                     case 'build':
-                            build.children().last().html('<span class="badge badge-primary">'+count+'</span>'+l);
+                            build.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
                             break;
                     case 'install':
-                            install.children().last().html('<span class="badge badge-primary">'+count+'</span>'+l);
+                            install.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
                             break;
                     case 'run':
-                            run.children().last().html('<span class="badge badge-primary">'+count+'</span>'+l);
+                            run.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
                             break;
                     }
                 }else{
@@ -1094,7 +1094,7 @@ export default {
                             break;
                         case 'run':
                             if(logs[i].output == 'STAGE-END')   run.prev().children().remove();
-                            run.append();
+                            run.append(n);
                             break;
                     }
                 }

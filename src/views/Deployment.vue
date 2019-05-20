@@ -2069,7 +2069,7 @@ export default {
   grid-gap: 2.5px;
 }
 .myCommandCard{
-    max-height: 320px;
+    max-height: 400px;
     background: #fcfcfc;
     padding: 5px;
     overflow: auto;
