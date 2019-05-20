@@ -1274,23 +1274,31 @@ export default {
                 command: commands[commands.length - 1].substring(2)
             }
             let element = $('#'+id);
-            //if(command.command){
-                axios.put(this.address + "/targets/" + id + "/command", command).catch(error => {         
-                   // element.val( terminal + error.response.data.error +'\n$ ');
-                   element.val( terminal + '\n$ ');
+            element.keypress(function (e) { // suppress enter keypress
+                if (e.keyCode == 13) e.preventDefault();
+            });
+            if(command.command){
+                axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
+                    element.val( terminal +'\n').scrollTop(element.prop('scrollHeight')); // wait for events
+                }).catch(error => {
+                    element.val( terminal +'\n'+ error.response.data.error +'\n$ ').scrollTop(element.prop('scrollHeight'));
                 })
-            /* }else{
-                terminal +='\n$ ';
-                //console.log('no commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1));
-                console.log('no commands '+ terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length))
-                element.val(terminal);
-            } */
+            } else {
+                element.val( terminal +'\n$ ');
+            }
             this.ws.onmessage = event => {    
                 //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
                 var obj = JSON.parse(event.data);
-                obj.payload.forEach(l => { if(l.target == id) terminal += '\n'+l.output; });
+                obj.payload.forEach(l => { 
+                    if(l.target == id){
+                        if(l.output == "EXEC-END")
+                            terminal += '\n$ ';
+                        else if(l.output != "EXEC-START")
+                            terminal += '\n'+l.output;
+                    } 
+                 });
                 //console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
-                element.val(terminal + '\n$ ').scrollTop(element.prop('scrollHeight'));
+                element.val(terminal).scrollTop(element.prop('scrollHeight'));
             };
         },
     },
