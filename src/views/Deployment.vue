@@ -402,7 +402,7 @@
         <div style="height:70px; overflow:hidden">
             <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
                 <div id="timeline_lis" ref="timeline_lis" style="position: relative;top:-54px;width:max-content;float:right">
-                    <li v-for="order in orders.slice().reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
+                    <li v-for="order in orderOrders.reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
                         <img v-if="order.status[1]==0&&order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
@@ -497,7 +497,7 @@ export default {
     computed: {
         orderOrders: function () {
             return this.orders.sort(function (a, b) {
-                return b.finishedAt - a.finishedAt
+                return b.createdAt - a.createdAt
             })
         }
     },
@@ -642,8 +642,8 @@ export default {
                 $('#myMessage').modal();
                 message.append("Delete order with " + order.id + "  " + response.statusText);
             }).catch(error => {
-                $('#mymodal-body').append("Delete order with " + order.id + "  " + error);
-                alert.modal();
+                alert.append("Delete order with " + order.id + "  " + error);
+                $('#myAlert').modal();
             })
         },
         drawTreeback: function (length) {
