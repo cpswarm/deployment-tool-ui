@@ -64,12 +64,12 @@
                                         <div class="mycard-title">Latest Logs:</div>
                                         <div v-if="device.logs.tasks[0][1]==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/error.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0]),device.id">
+                                                <img src="../assets/error.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0],device.id)">
                                             </button>
                                         </div>
                                         <div v-else-if="device.logs.tasks[0][1]==false" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/done.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0]),device.id">
+                                                <img src="../assets/done.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log, device.logs.tasks[0][0],device.id)">
                                             </button>
                                         </div>
                                         <div v-else></div>
@@ -77,7 +77,7 @@
                                         <div>
                                             <div v-if="device.logs.tasks[0][1]!='none'">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
-                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task[0])">    
+                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task[0],device.id)">    
                                                     {{task[0].substring(0,2)}}  
                                                     <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >  
                                                     <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >                
@@ -416,7 +416,7 @@
                <div style="height:70px; overflow:hidden">
                 <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
                 <div ref="timeline_lis" style="position: relative;top:-54px;width:max-content;float:right">
-                    <li v-for="order in orderOrders" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
+                    <li v-for="order in orderOrders.slice().reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
                         <img v-if="order.status[1]==0 && order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
@@ -497,9 +497,9 @@ export default {
     },
     computed: {
         orderOrders: function () {
-            //console.log(this.orders)
+            
             return this.orders.sort(function (a, b) {
-                return a.finishedAt - b.finishedAt
+                return b.createdAt - a.createdAt
             })
         },
         orderTargets: function(){
@@ -744,7 +744,7 @@ export default {
         },
         getOrders: function () {
     
-            axios.get(this.address+"/orders").then(response => {
+            axios.get(this.address+"/orders?sortOrder=desc").then(response => {
                 for (let i = 0; i < response.data.total; i++) {
 
                     let a = response.data.items[i];

@@ -402,7 +402,7 @@
         <div style="height:70px; overflow:hidden">
             <hr style="border: 1.5px solid #2c3e50;margin-top: 35px;">
                 <div id="timeline_lis" ref="timeline_lis" style="position: relative;top:-54px;width:max-content;float:right">
-                    <li v-for="order in orderOrders.reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
+                    <li v-for="order in orderOrders.slice().reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
                         <img v-if="order.status[1]==0&&order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
@@ -468,7 +468,7 @@ export default {
             ws: "",
             orderSearchT: "",
             deployDes: "",
-            deployDebug: "",
+            deployDebug: true,
             source: "",
             build_c: "",
             build_a: "",
@@ -517,7 +517,7 @@ export default {
             this.$refs.build.childNodes[0].style.display = 'none';
             this.$refs.build.childNodes[1].style.display = 'inline';
 
-            this.deployDebug = false
+            this.deployDebug = false;
             this.build_c = "";
             this.build_a = "";
             this.host = "";
@@ -1128,7 +1128,7 @@ export default {
 
                         checksum = CRC32.str(fullLog);
                         //nodecksm = crypto.createHash('md5').update(fullLog).digest("hex");
-                        //console.log(this.targets[i].name, checksum, nodecksm)
+                        console.log(this.targets[i].name, checksum)
 
                         let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
                         let run = oneLog.filter(l => { return l.stage == 'run' });
@@ -1203,10 +1203,10 @@ export default {
                
                 let one = logs.filter(log => log.stage == "build");
                 this.host.commands = one;
-                if(this.host.name.indexOf('0build') == -1){
-                    this.host.name += '0build';
-                }
-                //console.log(this.host.name, this.host.name.indexOf('0build'))
+                
+                if(this.host.name.indexOf('0build') == -1) this.host.name += '0build';
+                let element = $('#' + this.host.name);
+   
                 if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
                     this.host.error = 150;
@@ -1216,11 +1216,12 @@ export default {
                             $('#' + t.name).prev().children().remove();
                         })
                     }
-
+                    element.prev().children().remove();
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
                     this.host.error = 150;
                     this.host.stage = 150;
                     this.host.class = 'node-s';
+                    element.prev().children().remove();
                 }
                 let c_b = "";
                 one.forEach(log => {
@@ -1228,8 +1229,8 @@ export default {
                     log.error ? s = "f" : s = "s";
                     c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
                 });
-                let element = $('#' + this.host.name);
-                element.append(c_b).prev().children().remove();
+                
+                element.append(c_b);
                 element.scrollTop(element.prop('scrollHeight'));
                 nodes = this.targets.concat(this.host)
             }
@@ -1385,6 +1386,7 @@ export default {
             for (let i = 0, f; (f = files[i]); i++) {
                 // if set webkitdirectory
                 archive.file(f.webkitRelativePath, f);
+                console.log(f.webkitRelativePath);
                 // if only set multiple
                 //archive.file(f.name, f);
             }
