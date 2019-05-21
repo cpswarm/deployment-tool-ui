@@ -513,14 +513,6 @@ export default {
             let input = document.getElementById('updateTags').getElementsByTagName('input');         
             let myUpdate = {
                 tags:[],
-                location: {
-                        lon: null,
-                        lat: null   
-                }
-            }
-            if(this.location){
-                myUpdate.location.lon = parseFloat(input[input.length-1].value.split(',')[0]);
-                myUpdate.location.lat = parseFloat(input[input.length-1].value.split(',')[1]);
             }
             Array.from(input).forEach(item =>{
                 if(item.checked){
@@ -535,6 +527,15 @@ export default {
             $("#collapseOne").collapse("show");
 
             this.targetDevices.forEach(el=>{
+                let p = this.fullDevices.find(d=>{ return d.id == el.id });
+                if(p.publicKey) myUpdate.publicKey = p.publicKey;
+
+                myUpdate.location = p.location;
+                if(this.location){
+                    myUpdate.location.lon = parseFloat(input[input.length-1].value.split(',')[0]);
+                    myUpdate.location.lat = parseFloat(input[input.length-1].value.split(',')[1]);
+                }
+                //console.log(myUpdate);
                 axios.put(this.address + "/targets/" + el.id, myUpdate).then(response=>{
                     //console.log(response)
                     $('#myMessage').modal();
@@ -542,7 +543,7 @@ export default {
                 }).catch(error => {
                     $('#myAlert').modal();
                     alert.append("Update target with " + el.id + "  " + error);
-                });
+                }); 
             });          
         },
         clearForm: function () {
@@ -1206,6 +1207,7 @@ export default {
         },
         submitEdit: function (id) {
 
+            let d = this.devices.find(i=> {return i.id == id});
             let input= event.path[2].getElementsByTagName('input'); 
             let myUpdate = {
                 id: input[0].value,
@@ -1213,8 +1215,9 @@ export default {
                 location: {
                         lon: parseFloat(input[input.length-1].value.split(',')[0]),
                         lat: parseFloat(input[input.length-1].value.split(',')[1])
-                }
+                },
             }
+            if(d.publicKey) myUpdate.publicKey = d.publicKey; 
             Array.from(input).forEach(item =>{
                 if(item.checked){
                     myUpdate.tags.push(item.value)
@@ -1226,6 +1229,7 @@ export default {
             
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
+            //console.log(myUpdate)
             axios.put(this.address+"/targets/" +id, myUpdate).then(response=>{
 
                     let i = this.devices.findIndex(el =>el.id == id);
@@ -1244,7 +1248,7 @@ export default {
             ).catch(error => {
                 $('#myAlert').modal();
                 alert.append("Update target with " + id + "  " + error);
-            });
+            }); 
             //console.log(event.path)
         },
         executeTerminal: function (id) {
