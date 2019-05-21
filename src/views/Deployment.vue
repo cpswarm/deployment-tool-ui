@@ -1155,7 +1155,7 @@ export default {
                         } else if (install && run.length == 0) {
 
                             this.targets[i].class = 'node-s';
-                            this.targets[i].stage = 450;
+                            this.targets[i].stage = 350;
                             this.targets[i].error = 150;
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
@@ -1274,6 +1274,7 @@ export default {
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
                 let finishAt = response.data.items[0].time;
                 let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
+                console.log(id, logs)
                 if (logs.length == 0) {
                     return [finishAt, [total, 0]];
                 } else {
@@ -1311,18 +1312,27 @@ export default {
                     a.date = date.toUTCString().substring(5, 11);
                     a.time = date.toUTCString().substring(17, 22);
 
-                    if (a.deploy) {
+                    /* if (a.deploy) {
                         this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
                             a.finishedAt = data[0];
                             a.status = data[1];
                             this.orders.push(a);
                         });
                     } else {
-                        this.getFinishTime(a.id).then(data => { a.finishedAt = data;});
+                        this.getFinishnStatus(a.id,1).then(data => { 
+                            a.finishedAt = data[0];
+                            });
                         a.status = [0, 0]
                         a.deploy = "";
                         this.orders.push(a);
-                    }
+                    } */
+                    let total = 0;
+                    a.deploy?  total = a.deploy.match.list.length: total = 1;
+                    this.getFinishnStatus(a.id, total).then(data => {
+                            a.finishedAt = data[0];
+                            a.status = data[1];
+                            this.orders.push(a);
+                    });
                 }
             });
         },
@@ -1385,17 +1395,14 @@ export default {
             let files = event.target.files;
             let archive = new jsZip();
             for (let i = 0, f; (f = files[i]); i++) {
-                // if set webkitdirectory
+                // if set webkitdirectory 
                 // trim selected directory name
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
                 archive.file(path, f);
                 console.log(path);
-                
-                // if only set multiple
-                //archive.file(f.name, f);
             }
             this.source = archive.generateAsync({ type: "base64" });
-            if (files) document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+            if (files) document.getElementById("mySourcelabel").innerHTML = files[0].webkitRelativePath + "...";
         },
         handleDeploy: function (taskDer) {
             let myYaml = yaml.safeDump(taskDer);

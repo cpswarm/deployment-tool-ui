@@ -85,6 +85,10 @@
                                         </div>
                                         <div></div>
                                         <div style="text-align:right">
+                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
+                                                <img src="../assets/document.svg" style="width:16px;margin-right:5px"
+                                                    @click="requestLogs(device.id)">
+                                            </button>
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/terminal.png" style="width:16px;margin-right:5px"
                                                     @click="showTerminal">
@@ -983,6 +987,21 @@ export default {
             this.newDiscover=[];
             this.markers.clearLayers();
             this.getTargets();
+        },
+        requestLogs:function(id){
+             
+             let alert = $('#mymodal-body'), message=$('#mymessage-body');
+             alert.empty();
+             message.empty();
+
+             axios.put(this.address+"/targets/" +id +"/logs").then(response=>{
+                   $('#myMessage').modal();
+                   message.append("Request Logs of target with " + id + "  " + response.statusText);
+
+             }).catch(error =>{
+                $('#myAlert').modal();
+                alert.append("Request Logs of target with " + id + "  " + error);
+             })
         },
         // All device -> search devices
         searchTarget: function () {
