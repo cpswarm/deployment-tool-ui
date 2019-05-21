@@ -648,6 +648,7 @@ export default {
         },
         drawTreeback: function (length) {
             
+            if(length==0) {length =1;}
             let size_B = 0;
             length < 10 ? size_B = 5 * length : size_B = 50;
    
@@ -1619,7 +1620,7 @@ export default {
             d3.selectAll("line").remove();
 
             if (host) {
-                this.host = { name: host, error: 150, stage: 50, class: 'node-i' }
+                this.host = {name: host, error: 150, stage: 50, class: 'node-i'}
                 mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'0build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
                 +'<div id="' + host +'0build' + '" class="collapse myCommandCard"></div></div>')
             } else {
@@ -1636,17 +1637,17 @@ export default {
                 })
                 mylog.append(targetStr);
             } else {
-                this.targets = "";
+                this.targets = [];
                 mylog.append('<h6 style="margin:0">Deploy: No Deploy process.</h6>');
             }
 
-            
             //If there is a deploy process
             this.drawTreeback(this.targets.length);
             let size = 0, nodeSize = 0;
             this.targets.length < 10 ? size = 5 * this.targets.length : size = 50;
-        
-            let r = 50 / this.targets.length;
+            
+            if(this.targets.length>0) {var r = 50 / this.targets.length;}
+            else {var r = 5;}
             if (r < 1) {
                 nodeSize = 1;
             } else if (r > 5) {
@@ -1697,13 +1698,15 @@ export default {
                         console.log(error);
                 });
             }else{
-                 if(target && host){
+                
+                if(target && host){
                     targetNodes = this.targets.concat(this.host);
                 }else if(target && !host){
                     targetNodes = this.targets;
                 }else if(!target && host){
-                    targetNodes = this.hosts;
+                    targetNodes.push(this.host);
                 }
+
                 node = node.data(targetNodes);
                     node.exit().remove();
                     node = node.enter().append('circle')
@@ -1736,7 +1739,7 @@ export default {
                 this.ws.onmessage = event => {
                     let obj = JSON.parse(event.data);
                     targetNodes = this.generateTree3(obj.payload);
-
+                    
                         node = node.data(targetNodes);
                         node.exit().remove();
                         node = node.enter().append('circle')
