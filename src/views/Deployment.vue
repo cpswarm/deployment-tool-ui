@@ -1396,8 +1396,6 @@ export default {
             let archive = new jsZip();
             for (let i = 0, f; (f = files[i]); i++) {
                 // if set webkitdirectory
-                archive.file(f.name, f);
-                console.log(f.name);
                 // if only set multiple
                 //archive.file(f.name, f);
             }
