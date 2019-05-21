@@ -1383,11 +1383,14 @@ export default {
         handleFileSelect: function (event) {
 
             let files = event.target.files;
-            let archive = new jsZip().folder("archive");
+            let archive = new jsZip();
             for (let i = 0, f; (f = files[i]); i++) {
                 // if set webkitdirectory
-                archive.file(f.webkitRelativePath, f);
-                console.log(f.webkitRelativePath);
+                // trim selected directory name
+                let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
+                archive.file(path, f);
+                console.log(path);
+                
                 // if only set multiple
                 //archive.file(f.name, f);
             }
