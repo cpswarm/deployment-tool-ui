@@ -57,11 +57,10 @@
                                             </span>
                                         </div>
                                         <div class="mycard-title">Latest Task:</div>
-                                        <div class="mycard-content" style="font-size:12px">
-                                            <span v-if="device.logs.tasks[0][1]!='none'">
-                                            {{device.logs.tasks[0][0]}}</span>
-                                            </div>
-                                        <div class="mycard-title">Latest Logs:</div>
+                                        <div class="mycard-content" style="font-size:12px;margin-top:2.5px">
+                                            <span v-if="device.logs.tasks[0][1]!='none'">{{device.logs.tasks[0][0]}}</span>
+                                        </div>
+                                       <!--  <div class="mycard-title">Latest Logs:</div>
                                         <div v-if="device.logs.tasks[0][1]==true" style="text-align:left">
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/error.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0],device.id)">
@@ -72,12 +71,12 @@
                                                 <img src="../assets/done.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log, device.logs.tasks[0][0],device.id)">
                                             </button>
                                         </div>
-                                        <div v-else></div>
+                                        <div v-else></div> -->
                                         <div class="mycard-title">History Tasks:</div>
                                         <div>
                                             <div v-if="device.logs.tasks[0][1]!='none'">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
-                                                <li v-for="task in device.logs.tasks" class="history_li" @click="showLog(device.logs.log, task[0],device.id)">    
+                                                <li v-for="task in device.logs.tasks.slice().reverse()" class="history_li" @click="showLog(device.logs.log, task[0],device.id)">    
                                                     {{task[0].substring(0,2)}}  
                                                     <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >  
                                                     <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >                
