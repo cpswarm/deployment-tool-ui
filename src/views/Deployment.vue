@@ -1395,9 +1395,11 @@ export default {
             let files = event.target.files;
             let archive = new jsZip();
             for (let i = 0, f; (f = files[i]); i++) {
-                // if set webkitdirectory
-                // if only set multiple
-                //archive.file(f.name, f);
+                // if set webkitdirectory 
+                // trim selected directory name
+                let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
+                archive.file(path, f);
+                console.log(path);
             }
             this.source = archive.generateAsync({ type: "base64" });
             if (files) document.getElementById("mySourcelabel").innerHTML = files[0].webkitRelativePath + "...";
