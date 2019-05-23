@@ -85,10 +85,10 @@
                                         </div>
                                         <div></div>
                                         <div style="text-align:right">
-                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
+                                           <!--   <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/document.svg" style="width:16px;margin-right:5px"
                                                     @click="requestLogs(device.id)">
-                                            </button>
+                                            </button> -->
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/terminal.png" style="width:16px;margin-right:5px"
                                                     @click="showTerminal">
@@ -1303,7 +1303,7 @@ export default {
                 axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
                     terminal += '\n'
                     element.val(terminal).scrollTop(element.prop('scrollHeight')); // wait for events
-                    console.log("reponse", response);
+                    //console.log("reponse", response);
                 }).catch(error => {
                     terminal += '\n'+ error.response.data.error +'\n$ '
                     element.val(termina).scrollTop(element.prop('scrollHeight'));

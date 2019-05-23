@@ -508,6 +508,7 @@ export default {
             this.typeSource = '0';
             this.sourceOrder = '';
             this.source = '';
+            $('#searchTarget').children().remove();
 
             document.getElementById("mySourcelabel").innerHTML = "Choose File";
             document.getElementById("customFile").value = "";
@@ -629,7 +630,10 @@ export default {
             badge.innerHTML = content;
             badge.setAttribute("class", "btn btn-primary btn-sm");
             badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () { this.style.display = "none"; };
+            badge.onclick = ()=>{ 
+                event.target.style.display = "none";
+                this.searchTarget();
+            };
             return badge;
         },
         deleteOrder: function (order) {
@@ -729,12 +733,16 @@ export default {
             this.install_c = order.deploy && order.deploy.install.commands ? order.deploy.install.commands.join("\n") : "";
             this.run_c = order.deploy && order.deploy.run.commands ? order.deploy.run.commands.join("\n") : "";
             this.targetDevices = [];
+            let s = document.getElementById("searchTarget");
             if (order.deploy) {
                 for (var i = 0; i < order.deploy.match.list.length; i++) {
-                    this.targetDevices.push({
+                    let b = this.createBadge(order.deploy.match.list[i]);
+                    s.appendChild(b);
+                    /* this.targetDevices.push({
                         'id': order.deploy.match.list[i],
                         'tags': this.fullDevices.find(el => el.id == order.deploy.match.list[i]).tags,
-                    });
+                    }); */
+                    this.searchTarget();
                 }
             }
         },
@@ -1150,7 +1158,7 @@ export default {
                                 this.targets[i].error = newPos;
                                 this.installError.push([checksum,newPos,300]);
                             }
-                            $('#' + this.targets[i].name).prev().children().remove()
+                            //$('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (install && run.length == 0) {
 
@@ -1173,14 +1181,14 @@ export default {
                                 this.targets[i].error = newPos;
                                 this.runError.push([checksum,newPos,400]);
                             }
-                            $('#' + this.targets[i].name).prev().children().remove()
+                            //$('#' + this.targets[i].name).prev().children().remove()
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error != true })) {
                             
                             this.targets[i].class = 'node-s';
                             this.targets[i].stage = 450;
                             this.targets[i].error = 150;
-                            $('#' + this.targets[i].name).prev().children().remove();
+                            //$('#' + this.targets[i].name).prev().children().remove();
                         } else if (run.length > 0) {
 
                             this.targets[i].class = 'node-i';
@@ -1212,17 +1220,17 @@ export default {
                     this.host.stage = 150;
                     this.host.error = 150;
                     this.host.class = 'node-f';
-                    if(this.targets){
+                   /*  if(this.targets){
                         this.targets.forEach(t =>{
                             $('#' + t.name).prev().children().remove();
                         })
                     }
-                    element.prev().children().remove();
+                    element.prev().children().remove(); */
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
                     this.host.error = 150;
                     this.host.stage = 150;
                     this.host.class = 'node-s';
-                    element.prev().children().remove();
+                    //element.prev().children().remove();
                 }
                 let c_b = "";
                 one.forEach(log => {
@@ -1274,7 +1282,7 @@ export default {
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
                 let finishAt = response.data.items[0].time;
                 let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
-                console.log(id, logs)
+                //console.log(id, logs)
                 if (logs.length == 0) {
                     return [finishAt, [total, 0]];
                 } else {
@@ -1402,7 +1410,7 @@ export default {
                 console.log(path);
             }
             this.source = archive.generateAsync({ type: "base64" });
-            if (files) document.getElementById("mySourcelabel").innerHTML = files[0].webkitRelativePath + "...";
+            if (files) document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
         },
         handleDeploy: function (taskDer) {
             let myYaml = yaml.safeDump(taskDer);
@@ -1744,7 +1752,7 @@ export default {
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
                 };
-                $('#mylog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>')
+                //$('#mylog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>')
             
                 this.ws.onmessage = event => {
                     let obj = JSON.parse(event.data);
@@ -1802,10 +1810,19 @@ export default {
             }
         },
         removeDevice: function (name) {
-            for (var i = 0; i < this.targetDevices.length; i++) {
+            let childrens = $("#searchTarget").children();
+            for (let i = 0; i < this.targetDevices.length; i++) {
                 if (this.targetDevices[i].id == name) {
                     this.targetDevices.splice(i, 1);
                 }
+            }
+            for(let j =0; j<childrens.length; j++){
+                 if(childrens[j].innerHTML==name){
+                    childrens[j].remove();
+                } 
+            }
+            if(this.targetDevices.length==0){
+                childrens.remove();
             }
         },
         refresh: function () {
@@ -1838,6 +1855,7 @@ export default {
             this.orderSearchT = "";
         },
         searchTarget: function () {
+            this.targetDevices=[];
             let tagsNodes = document.getElementById("searchTarget").childNodes;
             for (let i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
