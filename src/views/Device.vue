@@ -85,10 +85,6 @@
                                         </div>
                                         <div></div>
                                         <div style="text-align:right">
-                                           <!--   <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/document.svg" style="width:16px;margin-right:5px"
-                                                    @click="requestLogs(device.id)">
-                                            </button> -->
                                             <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
                                                 <img src="../assets/terminal.png" style="width:16px;margin-right:5px"
                                                     @click="showTerminal">
@@ -349,7 +345,7 @@
             </div>
         </div>
         <div id="map"  ref="map"></div>
-        <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div id="myAlert" class="modal fade" tabindex="5" role="dialog" aria-hidden="true">
             <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
                 <div class="modal-content" >
                     <div class="modal-header">
@@ -362,7 +358,7 @@
             </div>
         </div>
         </div>
-         <div id="myMessage" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+         <div id="myMessage" class="modal fade" tabindex="5" role="dialog" aria-hidden="true">
             <div class="modal-dialog alert alert-success" role="document" style="width:150%">
                 <div class="modal-content" >
                     <div class="modal-header">
@@ -379,8 +375,10 @@
             <div id="myLog-dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 id="logTitle" class="modal-title">Logs for Task:</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h5 id="logTitle" class="modal-title" style="text-align:left; margin-right:57%">Task:</h5>
+                        <button type="button" class="btn btn-primary" style="padding: 0 2px" @click="requestLogs"> &#8634; Full Logs
+                        </button> 
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -639,7 +637,10 @@ export default {
             badge.innerHTML = content;
             badge.setAttribute("class", "btn btn-primary btn-sm");
             badge.setAttribute("style", "padding: 2px 5px");
-            badge.onclick = function () { this.style.display = "none"; };
+            badge.onclick = ()=>{ 
+                event.target.style.display = "none";
+                this.searchTarget2();
+            };
             return badge;
         },
         deleteTarget: function (id) {
@@ -974,8 +975,17 @@ export default {
             })
         }, 
         removeDevice: function (name) {
+             let childrens = $("#searchTarget2").children();
             for (var i = 0; i < this.targetDevices.length; i++) {
                 if (this.targetDevices[i].id === name) this.targetDevices.splice(i, 1);
+            }
+            for(let j =0; j<childrens.length; j++){
+                 if(childrens[j].innerHTML==name){
+                    childrens[j].remove();
+                } 
+            }
+            if(this.targetDevices.length==0){
+                childrens.remove();
             }
         }, 
         refresh: function () {
@@ -988,18 +998,21 @@ export default {
             this.markers.clearLayers();
             this.getTargets();
         },
-        requestLogs:function(id){
-             
+        requestLogs:function(){
+
+             let id= event.target.value;
+             // console.log(id);
+
              let alert = $('#mymodal-body'), message=$('#mymessage-body');
              alert.empty();
              message.empty();
 
              axios.put(this.address+"/targets/" +id +"/logs").then(response=>{
-                   $('#myMessage').modal();
-                   message.append("Request Logs of target with " + id + "  " + response.statusText);
-
+                    $('#myMessage').css('z-index',2000).modal();
+                    message.append("Request Logs of target with " + id + "  " + response.statusText);
+ 
              }).catch(error =>{
-                $('#myAlert').modal();
+                $('#myAlert').css('z-index',2000).modal();
                 alert.append("Request Logs of target with " + id + "  " + error);
              })
         },
@@ -1023,6 +1036,7 @@ export default {
         },
         //Update device -> search devices
         searchTarget2: function () {
+            this.targetDevices=[];
             var tagsNodes = document.getElementById("searchTarget2").childNodes;
             for (var i = 0; i < tagsNodes.length; i++) {
                 if (tagsNodes[i].style.display != "none") {
@@ -1131,7 +1145,8 @@ export default {
         },
         showLog: function (log,id,name) {
 
-            $("#logTitle").empty().append('Logs of Task: '+id);
+            $("#logTitle").empty().append('Task: '+ id + '<br>Device: ' + name).next()[0].value = name;
+            
             $('#accordionLog button span').remove();
             $('#accordionLog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>');
             this.appendLogs(log,id);

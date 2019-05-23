@@ -1125,7 +1125,7 @@ export default {
                     let oneLog = logs.filter(log => log.target == this.targets[i].name && log.stage != 'build');
                     let c_d = "", fullLog = "", checksum =0, nodecksm =0;
                     let element = $('#' + this.targets[i].name);
-                    
+                
                     if (oneLog.length > 0) {
                         oneLog.forEach(log => {
                             let s = "";
@@ -1640,7 +1640,7 @@ export default {
             if (host) {
                 this.host = {name: host, error: 150, stage: 50, class: 'node-i'}
                 mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'0build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
-                +'<div id="' + host +'0build' + '" class="collapse myCommandCard"></div></div>')
+                +'<div id="' + host +'0build' + '" class="collapse myCommandCard"></div></div>');
             } else {
                 this.host = "";
                 mylog.append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
@@ -1659,6 +1659,28 @@ export default {
                 mylog.append('<h6 style="margin:0">Deploy: No Deploy process.</h6>');
             }
 
+            this.targets.forEach(t=>{
+                let element = $('#' + t.name);
+                let btn = document.createElement('button');
+                btn.innerHTML= ' &#8634;  Full Logs';
+                btn.setAttribute("class", "btn btn-primary btn-sm");
+                btn.setAttribute("style", "padding:0 2px");
+                btn.onclick = ()=>{ 
+                    this.requestLogs(t.name);
+                };
+                element.prepend(btn);
+            });
+
+            if(this.host){
+                let btn = document.createElement('button');
+                btn.innerHTML= ' &#8634;  Full Logs';
+                btn.setAttribute("class", "btn btn-primary btn-sm");
+                btn.setAttribute("style", "padding:0 2px");
+                btn.onclick = ()=>{ 
+                    this.requestLogs(this.host.name.substring(0, this.host.name.length - 6));
+                };
+                $('#'+this.host.name+'0build').prepend(btn);
+            }
             //If there is a deploy process
             this.drawTreeback(this.targets.length);
             let size = 0, nodeSize = 0;
@@ -1753,7 +1775,7 @@ export default {
                     console.log("Socket connected.");
                 };
                 //$('#mylog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>')
-            
+                
                 this.ws.onmessage = event => {
                     let obj = JSON.parse(event.data);
                     targetNodes = this.generateTree3(obj.payload);
@@ -1824,6 +1846,21 @@ export default {
             if(this.targetDevices.length==0){
                 childrens.remove();
             }
+        },
+        requestLogs:function(id){
+             //console.log(id);
+             let alert = $('#mymodal-body'), message=$('#mymessage-body');
+             alert.empty();
+             message.empty();
+
+             axios.put(this.address+"/targets/" +id +"/logs").then(response=>{
+                   $('#myMessage').css('z-index',2000).modal();
+                   message.append("Request Logs of target with " + id + "  " + response.statusText);
+ 
+             }).catch(error =>{
+                $('#myAlert').css('z-index',2000).modal();
+                alert.append("Request Logs of target with " + id + "  " + error);
+             })
         },
         refresh: function () {
             this.orders = [];
