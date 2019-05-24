@@ -646,7 +646,13 @@ export default {
                 $('#myMessage').modal();
                 message.append("Delete order with " + order.id + "  " + response.statusText);
             }).catch(error => {
-                alert.append("Delete order with " + order.id + "  " + error);
+                let message;
+                if(error.response){
+                    message = error.response.data.error;
+                }else{
+                    message = error;
+                }
+                alert.empty().append("Delete order with " + order.id + "  " + message);
                 $('#myAlert').modal();
             })
         },
@@ -1280,15 +1286,19 @@ export default {
         getFinishnStatus: function (id, total) {
 
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
-                let finishAt = response.data.items[0].time;
-                let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
-                //console.log(id, logs)
-                if (logs.length == 0) {
-                    return [finishAt, [total, 0]];
-                } else {
-                
-                    return logs[0].stage == "build" ?  [finishAt, [0, 1]] : [finishAt, [total - logs.length, logs.length]];
+                if(response.data.items){
+                     let finishAt = response.data.items[0].time;
+                     let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
+                    //console.log(id, logs)
+                    if (logs.length == 0) {
+                        return [finishAt, [total, 0]];
+                    } else {
+                        return logs[0].stage == "build" ?  [finishAt, [0, 1]] : [finishAt, [total - logs.length, logs.length]];
+                    }
+                }else{
+                    return [0,[0,0]];
                 }
+               
             }).catch(error => {
                 console.log(error);
             });
@@ -1856,10 +1866,15 @@ export default {
              axios.put(this.address+"/targets/" +id +"/logs").then(response=>{
                    $('#myMessage').css('z-index',2000).modal();
                    message.append("Request Logs of target with " + id + "  " + response.statusText);
- 
              }).catch(error =>{
+                let message;
+                if(error.response){
+                    message = error.response.data.error;
+                }else{
+                    message = error;
+                }
+                alert.empty().append( "Request Logs of target with " + id + "  " + message);
                 $('#myAlert').css('z-index',2000).modal();
-                alert.append("Request Logs of target with " + id + "  " + error);
              })
         },
         refresh: function () {
@@ -1868,10 +1883,11 @@ export default {
             $('#searchOrder').empty();
         },
         searchDes: function () {
-            let badge = this.createBadge(this.orderSearchT);
-            document.getElementById("searchOrder").appendChild(badge);
-            
-            this.searchOrder(); 
+            if(this.orderSearchT){
+                let badge = this.createBadge(this.orderSearchT);
+                document.getElementById("searchOrder").appendChild(badge);
+                this.searchOrder();
+            }
         },
         searchOrder: function () {
 
@@ -1989,7 +2005,14 @@ export default {
                 message.append("Stop order with " + order.id + "  " + response.data.message);
                 $('#myMessage').modal();
             }).catch(error => {
-                alert.append("Stop order with " + order.id + "  " + error)
+                 let message;
+                if(error.response){
+                    message = error.response.data.error;
+                }else{
+                    message = error;
+                }
+                alert.empty().append("Stop order with " + order.id + "  " + message);
+                
                 $('#myAlert').modal();
             })
         },

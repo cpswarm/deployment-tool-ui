@@ -678,8 +678,15 @@ export default {
                 message.append("Delete token set with name: " + name + "  " + response.statusText);
 
             }).catch(error => {
+                let message;
+                if(error.response){
+                    message = error.response.data.error;
+                }else{
+                    message = error;
+                }
+                alert.empty().append("Delete token set with name:" + name + "  " +  message);
                 $('#myAlert').modal();
-                alert.append("Delete token set with name:" + name + "  " + error);
+                
             })  
         },
         //Search device
@@ -1012,8 +1019,14 @@ export default {
                     message.append("Request Logs of target with " + id + "  " + response.statusText);
  
              }).catch(error =>{
+                let message;
+                if(error.response){
+                    message = error.response.data.error;
+                }else{
+                    message = error;
+                }
+                alert.empty().append("Request Logs of target with " + id + "  " + message);
                 $('#myAlert').css('z-index',2000).modal();
-                alert.append("Request Logs of target with " + id + "  " + error);
              })
         },
         // All device -> search devices
@@ -1279,8 +1292,15 @@ export default {
                     message.append("Update target with " + id + "  " + response.statusText);
                 }
             ).catch(error => {
+                 let message;
+                if(error.response){
+                    message = error.response.data.error;
+                }else{
+                    message = error;
+                }
+                alert.empty().append("Update target with " + id + "  " + message);
                 $('#myAlert').modal();
-                alert.append("Update target with " + id + "  " + error);
+               
             }); 
             //console.log(event.path)
         },
