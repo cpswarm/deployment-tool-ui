@@ -338,7 +338,7 @@
                             </g>
                         </svg>
                         <svg id="myTree_e" width="300" height="500" style="position:relative; top: -500px; left:85px">
-                            <g transform="translate(50, 50)">
+                            <g transform="translate(0, 50)">
                                 <g class="nodes"></g>
                             </g>
                         </svg>
@@ -490,6 +490,7 @@ export default {
             targets: "",
             installError: '',
             runError: '',
+            background:[]
         };
     },
     components: {
@@ -657,32 +658,11 @@ export default {
                 $('#myAlert').modal();
             })
         },
-        drawTreeback: function (length) {
+        drawTreeback: function () {
             
-            if(length==0) {length =1;}
-            let size_B = 0;
-            length < 10 ? size_B = 5 * length : size_B = 50;
-   
-            let data = {
-                name: 'START',
-                value: 5,
-                children: [{
-                    name: 'BUILD',
-                    value: 5,
-                    line: true,
-                    children: [{
-                        name: 'START',
-                        value: size_B,
-                        children: [
-                            { name: 'INSTALL', value: size_B, children: [{ name: 'RUN', value: size_B }]
-                            }]
-                    }]
-                }]
-            }
-
             //Build-Tree Nodes
             let treeLayout = d3.tree().size([100, 400])
-            let root = d3.hierarchy(data);
+            let root = d3.hierarchy(this.background);
             treeLayout(root);
             // Nodes
             let nodes = d3.select("#myTree_p g.nodes")
@@ -694,17 +674,12 @@ export default {
                 .attr('cy', function (d) { return d.y; })
                 .attr('r', function (d) { return d.value; })
                 .attr('fill', '#ececec')
-             /*    .style("stroke-dasharray", ("10,3"))
-                .style("stroke", "#")
+                .style("stroke-dasharray", ("10,5"))
+                .style("stroke", "#acacac")
                 .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
-                .style('animation', 'spinoffPulse 2s infinite linear') */
-         /*     
-            nodes.append('text')
-                .text(function (d) { return d.data.name })
-                .attr('x', function (d) {  return d.x - 220;})
-                .attr('y', function (d) { return d.y + 5; })
-                .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
-                .attr("fill", "#acacac"); */
+                .style('animation', function (d) { 
+                    return d.data.isFinish ? 'none':'spinoffPulse 2s infinite linear';
+                }) 
 
             // Links
             d3.select("#myTree_p g.links")
@@ -1164,8 +1139,8 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.installError.length==0? newPos = 20 : newPos = this.installError[this.installError.length-1][1] + 40;
-                                this.targets[i].error = newPos +50;
+                                this.installError.length == 0 ? newPos = 80 : newPos = this.installError[this.installError.length-1][1] + 40;
+                                this.targets[i].error = newPos;
                                 this.installError.push([checksum,newPos,300]);
                             }
                             //$('#' + this.targets[i].name).prev().children().remove()
@@ -1187,8 +1162,8 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.runError.length==0? newPos = 20 : newPos = this.runError[this.runError.length-1][1] + 40;
-                                this.targets[i].error = newPos +50;
+                                this.runError.length== 0 ? newPos = 80 : newPos = this.runError[this.runError.length-1][1] + 40;
+                                this.targets[i].error = newPos;
                                 this.runError.push([checksum,newPos,400]);
                             }
                             //$('#' + this.targets[i].name).prev().children().remove()
@@ -1214,34 +1189,45 @@ export default {
                     
                     element.append(c_d).scrollTop(element.prop('scrollHeight'));
                 }
-                nodes = this.targets;
+                nodes = this.targets; 
+                if(nodes.find(e=>{ return e.stage == 250 })){
+                    this.background.children[0].children[0].isFinish = false;
+                }else {
+                     this.background.children[0].children[0].isFinish = true;
+                }
+                if (nodes.find(e=>{ return e.stage == 350 && e.error == 30})){
+                    this.background.children[0].children[0].children[0].isFinish = false;
+                }else{
+                     this.background.children[0].children[0].children[0].isFinish = true;
+                }
+                if (nodes.find(e=>{ return e.stage == 450 && e.error == 30 && e.class !='node-s'})){
+                    this.background.children[0].children[0].children[0].children[0].isFinish = false;
+                }else{
+                     this.background.children[0].children[0].children[0].children[0].isFinish = true;
+                }
             }
             //If there is a build process
             if (this.host) {
-                // Get all logs for host
-               
+                // Get all logs for host          
                 let one = logs.filter(log => log.stage == "build");
                 this.host.commands = one;
                 
                 if(this.host.name.indexOf('0build') == -1) this.host.name += '0build';
                 let element = $('#' + this.host.name);
-   
+                
+
                 if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
                     this.host.error = 30;
                     this.host.class = 'node-f';
-                   /*  if(this.targets){
-                        this.targets.forEach(t =>{
-                            $('#' + t.name).prev().children().remove();
-                        })
-                    }
-                    element.prev().children().remove(); */
+                    this.background.children[0].isFinish = true;
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
                     this.host.error = 30;
                     this.host.stage = 150;
                     this.host.class = 'node-s';
-                    //element.prev().children().remove();
+                    this.background.children[0].isFinish = true;
                 }
+                this.host.stage==150? this.background.isFinish = true:this.background.isFinish = false;
                 let c_b = "";
                 one.forEach(log => {
                     let s = "";
@@ -1251,8 +1237,9 @@ export default {
                 
                 element.append(c_b);
                 element.scrollTop(element.prop('scrollHeight'));
-                nodes = this.targets.concat(this.host)
+                nodes = this.targets.concat(this.host);
             }
+
             return nodes;
         },
         generateTaskDer: function () {
@@ -1696,7 +1683,29 @@ export default {
                 $('#'+this.host.name+'0build').prepend(btn);
             }
             //If there is a deploy process
-            this.drawTreeback(this.targets.length);
+           
+            let size_B = 0;
+            this.targets.length < 10 ? size_B = 5 * this.targets.length : size_B = 50;
+            this.background =  {
+                name: 'START',
+                value: 5,
+                isFinish: true,
+                children: [{
+                    name: 'BUILD',
+                    value: 5,
+                    line: true,
+                    isFinish: true,
+                    children: [{
+                        name: 'START',
+                        value: size_B,
+                        isFinish: true,
+                        children: [
+                            { name: 'INSTALL', value: size_B,isFinish: true, children: [{ name: 'RUN', value: size_B,isFinish: true, }]
+                            }]
+                    }]
+                }]
+            }
+           
             let size = 0, nodeSize = 0;
             this.targets.length < 10 ? size = 5 * this.targets.length : size = 50;
             
@@ -1712,6 +1721,9 @@ export default {
             this.runError = [];
             let targetNodes = [];
             let node = d3.select("#myTree_b g").selectAll('circle');
+            let treeLayout = d3.tree().size([100, 400]);
+
+            this.drawTreeback();
 
             let simulation = d3.forceSimulation(targetNodes)
                 .force('charge', d3.forceManyBody().strength(5))
@@ -1726,8 +1738,9 @@ export default {
             
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000").then(response => {
-
-                    targetNodes = this.generateTree3(response.data.items);
+                   
+                    targetNodes = this.generateTree3(response.data.items); 
+                   
                     node = node.data(targetNodes);
                     node.exit().remove();
                     node = node.enter().append('circle')
@@ -1735,8 +1748,39 @@ export default {
                                 .attr('class', function (d) {return d.class; })
                                 .merge(node)
                                 .on('click', function (d) {  $('#'+ d.name).collapse('toggle');});
-
+                    
                     simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
+
+                    let root = d3.hierarchy(this.background);
+                    treeLayout(root);
+
+                    let nodes = d3.select("#myTree_p g.nodes")
+                                    .selectAll('circle.node')
+                                    .data(root.descendants())
+                                    .enter().append('circle');
+                    nodes.attr('cx', function (d) { return d.x; })
+                        .attr('cy', function (d) { return d.y; })
+                        .attr('r', function (d) { return d.value; })
+                        .attr('fill', '#ececec')
+                        .style("stroke-dasharray", ("10,4"))
+                        .style("stroke", "#acacac")
+                        .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
+                        .style('animation', function (d) { 
+                            return d.data.isFinish ? 'none':'spinoffPulse 2s infinite linear';
+                    }) 
+
+                     let links = d3.select("#myTree_p g.links")
+                                    .selectAll('line.link')
+                                    .data(root.links())
+                                    .enter()
+                                    .append('line')
+                                    .classed('link', true);
+                    links.attr('x1', function (d) { return d.source.x; })
+                        .attr('y1', function (d) { return d.source.y; })
+                        .attr('x2', function (d) { return d.target.x; })
+                        .attr('y2', function (d) { return d.target.y; })
+                        .attr('stroke', '#ececec')
+                        .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
 
                     let errorNodes = this.installError.concat(this.runError); 
                     let circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
@@ -1793,20 +1837,53 @@ export default {
                 this.ws.onmessage = event => {
                     let obj = JSON.parse(event.data);
                     targetNodes = this.generateTree3(obj.payload);
-                    
-                        node = node.data(targetNodes);
-                        node.exit().remove();
-                        node = node.enter().append('circle')
+                    node = node.data(targetNodes);
+                    node.exit().remove();
+                    node = node.enter().append('circle')
                                 .attr('r', nodeSize)
                                 .attr('class', function (d) {return d.class; })
                                 .merge(node)
                                 .on('click', function (d) { $('#'+ d.name).collapse('toggle') });
 
-                        simulation.nodes(targetNodes)
+                    simulation.nodes(targetNodes)
                             .force('x', d3.forceX().x(function (d) { return d.error;}))   
                             .force('y', d3.forceY().y(function (d) { return d.stage;}))   
                             .force('collision', d3.forceCollide().radius(5));
                     
+                    let root = d3.hierarchy(this.background);
+                    treeLayout(root);
+                
+                    d3.select("#myTree_p g.nodes").selectAll("circle").remove();
+                    let nodes = d3.select("#myTree_p g.nodes")
+                                    .selectAll('circle.node')
+                                    .data(root.descendants())
+                                    .enter().append('circle');
+                    nodes.attr('cx', function (d) { return d.x; })
+                        .attr('cy', function (d) { return d.y; })
+                        .attr('r', function (d) { return d.value; })
+                        .attr('fill', '#ececec')
+                        .style("stroke-dasharray", ("10,4"))
+                        .style("stroke", "acacac")
+                        .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
+                        .style('animation', function (d) { 
+                            return d.data.isFinish ? 'none':'spinoffPulse 2s infinite linear';
+                    }) 
+
+                    let links = d3.select("#myTree_p g.links")
+                                    .selectAll('line.link')
+                                    .data(root.links())
+                                    .enter()
+                                    .append('line')
+                                    .classed('link', true);
+                    links.attr('x1', function (d) { return d.source.x; })
+                        .attr('y1', function (d) { return d.source.y; })
+                        .attr('x2', function (d) { return d.target.x; })
+                        .attr('y2', function (d) { return d.target.y; })
+                        .attr('stroke', '#ececec')
+                        .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
+
+
+
                     let errorNodes = this.installError.concat(this.runError);
                     let circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
                                                   .data(errorNodes)
@@ -2275,23 +2352,7 @@ export default {
     border-radius: .25rem 0 0 .25rem;
     width: 110px;
 }
-.innerCircle {
-background-color: transparent;
-border: 5px solid rgba(189, 215, 60, 0.6);
-opacity: .9;
-border-left: 5px solid transparent;
-border-right: 5px solid transparent;
-border-radius: 100px;
-top: -110px;
-width: 92px;
-height: 92px;
-margin: 0 auto;
-position: relative;
-transform-origin: center;
--moz-animation: spinoffPulse 1s infinite linear;
--webkit-animation: spinoffPulse 1s infinite linear;
 
-}
 @media (min-width: 576px){
     #myTree_dialog, #myTree_dialog2{
         max-width:110% !important;
