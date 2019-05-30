@@ -9,9 +9,8 @@
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/device.png" style="width:18px">
-                            Devices List
+                            Device List
                         </button>
-                
                     <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample"
                         ref="collapseOne">
                         <div style="padding:5px">
@@ -72,7 +71,7 @@
                                             </button>
                                         </div>
                                         <div v-else></div> -->
-                                        <div class="mycard-title">History Tasks:</div>
+                                        <div class="mycard-title">Task History:</div>
                                         <div>
                                             <div v-if="device.logs.tasks[0][1]!='none'">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
@@ -298,7 +297,7 @@
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                             aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                             <img src="../assets/add.png" style="height:20px">
-                            Add New Tokens
+                            Manage Tokens
                         </button>
                    
                     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
@@ -429,7 +428,7 @@
             </div>
         </div>
         <div class="notification"> 
-            <div class="mycard-title" style="color:#ffda44" >New Discovered:
+            <div class="mycard-title" style="color:#ffda44" >Discovered:
                 <img src="../assets/star.png">
             </div>
             <div class="mycard-content">
@@ -441,7 +440,7 @@
             <div class="mycard-content">
                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="filterDevices('failed')">{{this.failed.length}}</button>
             </div>
-            <div class="mycard-title" style="color:#00ae31">Success:
+            <div class="mycard-title" style="color:#00ae31">Successful:
                  <img src="../assets/done.png">
             </div>
             <div class="mycard-content" >
@@ -1365,7 +1364,7 @@ export default {
     mounted() {
 
         this.$refs.map.style.height = window.innerHeight + "px";
-        this.$refs.list.style.height = window.innerHeight-32-32-32-27-34-15 + "px";
+        this.$refs.list.style.height = window.innerHeight-32-32-32-27-34-20 + "px";
         this.$refs.collapseTwo.style.height = window.innerHeight-32-32-32-34-5 + "px";
         this.$refs.collapseThree.style.height = window.innerHeight-32-32-32-34-5 + "px";  
 

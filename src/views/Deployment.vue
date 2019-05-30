@@ -330,18 +330,19 @@
                 </div>
                 <div id="mytree-body" class="modal-body">
                     <div>
-                        <svg id="myTree_p" width="500" height="550">
-                            <g transform="translate(0, 50)">
+                        <img src="../assets/back.png" style="height:450px;width:130px">
+                        <svg id="myTree_p" width="250" height="500">
+                            <g transform="translate(-25, 50)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
                             </g>
                         </svg>
-                        <svg id="myTree_e" width="500" height="550" style="position:relative; top: -550px">
-                            <g transform="translate(0, 50)">
+                        <svg id="myTree_e" width="300" height="500" style="position:relative; top: -500px; left:85px">
+                            <g transform="translate(50, 50)">
                                 <g class="nodes"></g>
                             </g>
                         </svg>
-                        <svg id="myTree_b" width="500" height="550" style="position:relative; top: -1100px">
+                        <svg id="myTree_b" width="300" height="500" style="position:relative; top: -1000px;left:85px">
                             <g></g>
                         </svg>
                     </div>
@@ -414,7 +415,7 @@
             </div>
     </div> 
     <div class="notification"> 
-            <div class="mycard-title" style="color:#ffda44;" >New Discovered:
+            <div class="mycard-title" style="color:#ffda44;" >Discovered:
                 <img src="../assets/star.png">
             </div>
             <div class="mycard-content">
@@ -426,7 +427,7 @@
             <div class="mycard-content">
                 <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="toDevices('failed')">{{this.failed.length}}</button>
                 </div>
-            <div class="mycard-title" style="color:#00ae31">Success:
+            <div class="mycard-title" style="color:#00ae31">Successful:
                  <img src="../assets/done.png">
             </div>
             <div class="mycard-content" >
@@ -663,14 +664,14 @@ export default {
             length < 10 ? size_B = 5 * length : size_B = 50;
    
             let data = {
-                name: 'BUILD',
+                name: 'START',
                 value: 5,
                 children: [{
-                    name: 'BUILD-END',
+                    name: 'BUILD',
                     value: 5,
                     line: true,
                     children: [{
-                        name: 'DEPLOY',
+                        name: 'START',
                         value: size_B,
                         children: [
                             { name: 'INSTALL', value: size_B, children: [{ name: 'RUN', value: size_B }]
@@ -680,7 +681,7 @@ export default {
             }
 
             //Build-Tree Nodes
-            let treeLayout = d3.tree().size([500, 400])
+            let treeLayout = d3.tree().size([100, 400])
             let root = d3.hierarchy(data);
             treeLayout(root);
             // Nodes
@@ -689,18 +690,21 @@ export default {
                 .data(root.descendants())
                 .enter();
             nodes.append('circle')
-                .classed('node', true)
-                .attr('cx', function (d) { return d.x-100; })
+                .attr('cx', function (d) { return d.x; })
                 .attr('cy', function (d) { return d.y; })
                 .attr('r', function (d) { return d.value; })
                 .attr('fill', '#ececec')
-
+             /*    .style("stroke-dasharray", ("10,3"))
+                .style("stroke", "#")
+                .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
+                .style('animation', 'spinoffPulse 2s infinite linear') */
+         /*     
             nodes.append('text')
                 .text(function (d) { return d.data.name })
                 .attr('x', function (d) {  return d.x - 220;})
                 .attr('y', function (d) { return d.y + 5; })
                 .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
-                .attr("fill", "#acacac");
+                .attr("fill", "#acacac"); */
 
             // Links
             d3.select("#myTree_p g.links")
@@ -709,9 +713,9 @@ export default {
                 .enter()
                 .append('line')
                 .classed('link', true)
-                .attr('x1', function (d) { return d.source.x-100; })
+                .attr('x1', function (d) { return d.source.x; })
                 .attr('y1', function (d) { return d.source.y; })
-                .attr('x2', function (d) { return d.target.x-100; })
+                .attr('x2', function (d) { return d.target.x; })
                 .attr('y2', function (d) { return d.target.y; })
                 .attr('stroke', '#ececec')
                 .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
@@ -1160,8 +1164,8 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.installError.length==0? newPos = 220 : newPos = this.installError[this.installError.length-1][1] + 70;
-                                this.targets[i].error = newPos;
+                                this.installError.length==0? newPos = 20 : newPos = this.installError[this.installError.length-1][1] + 40;
+                                this.targets[i].error = newPos +50;
                                 this.installError.push([checksum,newPos,300]);
                             }
                             //$('#' + this.targets[i].name).prev().children().remove()
@@ -1170,7 +1174,7 @@ export default {
 
                             this.targets[i].class = 'node-s';
                             this.targets[i].stage = 350;
-                            this.targets[i].error = 150;
+                            this.targets[i].error = 30;
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
                             
@@ -1183,8 +1187,8 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.runError.length==0? newPos = 220 : newPos = this.runError[this.runError.length-1][1] + 70;
-                                this.targets[i].error = newPos;
+                                this.runError.length==0? newPos = 20 : newPos = this.runError[this.runError.length-1][1] + 40;
+                                this.targets[i].error = newPos +50;
                                 this.runError.push([checksum,newPos,400]);
                             }
                             //$('#' + this.targets[i].name).prev().children().remove()
@@ -1193,18 +1197,18 @@ export default {
                             
                             this.targets[i].class = 'node-s';
                             this.targets[i].stage = 450;
-                            this.targets[i].error = 150;
+                            this.targets[i].error = 30;
                             //$('#' + this.targets[i].name).prev().children().remove();
                         } else if (run.length > 0) {
 
                             this.targets[i].class = 'node-i';
                             this.targets[i].stage = 450;
-                            this.targets[i].error = 150;
+                            this.targets[i].error = 30;
                         } else {
 
                             this.targets[i].class = 'node-i';
                             this.targets[i].stage = 350;
-                            this.targets[i].error = 150;     
+                            this.targets[i].error = 30;     
                         }
                     }
                     
@@ -1224,7 +1228,7 @@ export default {
    
                 if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
-                    this.host.error = 150;
+                    this.host.error = 30;
                     this.host.class = 'node-f';
                    /*  if(this.targets){
                         this.targets.forEach(t =>{
@@ -1233,7 +1237,7 @@ export default {
                     }
                     element.prev().children().remove(); */
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
-                    this.host.error = 150;
+                    this.host.error = 30;
                     this.host.stage = 150;
                     this.host.class = 'node-s';
                     //element.prev().children().remove();
@@ -1648,7 +1652,7 @@ export default {
             d3.selectAll("line").remove();
 
             if (host) {
-                this.host = {name: host, error: 150, stage: 50, class: 'node-i'}
+                this.host = {name: host, error: 30, stage: 50, class: 'node-i'}
                 mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'0build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
                 +'<div id="' + host +'0build' + '" class="collapse myCommandCard"></div></div>');
             } else {
@@ -1661,7 +1665,7 @@ export default {
                 this.targets = target.map(t => {
                    targetStr += '<div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + t + '</button>'
                     +'<div id="' + t + '" class="collapse myCommandCard"></div></div>';
-                    return { name: t, error:150, stage: 250, class: 'node-i' }
+                    return { name: t, error: 30, stage: 250, class: 'node-i' }
                 })
                 mylog.append(targetStr);
             } else {
@@ -2043,7 +2047,7 @@ export default {
     mounted() {
 
         this.$refs.map.style.height = window.innerHeight + "px";
-        this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32 - 15 - 32 + "px";
+        this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32 - 20 - 32 + "px";
         this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 - 22 + "px";
 
         this.address = localStorage.getItem('address');
@@ -2188,7 +2192,7 @@ export default {
 }
 #mytree-body {
   display: grid;
-  grid-template-columns: 2.5fr 6fr;
+  grid-template-columns: 3fr 6.5fr;
   grid-gap: 5px;
 }
 #mytree-body2 {
@@ -2271,10 +2275,31 @@ export default {
     border-radius: .25rem 0 0 .25rem;
     width: 110px;
 }
+.innerCircle {
+background-color: transparent;
+border: 5px solid rgba(189, 215, 60, 0.6);
+opacity: .9;
+border-left: 5px solid transparent;
+border-right: 5px solid transparent;
+border-radius: 100px;
+top: -110px;
+width: 92px;
+height: 92px;
+margin: 0 auto;
+position: relative;
+transform-origin: center;
+-moz-animation: spinoffPulse 1s infinite linear;
+-webkit-animation: spinoffPulse 1s infinite linear;
+
+}
 @media (min-width: 576px){
     #myTree_dialog, #myTree_dialog2{
         max-width:110% !important;
     }
+}
+@-webkit-keyframes spinoffPulse {
+    0% { -webkit-transform:rotateZ(0deg)}
+	100% { -webkit-transform:rotate(360deg)}
 }
 </style>
 
