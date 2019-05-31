@@ -1198,7 +1198,7 @@ export default {
                 }else {
                      this.background.children[0].children[0].isFinish = true;
                 }
-                if (nodes.find(e=>{ return e.stage == 350 && e.error == 30})){
+                if (nodes.find(e=>{ return e.stage == 350 && e.error == 30 && e.class !='node-s'})){
                     this.background.children[0].children[0].children[0].isFinish = false;
                 }else{
                      this.background.children[0].children[0].children[0].isFinish = true;
