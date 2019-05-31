@@ -375,7 +375,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 id="logTitle" class="modal-title" style="text-align:left; margin-right:57%">Task:</h5>
-                        <button type="button" class="btn btn-primary" style="padding: 0 2px" @click="requestLogs"> &#8634; Full Logs
+                        <button type="button" class="btn btn-primary" style="padding: 0 2px" @click="requestLogs"> &#8634; Fetch logs
                         </button> 
                         <button type="button" data-dismiss="modal" aria-label="Close" class="close">
                             <span aria-hidden="true">&times;</span>

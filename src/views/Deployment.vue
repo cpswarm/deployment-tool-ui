@@ -446,6 +446,7 @@ import $ from "jquery";
 import * as d3 from "d3";
 import crypto, { constants } from 'crypto';
 import CRC32 from 'crc-32'
+import { async } from 'q';
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -672,13 +673,14 @@ export default {
             nodes.append('circle')
                 .attr('cx', function (d) { return d.x; })
                 .attr('cy', function (d) { return d.y; })
-                .attr('r', function (d) { return d.value; })
+                .attr('r', function (d) { return d.value+2; })
                 .attr('fill', '#ececec')
                 .style("stroke-dasharray", ("10,5"))
+                .style('stroke-width', '2px')
                 .style("stroke", "#acacac")
                 .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
                 .style('animation', function (d) { 
-                    return d.data.isFinish ? 'none':'spinoffPulse 2s infinite linear';
+                    return d.data.isFinish ? 'none':'spinoffPulse 2s infinite ease';
                 }) 
 
             // Links
@@ -1186,8 +1188,9 @@ export default {
                             this.targets[i].error = 30;     
                         }
                     }
-                    
-                    element.append(c_d).scrollTop(element.prop('scrollHeight'));
+                    let s = element.children()[0];
+                    $(s).append(c_d);
+                    element.scrollTop(element.prop('scrollHeight'));
                 }
                 nodes = this.targets; 
                 if(nodes.find(e=>{ return e.stage == 250 })){
@@ -1235,7 +1238,8 @@ export default {
                     c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
                 });
                 
-                element.append(c_b);
+                let a = element.children()[0];
+                $(a).append(c_b);
                 element.scrollTop(element.prop('scrollHeight'));
                 nodes = this.targets.concat(this.host);
             }
@@ -1641,7 +1645,7 @@ export default {
             if (host) {
                 this.host = {name: host, error: 30, stage: 50, class: 'node-i'}
                 mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'0build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
-                +'<div id="' + host +'0build' + '" class="collapse myCommandCard"></div></div>');
+                +'<div id="' + host +'0build' + '" class="collapse myCommandCard"  style="text-align:right"><div style="text-align:left"></div></div></div>');
             } else {
                 this.host = "";
                 mylog.append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
@@ -1651,7 +1655,7 @@ export default {
                 let targetStr = '<h6 style="margin:0">Deploy: </h6>';
                 this.targets = target.map(t => {
                    targetStr += '<div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + t + '</button>'
-                    +'<div id="' + t + '" class="collapse myCommandCard"></div></div>';
+                    +'<div id="' + t + '" class="collapse myCommandCard" style="text-align:right"><div  style="text-align:left"></div></div></div>';
                     return { name: t, error: 30, stage: 250, class: 'node-i' }
                 })
                 mylog.append(targetStr);
@@ -1663,25 +1667,25 @@ export default {
             this.targets.forEach(t=>{
                 let element = $('#' + t.name);
                 let btn = document.createElement('button');
-                btn.innerHTML= ' &#8634;  Full Logs';
+                btn.innerHTML= ' &#8634;  Fetch logs';
                 btn.setAttribute("class", "btn btn-primary btn-sm");
                 btn.setAttribute("style", "padding:0 2px");
                 btn.onclick = ()=>{ 
                     this.requestLogs(t.name);
                 };
-                element.prepend(btn);
+                element.append(btn);
             });
 
-            if(this.host){
+             if(this.host){
                 let btn = document.createElement('button');
-                btn.innerHTML= ' &#8634;  Full Logs';
+                btn.innerHTML= ' &#8634;  Fetch logs';
                 btn.setAttribute("class", "btn btn-primary btn-sm");
                 btn.setAttribute("style", "padding:0 2px");
                 btn.onclick = ()=>{ 
                     this.requestLogs(this.host.name.substring(0, this.host.name.length - 6));
                 };
-                $('#'+this.host.name+'0build').prepend(btn);
-            }
+                $('#'+this.host.name+'0build').append(btn);
+            } 
             //If there is a deploy process
            
             let size_B = 0;
@@ -1750,7 +1754,7 @@ export default {
                                 .on('click', function (d) {  $('#'+ d.name).collapse('toggle');});
                     
                     simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
-
+                    d3.select("#myTree_p g.nodes").selectAll("circle").remove();
                     let root = d3.hierarchy(this.background);
                     treeLayout(root);
 
@@ -1760,13 +1764,14 @@ export default {
                                     .enter().append('circle');
                     nodes.attr('cx', function (d) { return d.x; })
                         .attr('cy', function (d) { return d.y; })
-                        .attr('r', function (d) { return d.value; })
+                        .attr('r', function (d) { return d.value+2; })
                         .attr('fill', '#ececec')
                         .style("stroke-dasharray", ("10,4"))
+                        .style('stroke-width', '2px')
                         .style("stroke", "#acacac")
                         .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
                         .style('animation', function (d) { 
-                            return d.data.isFinish ? 'none':'spinoffPulse 2s infinite linear';
+                            return d.data.isFinish ? 'none':'spinoffPulse 1.5s infinite ease';
                     }) 
 
                      let links = d3.select("#myTree_p g.links")
@@ -1860,13 +1865,14 @@ export default {
                                     .enter().append('circle');
                     nodes.attr('cx', function (d) { return d.x; })
                         .attr('cy', function (d) { return d.y; })
-                        .attr('r', function (d) { return d.value; })
+                        .attr('r', function (d) { return d.value+2; })
                         .attr('fill', '#ececec')
                         .style("stroke-dasharray", ("10,4"))
+                        .style('stroke-width', '2px')
                         .style("stroke", "acacac")
                         .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
                         .style('animation', function (d) { 
-                            return d.data.isFinish ? 'none':'spinoffPulse 2s infinite linear';
+                            return d.data.isFinish ? 'none':'spinoffPulse 2s infinite ease';
                     }) 
 
                     let links = d3.select("#myTree_p g.links")
