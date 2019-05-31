@@ -127,13 +127,19 @@
                                                     <p style="margin:2.5px 0">Type:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
                                                         <label class="btn btn-light">
-                                                           <input type="checkbox" autocomplete="off"  value="drone"> drone
+                                                           <input type="checkbox" autocomplete="off"  value="sensor"> sensor
                                                         </label>
                                                         <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="raspi0"> raspi0
                                                         </label>
                                                         <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="actuator"> actuator
+                                                        </label>
+                                                        <label class="btn btn-light">
+                                                            <input type="checkbox" autocomplete="off" value="light" >light
+                                                        </label>
+                                                        <label class="btn btn-light">
+                                                            <input type="checkbox" autocomplete="off" value="motion"> motion
                                                         </label>
                                                     </div>
                                                 </div>
@@ -243,13 +249,19 @@
                                         <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
                                             <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="drone" > drone
+                                                <input type="checkbox" autocomplete="off" value="sensor" > sensor
                                             </label>
                                             <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="raspi0" > raspi0
                                             </label>
                                             <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="actuator"> actuator
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="light" >light
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="motion"> motion
                                             </label>
                                         </div>
                                     </div>
@@ -296,7 +308,7 @@
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                             aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
-                            <img src="../assets/add.png" style="height:20px">
+                            <img src="../assets/key.svg" style="height:20px">
                             Manage Tokens
                         </button>
                    
@@ -1229,8 +1241,14 @@ export default {
                     case 'actuator':
                         color = "#36563c";
                         break;
-                    case 'drone':
+                    case 'sensor':
                         color = "#516E41";
+                        break;
+                    case 'light':
+                        color = '#7048ce';
+                        break;
+                    case 'motion':
+                        color = "#9f50d4";
                         break;
                 }
             
@@ -1591,8 +1609,14 @@ export default {
 .raspi0{
     background-color: #42602d;
 }
-.drone{
+.sensor{
     background-color: #516E41;
+}
+.light{
+    background-color: #7048ce;
+}
+.motion{
+    background-color: #9f50d4;
 }
 .actuator{
     background-color: #36563c;
@@ -1612,12 +1636,12 @@ export default {
 .darwin{
     background-color: #f17c67;
 }
-.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.drone, .raspi2{
+.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.sensor, .raspi2,.light,.motion{
     color: #fff;
     border: 1px solid transparent;
     margin-right:2.5px;
 }
-.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.drone:hover, .raspi2:hover{
+.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.sensor:hover, .raspi2:hover, .light:hover,.motion:hover{
     cursor: pointer;
 }
 .myTerminal{
