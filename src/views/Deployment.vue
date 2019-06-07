@@ -1218,7 +1218,6 @@ export default {
                 if(this.host.name.indexOf('0build') == -1) this.host.name += '0build';
                 let element = $('#' + this.host.name);
                 
-
                 if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
                     this.host.error = 30;
@@ -1651,7 +1650,14 @@ export default {
                 mylog.append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
             }
             //If there is a build process
-            if (target) {
+
+            /* //Remove
+            target = target.concat(['apple','kiwi','anana','melon','watermelon','bear','peach','berry','mango','orange'])
+            //console.log(target) */
+           
+           
+           
+           if (target) {
                 let targetStr = '<h6 style="margin:0">Deploy: </h6>';
                 this.targets = target.map(t => {
                    targetStr += '<div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + t + '</button>'
@@ -1689,7 +1695,7 @@ export default {
             //If there is a deploy process
            
             let size_B = 0;
-            this.targets.length < 10 ? size_B = 5 * this.targets.length : size_B = 50;
+            this.targets.length < 10 ? size_B = 5 * this.targets.length : size_B = 22;
             this.background =  {
                 name: 'START',
                 value: 5,
@@ -1744,6 +1750,81 @@ export default {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000").then(response => {
                    
                     targetNodes = this.generateTree3(response.data.items); 
+                    //console.log(targetNodes)
+                    /*  targetNodes = [{
+                         class: "node-s",            
+                         error: 30,
+                         name: "banana",
+                         stage: 150,
+                    },
+                    {
+                         class: "node-s",            
+                         error: 30,
+                        name: "banana",
+                        stage: 350,
+                    },
+                    {
+                         class: "node-s",            
+                         error: 30,
+                        name: "banana",
+                        stage: 450,
+                    },
+                    {
+                         class: "node-s",            
+                         error: 30,
+                        name: "banana",
+                        stage: 450,
+                    },
+                    {
+                         class: "node-s",            
+                         error: 30,
+                        name: "banana",
+                        stage: 450,
+                    },
+                    {
+                         class: "node-s",            
+                         error: 30,
+                        name: "banana",
+                        stage: 450,
+                    },
+                    {
+                         class: "node-s",            
+                         error: 30,
+                        name: "banana",
+                        stage: 450,
+                    },
+                    {
+                         class: "node-s",            
+                         error: 30,
+                        name: "banana",
+                        stage: 450,
+                    },
+                      {
+                         class: "node-f",            
+                         error: 95,
+                        name: "banana",
+                        stage: 450,
+                    },
+                      {
+                         class: "node-f",            
+                         error: 95,
+                        name: "banana",
+                        stage: 450,
+                    },
+                       
+                         {
+                         class: "node-f",            
+                         error: 95,
+                        name: "banana",
+                        stage: 450,
+                    },
+                       
+                         {
+                         class: "node-f",            
+                         error: 150,
+                        name: "banana",
+                        stage: 450,
+                    },]  */
                    
                     node = node.data(targetNodes);
                     node.exit().remove();
@@ -1774,7 +1855,7 @@ export default {
                             return d.data.isFinish ? 'none':'spinoffPulse 1.5s infinite ease';
                     }) 
 
-                     let links = d3.select("#myTree_p g.links")
+                    let links = d3.select("#myTree_p g.links")
                                     .selectAll('line.link')
                                     .data(root.links())
                                     .enter()
@@ -1788,6 +1869,7 @@ export default {
                         .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
 
                     let errorNodes = this.installError.concat(this.runError); 
+                    //let errorNodes =[[977741087, 90, 400],[977741087, 145, 400]]
                     let circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
                                                   .data(errorNodes)
                                                   .enter()

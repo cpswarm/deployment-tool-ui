@@ -1578,6 +1578,7 @@ export default {
     text-align: center;
     cursor: pointer;
     list-style: none;
+    height: 10px;
 }
 .mycard {
   display: grid;
