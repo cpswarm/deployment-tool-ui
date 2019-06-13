@@ -178,7 +178,7 @@
                             <div id="search" style="margin-bottom:5px">    
                                 <form class="form-inline">
                                     <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh" title="Refresh devices list">
-                                        <img src="../assets/refresh.svg" style="width:16px">
+                                        <img src="../assets/refresh.svg" style="width:14px">
                                     </button>
                                     <div class="input-group" style="width:92%;">
                                         <div id="searchTarget"></div>
@@ -1512,7 +1512,7 @@ export default {
     grid-template-columns: 6fr 1fr;
     padding: 2.5px 5px;
     background-color: #fff;
-    box-shadow: 0 1px 1px #8e8e8e50
+    box-shadow: 2px 2px 2px #52575b50;
 }
 .notification button{
     padding: 0 2px

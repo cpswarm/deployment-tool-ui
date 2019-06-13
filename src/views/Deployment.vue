@@ -31,7 +31,7 @@
                                          <select class="mySelect" v-model="typeSource" @change="chooseSource">
                                             <option value="0">Choose...</option>
                                             <option value="1">From Artifacts</option>
-                                            <option value="2">Upload Files</option>         
+                                            <option value="2">Upload Directory</option>         
                                         </select> 
                                     <div class="input-group-append" style="width:63%">
                                         <input ref="emptySource" type="text" class="form-control form-control-sm"  style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" disabled>
@@ -158,7 +158,7 @@
                     <div style="padding:5px;" >
                     <form class="form-inline" style="margin-bottom:5px"> 
                         <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh" title="Refresh deployments list">
-                            <img src="../assets/refresh.svg" style="width:16px">
+                            <img src="../assets/refresh.svg" style="width:14px">
                         </button>
                         <div class="input-group" style="width:92%">
                              <div id="searchOrder"></div>
@@ -187,13 +187,9 @@
                                     <div class="mycard-content">{{order.description}}</div>
                                     <div class="mycard-title">Devices:</div>
                                     <div class="mycard-content">
-                                    <img src="../assets/done.png" style="width:16px">
                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)" title="Click to review status daigram">
-                                        <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
-                                    </button>
-                                    <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)" title="Click to review status daigram">
-                                        <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
+                                        <img src="../assets/done.png" style="width:14px"> <p style="color:#00AE31;display:inline-block;padding: 0 5px;margin:0">{{order.status[0]}}</p>
+                                        <img src="../assets/error.png" style="width:14px"> <p style="color:#D80027;display:inline-block;padding: 0 5px;margin:0">{{order.status[1]}}</p>
                                     </button>
                                 </div>
                                 <div class="mycard-title">Created Time:</div>
@@ -2414,7 +2410,7 @@ export default {
   stroke-width: 1px;
 }
 .mySelect{
-    padding: 0 5px;
+    padding: 0 5px 0 0;
     height: 26px;
     border: 1px solid #ced4da;
     border-radius: .25rem 0 0 .25rem;
