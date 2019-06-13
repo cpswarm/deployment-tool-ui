@@ -332,7 +332,7 @@
                     <div>
                         <img src="../assets/back.png" style="height:450px;width:130px">
                         <svg id="myTree_p" width="250" height="500">
-                            <g transform="translate(-25, 50)">
+                            <g transform="translate(-15, 50)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
                             </g>
@@ -659,8 +659,7 @@ export default {
                 $('#myAlert').modal();
             })
         },
-        drawTreeback: function () {
-            
+        drawTreeback: function () {          
             //Build-Tree Nodes
             let treeLayout = d3.tree().size([100, 400])
             let root = d3.hierarchy(this.background);
@@ -673,15 +672,13 @@ export default {
             nodes.append('circle')
                 .attr('cx', function (d) { return d.x; })
                 .attr('cy', function (d) { return d.y; })
-                .attr('r', function (d) { return d.value+2; })
+                .attr('r', function (d) { return d.value; })
                 .attr('fill', '#ececec')
                 .style("stroke-dasharray", ("10,5"))
-                .style('stroke-width', '2px')
+                .style('stroke-width', function (d) { return d.data.isFinish? '0px': '2px'; })
                 .style("stroke", "#acacac")
                 .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
-                .style('animation', function (d) { 
-                    return d.data.isFinish ? 'none':'spinoffPulse 2s infinite ease';
-                }) 
+                .style('animation', function (d) {   return d.data.isFinish ? 'none':'spinoffPulse 2s infinite ease';}) 
 
             // Links
             d3.select("#myTree_p g.links")
@@ -1123,7 +1120,6 @@ export default {
                         });
 
                         checksum = CRC32.str(fullLog);
-                        //nodecksm = crypto.createHash('md5').update(fullLog).digest("hex");
                         console.log(this.targets[i].name, checksum)
 
                         let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
@@ -1141,7 +1137,7 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.installError.length == 0 ? newPos = 80 : newPos = this.installError[this.installError.length-1][1] + 40;
+                                this.installError.length == 0 ? newPos = 100 : newPos = this.installError[this.installError.length-1][1] + 40;
                                 this.targets[i].error = newPos;
                                 this.installError.push([checksum,newPos,300]);
                             }
@@ -1151,7 +1147,7 @@ export default {
 
                             this.targets[i].class = 'node-s';
                             this.targets[i].stage = 350;
-                            this.targets[i].error = 30;
+                            this.targets[i].error = 40;
 
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
                             
@@ -1164,7 +1160,7 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.runError.length== 0 ? newPos = 80 : newPos = this.runError[this.runError.length-1][1] + 40;
+                                this.runError.length== 0 ? newPos = 100 : newPos = this.runError[this.runError.length-1][1] + 40;
                                 this.targets[i].error = newPos;
                                 this.runError.push([checksum,newPos,400]);
                             }
@@ -1174,18 +1170,18 @@ export default {
                             
                             this.targets[i].class = 'node-s';
                             this.targets[i].stage = 450;
-                            this.targets[i].error = 30;
+                            this.targets[i].error = 40;
                             //$('#' + this.targets[i].name).prev().children().remove();
                         } else if (run.length > 0) {
 
                             this.targets[i].class = 'node-i';
                             this.targets[i].stage = 450;
-                            this.targets[i].error = 30;
+                            this.targets[i].error = 40;
                         } else {
 
                             this.targets[i].class = 'node-i';
                             this.targets[i].stage = 350;
-                            this.targets[i].error = 30;     
+                            this.targets[i].error = 40;     
                         }
                     }
                     let s = element.children()[0];
@@ -1193,17 +1189,17 @@ export default {
                     element.scrollTop(element.prop('scrollHeight'));
                 }
                 nodes = this.targets; 
-                if(nodes.find(e=>{ return e.stage == 250 })){
+                if(nodes.find(e=>{ return e.stage == 250 && e.commands })){
                     this.background.children[0].children[0].isFinish = false;
                 }else {
                      this.background.children[0].children[0].isFinish = true;
                 }
-                if (nodes.find(e=>{ return e.stage == 350 && e.error == 30 && e.class !='node-s'})){
+                if (nodes.find(e=>{ return e.stage == 350 && e.error == 40 && e.class !='node-s' && e.commands.length >0 })){
                     this.background.children[0].children[0].children[0].isFinish = false;
                 }else{
-                     this.background.children[0].children[0].children[0].isFinish = true;
+                    this.background.children[0].children[0].children[0].isFinish = true;
                 }
-                if (nodes.find(e=>{ return e.stage == 450 && e.error == 30 && e.class !='node-s'})){
+                if (nodes.find(e=>{ return e.stage == 450 && e.error == 40 && e.class !='node-s' && e.commands.length >0})){
                     this.background.children[0].children[0].children[0].children[0].isFinish = false;
                 }else{
                      this.background.children[0].children[0].children[0].children[0].isFinish = true;
@@ -1220,11 +1216,11 @@ export default {
                 
                 if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
-                    this.host.error = 30;
+                    this.host.error = 40;
                     this.host.class = 'node-f';
                     this.background.children[0].isFinish = true;
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
-                    this.host.error = 30;
+                    this.host.error = 40;
                     this.host.stage = 150;
                     this.host.class = 'node-s';
                     this.background.children[0].isFinish = true;
@@ -1242,7 +1238,6 @@ export default {
                 element.scrollTop(element.prop('scrollHeight'));
                 nodes = this.targets.concat(this.host);
             }
-
             return nodes;
         },
         generateTaskDer: function () {
@@ -1642,27 +1637,24 @@ export default {
             d3.selectAll("line").remove();
 
             if (host) {
-                this.host = {name: host, error: 30, stage: 50, class: 'node-i'}
+                this.host = {name: host, error: 40, stage: 50, class: 'node-i'}
                 mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'0build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
                 +'<div id="' + host +'0build' + '" class="collapse myCommandCard"  style="text-align:right"><div style="text-align:left"></div></div></div>');
             } else {
                 this.host = "";
                 mylog.append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
             }
-            //If there is a build process
 
-            /* //Remove
+            /* //Dummy data
             target = target.concat(['apple','kiwi','anana','melon','watermelon','bear','peach','berry','mango','orange'])
-            //console.log(target) */
+            */
            
-           
-           
-           if (target) {
+            if (target) {
                 let targetStr = '<h6 style="margin:0">Deploy: </h6>';
                 this.targets = target.map(t => {
                    targetStr += '<div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + t + '</button>'
                     +'<div id="' + t + '" class="collapse myCommandCard" style="text-align:right"><div  style="text-align:left"></div></div></div>';
-                    return { name: t, error: 30, stage: 250, class: 'node-i' }
+                    return { name: t, error: 40, stage: 250, class: 'node-i' }
                 })
                 mylog.append(targetStr);
             } else {
@@ -1676,13 +1668,11 @@ export default {
                 btn.innerHTML= ' &#8634;  Fetch logs';
                 btn.setAttribute("class", "btn btn-primary btn-sm");
                 btn.setAttribute("style", "padding:0 2px");
-                btn.onclick = ()=>{ 
-                    this.requestLogs(t.name);
-                };
+                btn.onclick = ()=>{this.requestLogs(t.name)};
                 element.append(btn);
             });
 
-             if(this.host){
+            if(this.host){
                 let btn = document.createElement('button');
                 btn.innerHTML= ' &#8634;  Fetch logs';
                 btn.setAttribute("class", "btn btn-primary btn-sm");
@@ -1690,12 +1680,18 @@ export default {
                 btn.onclick = ()=>{ 
                     this.requestLogs(this.host.name.substring(0, this.host.name.length - 6));
                 };
-                $('#'+this.host.name+'0build').append(btn);
-            } 
-            //If there is a deploy process
+            }
            
-            let size_B = 0;
-            this.targets.length < 10 ? size_B = 5 * this.targets.length : size_B = 22;
+            let size = 0, nodeSize = 0, r = 0;
+            this.targets.length < 6 ? size = 5 * this.targets.length : size = 30;
+            this.targets.length > 0 ? r = 30 / this.targets.length : r = 5;
+
+            if (r < 1) {
+                nodeSize = 2;
+            } else if (r > 5) {
+                nodeSize = 5;
+            } else { nodeSize = r }
+
             this.background =  {
                 name: 'START',
                 value: 5,
@@ -1707,26 +1703,15 @@ export default {
                     isFinish: true,
                     children: [{
                         name: 'START',
-                        value: size_B,
+                        value: size,
                         isFinish: true,
                         children: [
-                            { name: 'INSTALL', value: size_B,isFinish: true, children: [{ name: 'RUN', value: size_B,isFinish: true, }]
+                            { name: 'INSTALL', value: size, isFinish: true, children: [{ name: 'RUN', value: size, isFinish: true, }]
                             }]
                     }]
                 }]
             }
-           
-            let size = 0, nodeSize = 0;
-            this.targets.length < 10 ? size = 5 * this.targets.length : size = 50;
-            
-            if(this.targets.length>0) {var r = 50 / this.targets.length;}
-            else {var r = 5;}
-            if (r < 1) {
-                nodeSize = 1;
-            } else if (r > 5) {
-                nodeSize = 5;
-            } else { nodeSize = r }
-            
+                    
             this.installError = [];
             this.runError = [];
             let targetNodes = [];
@@ -1836,24 +1821,22 @@ export default {
                     
                     simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
                     d3.select("#myTree_p g.nodes").selectAll("circle").remove();
+
                     let root = d3.hierarchy(this.background);
                     treeLayout(root);
-
                     let nodes = d3.select("#myTree_p g.nodes")
                                     .selectAll('circle.node')
                                     .data(root.descendants())
                                     .enter().append('circle');
                     nodes.attr('cx', function (d) { return d.x; })
                         .attr('cy', function (d) { return d.y; })
-                        .attr('r', function (d) { return d.value+2; })
+                        .attr('r', function (d) { return d.value; })
                         .attr('fill', '#ececec')
                         .style("stroke-dasharray", ("10,4"))
-                        .style('stroke-width', '2px')
+                        .style('stroke-width', function (d) { return d.data.isFinish? '0px': '2px';})
                         .style("stroke", "#acacac")
                         .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
-                        .style('animation', function (d) { 
-                            return d.data.isFinish ? 'none':'spinoffPulse 1.5s infinite ease';
-                    }) 
+                        .style('animation', function (d) { return d.data.isFinish ? 'none':'spinoffPulse 1.5s infinite ease'; }) 
 
                     let links = d3.select("#myTree_p g.links")
                                     .selectAll('line.link')
@@ -1883,7 +1866,6 @@ export default {
                         console.log(error);
                 });
             }else{
-                
                 if(target && host){
                     targetNodes = this.targets.concat(this.host);
                 }else if(target && !host){
@@ -1893,8 +1875,8 @@ export default {
                 }
 
                 node = node.data(targetNodes);
-                    node.exit().remove();
-                    node = node.enter().append('circle')
+                node.exit().remove();
+                node = node.enter().append('circle')
                                 .attr('r', nodeSize)
                                 .attr('class', function (d) {return d.class; })
                                 .merge(node)
@@ -1919,8 +1901,7 @@ export default {
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
                 };
-                //$('#mylog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>')
-                
+          
                 this.ws.onmessage = event => {
                     let obj = JSON.parse(event.data);
                     targetNodes = this.generateTree3(obj.payload);
@@ -1947,15 +1928,13 @@ export default {
                                     .enter().append('circle');
                     nodes.attr('cx', function (d) { return d.x; })
                         .attr('cy', function (d) { return d.y; })
-                        .attr('r', function (d) { return d.value+2; })
+                        .attr('r', function (d) { return d.value; })
                         .attr('fill', '#ececec')
                         .style("stroke-dasharray", ("10,4"))
-                        .style('stroke-width', '2px')
+                        .style('stroke-width', function (d) {return d.data.isFinish? '0px': '2px';})
                         .style("stroke", "acacac")
                         .style('transform-origin', function (d) { return d.x + 'px '+ d.y +'px'; })
-                        .style('animation', function (d) { 
-                            return d.data.isFinish ? 'none':'spinoffPulse 2s infinite ease';
-                    }) 
+                        .style('animation', function (d) {  return d.data.isFinish ? 'none':'spinoffPulse 2s infinite ease';}) 
 
                     let links = d3.select("#myTree_p g.links")
                                     .selectAll('line.link')
@@ -1970,8 +1949,6 @@ export default {
                         .attr('stroke', '#ececec')
                         .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
 
-
-
                     let errorNodes = this.installError.concat(this.runError);
                     let circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
                                                   .data(errorNodes)
@@ -1985,8 +1962,6 @@ export default {
                 this.ws.onclose = function () {
                     console.log("Socket disconnected.");
                     $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
-                    // If socket disconnected, try to connect again after 5s.
-                    /* setTimeout(function () { listen(1, true);}, 5000); */
                 };
             }
         },
