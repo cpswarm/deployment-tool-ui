@@ -323,9 +323,11 @@
         <div id="myTree_dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
             <div class="modal-content" >
                 <div class="modal-header">
-                    <h5 id="treeTitle" class="modal-title">Process Tree</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
-                        <span aria-hidden="true">&times;</span>
+                    <h5 id="treeTitle" class="modal-title" style="text-align:left; margin-right:48%">Process Diagram</h5>
+                    <button id="editBtn" type="button" class="btn btn-light" style="padding: 0 4px; margin-right:5px" @click="goBackDeployment">&#9998; Edit 
+                    </button> 
+                    <button type="button" class="btn btn-light" style="padding: 0 4px" data-dismiss="modal" aria-label="Close" @click="closeModal">
+                        <span aria-hidden="true">&#10006; Close</span>
                     </button>
                 </div>
                 <div id="mytree-body" class="modal-body">
@@ -568,6 +570,9 @@ export default {
             this.success = [];
             this.markers.clearLayers();
             this.getTargets();
+            this.clearForm();
+            this.source = '';
+            $("#collapseOne").collapse("show");
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
 
@@ -1189,17 +1194,17 @@ export default {
                     element.scrollTop(element.prop('scrollHeight'));
                 }
                 nodes = this.targets; 
-                if(nodes.find(e=>{ return e.stage == 250 && e.commands })){
+                if(nodes.find(e=>{ return e.stage == 250 })){
                     this.background.children[0].children[0].isFinish = false;
                 }else {
                      this.background.children[0].children[0].isFinish = true;
                 }
-                if (nodes.find(e=>{ return e.stage == 350 && e.error == 40 && e.class !='node-s' && e.commands.length >0 })){
+                if (nodes.find(e=>{ return e.stage == 350 && e.error == 40 && e.class !='node-s' })){
                     this.background.children[0].children[0].children[0].isFinish = false;
                 }else{
                     this.background.children[0].children[0].children[0].isFinish = true;
                 }
-                if (nodes.find(e=>{ return e.stage == 450 && e.error == 40 && e.class !='node-s' && e.commands.length >0})){
+                if (nodes.find(e=>{ return e.stage == 450 && e.error == 40 && e.class !='node-s' })){
                     this.background.children[0].children[0].children[0].children[0].isFinish = false;
                 }else{
                      this.background.children[0].children[0].children[0].children[0].isFinish = true;
@@ -1397,6 +1402,14 @@ export default {
                 console.log(error);
             });
         },
+        goBackDeployment: function () {
+            $("#myTree").modal('toggle');
+            let id = $('#treeTitle').text().substring(17);
+            if($('#editBtn').val() == 'nodeploy'){
+                let order = this.orders.find(e =>{ return e.id == id})
+                this.duplicateOrder(order);
+            }
+        },
         handleFileSelect: function (event) {
 
             let files = event.target.files;
@@ -1416,10 +1429,10 @@ export default {
             axios.post(this.address + "/orders", myYaml).then(response => { 
                 response.data.build ? response.data.deploy : (response.data.build = "");
                 response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-                $("#collapseOne").collapse("show");
-                this.clearForm();
+                /* $("#collapseOne").collapse("show");
+                this.clearForm(); */
                 this.listen3(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
-                this.source = '';
+                /* this.source = ''; */
             }).catch(error => {
                 let message;
                 if(error.response){
@@ -1429,8 +1442,7 @@ export default {
                 }
                 $("#mymodal-body").empty().append(message);
                 $("#myAlert").modal();
-            });
-            
+            });     
         },
         listen: function (id, deploy, target, host) {
 
@@ -1630,7 +1642,7 @@ export default {
             
             let mylog = $("#mylog");
             mylog.empty(); 
-            $('#treeTitle').empty().append('Process Tree: '+id);
+            $('#treeTitle').empty().append('Process Diagram: '+id);
             $("#myTree").modal();
 
             d3.selectAll("circle").remove();
@@ -1733,7 +1745,8 @@ export default {
             
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000").then(response => {
-                   
+                    
+                    $('#editBtn').val('nodeploy');
                     targetNodes = this.generateTree3(response.data.items); 
                     //console.log(targetNodes)
                     /*  targetNodes = [{
@@ -1894,7 +1907,7 @@ export default {
             if (this.ws) {
                 this.ws.close();
                 this.ws = "";
-            } else {
+            } 
                 let address;
                 this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
                 this.ws = new WebSocket(address + this.address.substring(7) + "/events?task=" + id + "&topics=logs");
@@ -1963,7 +1976,7 @@ export default {
                     console.log("Socket disconnected.");
                     $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
                 };
-            }
+            
         },
         next: function () {
             if (this.offset > 0) {

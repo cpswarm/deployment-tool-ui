@@ -387,11 +387,11 @@
             <div id="myLog-dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 id="logTitle" class="modal-title" style="text-align:left; margin-right:57%">Task:</h5>
-                        <button type="button" class="btn btn-primary" style="padding: 0 2px" @click="requestLogs"> &#8634; Fetch logs
+                        <h5 id="logTitle" class="modal-title" style="text-align:left; margin-right:54%">Task:</h5>
+                        <button type="button" class="btn btn-light" style="padding: 0 4px; margin-right:5px" @click="requestLogs"> &#8634; Fetch logs
                         </button> 
-                        <button type="button" data-dismiss="modal" aria-label="Close" class="close">
-                            <span aria-hidden="true">&times;</span>
+                        <button type="button" class="btn btn-light" style="padding: 0 4px" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&#10006; Close</span>
                         </button>
                     </div>
                     <div id="mylog-body" class="modal-body">
