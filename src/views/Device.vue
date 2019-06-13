@@ -5,6 +5,172 @@
                 <h5 style="display: inline-block; margin:5px">Device Management</h5>
             </div>
             <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
+                   <div class="card">
+                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
+                            aria-expanded="false" aria-controls="collapseTwo" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            <img src="../assets/edit.png" style="width:20px">
+                            Update Devices
+                        </button>
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                        <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:auto">
+                            <p style="margin-bottom:0;font-size:14px">Updating Targets:</p>
+                             <small>
+                               (CLICK cluster or DOUBLE CLICK marker to select Target.)
+                            </small>
+                            <div style="height:380px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: auto">
+                                <div>
+                                    <form class="form-inline">
+                                        <div class="input-group" style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
+                                            <div id="searchTarget2"></div>
+                                            <input class="dropdown-toggle form-control form-control-sm" type="text"
+                                                v-model="searchText2" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false" @keyup="filterDevice" style="font-size: 14px;height: 26px;padding: 5px; border:none">
+                                            <div class="input-group-append">
+                                                <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
+                                                    @click="searchTarget2">
+                                                    <img src="../assets/search.png" style="height:20px">
+                                                </a>
+                                            </div>
+                                            <div class="dropdown-menu" style="padding:2.5px">
+                                                    <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
+                                            <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem2(device.id)"
+                                                style="font-size:14px;padding:0 15px">{{device.id}}</a>
+                                             <div class="dropdown-divider"></div>
+                                             <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
+                                            <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem2(tag.tag)"
+                                                style="font-size:14px;padding:0 15px">{{tag.tag}}</a>
+                    
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div v-for="device in targetDevices" class="simpleDeviceCard">
+                                    <div style="padding:2.5px;">Name:
+                                        <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
+                                        <button type="button" class="close" aria-label="Close" @click="removeDevice(device.id)"
+                                            style="height:20px">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="input-group" style="padding:2.5px">Tags:
+                                        <div v-for="tag in device.tags" style="padding: 2.5px; margin: 0 2.5px;line-height: 1.5;"
+                                            class="badge badge-secondary">{{tag}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p style="margin-bottom:5px;font-size:14px">This update settings will apply to all selected
+                                deivces.</p>
+                            <form id="updateTags">
+                                <div class="mycard-title">Tags:</div>
+                                <div class="mycard-content">
+                                    <div class="input-group">
+                                        <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
+                                        <div class="btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="sensor" > sensor
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="raspi0" > raspi0
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="actuator"> actuator
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="light" >light
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="motion"> motion
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <h6 class="mycard-content" style="margin-top:2.5px">HW Arch:</h6>
+                                        <div class="btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="amd64" > amd64
+                                            </label>
+                                            <label class="btn btn-light" >
+                                                <input type="checkbox" autocomplete="off" value="arm32" > arm32
+                                            </label>
+                                            <label class="btn btn-light" >
+                                                <input type="checkbox" autocomplete="off" value="raspi2" > raspi2
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <h6 class="mycard-content" style="margin-top:2.5px">OS:</h6>
+                                        <div class="btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-light">
+                                                <input value="builder" type="checkbox"> builder
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox"  value="linux" > linux
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" value="darwin"> darwin
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mycard-title">Location:</div>
+                                <div class="mycard-content"> 
+                                    <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" v-model="location"></div>
+                            </form>
+                            <div style="text-align:right;margin-top:5px;">
+                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;margin-right:5px" @click="clearForm">Clear</button>
+                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;" @click="batchUpdate">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
+                            aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            <img src="../assets/key.svg" style="height:20px">
+                            Manage Tokens
+                        </button>
+                   
+                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                        <div ref="collapseThree" style="overflow:auto">
+                        <div style="margin:10px 12.5px 5px;">
+                            <form id="newToken" class="form-inline">
+                                <div class="mycard-title">
+                                    <h6 style="font-size:15px;margin:0">Token Set Name:</h6>
+                                </div>
+                                <div class="mycard-content">
+                                    <input v-model ="tokenName" class="form-control form-control-sm" type="text" style="height: 26px;">
+                                </div>
+                                <div class="mycard-title">
+                                    <h6 style="font-size:15px;margin:0">#Tokens:</h6></div>
+                                <div class="mycard-content">
+                                    <input v-model ="tokenSize" class="form-control form-control-sm" type="text" style="height: 26px;">
+                                    <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px; margin-left:20px" @click="postToken">Get</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div style="padding:5px">
+                            <table id="mytable" class="table" style="text-align:left;font-size:15px">
+                                <thead>
+                                    <tr>
+                                       <th scope="col">Name</th>
+                                        <th scope="col">#Available </th>
+                                        <th scope="col">Expires Time</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="tokenSet in token">
+                                        <td>{{tokenSet.name}}</td>
+                                        <td>{{tokenSet.available}}</td>
+                                        <td>{{tokenSet.expiresAt}}</td>
+                                        <td><button class="btn btn-danger btn-sm" @click="deleteToken(tokenSet.name)" style="padding: 0 5px">Delete</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
@@ -187,172 +353,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
-                            aria-expanded="false" aria-controls="collapseTwo" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
-                            <img src="../assets/edit.png" style="width:20px">
-                            Update Devices
-                        </button>
-                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-                        <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:auto">
-                            <p style="margin-bottom:0;font-size:14px">Updating Targets:</p>
-                             <small>
-                               (CLICK cluster or DOUBLE CLICK marker to select Target.)
-                            </small>
-                            <div style="height:380px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: auto">
-                                <div>
-                                    <form class="form-inline">
-                                        <div class="input-group" style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
-                                            <div id="searchTarget2"></div>
-                                            <input class="dropdown-toggle form-control form-control-sm" type="text"
-                                                v-model="searchText2" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false" @keyup="filterDevice" style="font-size: 14px;height: 26px;padding: 5px; border:none">
-                                            <div class="input-group-append">
-                                                <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
-                                                    @click="searchTarget2">
-                                                    <img src="../assets/search.png" style="height:20px">
-                                                </a>
-                                            </div>
-                                            <div class="dropdown-menu" style="padding:2.5px">
-                                                    <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
-                                            <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem2(device.id)"
-                                                style="font-size:14px;padding:0 15px">{{device.id}}</a>
-                                             <div class="dropdown-divider"></div>
-                                             <p class="dropdown-header" style="padding:2px 5px">   <strong> Tags:</strong> </p>
-                                            <a v-for="tag in tags" class="dropdown-item" v-show="tag.isActive" @click="selectItem2(tag.tag)"
-                                                style="font-size:14px;padding:0 15px">{{tag.tag}}</a>
-                    
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div v-for="device in targetDevices" class="simpleDeviceCard">
-                                    <div style="padding:2.5px;">Name:
-                                        <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
-                                        <button type="button" class="close" aria-label="Close" @click="removeDevice(device.id)"
-                                            style="height:20px">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="input-group" style="padding:2.5px">Tags:
-                                        <div v-for="tag in device.tags" style="padding: 2.5px; margin: 0 2.5px;line-height: 1.5;"
-                                            class="badge badge-secondary">{{tag}}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <p style="margin-bottom:5px;font-size:14px">This update settings will apply to all selected
-                                deivces.</p>
-                            <form id="updateTags">
-                                <div class="mycard-title">Tags:</div>
-                                <div class="mycard-content">
-                                    <div class="input-group">
-                                        <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
-                                        <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="sensor" > sensor
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="raspi0" > raspi0
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="actuator"> actuator
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="light" >light
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="motion"> motion
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="input-group">
-                                        <h6 class="mycard-content" style="margin-top:2.5px">HW Arch:</h6>
-                                        <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="amd64" > amd64
-                                            </label>
-                                            <label class="btn btn-light" >
-                                                <input type="checkbox" autocomplete="off" value="arm32" > arm32
-                                            </label>
-                                            <label class="btn btn-light" >
-                                                <input type="checkbox" autocomplete="off" value="raspi2" > raspi2
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="input-group">
-                                        <h6 class="mycard-content" style="margin-top:2.5px">OS:</h6>
-                                        <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light">
-                                                <input value="builder" type="checkbox"> builder
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="checkbox"  value="linux" > linux
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" value="darwin"> darwin
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mycard-title">Location:</div>
-                                <div class="mycard-content"> 
-                                    <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" v-model="location"></div>
-                            </form>
-                            <div style="text-align:right;margin-top:5px;">
-                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;margin-right:5px" @click="clearForm">Clear</button>
-                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;" @click="batchUpdate">Update</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
-                            aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
-                            <img src="../assets/key.svg" style="height:20px">
-                            Manage Tokens
-                        </button>
-                   
-                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
-                        <div ref="collapseThree" style="overflow:auto">
-                        <div style="margin:10px 12.5px 5px;">
-                            <form id="newToken" class="form-inline">
-                                <div class="mycard-title">
-                                    <h6 style="font-size:15px;margin:0">Token Set Name:</h6>
-                                </div>
-                                <div class="mycard-content">
-                                    <input v-model ="tokenName" class="form-control form-control-sm" type="text" style="height: 26px;">
-                                </div>
-                                <div class="mycard-title">
-                                    <h6 style="font-size:15px;margin:0">#Tokens:</h6></div>
-                                <div class="mycard-content">
-                                    <input v-model ="tokenSize" class="form-control form-control-sm" type="text" style="height: 26px;">
-                                    <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px; margin-left:20px" @click="postToken">Get</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div style="padding:5px">
-                            <table id="mytable" class="table" style="text-align:left;font-size:15px">
-                                <thead>
-                                    <tr>
-                                       <th scope="col">Name</th>
-                                        <th scope="col">#Available </th>
-                                        <th scope="col">Expires Time</th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="tokenSet in token">
-                                        <td>{{tokenSet.name}}</td>
-                                        <td>{{tokenSet.available}}</td>
-                                        <td>{{tokenSet.expiresAt}}</td>
-                                        <td><button class="btn btn-danger btn-sm" @click="deleteToken(tokenSet.name)" style="padding: 0 5px">Delete</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        </div>
-                    </div>
-                </div>
+             
             </div>
         </div>
         <div id="map"  ref="map"></div>
@@ -1582,7 +1583,7 @@ export default {
 }
 .mycard {
   display: grid;
-  grid-template-columns: 1fr 2.5fr;
+  grid-template-columns: 1fr 3fr;
   padding: 2.5px;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 2px;

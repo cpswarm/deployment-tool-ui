@@ -5,146 +5,12 @@
             <h5 draggable="true" style="display: inline-block; margin:5px">Deployment Management</h5>
         </div>
         <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
-            <div class="card">       
-                  <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
-                            aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
-                            <img src="../assets/device.png" style="width:18px">
-                            Deployment List
-                    </button>        
-                <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
-                    <div style="padding:5px;" >
-                    <form class="form-inline" style="margin-bottom:5px"> 
-                        <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh">
-                            <img src="../assets/refresh.svg" style="width:16px">
-                        </button>
-                        <div class="input-group" style="width:92%">
-                             <div id="searchOrder"></div>
-                            <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(orderSearchT)"
-                                style="font-size: 14px;height: 26px;padding: 5px;">
-                            <div class="input-group-append">
-                                <a class="btn btn-outline-secondary" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchDes">
-                                    <img src="../assets/search.png" style="height:20px">
-                                </a>
-                            </div>
-                            <div class="dropdown-menu" style="padding:2.5px; max-height:550px;overflow:auto">
-                                <p class="dropdown-header" style="padding:2px 5px"> You can also search by description!</p>   
-                                <div class="dropdown-divider"></div>
-                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
-                               <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectOrder(order.id)" style="font-size:14px;padding:0 15px">{{order.id}}</a>
-                            </div>
-                        </div>
-                    </form>
-                        <div id="deploymentList" ref="list" style="overflow:auto">
-                            <div v-for="order in orderOrders"   v-show="order.cardActive" :key="order.id" @click="clickCard(order)">
-                                <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
-                                    <div class="mycard-title">Name:</div>
-                                    <div class="mycard-content">{{order.id}}</div>
-                                    <div class="mycard-title">Description:</div>
-                                    <div class="mycard-content">{{order.description}}</div>
-                                    <div class="mycard-title">Devices:</div>
-                                    <div class="mycard-content">
-                                    <img src="../assets/done.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
-                                        <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
-                                    </button>
-                                    <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
-                                        <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
-                                    </button>
-                                </div>
-                                <div class="mycard-title">Created Time:</div>
-                                <div class="mycard-content">{{new Date(order.createdAt).toLocaleString()}}</div>
-                                <div class="mycard-title">Finished Time:</div>
-                                <div class="mycard-content">{{new Date(order.finishedAt).toLocaleString()}}</div>
-                                <div class="mycard-title">Commands:</div>
-                                <div class="mycard-content">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isActive? order.isActive= false: order.isActive=true">
-                                        <img src="../assets/search.png" style="width:16px">
-                                    </button>
-                                </div>
-                                <div class="myCommand" v-show="order.isActive">
-                                    <div class="mycom-title">Build:</div>
-                                    <div class="mycom-content" style="color:#00AE31">commands:</div>
-                                    <div></div>
-                                    <div>
-                                        <div v-if="order.build">
-                                            <div v-for="c in order.build.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
-                                        </div>
-                                    </div>
-                                    <div></div>
-                                    <div class="mycom-content" style="color:#00AE31">artifacts:</div>
-                                    <div></div>
-                                    <div>
-                                        <div v-if="order.build">
-                                            <div v-for="a in order.build.artifacts" class="mycom-content" style="color:#2E51AB">-{{a}}</div>
-                                        </div>
-                                    </div>
-                                    <div></div>
-                                    <div class="mycom-content" style="color:#00AE31">hosts:</div>
-                                    <div></div>
-                                    <div>
-                                        <div v-if="order.build">
-                                            <div class="mycom-content" style="color:#2E51AB">-{{order.build.host}}</div>
-                                        </div>
-                                    </div>
-                                    <div class="mycom-title">Install:</div>
-                                    <div class="mycom-content" style="color:#00AE31">commands:</div>
-                                    <div></div>
-                                    <div><div v-if="order.deploy">
-                                        <div v-for="c in order.deploy.install.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
-                                    </div>
-                                    </div>
-                                    <div class="mycom-title">Run:</div>
-                                    <div class="mycom-content" style="color:#00AE31">commands:</div>
-                                    <div></div>
-                                    <div>
-                                        <div v-if="order.deploy">
-                                        <div v-for="c in order.deploy.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
-                                    </div>
-                                    </div>                                   
-                                    <div class="mycom-title">Target:</div>
-                                    <div class="mycom-content" style="color:#00AE31">ids:</div>
-                                    <div></div>
-                                    <div>
-                                         <div v-if="order.deploy">
-                                        <div v-for="t in order.deploy.target.ids" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
-                                    </div>
-                                   </div>                                   
-                                    <div></div>
-                                    <div class="mycom-content" style="color:#00AE31">tags:</div>
-                                    <div></div>
-                                    <div>
-                                        <div v-if="order.deploy">
-                                        <div v-for="t in order.deploy.target.tags" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
-                                    </div>
-                                    </div>
-                                </div>
-                                <div></div>
-                                <div style="text-align: right">
-                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="stopOrder(order)">
-                                        <img src="../assets/stop.png" style="width:16px">
-                                    </button>
-                                      <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="deleteOrder(order)">
-                                        <img src="../assets/delete.png" style="height:16px">
-                                    </button>
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="duplicateOrder(order)">
-                                        <img src="../assets/duplicate.png" style="width:18px">
-                                    </button>
-                                </div>
-                                </div>    
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
+             <div class="card">
                     <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                         aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
                         <img src="../assets/add.png" style="height:20px">
                         Add New Deployment
                     </button>
-           
                 <div id="collapseThree"  class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" style="overflow:auto">
                     <div class="card-body" style="padding:7.5px" ref="collapseThree">
                         <h6 style="text-align:left">
@@ -290,6 +156,140 @@
                     </div>
                 </div>
             </div>
+            <div class="card">       
+                  <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            <img src="../assets/device.png" style="width:18px">
+                            Deployment List
+                    </button>        
+                <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
+                    <div style="padding:5px;" >
+                    <form class="form-inline" style="margin-bottom:5px"> 
+                        <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh">
+                            <img src="../assets/refresh.svg" style="width:16px">
+                        </button>
+                        <div class="input-group" style="width:92%">
+                             <div id="searchOrder"></div>
+                            <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(orderSearchT)"
+                                style="font-size: 14px;height: 26px;padding: 5px;">
+                            <div class="input-group-append">
+                                <a class="btn btn-outline-secondary" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchDes">
+                                    <img src="../assets/search.png" style="height:20px">
+                                </a>
+                            </div>
+                            <div class="dropdown-menu" style="padding:2.5px; max-height:550px;overflow:auto">
+                                <p class="dropdown-header" style="padding:2px 5px"> You can also search by description!</p>   
+                                <div class="dropdown-divider"></div>
+                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
+                               <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectOrder(order.id)" style="font-size:14px;padding:0 15px">{{order.id}}</a>
+                            </div>
+                        </div>
+                    </form>
+                        <div id="deploymentList" ref="list" style="overflow:auto">
+                            <div v-for="order in orderOrders"   v-show="order.cardActive" :key="order.id" @click="clickCard(order)">
+                                <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
+                                    <div class="mycard-title">Name:</div>
+                                    <div class="mycard-content">{{order.id}}</div>
+                                    <div class="mycard-title">Description:</div>
+                                    <div class="mycard-content">{{order.description}}</div>
+                                    <div class="mycard-title">Devices:</div>
+                                    <div class="mycard-content">
+                                    <img src="../assets/done.png" style="width:16px">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
+                                        <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
+                                    </button>
+                                    <img src="../assets/error.png" style="width:16px">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
+                                        <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
+                                    </button>
+                                </div>
+                                <div class="mycard-title">Created Time:</div>
+                                <div class="mycard-content">{{new Date(order.createdAt).toLocaleString()}}</div>
+                                <div class="mycard-title">Finished Time:</div>
+                                <div class="mycard-content">{{new Date(order.finishedAt).toLocaleString()}}</div>
+                                <div class="mycard-title">Commands:</div>
+                                <div class="mycard-content">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isActive? order.isActive= false: order.isActive=true">
+                                        <img src="../assets/search.png" style="width:16px">
+                                    </button>
+                                </div>
+                                <div class="myCommand" v-show="order.isActive">
+                                    <div class="mycom-title">Build:</div>
+                                    <div class="mycom-content" style="color:#00AE31">commands:</div>
+                                    <div></div>
+                                    <div>
+                                        <div v-if="order.build">
+                                            <div v-for="c in order.build.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                                        </div>
+                                    </div>
+                                    <div></div>
+                                    <div class="mycom-content" style="color:#00AE31">artifacts:</div>
+                                    <div></div>
+                                    <div>
+                                        <div v-if="order.build">
+                                            <div v-for="a in order.build.artifacts" class="mycom-content" style="color:#2E51AB">-{{a}}</div>
+                                        </div>
+                                    </div>
+                                    <div></div>
+                                    <div class="mycom-content" style="color:#00AE31">hosts:</div>
+                                    <div></div>
+                                    <div>
+                                        <div v-if="order.build">
+                                            <div class="mycom-content" style="color:#2E51AB">-{{order.build.host}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mycom-title">Install:</div>
+                                    <div class="mycom-content" style="color:#00AE31">commands:</div>
+                                    <div></div>
+                                    <div><div v-if="order.deploy">
+                                        <div v-for="c in order.deploy.install.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                                    </div>
+                                    </div>
+                                    <div class="mycom-title">Run:</div>
+                                    <div class="mycom-content" style="color:#00AE31">commands:</div>
+                                    <div></div>
+                                    <div>
+                                        <div v-if="order.deploy">
+                                        <div v-for="c in order.deploy.run.commands" class="mycom-content" style="color:#2E51AB">-{{c}}</div>
+                                    </div>
+                                    </div>                                   
+                                    <div class="mycom-title">Target:</div>
+                                    <div class="mycom-content" style="color:#00AE31">ids:</div>
+                                    <div></div>
+                                    <div>
+                                         <div v-if="order.deploy">
+                                        <div v-for="t in order.deploy.target.ids" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
+                                    </div>
+                                   </div>                                   
+                                    <div></div>
+                                    <div class="mycom-content" style="color:#00AE31">tags:</div>
+                                    <div></div>
+                                    <div>
+                                        <div v-if="order.deploy">
+                                        <div v-for="t in order.deploy.target.tags" class="mycom-content" style="color:#2E51AB">-{{t}}</div>
+                                    </div>
+                                    </div>
+                                </div>
+                                <div></div>
+                                <div style="text-align: right">
+                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="stopOrder(order)">
+                                        <img src="../assets/stop.png" style="width:16px">
+                                    </button>
+                                      <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="deleteOrder(order)">
+                                        <img src="../assets/delete.png" style="height:16px">
+                                    </button>
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="duplicateOrder(order)">
+                                        <img src="../assets/duplicate.png" style="width:18px">
+                                    </button>
+                                </div>
+                                </div>    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
         </div>
     </div>
     <div id="map" ref="map"></div>
@@ -1225,7 +1225,7 @@ export default {
                     this.host.class = 'node-s';
                     this.background.children[0].isFinish = true;
                 }
-                this.host.stage==150? this.background.isFinish = true:this.background.isFinish = false;
+                this.host.stage == 150 ? this.background.isFinish = true:this.background.isFinish = false;
                 let c_b = "";
                 one.forEach(log => {
                     let s = "";
@@ -1695,7 +1695,7 @@ export default {
             this.background =  {
                 name: 'START',
                 value: 5,
-                isFinish: true,
+                isFinish: this.host? false:true,
                 children: [{
                     name: 'BUILD',
                     value: 5,
@@ -1830,7 +1830,7 @@ export default {
                                     .enter().append('circle');
                     nodes.attr('cx', function (d) { return d.x; })
                         .attr('cy', function (d) { return d.y; })
-                        .attr('r', function (d) { return d.value; })
+                        .attr('r', function (d) { return d.value+1; })
                         .attr('fill', '#ececec')
                         .style("stroke-dasharray", ("10,4"))
                         .style('stroke-width', function (d) { return d.data.isFinish? '0px': '2px';})
@@ -1928,7 +1928,7 @@ export default {
                                     .enter().append('circle');
                     nodes.attr('cx', function (d) { return d.x; })
                         .attr('cy', function (d) { return d.y; })
-                        .attr('r', function (d) { return d.value; })
+                        .attr('r', function (d) { return d.value+1; })
                         .attr('fill', '#ececec')
                         .style("stroke-dasharray", ("10,4"))
                         .style('stroke-width', function (d) {return d.data.isFinish? '0px': '2px';})
@@ -2188,7 +2188,7 @@ export default {
 
         this.$refs.map.style.height = window.innerHeight + "px";
         this.$refs.list.style.height = window.innerHeight - 34 - 27 - 32 - 20 - 32 + "px";
-        this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 - 22 + "px";
+        this.$refs.collapseThree.style.height = window.innerHeight - 34 - 27 - 32 - 10 + "px";
 
         this.address = localStorage.getItem('address');
 
