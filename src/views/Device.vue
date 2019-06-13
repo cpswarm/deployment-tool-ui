@@ -7,7 +7,7 @@
             <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
                    <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
-                            aria-expanded="false" aria-controls="collapseTwo" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            aria-expanded="false" aria-controls="collapseTwo" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panle to batch update devices">
                             <img src="../assets/edit.png" style="width:20px">
                             Update Devices
                         </button>
@@ -24,13 +24,7 @@
                                             <div id="searchTarget2"></div>
                                             <input class="dropdown-toggle form-control form-control-sm" type="text"
                                                 v-model="searchText2" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false" @keyup="filterDevice" style="font-size: 14px;height: 26px;padding: 5px; border:none">
-                                            <div class="input-group-append">
-                                                <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
-                                                    @click="searchTarget2">
-                                                    <img src="../assets/search.png" style="height:20px">
-                                                </a>
-                                            </div>
+                                                aria-expanded="false" @keyup="filterDevice" style="font-size: 14px;height: 26px;padding: 5px; border:none"  :placeholder="'Search'">
                                             <div class="dropdown-menu" style="padding:2.5px">
                                                     <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem2(device.id)"
@@ -116,16 +110,17 @@
                                 <div class="mycard-content"> 
                                     <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" v-model="location"></div>
                             </form>
-                            <div style="text-align:right;margin-top:5px;">
-                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;margin-right:5px" @click="clearForm">Clear</button>
-                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;" @click="batchUpdate">Update</button>
-                            </div>
+                        
+                            <div style="margin-top:5px">
+                                <button type="button" class="btn btn-danger" style="font-size:14px;padding: 2.5px 5px;" @click="clearForm">Clear</button>
+                                <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;float:right" @click="batchUpdate">Update</button>
+                            </div>    
                         </div>
                     </div>
                 </div>
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
-                            aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panel to manage tokens">
                             <img src="../assets/key.svg" style="height:20px">
                             Manage Tokens
                         </button>
@@ -173,7 +168,7 @@
                 </div>
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
-                            aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open devices list">
                             <img src="../assets/device.png" style="width:18px">
                             Device List
                         </button>
@@ -182,20 +177,14 @@
                         <div style="padding:5px">
                             <div id="search" style="margin-bottom:5px">    
                                 <form class="form-inline">
-                                    <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh">
+                                    <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh" title="Refresh devices list">
                                         <img src="../assets/refresh.svg" style="width:16px">
                                     </button>
                                     <div class="input-group" style="width:92%;">
                                         <div id="searchTarget"></div>
                                         <input class="dropdown-toggle form-control form-control-sm" type="text" v-model="searchText"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterDevice" :placeholder="'Search'"
                                             style="font-size: 14px;height: 26px;padding: 5px;">
-                                        <div class="input-group-append">
-                                            <a class="btn btn-outline-secondary" aria-expanded="true" style="padding: 0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
-                                                @click="searchTarget">
-                                                <img src="../assets/search.png" style="height:20px">
-                                            </a>
-                                        </div>
                                         <div class="dropdown-menu" style="padding:2.5px">
                                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem(device.id)"
@@ -210,14 +199,14 @@
                             </div>                           
                             <div id="deviceList" ref="list" style="overflow:auto">
                                 <div v-for="device in orderTargets" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
-                                    <div class="mycard my-card-body" style="padding:5px;margin-bottom:5px">
+                                    <div class="mycard my-card-body" style="padding:8px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
                                         <div class="mycard-content" >{{device.id}}</div>
                                         <div class="mycard-title">Tags:</div>
                                         <div class="mycard-content">
                                             <span>
                                                 <button v-for="tag in device.tags" class="badge badge-pill" :class="tag"
-                                                    @click="showRelationship(tag,device)">{{tag}}
+                                                    @click="showRelationship(tag,device)" title="Cilck and check devices sharing with this tag">{{tag}}
                                                 </button>
                                             </span>
                                         </div>
@@ -238,28 +227,28 @@
                                         </div>
                                         <div v-else></div> -->
                                         <div class="mycard-title">Task History:</div>
-                                        <div>
+                                        <div style="margin-bottom:5px">
                                             <div v-if="device.logs.tasks[0][1]!='none'">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
                                                 <li v-for="task in device.logs.tasks.slice().reverse()" class="history_li" @click="showLog(device.logs.log, task[0],device.id)">    
                                                     {{task[0].substring(0,2)}}  
-                                                    <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >  
-                                                    <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" >                
+                                                    <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" title="Click to check logs" >  
+                                                    <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" title="Click to check logs">                
                                                 </li>
                                             </div>
                                         </div>
                                         <div></div>
                                         <div style="text-align:right">
-                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/terminal.png" style="width:16px;margin-right:5px"
-                                                    @click="showTerminal">
+                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px; margin-right:2px" title="Open a terminal" @click="showTerminal">
+                                                <img src="../assets/terminal.png" style="width:15px"
+                                                   >
                                             </button>
-                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/edit.png" style="width:16px;margin-right:2.5px"
-                                                    @click="showEditForm(device)">
+                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" title="Open edit form" @click="showEditForm(device)">
+                                                <img src="../assets/edit.png" style="width:16px"
+                                                   >
                                             </button>
-                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/delete.png" style="width:16px;margin-right:5px" @click="deleteTarget(device.id)">
+                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" title="Delete device" @click="deleteTarget(device.id)">
+                                                <img src="../assets/delete.png" style="width:16px" >
                                             </button>
                                         </div>
                                     </div>
@@ -387,7 +376,7 @@
             <div id="myLog-dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 id="logTitle" class="modal-title" style="text-align:left; margin-right:54%">Task:</h5>
+                        <h5 id="logTitle" class="modal-title" style="text-align:left; margin-right:53%">Task:</h5>
                         <button type="button" class="btn btn-light" style="padding: 0 4px; margin-right:5px" @click="requestLogs"> &#8634; Fetch logs
                         </button> 
                         <button type="button" class="btn btn-light" style="padding: 0 4px" data-dismiss="modal" aria-label="Close">
@@ -432,8 +421,8 @@
                     <li v-for="order in orderOrders.slice().reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
-                        <img v-if="order.status[1]==0 && order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
-                        <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
+                        <img v-if="order.status[1]==0 && order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" title="Click to check related devices">  
+                        <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" title="Click to check related devices">              
                     </div>
              
                     </li> 
@@ -445,19 +434,19 @@
                 <img src="../assets/star.png">
             </div>
             <div class="mycard-content">
-                <button type="button" class="btn btn-light btn-sm" style="color:#ffda44" @click="showNewDevices">{{this.newDiscover.length}}</button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#ffda44" @click="showNewDevices" title="Click to check new discovered devices list">{{this.newDiscover.length}}</button>
             </div> 
             <div class="mycard-title" style="color:#d80027">Failed:
                 <img src="../assets/error.png">
             </div>
             <div class="mycard-content">
-                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="filterDevices('failed')">{{this.failed.length}}</button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="filterDevices('failed')"  title="Click to check failed devices list">{{this.failed.length}}</button>
             </div>
             <div class="mycard-title" style="color:#00ae31">Successful:
                  <img src="../assets/done.png">
             </div>
             <div class="mycard-content" >
-                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="filterDevices('success')">{{this.success.length}} </button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="filterDevices('success')" title="Click to check success devices list">{{this.success.length}} </button>
             </div>
         </div>
     </div>
@@ -1583,7 +1572,7 @@ export default {
 }
 .mycard {
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr 3.3fr;
   padding: 2.5px;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 2px;
@@ -1594,12 +1583,12 @@ export default {
 }
 .mycard-title {
   text-align: right;
-  font-size: 15px;
+  font-size: 14px;
   padding-right:5px
 }
 .mycard-content {
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
 }
 .myHeading{
   padding: 0;

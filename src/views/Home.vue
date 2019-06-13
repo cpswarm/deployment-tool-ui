@@ -5,19 +5,19 @@
                     <label class="btn btn-light active">
                         <input type="radio" name="options" id="option1" autocomplete="off" checked>
                             <router-link class="" to="/home">
-                                <img src="../assets/devices.png" width="30" height="30" alt="">
+                                <img src="../assets/devices.png" width="30" height="30" title="Device Management">
                             </router-link>
                     </label>
                     <label class="btn btn-light">
                         <input type="radio" name="options" id="option2" autocomplete="off">  
                             <router-link class="" to="/home/deployment">
-                                <img src="../assets/deployment.png" width="30" height="30" alt="">
+                                <img src="../assets/deployment.png" width="30" height="30" title="Deployment Management">
                             </router-link>
                     </label>
                     <label class="btn btn-light">
                         <input type="radio" name="options" id="option3" autocomplete="off">  
                             <router-link class="" to="/home/setting">
-                                <img src="../assets/settings.png" width="30" height="30" alt="">
+                                <img src="../assets/settings.png" width="30" height="30" title="Settings">
                             </router-link>
                     </label>
                 </div>

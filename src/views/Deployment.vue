@@ -7,19 +7,17 @@
         <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
              <div class="card">
                     <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
-                        aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                        aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panel to create new deployment task">
                         <img src="../assets/add.png" style="height:20px">
                         Add New Deployment
                     </button>
                 <div id="collapseThree"  class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" style="overflow:auto">
                     <div class="card-body" style="padding:7.5px" ref="collapseThree">
                         <h6 style="text-align:left">
-                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" data-toggle="collapse"
-                                data-target="#collapseOne">
-                                <img src="../assets/duplicate.png" style="width:20px">
+                            <button type="button" class="btn btn-primary btn-sm" style="padding: 0 4px" data-toggle="collapse"
+                                data-target="#collapseOne" title="Go back deployments list and duplicate one">Duplicate
                             </button>
-                            <a style="font-size:15px">Duplicate one exsiting deployment</a>
-                            <button type="button" class="btn btn-primary btn-sm" style="padding: 0 4px;position:relative;float:right;font-size:14px" @click="showYaml">View Yaml
+                            <button type="button" class="btn btn-primary btn-sm" style="padding: 0 4px;position:relative;float:right;font-size:14px" title="Click to view this configuration in .yaml" @click="showYaml">Yaml
                             </button>
                         </h6>
                         <form id="newDeployment">
@@ -107,13 +105,7 @@
                                         <div id="searchTarget"></div>
                                         <input class="dropdown-toggle form-control form-control-sm" type="text" v-model="targetText"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterTarget"
-                                            style="font-size: 14px;height: 26px;padding: 5px; border:none">
-                                        <div class="input-group-append">
-                                            <a class="btn btn-outline-secondary" aria-expanded="true" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;"
-                                                @click="searchTarget">
-                                                <img src="../assets/search.png" style="height:20px">
-                                            </a>
-                                        </div>
+                                            style="font-size: 14px;height: 26px;padding: 5px; border:none" :placeholder="'Search'">
                                         <div class="dropdown-menu" style="padding:2.5px">
                                                    <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="device in fullDevices" class="dropdown-item" v-show="device.nameActive" @click="selectItem(device.id)"
@@ -142,10 +134,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div></div> 
+                            <div style="text-align:left;margin:10px 0">
+                                <button class="btn btn-danger" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px">Clear</button></div> 
                             <div style="text-align:right;margin-top:10px">
-                                 <button class="btn btn-primary" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px;margin-right:5px">Clear</button>
-                                <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
+                                   <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
                             </div>
                         </form>
                        
@@ -158,21 +150,21 @@
             </div>
             <div class="card">       
                   <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
-                            aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500">
+                            aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open deployments list">
                             <img src="../assets/device.png" style="width:18px">
                             Deployment List
                     </button>        
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
                     <form class="form-inline" style="margin-bottom:5px"> 
-                        <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh">
+                        <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh" title="Refresh deployments list">
                             <img src="../assets/refresh.svg" style="width:16px">
                         </button>
                         <div class="input-group" style="width:92%">
                              <div id="searchOrder"></div>
                             <input class="dropdown-toggle form-control form-control-sm" v-model="orderSearchT" type="text"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(orderSearchT)"
-                                style="font-size: 14px;height: 26px;padding: 5px;">
+                                style="font-size: 14px;height: 26px;padding: 5px;" :placeholder="'Search'">
                             <div class="input-group-append">
                                 <a class="btn btn-outline-secondary" style="padding:0 5px;border-top-right-radius: 2.5px;border-bottom-right-radius: 2.5px;" @click="searchDes">
                                     <img src="../assets/search.png" style="height:20px">
@@ -196,11 +188,11 @@
                                     <div class="mycard-title">Devices:</div>
                                     <div class="mycard-content">
                                     <img src="../assets/done.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)" title="Click to review status daigram">
                                         <p style="color:#00AE31;display:inline-block;padding:2.5px;margin:0">{{order.status[0]}}</p>
                                     </button>
                                     <img src="../assets/error.png" style="width:16px">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="listen3(order.id,false, order.deploy.match.list,order.build.host)" title="Click to review status daigram">
                                         <p style="color:#D80027;display:inline-block;padding:2.5px;margin:0">{{order.status[1]}}</p>
                                     </button>
                                 </div>
@@ -210,8 +202,8 @@
                                 <div class="mycard-content">{{new Date(order.finishedAt).toLocaleString()}}</div>
                                 <div class="mycard-title">Commands:</div>
                                 <div class="mycard-content">
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isActive? order.isActive= false: order.isActive=true">
-                                        <img src="../assets/search.png" style="width:16px">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;" @click="order.isActive? order.isActive= false: order.isActive=true" title="Check this deployment configuration" >
+                                        <img src="../assets/search.png" style="width:14px">
                                     </button>
                                 </div>
                                 <div class="myCommand" v-show="order.isActive">
@@ -273,14 +265,14 @@
                                 </div>
                                 <div></div>
                                 <div style="text-align: right">
-                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="stopOrder(order)">
-                                        <img src="../assets/stop.png" style="width:16px">
+                                     <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px;font-size: 18px;height: 25px;" @click="stopOrder(order)" title="Stop this task">
+                                       &#9724;
+                                    </button>   
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="duplicateOrder(order)" title = "Duplicate this task">
+                                        <img src="../assets/duplicate.png" style="width:16px">
                                     </button>
-                                      <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="deleteOrder(order)">
+                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="deleteOrder(order)" title="Delete this task">
                                         <img src="../assets/delete.png" style="height:16px">
-                                    </button>
-                                    <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px" @click="duplicateOrder(order)">
-                                        <img src="../assets/duplicate.png" style="width:18px">
                                     </button>
                                 </div>
                                 </div>    
@@ -324,7 +316,7 @@
             <div class="modal-content" >
                 <div class="modal-header">
                     <h5 id="treeTitle" class="modal-title" style="text-align:left; margin-right:48%">Process Diagram</h5>
-                    <button id="editBtn" type="button" class="btn btn-light" style="padding: 0 4px; margin-right:5px" @click="goBackDeployment">&#9998; Edit 
+                    <button id="editBtn" type="button" class="btn btn-light" style="padding: 0 4px; margin-right:5px" @click="goBackDeployment" title="Go back to new deployment form and edit this configuration">&#9998; Edit 
                     </button> 
                     <button type="button" class="btn btn-light" style="padding: 0 4px" data-dismiss="modal" aria-label="Close" @click="closeModal">
                         <span aria-hidden="true">&#10006; Close</span>
@@ -408,8 +400,8 @@
                     <li v-for="order in orderOrders.slice().reverse()" class="timeline-li" @click="clickDeployment(order.id)" tabindex="0" data-trigger="focus" data-container="body" data-toggle="popover" data-placement="top" data-html="true" :data-content="'Name: '+ order.id.substring(0,26) + '...<br>'+ 'Description: ' + order.description">
                     <div><strong style="margin-right:5px">{{order.date}}</strong>{{order.time}}</div>
                     <div v-if="order.status">
-                        <img v-if="order.status[1]==0&&order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" >  
-                        <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" >              
+                        <img v-if="order.status[1]==0&&order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" title="Click to check related devices and its deployment card">  
+                        <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" title="Click to check related devices and its deployment card">              
                     </div>
                
                     </li> 
@@ -421,19 +413,19 @@
                 <img src="../assets/star.png">
             </div>
             <div class="mycard-content">
-                <button type="button" class="btn btn-light btn-sm" style="color:#ffda44" @click="toDevices('new')"> {{this.newDiscover.length}}</button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#ffda44" @click="toDevices('new')" title="Click to check new discovered devices list"> {{this.newDiscover.length}}</button>
             </div> 
             <div class="mycard-title" style="color:#d80027">Failed:
                 <img src="../assets/error.png">
             </div>
             <div class="mycard-content">
-                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="toDevices('failed')">{{this.failed.length}}</button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="toDevices('failed')" title="Click to check failed devices list">{{this.failed.length}}</button>
                 </div>
             <div class="mycard-title" style="color:#00ae31">Successful:
                  <img src="../assets/done.png">
             </div>
             <div class="mycard-content" >
-                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="toDevices('success')">{{this.success.length}} </button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="toDevices('success')"  title="Click to check success devices list">{{this.success.length}} </button>
             </div>
     </div>
 </div>
@@ -2138,7 +2130,7 @@ export default {
                         }
 
                         this.myYaml.show = false;
-                        event.target.innerHTML = 'View Yaml'
+                        event.target.innerHTML = 'Yaml'
                         document.getElementById('newDeployment').style.display = 'grid';
                     }
 
@@ -2147,7 +2139,7 @@ export default {
                     $('#myAlert').modal();
                 }
             } else {
-                event.target.innerHTML = 'View Form';
+                event.target.innerHTML = 'Form';
                 this.myYaml.show = true;
                 document.getElementById('newDeployment').style.display = 'none';
             }
