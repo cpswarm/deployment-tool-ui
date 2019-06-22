@@ -57,7 +57,8 @@ grid-template-columns: 1fr 30fr;
 }
 
 #navbar label{
-   border-radius: 0
+   border-radius: 0;
+   padding: 10px 12px;
 }
 
 

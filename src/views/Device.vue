@@ -1627,12 +1627,15 @@ export default {
 .darwin{
     background-color: #f17c67;
 }
-.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.sensor, .raspi2,.light,.motion{
+.drone{
+    background-color: #e4c200;
+}
+.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.sensor, .raspi2,.light,.motion,.drone{
     color: #fff;
     border: 1px solid transparent;
     margin-right:2.5px;
 }
-.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.sensor:hover, .raspi2:hover, .light:hover,.motion:hover{
+.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.sensor:hover, .raspi2:hover, .light:hover,.motion:hover,.drone:hover{
     cursor: pointer;
 }
 .myTerminal{

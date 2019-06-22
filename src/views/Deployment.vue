@@ -731,9 +731,9 @@ export default {
             require("brace/theme/github");
             require("brace/snippets/javascript");
         },
-        filter: function (list, key, value, word) {
-            list.forEach(l => {
-                if (!(l[key].toLowerCase().indexOf(word) > -1)) {
+        filter: function (list, key, value, word) {         
+            list.forEach(l => {                      
+                if (!l[key] || !(l[key].toLowerCase().indexOf(word) > -1)) {              
                     this.$set(l, value + 'Active', false)
                 } else {
                     this.$set(l, value + 'Active', true)
@@ -752,6 +752,7 @@ export default {
         filterOrder: function (source) {
             let value = source.toLowerCase();
             this.filter(this.orders, 'id', 'name', value);
+            this.filter(this.orders, 'description', 'name', value);
         },
         generateTree: function (logs) {
 
