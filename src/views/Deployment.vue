@@ -28,11 +28,11 @@
                             <div class="mycard-title" >Source:</div>
                             <div>
                                <div class="input-group mycard-content">
-                                         <select class="mySelect" v-model="typeSource" @change="chooseSource">
+                                    <select class="mySelect" v-model="typeSource" @change="chooseSource">
                                             <option value="0">Choose...</option>
                                             <option value="1">From Artifacts</option>
                                             <option value="2">Upload Directory</option>         
-                                        </select> 
+                                    </select> 
                                     <div class="input-group-append" style="width:63%">
                                         <input ref="emptySource" type="text" class="form-control form-control-sm"  style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" disabled>
                                         <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(sourceOrder)" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;display:none" v-model="sourceOrder">
@@ -43,9 +43,11 @@
                                         <div ref="custom_file" class="custom-file" style="height:26px; display:none">
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
                                             <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
+                                            
+                                        </div>
                                     </div>
-                                    </div>
-                                </div>       
+                                </div>
+                                <p id="mySourcepath" class="mycard-content" style="margin:0"></p>       
                             </div>
                             <div class="mycard-title" >Debug:</div>
                             <div class="mycard-content">
@@ -143,8 +145,11 @@
                        
                         <div ref="deployYaml" v-if="myYaml.show">
                             <textarea v-model="myYaml.y"  cols="30" rows="23" class="form-control" style="font-size:14px"></textarea>
+                            <div style="text-align:left;margin:10px 0">
+                                <button class="btn btn-danger" @click="clearForm" type="button" style="font-size:14px;padding: 2.5px 5px">Clear</button>
+                                <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;position:relative; float: right">Deploy</button>
+                            </div>
                         </div> 
-                       
                     </div>
                 </div>
             </div>
@@ -311,7 +316,7 @@
         <div id="myTree_dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
             <div class="modal-content" >
                 <div class="modal-header">
-                    <h5 id="treeTitle" class="modal-title" style="text-align:left; margin-right:48%">Process Diagram</h5>
+                    <h5 id="treeTitle" class="modal-title" style="text-align:left; margin-right:45%">Process Diagram</h5>
                     <button id="editBtn" type="button" class="btn btn-light" style="padding: 0 4px; margin-right:5px" @click="goBackDeployment" title="Go back to new deployment form and edit this configuration">&#9998; Edit 
                     </button> 
                     <button type="button" class="btn btn-light" style="padding: 0 4px" data-dismiss="modal" aria-label="Close" @click="closeModal">
@@ -504,6 +509,7 @@ export default {
             $('#searchTarget').children().remove();
 
             document.getElementById("mySourcelabel").innerHTML = "Choose File";
+            document.getElementById("mySourcepath").innerHTML = "";
             document.getElementById("customFile").value = "";
             this.$refs.emptySource.style.display = 'flex';
             this.$refs.sourceOrder.style.display = 'none';
@@ -695,6 +701,7 @@ export default {
 
             this.source = "";
             document.getElementById("mySourcelabel").innerHTML = "Choose File";
+              document.getElementById("mySourcepath").innerHTML = "";
             document.getElementById("customFile").value = "";
 
             this.sourceOrder = order.id;
@@ -1411,7 +1418,10 @@ export default {
                 console.log(path);
             }
             this.source = archive.generateAsync({ type: "base64" });
-            if (files) document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+            if (files){
+                document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+                document.getElementById("mySourcepath").innerHTML = 'PATH: ' + files[0].webkitRelativePath;
+            } 
         },
         handleDeploy: function (taskDer) {
             let myYaml = yaml.safeDump(taskDer);
@@ -1684,8 +1694,8 @@ export default {
             }
            
             let size = 0, nodeSize = 0, r = 0;
-            this.targets.length < 6 ? size = 5 * this.targets.length : size = 30;
-            this.targets.length > 0 ? r = 30 / this.targets.length : r = 5;
+            this.targets.length < 6 ? size = 3 * this.targets.length : size = 26;
+            this.targets.length > 0 ? r = 40 / this.targets.length : r = 5;
 
             if (r < 1) {
                 nodeSize = 2;
@@ -2415,7 +2425,7 @@ export default {
     height: 26px;
     border: 1px solid #ced4da;
     border-radius: .25rem 0 0 .25rem;
-    width: 110px;
+    width: 135px;
 }
 
 @media (min-width: 576px){
