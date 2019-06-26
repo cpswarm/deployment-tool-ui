@@ -1,5 +1,5 @@
 # CPSwarm Deployment UI
-![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/linksmart/deployment-ui.svg)
+[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/linksmart/deployment-ui.svg)](https://hub.docker.com/r/linksmart/deployment-ui/builds)
 
 This UI is compatible with [CPSwarm Deployment Tool](https://github.com/cpswarm/deployment-tool).
 ## Run
