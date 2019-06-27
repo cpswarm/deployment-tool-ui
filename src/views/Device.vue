@@ -60,12 +60,7 @@
                                     <div class="input-group">
                                         <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="sensor" > sensor
-                                            </label>
-                                            <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="raspi0" > raspi0
-                                            </label>
+                                           
                                             <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="actuator"> actuator
                                             </label>
@@ -74,6 +69,15 @@
                                             </label>
                                             <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="motion"> motion
+                                            </label>
+                                             <label class="btn btn-light">
+                                                <input value="builder" type="checkbox"> builder
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="drone" >drone
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="swarm">swarm
                                             </label>
                                         </div>
                                     </div>
@@ -86,6 +90,9 @@
                                             <label class="btn btn-light" >
                                                 <input type="checkbox" autocomplete="off" value="arm32" > arm32
                                             </label>
+                                             <label class="btn btn-light">
+                                                <input type="checkbox" autocomplete="off" value="raspi0" > raspi0
+                                            </label>
                                             <label class="btn btn-light" >
                                                 <input type="checkbox" autocomplete="off" value="raspi2" > raspi2
                                             </label>
@@ -94,9 +101,6 @@
                                     <div class="input-group">
                                         <h6 class="mycard-content" style="margin-top:2.5px">OS:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                            <label class="btn btn-light">
-                                                <input value="builder" type="checkbox"> builder
-                                            </label>
                                             <label class="btn btn-light">
                                                 <input type="checkbox"  value="linux" > linux
                                             </label>
@@ -281,12 +285,10 @@
                                                 <div class="input-group">
                                                     <p style="margin:2.5px 0">Type:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light">
-                                                           <input type="checkbox" autocomplete="off"  value="sensor"> sensor
-                                                        </label>
-                                                        <label class="btn btn-light">
-                                                            <input type="checkbox"  autocomplete="off" value="raspi0"> raspi0
-                                                        </label>
+                                                       
+                                                         <label class="btn btn-light">
+                                                            <input type="checkbox" autocomplete="off" value="builder"> builder
+                                                        </label>    
                                                         <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="actuator"> actuator
                                                         </label>
@@ -295,6 +297,12 @@
                                                         </label>
                                                         <label class="btn btn-light">
                                                             <input type="checkbox" autocomplete="off" value="motion"> motion
+                                                        </label>
+                                                         <label class="btn btn-light">
+                                                            <input type="checkbox" autocomplete="off" value="drone" >drone
+                                                        </label>
+                                                        <label class="btn btn-light">
+                                                            <input type="checkbox" autocomplete="off" value="swarm">swarm
                                                         </label>
                                                     </div>
                                                 </div>
@@ -310,14 +318,15 @@
                                                         <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="raspi2"> raspi2
                                                         </label>
+                                                           <label class="btn btn-light">
+                                                            <input type="checkbox"  autocomplete="off" value="raspi0"> raspi0
+                                                        </label>
                                                     </div>
                                                 </div>
                                                 <div class="input-group">
                                                      <p style="margin:2.5px 0">OS:</p>
                                                     <div class="btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-light">
-                                                            <input type="checkbox" autocomplete="off" value="builder"> builder
-                                                        </label>
+                                                       
                                                         <label class="btn btn-light">
                                                             <input type="checkbox"  autocomplete="off" value="linux"> linux
                                                         </label>
@@ -791,7 +800,6 @@ export default {
             });
         }, 
         getTargets: function () {
-          
             axios.get(this.address+"/targets").then(response => {
                 for (let i = 0; i < response.data.total; i++) {
 
@@ -980,6 +988,17 @@ export default {
                 str += '</div></div>';
                 $('#mymessage-body').empty().append(str);
                 $('#myMessage').modal();
+            }).catch(error=>{
+                let message;
+                let alert = $('#mymodal-body');
+                if(error.response){
+                    message = error.response.data.error;
+                }else{
+                    message = error;
+                }
+                alert.empty().append("Get new tokens error:  " + message);
+                $('#myAlert').modal();
+
             })
         }, 
         removeDevice: function (name) {
@@ -1240,6 +1259,12 @@ export default {
                     case 'motion':
                         color = "#9f50d4";
                         break;
+                     case 'drone':
+                        color = "#e4c200";
+                        break;
+                     case 'swarm':
+                        color = "#06aa00";
+                        break;
                 }
             
             if(this.polyline) this.polyline.remove();
@@ -1299,7 +1324,7 @@ export default {
                     message.append("Update target with " + id + "  " + response.statusText);
                 }
             ).catch(error => {
-                 let message;
+                let message;
                 if(error.response){
                     message = error.response.data.error;
                 }else{
@@ -1539,7 +1564,7 @@ export default {
 }
 #updateTags {
   display: grid;
-  grid-template-columns: 1fr 3.5fr;
+  grid-template-columns: 1fr 4.5fr;
   grid-gap: 2.5px;
   border: 1px solid #e4e4e4;
   border-radius: 2px;
@@ -1552,7 +1577,7 @@ export default {
 }
 .updateDevice {
   display: grid;
-  grid-template-columns: 0.9fr 4fr 0.3fr;
+  grid-template-columns: 1fr 4.5fr;
   grid-gap: 2.5px;
   border: 1px solid #e4e4e4;
   border-radius: 2px;
@@ -1630,12 +1655,15 @@ export default {
 .drone{
     background-color: #e4c200;
 }
-.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.sensor, .raspi2,.light,.motion,.drone{
+.swarm{
+    background-color: #06aa00;
+}
+.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.sensor, .raspi2,.light,.motion,.drone,.swarm{
     color: #fff;
     border: 1px solid transparent;
     margin-right:2.5px;
 }
-.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.sensor:hover, .raspi2:hover, .light:hover,.motion:hover,.drone:hover{
+.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.sensor:hover, .raspi2:hover, .light:hover,.motion:hover,.drone:hover,.swarm:hover{
     cursor: pointer;
 }
 .myTerminal{
