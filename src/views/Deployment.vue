@@ -1104,11 +1104,11 @@ export default {
         generateTree3: function (logs) {
 
             let nodes = [];
-
             if (this.targets) {
                 for (let i = 0; i < this.targets.length; i++) {
                     let oneLog = logs.filter(log => log.target == this.targets[i].name && log.stage != 'build');
-                    let c_d = "", fullLog = "", checksum =0, nodecksm =0;
+                    let c_d = "",  checksum =0, nodecksm =0;
+                    /* fullLog = "", */
                     let element = $('#' + this.targets[i].name);
                 
                     if (oneLog.length > 0) {
@@ -1116,11 +1116,11 @@ export default {
                             let s = "";
                             log.error ? s = "f" : s = "s";
                             let line = 
-                            fullLog += log.stage + log.command + log.output;
+                            this.targets[i].fullLog += log.stage + log.command + log.output;
                             c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
                         });
-
-                        checksum = CRC32.str(fullLog);
+                        //console.log(this.targets[i].fullLog)
+                        checksum = CRC32.str(this.targets[i].fullLog);
                         console.log(this.targets[i].name, checksum)
 
                         let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
@@ -1415,7 +1415,7 @@ export default {
                 // trim selected directory name
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
                 archive.file(path, f);
-                console.log(path);
+                //console.log(path);
             }
             this.source = archive.generateAsync({ type: "base64" });
             if (files){
@@ -1665,7 +1665,7 @@ export default {
                 this.targets = target.map(t => {
                    targetStr += '<div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+t+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + t + '</button>'
                     +'<div id="' + t + '" class="collapse myCommandCard" style="text-align:right"><div  style="text-align:left"></div></div></div>';
-                    return { name: t, error: 40, stage: 250, class: 'node-i' }
+                    return { name: t, error: 40, stage: 250, class: 'node-i', fullLog:''}
                 })
                 mylog.append(targetStr);
             } else {
