@@ -1,7 +1,7 @@
 language: minimal
 
 script: 
-  - docker build --build-arg SERVER_PASSWORD=$MAVEN_REPO_PASSWORD -t linksmart/deployment-ui .
+  - docker build -t linksmart/deployment-ui .
   
 before_deploy: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
 
