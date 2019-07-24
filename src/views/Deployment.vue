@@ -1138,7 +1138,7 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.installError.length == 0 ? newPos = 100 : newPos = this.installError[this.installError.length-1][1] + 40;
+                                this.installError.length == 0 ? newPos = 100 : newPos = this.installError[this.installError.length-1][1] + 60;
                                 this.targets[i].error = newPos;
                                 this.installError.push([checksum,newPos,300]);
                             }
@@ -1161,7 +1161,7 @@ export default {
                                 this.targets[i].error = pos[1]
                             }else{
                                 let newPos;
-                                this.runError.length== 0 ? newPos = 100 : newPos = this.runError[this.runError.length-1][1] + 40;
+                                this.runError.length== 0 ? newPos = 100 : newPos = this.runError[this.runError.length-1][1] + 60;
                                 this.targets[i].error = newPos;
                                 this.runError.push([checksum,newPos,400]);
                             }
@@ -1694,7 +1694,7 @@ export default {
             }
            
             let size = 0, nodeSize = 0, r = 0;
-            this.targets.length < 6 ? size = 3 * this.targets.length : size = 26;
+            this.targets.length < 6 ? size = 3 * this.targets.length : size = 25;
             this.targets.length > 0 ? r = 40 / this.targets.length : r = 5;
 
             if (r < 1) {

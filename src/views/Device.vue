@@ -759,7 +759,8 @@ export default {
         },
         getFinishTime: function (id) {
             return axios.get(this.address+"/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
-                return response.data.items[0].time;
+                
+                return response.data.items? response.data.items[0].time: "";
             }).catch(error => {
                 console.log(error);
             })
@@ -1367,8 +1368,9 @@ export default {
                 if (e.keyCode == 13) e.preventDefault();
             });
             if(command.command){
+                terminal += '\n';
                 axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
-                    terminal += '\n'
+                    
                     element.val(terminal).scrollTop(element.prop('scrollHeight')); // wait for events
                     //console.log("reponse", response);
                 }).catch(error => {
@@ -1381,12 +1383,16 @@ export default {
             this.ws.onmessage = event => {    
                 //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
                 var obj = JSON.parse(event.data);
+                
                 obj.payload.forEach(l => { 
                     if(l.target == id){
-                        if(l.output == "EXEC-END")
+                        if(l.output == "EXEC-END"){
                             terminal += '$ ';
-                        else if(l.output != "EXEC-START")
+                        }
+                        else if(l.output != "EXEC-START"){
                             terminal += l.output + '\n';
+                        }
+                            
                     } 
                  });
                 //console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
