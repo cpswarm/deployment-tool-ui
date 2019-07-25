@@ -5,6 +5,7 @@
             <h5 draggable="true" style="display: inline-block; margin:5px">Deployment Management</h5>
         </div>
         <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
+             <!-- add new deployment panel -->
              <div class="card">
                     <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                         aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panel to create new deployment task">
@@ -34,16 +35,18 @@
                                             <option value="2">Upload Directory</option>         
                                     </select> 
                                     <div class="input-group-append" style="width:63%">
+                                        <!-- if type source is 'no source',this is shown by default -->
                                         <input ref="emptySource" type="text" class="form-control form-control-sm"  style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;" disabled>
+                                        <!-- if type source is 'from artifacts' -->
                                         <input ref="sourceOrder" type="text" class="form-control dropdown-toggle form-control-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @keyup="filterOrder(sourceOrder)" style="height:26px;font-size:14px;border-radius: 0 .25rem .25rem 0;display:none" v-model="sourceOrder">
                                         <div class="dropdown-menu" style="padding:2.5px;max-height:400px;overflow:auto">
                                             <p class="dropdown-header" style="padding:2px 5px"> <strong> Names:</strong> </p>
                                             <a v-for="order in orders" class="dropdown-item" v-show="order.nameActive" @click="selectArtifacts(order.id)" style="font-size:14px;padding:0 15px">{{order.id}}</a>
                                         </div>
+                                        <!-- if type source is 'upload file' -->
                                         <div ref="custom_file" class="custom-file" style="height:26px; display:none">
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
                                             <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
-                                            
                                         </div>
                                     </div>
                                 </div>
@@ -102,6 +105,7 @@
                                (CLICK cluster or DOUBLE CLICK marker to select Target.)
                             </div>
                             <div class="mycard-content" style="grid-column: 1/3; border: 1px solid grey;border-style:dashed">
+                                <!-- search devices -->
                                 <form class="form-inline">
                                     <div class="input-group" style="width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
                                         <div id="searchTarget"></div>
@@ -120,7 +124,7 @@
                                     </div>
                                 </form>
                                 <div style="height:350px;overflow: auto">
-                                    
+                                    <!-- device card shown as targeting device -->
                                     <div v-for="device in targetDevices" class="simpleDeviceCard">
                                         <div style="padding:2.5px;">Name:
                                             <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
@@ -142,7 +146,7 @@
                                    <button class="btn btn-primary" @click="submitDeploy" type="button" style="font-size:14px;padding: 2.5px 5px;">Deploy</button>
                             </div>
                         </form>
-                       
+                        <!-- show deployment configuration in yaml -->
                         <div ref="deployYaml" v-if="myYaml.show">
                             <textarea v-model="myYaml.y"  cols="30" rows="23" class="form-control" style="font-size:14px"></textarea>
                             <div style="text-align:left;margin:10px 0">
@@ -153,6 +157,7 @@
                     </div>
                 </div>
             </div>
+            <!--  deployment list panel -->
             <div class="card">       
                   <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open deployments list">
@@ -161,6 +166,7 @@
                     </button>        
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
+                    <!-- deployment filter -->
                     <form class="form-inline" style="margin-bottom:5px"> 
                         <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh" title="Refresh deployments list">
                             <img src="../assets/refresh.svg" style="width:14px">
@@ -184,6 +190,7 @@
                         </div>
                     </form>
                         <div id="deploymentList" ref="list" style="overflow:auto">
+                            <!-- deployment card -->
                             <div v-for="order in orderOrders"   v-show="order.cardActive" :key="order.id" @click="clickCard(order)">
                                 <div class="mycard card-body" style="padding:5px;margin-bottom:5px">
                                     <div class="mycard-title">Name:</div>
@@ -207,6 +214,7 @@
                                         <img src="../assets/search.png" style="width:14px">
                                     </button>
                                 </div>
+                                <!-- deployment configuration commands, by default it is hidden -->
                                 <div class="myCommand" v-show="order.isActive">
                                     <div class="mycom-title">Build:</div>
                                     <div class="mycom-content" style="color:#00AE31">commands:</div>
@@ -286,6 +294,7 @@
         </div>
     </div>
     <div id="map" ref="map"></div>
+    <!-- error response dialog -->
     <div id="myAlert" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
             <div class="modal-content" >
@@ -299,6 +308,7 @@
             </div>
         </div>
     </div>
+    <!-- successful response dialog -->
     <div id="myMessage" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog alert alert-success" role="document" style="width:150%">
                 <div class="modal-content" >
@@ -312,6 +322,7 @@
             </div>
         </div>
         </div>
+    <!-- deployment progress status dialog modal -->
     <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div id="myTree_dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
             <div class="modal-content" >
@@ -326,17 +337,20 @@
                 <div id="mytree-body" class="modal-body">
                     <div>
                         <img src="../assets/back.png" style="height:450px;width:130px">
+                        <!-- background, main branch -->
                         <svg id="myTree_p" width="250" height="500">
                             <g transform="translate(-15, 50)">
                                 <g class="links"></g>
                                 <g class="nodes"></g>
                             </g>
                         </svg>
+                        <!-- error background -->
                         <svg id="myTree_e" width="300" height="500" style="position:relative; top: -500px; left:85px">
                             <g transform="translate(0, 50)">
                                 <g class="nodes"></g>
                             </g>
                         </svg>
+                        <!-- devices nodes -->
                         <svg id="myTree_b" width="300" height="500" style="position:relative; top: -1000px;left:85px">
                             <g></g>
                         </svg>
@@ -349,45 +363,7 @@
             </div>
         </div>
     </div>
-     <div id="myTree2" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div id="myTree_dialog2" class="modal-dialog" role="document" style="margin: 50px 100px;">
-            <div class="modal-content" >
-                <div class="modal-header">
-                    <h5 class="modal-title">Process Tree</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div id="mytree-body2" class="modal-body">
-                    <div id="stage" style="height:320px">
-                        <div>Build</div>
-                        <div>Deploy</div>
-                        <div>Install</div>
-                        <div>Run</div>
-                        <div>End</div>
-                    </div>
-                    <div>
-                        <svg id="mytree_b2" width="200" height="60">
-                            <g transform="translate(15, 20)">
-                                <g class="links"></g>
-                                <g class="nodes"></g>
-                            </g>
-                        </svg>
-                        <br>
-                         <svg id="mytree_d2" width="200" height="300">
-                            <g transform="translate(0, 20)">
-                                <g class="links"></g>
-                                <g class="nodes"></g>
-                            </g>
-                        </svg>
-                    </div>
-                    <div style="text-align:left">
-                       <div id="mylog2" style="text-align:left" class="myfont_c"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- timeline -->
     <div class="myTimeline" ref="myTimeline">
         <button ref="pre" class="btn btn-sm btn-light" @click="previous">
             <span style="left: -5px">&#9668;</span> 
@@ -409,6 +385,7 @@
                 </div>
             </div>
     </div> 
+    <!--  notification card -->
     <div class="notification"> 
             <div class="mycard-title" style="color:#ffda44;" >Discovered:
                 <img src="../assets/star.png">
@@ -439,9 +416,7 @@ import yaml from "js-yaml";
 import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
-import crypto, { constants } from 'crypto';
-import CRC32 from 'crc-32'
-import { async } from 'q';
+import CRC32 from 'crc-32';
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -453,53 +428,55 @@ function rand(n) {
 export default {
     data() {
         return {
+            //deployment configuration in yaml
             myYaml: {
                 show: false,
                 y: "",
             },
-            typeSource: "0",
-            sourceOrder: "",
-            offset: 0,
-            address: "",
+            typeSource: "0",  // deployment source type: 0 no source, 1 from artifacts, 2 upload files
+            sourceOrder: "",  // artifacts id when source type is 1
+            offset: 0,    // offset to enable the pagination button
+            address: "",  // server address
             map: "",
-            ws: "",
-            orderSearchT: "",
-            deployDes: "",
-            deployDebug: true,
-            source: "",
-            build_c: "",
-            build_a: "",
-            install_c: "",
-            run_c: "",
-            targetText: "",
-            host: "",
-            targetDevices: [],
-            fullDevices: [],
-            tags: [],
-            orders: [],
-            tree: [],
-            markers: [],
-            failed: [],
-            success: [],
-            newDiscover: [],
-            host: "",
-            targets: "",
-            installError: '',
-            runError: '',
-            background:[]
+            ws: "",       // websocket
+            orderSearchT: "",  // searching keyword of deployment list
+            deployDes: "",  // deployment description
+            deployDebug: true, // deployment debug option
+            source: "",    // zipped source file when source type is 2
+            build_c: "",   // deployment build commands
+            build_a: "",   // deployment build artifact
+            install_c: "", // deployment install commands
+            run_c: "",   // deployment run commands
+            targetText: "", // target searching keywords
+            targetDevices: [], // deployment target devices(creation)
+            fullDevices: [],  // full device list get from database, cannot be changed
+            tags: [],       // the distinct tags of all devices, for filtering
+            orders: [],   // deployment list
+            markers: [],  // device markers/marker clusters on the map
+            failed: [],   // fail device list
+            success: [],  // success device list
+            newDiscover: [],  // newDiscover device list
+            host: "",      // deployment build host
+            targets: "",  // deployment targets
+            installError: '',  // deployment progress status diagram install error backgraound
+            runError: '',   // deployment progress status diagram run error backgraound
+            background:[]  // deployment progress status diagram backgraound
         };
     },
     components: {
         editor: require("vue2-ace-editor")
     },
     computed: {
+        // the sorted deployment list
         orderOrders: function () {
             return this.orders.sort(function (a, b) {
                 return b.createdAt - a.createdAt
             })
         }
     },
+    //methods are sorted alphabetically
     methods: {
+        // reset deployment form and empty targets list 
         clearForm: function () {
 
             this.deployDes = '';
@@ -526,6 +503,7 @@ export default {
             this.targetDevices = [];
 
         },
+        // refresh the markers on the map
         refreshmap: function (list) {
             this.markers.clearLayers();
             list.forEach(el => {
@@ -535,9 +513,11 @@ export default {
             this.map.addLayer(this.markers)
             this.map.fitBounds(this.markers.getBounds());
         },
+        // click deployment card
         clickCard: function (order) {
             if (order.deploy) this.refreshmap(order.deploy.match.list);
         },
+        // click timeline item, show coreesponding device markers on the map and deployment card
         clickDeployment: function (id) { 
            $('#searchOrder').empty();     
            this.orders.forEach((i) => {
@@ -549,6 +529,7 @@ export default {
                 }
             }); 
         },
+        // when close the dialog, refresh the full device list, deployment list, refresh the markers, reset deployment form, clear the source.
         closeModal: function () {
             if (this.ws) {
                 this.ws.close();
@@ -571,6 +552,7 @@ export default {
             d3.selectAll("line").remove();
 
         },
+        // request all logs on one device
         checkLogs: function (target) {
             let des = "target=" + target;
             return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
@@ -598,6 +580,7 @@ export default {
                 console.log(error);
             });
         },
+        // based on source type, display corresponding iput
         chooseSource: function () {
             switch (this.typeSource) {
                 //Choose... no source
@@ -627,6 +610,7 @@ export default {
                     break;
             }
         },
+        // create the badge appending to the search input 
         createBadge: function (content) {
             let badge = document.createElement("span");
             badge.innerHTML = content;
@@ -638,6 +622,7 @@ export default {
             };
             return badge;
         },
+        // delete deployment from database
         deleteOrder: function (order) {
             let alert = $('#mymodal-body'), message=$('#mymessage-body');
             alert.empty();
@@ -658,6 +643,7 @@ export default {
                 $('#myAlert').modal();
             })
         },
+        // draw the status background of the diagram
         drawTreeback: function () {          
             //Build-Tree Nodes
             let treeLayout = d3.tree().size([100, 400])
@@ -692,16 +678,17 @@ export default {
                 .attr('y2', function (d) { return d.target.y; })
                 .attr('stroke', '#ececec')
                 .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
-
         },
+        // duplicate one previous task configuration
         duplicateOrder: function (order) {
 
             $("#collapseThree").collapse("show");
             this.deployDes = order.description ? order.description : "";
 
+            // reset the source
             this.source = "";
             document.getElementById("mySourcelabel").innerHTML = "Choose File";
-              document.getElementById("mySourcepath").innerHTML = "";
+            document.getElementById("mySourcepath").innerHTML = "";
             document.getElementById("customFile").value = "";
 
             this.sourceOrder = order.id;
@@ -717,15 +704,12 @@ export default {
             this.install_c = order.deploy && order.deploy.install.commands ? order.deploy.install.commands.join("\n") : "";
             this.run_c = order.deploy && order.deploy.run.commands ? order.deploy.run.commands.join("\n") : "";
             this.targetDevices = [];
+
             let s = document.getElementById("searchTarget");
             if (order.deploy) {
                 for (var i = 0; i < order.deploy.match.list.length; i++) {
                     let b = this.createBadge(order.deploy.match.list[i]);
                     s.appendChild(b);
-                    /* this.targetDevices.push({
-                        'id': order.deploy.match.list[i],
-                        'tags': this.fullDevices.find(el => el.id == order.deploy.match.list[i]).tags,
-                    }); */
                     this.searchTarget();
                 }
             }
@@ -738,6 +722,7 @@ export default {
             require("brace/theme/github");
             require("brace/snippets/javascript");
         },
+        // watch user input, filter the dropdown menu item
         filter: function (list, key, value, word) {         
             list.forEach(l => {                      
                 if (!l[key] || !(l[key].toLowerCase().indexOf(word) > -1)) {              
@@ -747,386 +732,50 @@ export default {
                 }
             })
         },
+        // target dropdown menu filtering
         filterTarget: function () {
             let value = this.targetText.toLowerCase();
             this.filter(this.tags, 'tag', 'is', value);
             this.filter(this.fullDevices, 'id', 'name', value);
         },
+        // host dropdown menu filtering
         filterHost: function () {
             let value = this.host.toLowerCase();
             this.filter(this.fullDevices, 'id', 'host', value);
         },
+        // deployment dropdown filtering
         filterOrder: function (source) {
             let value = source.toLowerCase();
             this.filter(this.orders, 'id', 'name', value);
             this.filter(this.orders, 'description', 'name', value);
         },
-        generateTree: function (logs) {
-
-            let oldTree = d3.select('#myTree_b')
-            oldTree.selectAll("circle").remove();
-            oldTree.selectAll("line").remove();
-
-            let xCenter = [300, 300, 300, 200, 300, 400, 100, 200, 300], yCenter = [50, 150, 250, 350, 350, 350, 450, 450, 450];
-            let nodes = [];
-
-            if (this.targets) {
-                for (let i = 0; i < this.targets.length; i++) {
-                    let oneLog = logs.filter(log => log.target == this.targets[i].name);
-                    let c_d = "";
-                    if (oneLog.length > 0) {
-
-                        let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
-                        let run = oneLog.filter(l => { return l.stage == 'run' });
-
-                        if (install && install.error == true) {
-                            this.targets[i].stage = 4;
-                            this.targets[i].class = 'node-f';
-                            this.targets[i].commands = oneLog;
-
-                        } else if (install && run.length == 0) {
-
-                            this.targets[i].stage = 3;
-                            this.targets[i].class = 'node-s';
-                            this.targets[i].commands = oneLog;
-
-                        } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
-                            this.targets[i].stage = 7;
-                            this.targets[i].class = 'node-f';
-                            this.targets[i].commands = oneLog;
-
-                        } else if (run.some(r => { return r.output == 'STAGE-END' && r.error != true })) {
-
-                            this.targets[i].stage = 6;
-                            this.targets[i].class = 'node-s';
-                            this.targets[i].commands = oneLog;
-
-                        } else if (run.length > 0) {
-
-                            this.targets[i].stage = 8;
-                            this.targets[i].class = 'node-i';
-                            this.targets[i].commands = oneLog;
-                        } else {
-                            this.targets[i].stage = 5;
-                            this.targets[i].class = 'node-i';
-                            this.targets[i].commands = oneLog;
-                        }
-                        oneLog.forEach(log => {
-                            let s = "";
-                            log.error ? s = "f" : s = "s";
-                            c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                        })
-                    }
-                    let element = $('#' + this.targets[i].name)
-                    element.append(c_d).scrollTop(element.prop('scrollHeight'));
-                }
-                nodes = this.targets;
-            }
-            //If there is a build process
-            if (this.host) {
-                // Get all logs for host
-                let one = logs.filter(log => log.stage == "build");
-                if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
-                    this.host.stage = 1;
-                    this.host.commands = one;
-                    this.host.class = 'node-f';
-                } else if (one.some(l => { return l.output == 'STAGE-END' })) {
-                    this.host.stage = 1;
-                    this.host.commands = one;
-                    this.host.class = 'node-s';
-                }
-                let c_b = "";
-                one.forEach(log => {
-                    let s = "";
-                    log.error ? s = "f" : s = "s";
-                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
-                });
-                let element = $('#' + this.host.name);
-                element.append(c_b).scrollTop(element.prop('scrollHeight'));
-                nodes = this.targets.concat(this.host);
-            }
-
-            let size = 0;
-            let r = 50 / this.targets.length;
-            if (r < 1) { size = 1;} 
-            else if (r > 5) { size = 5;} 
-            else { size = r }
-
-            //If there is a deploy process          
-            let simulation = d3.forceSimulation(nodes)
-                .force('charge', d3.forceManyBody().strength(0))
-                .force('x', d3.forceX().x(function (d) {return xCenter[d.stage];}))
-                .force('y', d3.forceY().y(function (d) {return yCenter[d.stage];}))
-                .force('collision', d3.forceCollide().radius(5))
-                .on('tick', () => {
-                    let u = d3.select("#myTree_b g")
-                        .selectAll('circle')
-                        .data(nodes);
-
-                    u.enter().append('circle')
-                        .attr('r', size)
-                        .attr('class', function (d) { return d.class; })
-                        .merge(u)
-                        .attr('cx', function (d) { return d.x; })
-                        .attr('cy', function (d) { return d.y; })
-                        .on('click', function (d) {
-                            $('#'+ d.name).collapse('toggle');
-                        })
-                    u.exit().remove();
-                });
-        },
-        generateTree2: function (logs, hostStatus, targetsStatus, host, targets) {
-
-            d3.selectAll("circle").remove();
-            d3.selectAll("line").remove();
-
-            let code = "";
-            let build = {
-                value: 1,
-                class: "node-n",
-                children: []
-            };
-            let install = {
-                value: 1,
-                class: "node-n",
-                children: [{ 
-                    value: 0,
-                    class: 'node-s'
-                },
-                {
-                    value: 0,
-                    class: 'node-f'
-                },
-                {
-                    value: 0,
-                    class: 'node-i'
-                }]
-            };
-            var run = {
-                value: 1,
-                class: "node-n",
-                children: [{
-                    value: 0,
-                    class: 'node-s'
-                },
-                {
-                    value: 0,
-                    class: 'node-f'
-                },
-                {
-                    value: 0,
-                    class: 'node-i'
-                }]
-            };
-
-            //If there is a build process
-            if (host) {
-                // Get all logs for host
-                let oneLog = logs.filter(log => log.stage == "build");
-                oneLog.forEach(log => {
-                    if (hostStatus.get(log.target).get('build')[0].substring(0, 9) != "STAGE-END") {
-                        hostStatus.get(log.target).set('build', [log.output, oneLog])
-                    }
-                })
-                build.class = 'node-i';
-                hostStatus.forEach((value, key) => {
-                    let child = { class: '', value: 0, commands: '' };
-                    child.value++;
-                    child.commands = value.get('build')[1];
-                    if (value.get('build')[1].some(l => { return l.error == true && l.output == 'STAGE-END' })) {
-                        child.class = 'node-f';
-                    } else {
-                        child.class = 'node-s';
-                    }
-                    build.children.push(child);
-                })
-                let c_b = "";
-                oneLog.forEach(log => {
-                    let s = "";
-                    log.error ? s = "f" : s = "s";
-                    c_b += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + "  " + log.output + "</div>";
-                });
-                let element = $('#' + host);
-                element.append(c_b).scrollTop(element.prop('scrollHeight'));
-
-            } else {
-                build.children.push({ class: 'node-n', value: 1 })
-            }
-
-            //If there is a deploy process
-            if (targets) {
-
-                install.value = targets.length + 1;
-                install.class = 'node-s';
-
-                for (let i = 0; i < targets.length; i++) {
-                    let oneLog = logs.filter(log => log.target == targets[i] && log.stage != 'build');
-                    let c_d = "";
-                    if (oneLog.length > 0) {
-                        oneLog.forEach(log => {
-                            if (targetsStatus.get(log.target).get(log.stage)[0].substring(0, 9) != "STAGE-END") {
-                                targetsStatus.get(log.target).set(log.stage, [log.output, oneLog.filter(el => el.stage == log.stage)])
-                            }
-                            targetsStatus.get(log.target).set('deploy', ['END', ''])
-                            let s = "";
-                            log.error ? s = "f" : s = "s";
-                            c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
-                        })
-                    }
-                    let element = $('#' + targets[i])
-                    element.append(c_d).scrollTop(element.prop('scrollHeight'));
-                }
-                targetsStatus.forEach((value, key) => {
-                    install.value--;
-                    let child = { class: '', value: 0, commands: '' };
-                    let i = value.get('install');
-                    let i_e = i[1] ? i[1].some(l => { return l.error == true && l.stage == 'install' && l.output == 'STAGE-END' }) : '';
-
-                    let r = value.get('run');
-                    let r_e = r[1] ? r[1].some(l => { return l.error == true && l.stage == 'run' && l.output == 'STAGE-END' }) : '';
-
-                    if (i[0] == "STAGE-END" && i_e) {
-
-                        install.children[1].value++;
-                        install.children[1].commands = i[1];
-
-                    } else if (i[0] == "STAGE-END" && r[0] == "") {
-
-                        install.children[0].value++;
-                        install.children[0].commands = i[1];
-
-                    } else if (i[0] == "STAGE-END" && r[0] != "STAGE-END") {
-
-                        run.class = 'node-s';
-                        run.children[2].value++;
-                        run.children[2].commands = i[1];
-
-                    } else if (r[0] == "STAGE-END" && r_e && i[0] == "") {
-                        run.class = 'node-s';
-                        run.children[1].value++;
-                        run.children[1].commands = i[1];
-
-                    } else if (r[0] == "STAGE-END" && !r_e && i[0] == "STAGE-END") {
-                        run.class = 'node-s';
-                        run.children[0].value++;
-                        run.children[0].commands = i[1];
-
-                    } else if (r[0] == "STAGE-END" && r_e && i[0] == "STAGE-END") {
-                        run.class = 'node-s';
-                        run.children[1].value++;
-                        run.children[1].commands = i[1];
-
-                    } else if (r[0] == "STAGE-END" && i[0] == "" && !r_e) {
-                        run.class = 'node-s';
-                        run.children[0].value++;
-                        run.children[0].commands = i[1];
-
-                    } else if (r[0] != "STAGE-END" && i[0] == "") {
-                        run.class = 'node-s';
-                        run.children[2].value++;
-                        run.children[2].commands = i[1];
-                    } else if (i[0] != "STAGE-END") {
-                        install.children[2].value++;
-                        install.children[2].commands = i[1];
-                    }
-                })
-            }
-            install.children[0] ? install.children[0] = run : install.children.push(run);
-
-            let tree_b = d3.tree().size([200, 30]);
-            let tree_d = d3.tree().size([200, 200]);
-            let root_b = d3.hierarchy(build);
-            let root_d = d3.hierarchy(install);
-
-            //Build-Tree Nodes
-            d3.select("#mytree_b2 g.nodes")
-                .selectAll("circle.node")
-                .data(tree_b(root_b).descendants())
-                .enter()
-                .append("circle")
-                .attr("class", function (d) { return d.data.class; })
-                .attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; })
-                .attr("r", function (d) { return d.data.value * 1.5; })
-                .on('click', function (d) {      
-                    code = "";
-                    d.data.commands.forEach(el => {
-                        code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                    });
-                    $('#mylog2').empty().prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                });
-            //Deploy-Tree Nodes 
-            d3.select("#mytree_d2 g.nodes")
-                .selectAll("circle.node")
-                .data(tree_d(root_d).descendants())
-                .enter()
-                .append("circle")
-                .attr("class", function (d) { return d.data.class; })
-                .attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; })
-                .attr("r", function (d) { return d.data.value * 1.5; })
-                .on('click', function (d) {   
-                    code = "";
-                    d.data.commands.forEach(el => {
-                        code += '<div class="myfont_' + d.data.class[5] + '">' + new Date(el.time).toLocaleString() + "  " + el.stage + "  " + el.output + "</div>";
-                    });
-                    $('#mylog2').empty().prepend('<h6>Logs:</h6><div class="myCommands">' + code + '</div>')
-                })
-            // Build-Tree Links
-            d3.select("#mytree_b2 g.links")
-                .selectAll("line.link")
-                .data(tree_b(root_b).links())
-                .enter()
-                .append("line")
-                .classed("link", true)
-                .attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; })
-                .style("stroke-width", function (d) {
-                    return d.target.data.value == 0 ? 0: 1; 
-                })
-            //Deploy-Tree Links
-            d3.select("#mytree_d2 g.links")
-                .selectAll("line.link")
-                .data(tree_d(root_d).links())
-                .enter()
-                .append("line")
-                .classed("link", true)
-                .attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; })
-                .style("stroke-width", function (d) {
-                     return d.target.data.value == 0 ? 0: 1; 
-                })
-        },
+        // generate the deployment progress status diagram data structure
         generateTree3: function (logs) {
-
             let nodes = [];
             if (this.targets) {
+                // for each target
                 for (let i = 0; i < this.targets.length; i++) {
+
                     let oneLog = logs.filter(log => log.target == this.targets[i].name && log.stage != 'build');
                     let c_d = "",  checksum =0, nodecksm =0;
-                    /* fullLog = "", */
                     let element = $('#' + this.targets[i].name);
                 
                     if (oneLog.length > 0) {
+                        // check logs and generate the HTML to show logs while deploying
                         oneLog.forEach(log => {
                             let s = "";
                             log.error ? s = "f" : s = "s";
-                            let line = 
                             this.targets[i].fullLog += log.stage + log.command + log.output;
                             c_d += '<div class="myfont_' + s + '">' + new Date(log.time).toLocaleString() + "  " + log.stage + "  " + log.command + " " + log.output + "</div>";
                         });
-                        //console.log(this.targets[i].fullLog)
                         checksum = CRC32.str(this.targets[i].fullLog);
-                        console.log(this.targets[i].name, checksum)
+                        //console.log(this.targets[i].name, checksum)
 
                         let install = oneLog.find(l => { return l.output == "STAGE-END" && l.stage == 'install' });
                         let run = oneLog.filter(l => { return l.stage == 'run' });
                         this.targets[i].commands = oneLog;
-
+                        
+                        // Case1: there is install and installation has error
                         if (install && install.error == true) {
                             
                             this.targets[i].class = 'node-f';
@@ -1142,14 +791,13 @@ export default {
                                 this.targets[i].error = newPos;
                                 this.installError.push([checksum,newPos,300]);
                             }
-                            //$('#' + this.targets[i].name).prev().children().remove()
-
+                        // Case2: there is install and installation has no error
                         } else if (install && run.length == 0) {
 
                             this.targets[i].class = 'node-s';
                             this.targets[i].stage = 350;
                             this.targets[i].error = 40;
-
+                        // Case3: there is run and run ends with error
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error == true })) {
                             
                             this.targets[i].class = 'node-f';
@@ -1165,21 +813,20 @@ export default {
                                 this.targets[i].error = newPos;
                                 this.runError.push([checksum,newPos,400]);
                             }
-                            //$('#' + this.targets[i].name).prev().children().remove()
-
+                        // Case4: there is run and run ends without error
                         } else if (run.some(r => { return r.output == 'STAGE-END' && r.error != true })) {
                             
                             this.targets[i].class = 'node-s';
                             this.targets[i].stage = 450;
                             this.targets[i].error = 40;
-                            //$('#' + this.targets[i].name).prev().children().remove();
+                        // Case5: there is a running
                         } else if (run.length > 0) {
 
                             this.targets[i].class = 'node-i';
                             this.targets[i].stage = 450;
                             this.targets[i].error = 40;
+                        // Case6: there is a installing  
                         } else {
-
                             this.targets[i].class = 'node-i';
                             this.targets[i].stage = 350;
                             this.targets[i].error = 40;     
@@ -1190,6 +837,7 @@ export default {
                     element.scrollTop(element.prop('scrollHeight'));
                 }
                 nodes = this.targets; 
+                // check whether a stage is finished (if finish, the background won't rotate anymore)
                 if(nodes.find(e=>{ return e.stage == 250 })){
                     this.background.children[0].children[0].isFinish = false;
                 }else {
@@ -1206,7 +854,7 @@ export default {
                      this.background.children[0].children[0].children[0].children[0].isFinish = true;
                 }
             }
-            //If there is a build process
+            //if there is a build process
             if (this.host) {
                 // Get all logs for host          
                 let one = logs.filter(log => log.stage == "build");
@@ -1214,12 +862,13 @@ export default {
                 
                 if(this.host.name.indexOf('0build') == -1) this.host.name += '0build';
                 let element = $('#' + this.host.name);
-                
+                // if build ends with error
                 if (one.some(l => { return l.error == true && l.output == 'STAGE-END' })) {
                     this.host.stage = 150;
                     this.host.error = 40;
                     this.host.class = 'node-f';
                     this.background.children[0].isFinish = true;
+                // if build ends without error
                 } else if (one.some(l => { return l.output == 'STAGE-END' })) {
                     this.host.error = 40;
                     this.host.stage = 150;
@@ -1228,6 +877,7 @@ export default {
                 }
                 this.host.stage == 150 ? this.background.isFinish = true:this.background.isFinish = false;
                 let c_b = "";
+                // check logs and generate the HTML to show logs while deploying
                 one.forEach(log => {
                     let s = "";
                     log.error ? s = "f" : s = "s";
@@ -1241,6 +891,7 @@ export default {
             }
             return nodes;
         },
+        // generate deployment description (as a object)
         generateTaskDer: function () {
 
             let ids = [];
@@ -1273,13 +924,12 @@ export default {
             };
             return taskDer;
         },
+        // check one task finished time and calculate how many devices succeed or failed, return [finish time, [success,fail]]
         getFinishnStatus: function (id, total) {
-
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
                 if(response.data.items){
                      let finishAt = response.data.items[0].time;
                      let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
-                    //console.log(id, logs)
                     if (logs.length == 0) {
                         return [finishAt, [total, 0]];
                     } else {
@@ -1293,6 +943,7 @@ export default {
                 console.log(error);
             });
         },
+        // check one task finished time
         getFinishTime: function (id) {
             //Request the latest logs time
             return axios.get(this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
@@ -1301,8 +952,8 @@ export default {
                 console.log(error);
             });
         },
+        // get all tasks
         getOrders: function () {
-
             axios.get(this.address + "/orders?sortOrder=desc").then(response => {
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
@@ -1320,20 +971,6 @@ export default {
                     a.date = date.toUTCString().substring(5, 11);
                     a.time = date.toUTCString().substring(17, 22);
 
-                    /* if (a.deploy) {
-                        this.getFinishnStatus(a.id, a.deploy.match.list.length).then(data => {
-                            a.finishedAt = data[0];
-                            a.status = data[1];
-                            this.orders.push(a);
-                        });
-                    } else {
-                        this.getFinishnStatus(a.id,1).then(data => { 
-                            a.finishedAt = data[0];
-                            });
-                        a.status = [0, 0]
-                        a.deploy = "";
-                        this.orders.push(a);
-                    } */
                     let total = 0;
                     a.deploy?  total = a.deploy.match.list.length: total = 1;
                     this.getFinishnStatus(a.id, total).then(data => {
@@ -1344,14 +981,15 @@ export default {
                 }
             });
         },
+        // get all devices
         getTargets: function () {
             axios.get(this.address + "/targets").then(response => {
                 for (let i = 0; i < response.data.total; i++) {
                     let a = response.data.items[i];
-                    a.targetActive = true;
+                    // to show the device name in dropdown menu of host
                     a.hostActive = true;
+                    // to show the device name in dropdown menu of target
                     a.nameActive = true;
-
                     let tags = "";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
@@ -1368,11 +1006,13 @@ export default {
                             lat: rand(7.203923),
                         }
                     }
+                    // create a marker of this device
                     let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
                         'title': a.id,
                         'alt': a.tags ? a.tags : []
                     });
                     a.marker = marker;
+                    // check tasks status and decide the marker icon, add to success or fail list
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;
                         if (data.error == true) {
@@ -1398,7 +1038,9 @@ export default {
                 console.log(error);
             });
         },
+        // on the status diagram, go to edit the deployment form and redeploy
         goBackDeployment: function () {
+            // close the modal
             $("#myTree").modal('toggle');
             let id = $('#treeTitle').text().substring(17);
             if($('#editBtn').val() == 'nodeploy'){
@@ -1406,16 +1048,14 @@ export default {
                 this.duplicateOrder(order);
             }
         },
+        // zipped the uploaded files and display their PATH
         handleFileSelect: function (event) {
 
             let files = event.target.files;
             let archive = new jsZip();
             for (let i = 0, f; (f = files[i]); i++) {
-                // if set webkitdirectory 
-                // trim selected directory name
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
                 archive.file(path, f);
-                //console.log(path);
             }
             this.source = archive.generateAsync({ type: "base64" });
             if (files){
@@ -1423,15 +1063,15 @@ export default {
                 document.getElementById("mySourcepath").innerHTML = 'PATH: ' + files[0].webkitRelativePath;
             } 
         },
+        // submit(POST) the deployment to backend service
         handleDeploy: function (taskDer) {
             let myYaml = yaml.safeDump(taskDer);
             axios.post(this.address + "/orders", myYaml).then(response => { 
                 response.data.build ? response.data.deploy : (response.data.build = "");
                 response.data.deploy ? response.data.deploy : (response.data.deploy = "");
-                /* $("#collapseOne").collapse("show");
-                this.clearForm(); */
+                // generate the diagram
                 this.listen3(response.data.id, true, response.data.deploy.match.list, response.data.build.host);
-                /* this.source = ''; */
+                
             }).catch(error => {
                 let message;
                 if(error.response){
@@ -1443,200 +1083,7 @@ export default {
                 $("#myAlert").modal();
             });     
         },
-        listen: function (id, deploy, target, host) {
-
-            let mylog = $("#mylog");
-            mylog.empty();
-            $("#myTree").modal();
-
-            d3.selectAll("circle").remove();
-            d3.selectAll("line").remove();
-
-            //If there is a build process
-            if (host) {
-                this.host = { name: host, stage: 0, class: 'node-i' }
-                mylog.append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>')
-            } else {
-                this.host = "";
-                mylog.append('<h6 style="margin:0">Build: No Build process.</h6>')
-            }
-            //If there is a deploy process
-            if (target) {
-                let targetStr = "";
-                this.targets = target.map(t => {
-                    targetStr += '<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>';
-                    return { name: t, stage: 2, class: 'node-i' }
-                });
-                mylog.append('<h6 style="margin:0">Deploy: </h6>' + targetStr);
-            } else {
-                this.targets = "";
-                mylog.append('<h6 style="margin:0">Deploy: No Deploy process.</h6>');
-            }
-
-            let size = 0;
-            if (this.targets.length >= 50) { size = 50 }
-            else if (this.targets.length < 10) { size = 5 * this.targets.length }
-            else { size = 50 }
-
-            let data = {
-                name: 'build',
-                value: 5,
-                children: [{
-                    name: 'build-E',
-                    value: 5,
-                    children: [{
-                        name: 'install',
-                        value: size,
-                        children: [
-                            { name: 'install-s', value: size, children: [
-                                    { name: 'run-s', value: size },
-                                    { name: 'run-f', value: size },
-                                    { name: 'run-i', value: size }]
-                            },
-                            { name: 'install-f', value: size },
-                            { name: 'install-i', value: size }
-                        ]
-                    }]
-                }]
-            }
-
-            //Build-Tree Nodes
-            let treeLayout = d3.tree().size([500, 400]);
-            let root = d3.hierarchy(data);
-            treeLayout(root);
-            // Nodes
-            let nodes = d3.select("#myTree_p g.nodes")
-                .selectAll('circle.node')
-                .data(root.descendants())
-                .enter();
-            nodes.append('circle')
-                .classed('node', true)
-                .attr('cx', function (d) { return d.x; })
-                .attr('cy', function (d) { return d.y; })
-                .attr('r', function (d) { return d.value; })
-                .attr('fill', '#ececec')
-                .attr('stroke', '#e4e4e4');
-            nodes.append('text')
-                .attr('x', function (d) { return d.x - 25; })
-                .attr('y', function (d) { return d.y; })
-                .text(function (d) { return d.data.name })
-                .attr("font", '12px "Helvetica Neue", Arial, Helvetica, sans-serif;')
-                .attr("fill", "#e4e4e4");
-
-            // Links
-            d3.select("#myTree_p g.links")
-                .selectAll('line.link')
-                .data(root.links())
-                .enter()
-                .append('line')
-                .classed('link', true)
-                .attr('x1', function (d) { return d.source.x; })
-                .attr('y1', function (d) { return d.source.y; })
-                .attr('x2', function (d) { return d.target.x; })
-                .attr('y2', function (d) { return d.target.y; })
-                .attr('stroke', '#e4e4e4');
-
-            if (!deploy) {
-                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000").then(response => {
-                    this.generateTree(response.data.items);
-                }).catch(error => {
-                    console.log(error);
-                });
-            }
-            if (!("WebSocket" in window)) {
-                alert("WebSocket is not supported by your Browser!");
-                return;
-            }
-            if (this.ws) {
-                this.ws.close();
-                this.ws = "";
-            } else {
-                let address;
-                this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
-                this.ws = new WebSocket(address + this.address.substring(7) + "/events?task=" + id + "&topics=logs");
-                this.ws.onopen = function () {
-                    console.log("Socket connected.");
-                };
-                this.ws.onmessage = event => {
-                    var obj = JSON.parse(event.data);
-                    this.generateTree(obj.payload);
-                };
-                this.ws.onclose = function () {
-                    console.log("Socket disconnected.");
-                    $("#mylog").prepend("<p>WebSocket Disconnected!</p>");
-                    // If socket disconnected, try to connect again after 5s.
-                    /* setTimeout(function () { listen(1, true);}, 5000); */
-                };
-            }
-        },
-        listen2: function (id, deploy, target, host) {
-
-            let mylog = $("#mylog2");
-            mylog.empty();
-            $("#myTree2").modal();
-
-            let hostStatus = new Map();
-            let targetsStatus = new Map();
-
-            //If there is a build process
-            if (host) {
-                let status = new Map();
-                status.set('build', 'STAGE-START');
-                hostStatus.set(host, status);
-                mylog.append('<h6 style="margin:0">Build: </h6><div class="myCommands"><h6 style="margin:0">Device: ' + host + '</h6><div id="' + host + '" class="myCommandCard"></div></div>');
-            } else {
-                mylog.append('<h6 style="margin:0">Build: No Build process.</h6>');
-            }
-            //If there is a deploy process
-            if (target) {
-                target.forEach(el => {
-                    let status = new Map();
-                    status.set('deploy', ['STAGE-START', ""]);
-                    status.set('install', ['', '']);
-                    status.set('run', ['', '']);
-                    targetsStatus.set(el, status);
-                });
-                let targetStr = '<h6 style="margin:0">Deploy: </h6>';
-                target.forEach(t => {
-                    targetStr += '<div class="myCommands"><h6 style="margin:0">Device: ' + t + '</h6><div id="' + t + '" class="myCommandCard"></div></div>';
-                });
-                mylog.append(targetStr);
-            } else {
-                mylog.append('<h6 style="margin:0">Deploy: No Deploy process.</h6>');
-            }
-            if (!deploy) {
-                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000").then(response => {
-                    this.generateTree2(response.data.items, hostStatus, targetsStatus, host, target);
-                }).catch(error => {
-                    console.log(error);
-                });
-            }
-            if (!("WebSocket" in window)) {
-                alert("WebSocket is not supported by your Browser!");
-                return;
-            }
-            if (this.ws) {
-                this.ws.close();
-                this.ws = "";
-            } else {
-                let address;
-                this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
-                this.ws = new WebSocket(address + this.address.substring(7) + "/events?order=" + id + "&topics=logs");
-                this.ws.onopen = function () {
-                    console.log("Socket connected.");
-                };
-                this.ws.onmessage = event => {
-                    var obj = JSON.parse(event.data);
-                    this.generateTree2(obj.payload, hostStatus, targetsStatus, host, target);
-                };
-                this.ws.onclose = function () {
-                    console.log("Socket disconnected.");
-                    $("#mylog2").prepend("<p>WebSocket Disconnected!</p>");
-                    // If socket disconnected, try to connect again after 5s.
-                    /* setTimeout(function () { listen(1, true);}, 5000); */
-                };
-            }
-        },
+        // generate the diagram
         listen3: function (id, deploy, target, host) {
             
             let mylog = $("#mylog");
@@ -1647,6 +1094,11 @@ export default {
             d3.selectAll("circle").remove();
             d3.selectAll("line").remove();
 
+            /* //Dummy data
+            target = target.concat(['apple','kiwi','anana','melon','watermelon','bear','peach','berry','mango','orange'])
+            */
+            
+            // generate the HTML to show the logs of (host and target) during deploying
             if (host) {
                 this.host = {name: host, error: 40, stage: 50, class: 'node-i'}
                 mylog.append('<h6 style="margin:2.5px 0">Build: </h6><div class="myCommands card"><button class="btn btn-light myBtn" type="button" data-toggle="collapse" data-target="#'+host+'0build'+'" aria-expanded="true" aria-controls="collapseOne">Device: ' + host + '</button>'
@@ -1655,11 +1107,6 @@ export default {
                 this.host = "";
                 mylog.append('<h6 style="margin:2.5px 0">Build: No Build process.</h6>')
             }
-
-            /* //Dummy data
-            target = target.concat(['apple','kiwi','anana','melon','watermelon','bear','peach','berry','mango','orange'])
-            */
-           
             if (target) {
                 let targetStr = '<h6 style="margin:0">Deploy: </h6>';
                 this.targets = target.map(t => {
@@ -1673,6 +1120,7 @@ export default {
                 mylog.append('<h6 style="margin:0">Deploy: No Deploy process.</h6>');
             }
 
+            // add a fetch logs button to every target and host
             this.targets.forEach(t=>{
                 let element = $('#' + t.name);
                 let btn = document.createElement('button');
@@ -1682,7 +1130,6 @@ export default {
                 btn.onclick = ()=>{this.requestLogs(t.name)};
                 element.append(btn);
             });
-
             if(this.host){
                 let btn = document.createElement('button');
                 btn.innerHTML= ' &#8634;  Fetch logs';
@@ -1692,7 +1139,8 @@ export default {
                     this.requestLogs(this.host.name.substring(0, this.host.name.length - 6));
                 };
             }
-           
+            
+            // compute the background circle size and device node size
             let size = 0, nodeSize = 0, r = 0;
             this.targets.length < 6 ? size = 3 * this.targets.length : size = 25;
             this.targets.length > 0 ? r = 40 / this.targets.length : r = 5;
@@ -1703,6 +1151,7 @@ export default {
                 nodeSize = 5;
             } else { nodeSize = r }
 
+            // background data tree
             this.background =  {
                 name: 'START',
                 value: 5,
@@ -1722,15 +1171,15 @@ export default {
                     }]
                 }]
             }
-                    
+            this.drawTreeback();
+
             this.installError = [];
             this.runError = [];
             let targetNodes = [];
+
+            // draw device nodes
             let node = d3.select("#myTree_b g").selectAll('circle');
             let treeLayout = d3.tree().size([100, 400]);
-
-            this.drawTreeback();
-
             let simulation = d3.forceSimulation(targetNodes)
                 .force('charge', d3.forceManyBody().strength(5))
                 .force('x', d3.forceX().x(function (d) { return d.error;}))
@@ -1741,13 +1190,15 @@ export default {
                          .attr("cy", function(d) { return d.y; })
                          .attr("class", function(d) { return d.class; })
             });
-            
+
+            // if click the device status on deployment card (not submit a new deployment )
             if (!deploy) {
                 axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000").then(response => {
-                    
+
                     $('#editBtn').val('nodeploy');
                     targetNodes = this.generateTree3(response.data.items); 
-                    //console.log(targetNodes)
+
+                    //Dummy data
                     /*  targetNodes = [{
                          class: "node-s",            
                          error: 30,
@@ -1822,7 +1273,8 @@ export default {
                         name: "banana",
                         stage: 450,
                     },]  */
-                   
+                    
+                    // update devices nodes position
                     node = node.data(targetNodes);
                     node.exit().remove();
                     node = node.enter().append('circle')
@@ -1834,6 +1286,7 @@ export default {
                     simulation.nodes(targetNodes).force('collision', d3.forceCollide().radius(5));
                     d3.select("#myTree_p g.nodes").selectAll("circle").remove();
 
+                    // update background circles (rotation)
                     let root = d3.hierarchy(this.background);
                     treeLayout(root);
                     let nodes = d3.select("#myTree_p g.nodes")
@@ -1863,8 +1316,9 @@ export default {
                         .attr('stroke', '#ececec')
                         .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
 
+                    // draw error backgraound
                     let errorNodes = this.installError.concat(this.runError); 
-                    //let errorNodes =[[977741087, 90, 400],[977741087, 145, 400]]
+                    //Dummy data: let errorNodes =[[977741087, 90, 400],[977741087, 145, 400]]
                     let circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
                                                   .data(errorNodes)
                                                   .enter()
@@ -1877,6 +1331,7 @@ export default {
                     }).catch(error => {
                         console.log(error);
                 });
+            // if generating the diagram via submitting a new deployment 
             }else{
                 if(target && host){
                     targetNodes = this.targets.concat(this.host);
@@ -1909,14 +1364,16 @@ export default {
             } 
                 let address;
                 this.address.indexOf('https') > -1 ? address = "wss://" : address = "ws://";
+                // open a websocket to receive real-time logs
                 this.ws = new WebSocket(address + this.address.substring(7) + "/events?task=" + id + "&topics=logs");
                 this.ws.onopen = function () {
                     console.log("Socket connected.");
                 };
-          
                 this.ws.onmessage = event => {
                     let obj = JSON.parse(event.data);
+                    // pass the logs to generate the diagram data structure
                     targetNodes = this.generateTree3(obj.payload);
+                    // update device nodes position
                     node = node.data(targetNodes);
                     node.exit().remove();
                     node = node.enter().append('circle')
@@ -1932,7 +1389,8 @@ export default {
                     
                     let root = d3.hierarchy(this.background);
                     treeLayout(root);
-                
+
+                    // update background circles (rotation)
                     d3.select("#myTree_p g.nodes").selectAll("circle").remove();
                     let nodes = d3.select("#myTree_p g.nodes")
                                     .selectAll('circle.node')
@@ -1961,6 +1419,7 @@ export default {
                         .attr('stroke', '#ececec')
                         .style('stroke-width', function (d) { return d.source.data.line ? 0 : 1; });
 
+                    // draw error backgraound
                     let errorNodes = this.installError.concat(this.runError);
                     let circles = d3.select('#myTree_e g.nodes').selectAll("circle.node")
                                                   .data(errorNodes)
@@ -1977,6 +1436,7 @@ export default {
                 };
             
         },
+        // click the right button on timeline, disable it when the latest task is shown
         next: function () {
             if (this.offset > 0) {
                 this.$refs.pre.disabled = false;
@@ -1987,6 +1447,7 @@ export default {
                 this.offset <= 0? this.$refs.next.disabled = true: this.$refs.pre.disabled = true;
             }
         },
+        // click the left button on timeline, disable it when the oldest task is shown
         previous: function () {
             if (this.$refs.timeline_lis.offsetWidth - this.offset > (this.map.getSize().x - 20)) {
                 this.offset += 100;
@@ -1997,6 +1458,7 @@ export default {
                 this.offset >= 0? this.$refs.pre.disabled = true : this.$refs.next.disabled = true;
             }
         },
+        // remove the device from the target list(new deployment)
         removeDevice: function (name) {
             let childrens = $("#searchTarget").children();
             for (let i = 0; i < this.targetDevices.length; i++) {
@@ -2013,8 +1475,8 @@ export default {
                 childrens.remove();
             }
         },
+        // request the debug logs of one task(needed when 'debug' option was unchecked during a deployment creation)
         requestLogs:function(id){
-             //console.log(id);
              let alert = $('#mymodal-body'), message=$('#mymessage-body');
              alert.empty();
              message.empty();
@@ -2033,11 +1495,13 @@ export default {
                 $('#myAlert').css('z-index',2000).modal();
              })
         },
+        // refresh full deployment list
         refresh: function () {
             this.orders = [];
             this.getOrders();
             $('#searchOrder').empty();
         },
+        // search deployment by description under deployment list
         searchDes: function () {
             if(this.orderSearchT){
                 let badge = this.createBadge(this.orderSearchT);
@@ -2045,6 +1509,7 @@ export default {
                 this.searchOrder();
             }
         },
+        // search deployment by name under deployment list
         searchOrder: function () {
 
             let tagsNodes = document.getElementById("searchOrder").childNodes;
@@ -2063,6 +1528,7 @@ export default {
             })
             this.orderSearchT = "";
         },
+        // search devices under new deployment
         searchTarget: function () {
             this.targetDevices=[];
             let tagsNodes = document.getElementById("searchTarget").childNodes;
@@ -2081,21 +1547,25 @@ export default {
                 }
             }
         },
+        // search previous task id under new deployment 
         selectArtifacts: function (id) {
             this.sourceOrder = id;
         },
+        // click device name or tag in dropdown menu under new deployment
         selectItem: function (tag) {
             this.targetText = "";
             let badge = this.createBadge(tag);
             document.getElementById("searchTarget").appendChild(badge);
             this.searchTarget();
         },
+        // click deployment name in dropdown menu under deployment list
         selectOrder: function (id) {
          
             let badge = this.createBadge(id);
             document.getElementById("searchOrder").appendChild(badge);
             this.searchOrder();
         },
+        // show deployment configuration in yaml and applied the changes when switches to form vew
         showYaml: function () {
 
             if (this.myYaml.show) {
@@ -2113,9 +1583,6 @@ export default {
                         } else if (obj.source.zip) {
                             this.sourceOrder = '';
                             this.typeSource = '2';
-                            /*  this.source = "";
-                             document.getElementById("mySourcelabel").innerHTML = "Choose File";
-                             document.getElementById("customFile").value = ""; */
                         }
 
                         this.chooseSource();
@@ -2153,6 +1620,7 @@ export default {
             let taskDer = this.generateTaskDer();
             this.myYaml.y = yaml.safeDump(taskDer);
         },
+        // stop a deployment
         stopOrder: function (order) {
             let alert = $('#mymodal-body'), message = $('#mymessage-body');
             alert.empty();
@@ -2172,6 +1640,7 @@ export default {
                 $('#myAlert').modal();
             })
         },
+        // append source to a new deployment object and submit it
         submitDeploy: function () {
             var taskDer = this.generateTaskDer();
             if (this.typeSource == '2') {
@@ -2188,6 +1657,7 @@ export default {
                 this.handleDeploy(taskDer);
             }
         },
+        // redirect to Device Management
         toDevices: function (para) {
             this.$router.push({
                 path: "/home", props: {

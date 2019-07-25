@@ -375,7 +375,7 @@
             </div>
         </div>
         </div>
-        <!-- deployment logs diaog modal -->
+        <!-- deployment logs dialog modal -->
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div id="myLog-dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content">
@@ -472,7 +472,7 @@ export default {
         return {
             address:"", // server address
             offset:0,   // offset to enable the pagination button
-            failed:[],  // failed device list
+            failed:[],  // fail device list
             success:[], // success device list
             newDiscover:[],  // newDiscover device list
             orders:[],  // deployment list
