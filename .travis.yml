@@ -1,0 +1,12 @@
+language: minimal
+
+script: 
+  - docker build -t linksmart/deployment-ui .
+  
+before_deploy: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
+
+deploy:
+  - provider: script
+    script: docker push linksmart/deployment-ui
+    on:
+      branch: master

@@ -5,20 +5,19 @@
                 <h5 style="display: inline-block; margin:5px">Device Management</h5>
             </div>
             <div class="accordion" id="accordionExample" style="width:100%;padding:2.5px">
+                   <!-- update devices panel -->
                    <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
                             aria-expanded="false" aria-controls="collapseTwo" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panle to batch update devices">
-                            <img src="../assets/edit.png" style="width:20px">
-                            Update Devices
+                            <img src="../assets/edit.png" style="width:20px">Update Devices
                         </button>
                     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
                         <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:auto">
                             <p style="margin-bottom:0;font-size:14px">Updating Targets:</p>
-                             <small>
-                               (CLICK cluster or DOUBLE CLICK marker to select Target.)
-                            </small>
+                             <small>(CLICK cluster or DOUBLE CLICK marker to select Target.)</small>
                             <div style="height:380px; border: 1px solid #e4e4e4; padding: 2.5px;border-radius:2px;overflow: auto">
                                 <div>
+                                    <!-- device filter -->
                                     <form class="form-inline">
                                         <div class="input-group" style="text-align:left;width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
                                             <div id="searchTarget2"></div>
@@ -38,6 +37,7 @@
                                         </div>
                                     </form>
                                 </div>
+                                <!-- updated device card -->
                                 <div v-for="device in targetDevices" class="simpleDeviceCard">
                                     <div style="padding:2.5px;">Name:
                                         <div style="padding:0 2.5px;display:inline-block;width:80%">{{device.id}}</div>
@@ -52,15 +52,14 @@
                                     </div>
                                 </div>
                             </div>
-                            <p style="margin-bottom:5px;font-size:14px">This update settings will apply to all selected
-                                deivces.</p>
+                            <p style="margin-bottom:5px;font-size:14px">This update settings will apply to all selected deivces.</p>
+                            <!-- update settings -->
                             <form id="updateTags">
                                 <div class="mycard-title">Tags:</div>
                                 <div class="mycard-content">
                                     <div class="input-group">
                                         <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
-                                           
                                             <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="actuator"> actuator
                                             </label>
@@ -113,8 +112,7 @@
                                 <div class="mycard-title">Location:</div>
                                 <div class="mycard-content"> 
                                     <input type="text" class="form-control form-control-sm" style="font-size: 14px;height: 22px;padding: 5px;" v-model="location"></div>
-                            </form>
-                        
+                            </form>                     
                             <div style="margin-top:5px">
                                 <button type="button" class="btn btn-danger" style="font-size:14px;padding: 2.5px 5px;" @click="clearForm">Clear</button>
                                 <button type="button" class="btn btn-primary" style="font-size:14px;padding: 2.5px 5px;float:right" @click="batchUpdate">Update</button>
@@ -122,16 +120,17 @@
                         </div>
                     </div>
                 </div>
+                <!-- manage token panel -->
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                             aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panel to manage tokens">
                             <img src="../assets/key.svg" style="height:20px">
                             Manage Tokens
-                        </button>
-                   
+                        </button>  
                     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
                         <div ref="collapseThree" style="overflow:auto">
                         <div style="margin:10px 12.5px 5px;">
+                           <!--  request for new tokens -->
                             <form id="newToken" class="form-inline">
                                 <div class="mycard-title">
                                     <h6 style="font-size:15px;margin:0">Token Set Name:</h6>
@@ -148,6 +147,7 @@
                             </form>
                         </div>
                         <div style="padding:5px">
+                            <!-- token sets table -->
                             <table id="mytable" class="table" style="text-align:left;font-size:15px">
                                 <thead>
                                     <tr>
@@ -170,6 +170,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- device list panel -->
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open devices list">
@@ -179,6 +180,7 @@
                     <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample"
                         ref="collapseOne">
                         <div style="padding:5px">
+                           <!--  device filter -->
                             <div id="search" style="margin-bottom:5px">    
                                 <form class="form-inline">
                                     <button type="button" class="btn" style="padding: 0 5px;border: 1px solid;margin: 0 5px 0 0;" @click="refresh" title="Refresh devices list">
@@ -202,6 +204,7 @@
                                 </form>
                             </div>                           
                             <div id="deviceList" ref="list" style="overflow:auto">
+                                <!--  device card, the data list is called 'orderTarget', each item is called 'device' which is a object -->
                                 <div v-for="device in orderTargets" v-show="device.isActive" @click="clickCard(device.marker)" :key="device.id">
                                     <div class="mycard my-card-body" style="padding:8px;margin-bottom:5px">
                                         <div class="mycard-title">Name:</div>
@@ -218,18 +221,6 @@
                                         <div class="mycard-content" style="font-size:12px;margin-top:2.5px">
                                             <span v-if="device.logs.tasks[0][1]!='none'">{{device.logs.tasks[0][0]}}</span>
                                         </div>
-                                       <!--  <div class="mycard-title">Latest Logs:</div>
-                                        <div v-if="device.logs.tasks[0][1]==true" style="text-align:left">
-                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/error.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log,device.logs.tasks[0][0],device.id)">
-                                            </button>
-                                        </div>
-                                        <div v-else-if="device.logs.tasks[0][1]==false" style="text-align:left">
-                                            <button type="button" class="btn btn-light btn-sm" style="padding: 0 2px">
-                                                <img src="../assets/done.png" style="width:14px;margin-top: -6px;" @click="showLog(device.logs.log, device.logs.tasks[0][0],device.id)">
-                                            </button>
-                                        </div>
-                                        <div v-else></div> -->
                                         <div class="mycard-title">Task History:</div>
                                         <div style="margin-bottom:5px">
                                             <div v-if="device.logs.tasks[0][1]!='none'">
@@ -256,6 +247,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <!-- terminal interface, it is hidden by default -->
                                     <div class="myT" style="display:none">
                                         <div style="background-color:#dedede;height:22px">
                                             <div style="font-size:14px; display:inline-block">$agent: {{device.id}}</div>
@@ -267,6 +259,7 @@
                                         <textarea class="myTerminal" style="width: 100%" rows="13" v-bind:id="device.id"
                                          @keydown="executeTerminal(device.id)">$ </textarea>
                                     </div>
+                                    <!-- update form on device card, it is hidden by default -->
                                     <div style="display:none">
                                         <form class="updateDevice">
                                             <div style=" grid-column: 1/4;">
@@ -350,11 +343,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
-             
+                </div>   
             </div>
         </div>
         <div id="map"  ref="map"></div>
+        <!-- error response dialog -->
         <div id="myAlert" class="modal fade" tabindex="5" role="dialog" aria-hidden="true">
             <div class="modal-dialog alert alert-danger" role="document" style="width:150%">
                 <div class="modal-content" >
@@ -368,6 +361,7 @@
             </div>
         </div>
         </div>
+        <!-- successful response dialog -->
          <div id="myMessage" class="modal fade" tabindex="5" role="dialog" aria-hidden="true">
             <div class="modal-dialog alert alert-success" role="document" style="width:150%">
                 <div class="modal-content" >
@@ -381,6 +375,7 @@
             </div>
         </div>
         </div>
+        <!-- deployment logs dialog modal -->
         <div id="myLog" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div id="myLog-dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
                 <div class="modal-content">
@@ -417,6 +412,7 @@
                 </div>
             </div>
         </div>
+        <!-- timeline -->
         <div class="myTimeline" ref="myTimeline">
                <button ref="pre" class="btn btn-sm btn-light" @click="previous">
                     <span style="left: -5px">&#9668;</span> 
@@ -432,12 +428,12 @@
                     <div v-if="order.status">
                         <img v-if="order.status[1]==0 && order.status[0]!=0" src="../assets/done.png" style="width:22px;background-color: #fff; border-radius: 50%" title="Click to check related devices">  
                         <img v-else src="../assets/error.png" style="width:22px;background-color: #fff; border-radius: 50%" title="Click to check related devices">              
-                    </div>
-             
+                    </div>    
                     </li> 
                 </div>
             </div>
         </div>
+        <!--  notification card -->
         <div class="notification"> 
             <div class="mycard-title" style="color:#ffda44" >Discovered:
                 <img src="../assets/star.png">
@@ -463,12 +459,8 @@
 
 <script>
 import axios from "axios";
-import "leaflet.smooth_marker_bouncing";
 import $ from "jquery";
-import "@/timeline.js";
-import "@/timeline.css";
 import CRC32 from 'crc-32'
-
 
 function rand(n) {
     let max = n + 0.001;
@@ -478,50 +470,116 @@ function rand(n) {
 export default {
     data() {
         return {
-            address:"",
-            offset:0,
-            failed:[],
-            success:[],
-            newDiscover:[],
-            orders:[],
+            address:"", // server address
+            offset:0,   // offset to enable the pagination button
+            failed:[],  // fail device list
+            success:[], // success device list
+            newDiscover:[],  // newDiscover device list
+            orders:[],  // deployment list
             map: "",
-            polyline: "",
+            polyline: "",  // relationship lines on the map
             updateOneName: "",
-            devices: [],
-            fullDevices:[],
-            tags: [],
-            targetDevices: [],
-            markers: [],
-            searchText: "",
-            searchText2: "",
-            terminal: '$ ',
-            location:"",
-            crt:'',
-            ws:'',
-            tokenName: '',
+            devices: [],   // device list (the device cards shown in Device List)
+            fullDevices:[],  // full device list get from database, cannot be changed
+            tags: [],   // the distinct tags of all devices, for filtering
+            targetDevices: [],  // updated device list
+            markers: [],  // device markers/marker clusters on the map
+            searchText: "",  // searching keyword of device list
+            searchText2: "",  // searching keyword of updated device list
+            terminal: '$ ',   // terminal interface input
+            location:"",     // device location
+            crt:'',   // keycode when input commands in terminal
+            ws:'',    // websocket
+            tokenName: '', 
             tokenSize:'',
-            token: [],
+            token: [],  // token list
         };
     },
     components: {
         editor: require("vue2-ace-editor")
     },
     computed: {
+        // the sorted deployment list
         orderOrders: function () {
-            
             return this.orders.sort(function (a, b) {
                 return b.createdAt - a.createdAt
             })
         },
+        // the sorted device list
         orderTargets: function(){
             return this.devices.sort(function (a, b) {
                 return b.updatedAt - a.updatedAt
             })
         }
     },
+    //methods are sorted alphabetically
     methods: {
+        // append deployment logs when user click history tasks
+        appendLogs: function(log,id){
+            let build = $("#collapsebuild"), install = $("#collapseinstall"), run = $("#collapserun");
+            build.empty().collapse('show');
+            install.empty().collapse('show');
+            run.empty().collapse('show');
+
+            let checksum = 0, count =0;
+            
+            let logs =  log.filter(el => el.task == id);
+            for(let i =1; i < logs.length;i++){
+                let c ='';
+                logs[i].error == true?  c = 'f':c= 's';
+
+                let line = logs[i].stage + '  ' + logs[i].command + '  ' + logs[i].output;
+                let l = new Date(logs[i].time).toLocaleString()+'  '+line;
+                let csm = CRC32.str(line);
+                // merge the same line by CRC32 checksum
+                if(checksum == csm){
+                    count++;
+                    switch(logs[i].stage){
+                    case 'build':
+                            build.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
+                            break;
+                    case 'install':
+                            install.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
+                            break;
+                    case 'run':
+                            run.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
+                            break;
+                    }
+                }else{
+                    count = 0 ;
+                    let n = '<div class="myfont_'+c+'">' + l + '</div>';  
+                    switch(logs[i].stage){
+                        case 'build':
+                            if(logs[i].output == 'STAGE-END')   build.prev().children().remove();
+                            build.append(n);
+                            break;
+                        case 'install':
+                            if(logs[i].output == 'STAGE-END')   install.prev().children().remove();
+                            install.append(n);
+                            break;
+                        case 'run':
+                            if(logs[i].output == 'STAGE-END')   run.prev().children().remove();
+                            run.append(n);
+                            break;
+                    }
+                }
+                checksum = csm; 
+            }
+            //if there is no logs under one stage, remove the spinner
+            if(build.children().length==0){
+                build.prev().children().remove();
+            }
+            if(install.children().length==0){
+                install.prev().children().remove();
+            }
+            if(run.children().length==0){
+                run.prev().children().remove();
+            }
+        },
+        // batch update device
         batchUpdate: function () {
-            let input = document.getElementById('updateTags').getElementsByTagName('input');         
+            let input = document.getElementById('updateTags').getElementsByTagName('input');  
+            // myUpdate is the update settings       
             let myUpdate = {
                 tags:[],
             }
@@ -530,13 +588,14 @@ export default {
                     myUpdate.tags.push(item.value);
                 }
             });
-            //console.log(myUpdate);
             let alert = $('#mymodal-body'), message = $('#mymessage-body');
             alert.empty();
             message.empty();
-            
+
+            //open update devices panel
             $("#collapseOne").collapse("show");
 
+            //for each targeting device, PUT the update
             this.targetDevices.forEach(el=>{
                 let p = this.fullDevices.find(d=>{ return d.id == el.id });
                 if(p.publicKey) myUpdate.publicKey = p.publicKey;
@@ -546,9 +605,8 @@ export default {
                     myUpdate.location.lon = parseFloat(input[input.length-1].value.split(',')[0]);
                     myUpdate.location.lat = parseFloat(input[input.length-1].value.split(',')[1]);
                 }
-                //console.log(myUpdate);
+               
                 axios.put(this.address + "/targets/" + el.id, myUpdate).then(response=>{
-                    //console.log(response)
                     $('#myMessage').modal();
                     message.append("Update target with "+ el.id + "  " + response.statusText + "<br>");
                 }).catch(error => {
@@ -557,6 +615,7 @@ export default {
                 }); 
             });          
         },
+        // reset update settings and empty targeting device list 
         clearForm: function () {
             let t = document.getElementById('updateTags');
             let input = t.getElementsByTagName('input');
@@ -571,6 +630,7 @@ export default {
             this.updateTags =[];
             this.location = "";
         },
+        // when close the dialog, refresh the full device list, deployment list, recalculate the successful, failed list, refresh the markers.
         closeModal: function () {
             this.devices = [];
             this.fullDevices = [];
@@ -581,6 +641,7 @@ export default {
             this.getTargets();
             this.getTokens();
         },
+        // request all logs on one device
         checkLogs: function (target) {
 
             let des = "target=" + target;
@@ -589,9 +650,9 @@ export default {
                 if (response.data.items) { 
                     let fulltask = new Set();
                     response.data.items.forEach( el =>  fulltask.add(el.task) );
+                    // the lastet 15 tasks of one device
                     let task = Array.from(fulltask).slice(0,15);
-                    //console.log(task)
-
+                    // check logs of each task and return whether there was error overall. [task id, error]
                     let tasks = task.map(t =>{
                         let lastLog = response.data.items.filter(el => el.task == t); 
                         if (lastLog.some(el => el.error == true)) {
@@ -600,7 +661,6 @@ export default {
                              return t = [t,false]
                         }
                     });
-
                     return { 'tasks': tasks,
                              'log': response.data.items.reverse(),  };
                 } else {
@@ -611,6 +671,7 @@ export default {
                 console.log(error);
             });
         }, 
+        // click timeline item, show device markers on the map and cards of one deployment 
         clickDeployment: function (id) {
 
             if(this.polyline) this.polyline.remove();
@@ -618,7 +679,6 @@ export default {
             this.markers.clearLayers();
             this.devices = [];
             let filteredData = this.orders.find(i=> { return i.id === id });
-            //console.log(filteredData)
 
             if(filteredData.deploy){
                 filteredData.deploy.match.list.forEach(el=>{
@@ -630,18 +690,12 @@ export default {
             this.map.addLayer(this.markers)
             this.map.fitBounds(this.markers.getBounds());
         },  
+        // click device card
         clickCard: function (marker) {  
              this.map.panTo(marker.getLatLng());
              marker.openPopup();
         },
-        closeSearch: function () {
-           
-            if (document.getElementById("collapseTwo").className == "collapse") {
-                document.getElementById("search").style.display = "none";
-            } else {
-                document.getElementById("search").style.display = "inline";
-            }
-        },
+        // create the badge appending to the search input 
         createBadge: function (content) {
             let badge = document.createElement("span");
             badge.innerHTML = content;
@@ -653,6 +707,7 @@ export default {
             };
             return badge;
         },
+        // delete device from database
         deleteTarget: function (id) {
             
             let alert = $('#mymodal-body'), message=$('#mymessage-body');
@@ -662,6 +717,7 @@ export default {
             axios.delete(this.address+"/targets/" + id).then(response => {
 
                 let index = this.devices.indexOf(this.devices.find(el => el.id === id));
+                // make this device card invisible
                 this.devices.splice(index, 1);
                 this.failed = [];
                 this.success = [];
@@ -675,6 +731,7 @@ export default {
             })
             
         },
+        // delete tokens set from database
         deleteToken: function (name) {
 
             let alert = $('#mymodal-body'), message=$('#mymessage-body');
@@ -695,18 +752,37 @@ export default {
                     message = error;
                 }
                 alert.empty().append("Delete token set with name:" + name + "  " +  message);
-                $('#myAlert').modal();
-                
+                $('#myAlert').modal();  
             })  
         },
-        //Search device
+        // watch the keyboard input, whether there is 'enter', if yes PUT the commands to the backend
+        executeTerminal: function (id) {
+            this.crt += event.keyCode + ',';
+    
+            let element = $('#' + id);
+            let terminal = element.val();
+
+            // if press 'ctr+c', DELETE the commands
+            if (this.crt.substring(this.crt.length - 6) == '17,67,') {
+                axios.delete(this.address + "/targets/" + id + "/command").then(response => {
+                    terminal += 'This Terminal disconnected!' + response.data + '\n$ ';
+                    element.val(terminal).scrollTop(element.prop('scrollHeight'));
+                }).catch(error => {
+                    terminal +='\n' +error + '\n$ ';
+                    element.val(terminal).scrollTop(element.prop('scrollHeight'));
+                })
+            // if press 'enter', PUT the commands
+            } else if (this.crt.substring(this.crt.length - 3) == '13,') {
+                this.submitTerminal(id, terminal)
+            }
+        },
+        // watch user input and filter the dropdown menu
         filterDevice: function () {
-           
             var value = this.searchText.toLowerCase();
             this.tags.forEach(function (tag) { tag.tag.toLowerCase().indexOf(value) > -1 ? tag.isActive = true: tag.isActive = false; });
             this.fullDevices.forEach(d=>{ !(d.id.toLowerCase().indexOf(value) > -1) ? d.nameActive = false: d.nameActive = true; })
         },
-        //Click notification card item and filtering device
+        // click notification card item and filtering device
         filterDevices: function (para) {
 
             $('#searchTarget').empty();
@@ -738,6 +814,7 @@ export default {
             });
             this.map.fitBounds(this.markers.getBounds())
         },
+        // check one task finished time and calculate how many devices succeed or failed, return [finish time, [success,fail]]
         getFinishnStatus: function (id, total) {
 
             return axios.get(this.address+"/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
@@ -757,13 +834,16 @@ export default {
                 console.log(error);
             });
         },
+        // check one task finished time
         getFinishTime: function (id) {
             return axios.get(this.address+"/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
-                return response.data.items[0].time;
+                
+                return response.data.items? response.data.items[0].time: "";
             }).catch(error => {
                 console.log(error);
             })
         },
+        // get all tasks
         getOrders: function () {
     
             axios.get(this.address+"/orders?sortOrder=desc").then(response => {
@@ -799,13 +879,18 @@ export default {
                 }     
             });
         }, 
+        // get all devices
         getTargets: function () {
             axios.get(this.address+"/targets").then(response => {
+                //for each device
                 for (let i = 0; i < response.data.total; i++) {
 
                     let a = response.data.items[i];
+                    // to show the device card
                     a.isActive = true;
+                    // to show relationship lines
                     a.relations = false;
+                    // to show the device name in dropdown menu
                     a.nameActive = true;
                    
                     if (!a.location) {
@@ -815,7 +900,8 @@ export default {
                     let tags = "";
                     if (a.tags) {
                         for (let j = 0; j < a.tags.length; j++) {
-                            tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>'
+                            tags += '<div class="badge badge-pill ' + a.tags[j] + '">' + a.tags[j] + '</div>';
+                            // get distinct tags
                             if (!this.tags.some(e => e.tag === a.tags[j])) {
                                 this.tags.push({
                                     'isActive': true,
@@ -826,12 +912,13 @@ export default {
                     }
 
                     let icon ="";
+                    // create a marker of this device
                     let marker = L.marker(L.latLng(a.location.lon, a.location.lat), {
                         'title': a.id,
                         'alt': a.tags ? a.tags : []
                     })
                     a.marker = marker;
-             
+                    // check tasks status and decide the marker icon, add to success or fail list
                     this.checkLogs(a.id).then(data => {
                         a.logs = data;                 
                         if(data.tasks[0][1] == true){
@@ -850,7 +937,6 @@ export default {
                         this.devices.push(a);
                         this.fullDevices.push(a);
                     }); 
-
                     //Markers click function
                     marker.bindPopup('<div>Name: ' + a.id + '</div><div>Tags: ' + tags + '</div>');
                     marker.on("click", event => {
@@ -865,6 +951,7 @@ export default {
                 console.log(error);
             });
         },
+        // get all tokens
         getTokens: function(){      
             axios.get(this.address + "/token_sets").then(response =>{
                 for(let i =0; i<response.data.items.length; i++){
@@ -877,6 +964,7 @@ export default {
                 }
             })
         },
+        // get all new discovered device
         handelNewDiscover: function (devices) {
            
                 let a = devices;
@@ -930,6 +1018,7 @@ export default {
                     }
                 })
         },
+        // hide the terminal and reset related variables
         hideTerminal: function (id) {
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[1].style.display = 'none';
@@ -948,10 +1037,12 @@ export default {
             $('#' + id).val('$ ');
             this.crt='';
         },
+        // hide the edit form
         hideEdit: function (e) {
             e.path[5].childNodes[0].style.display = 'grid';
             e.path[5].childNodes[2].style.display = 'none';
         },
+        // click the right button on timeline, disable it when the latest task is shown
         next: function () {
             if(this.offset > 0){
                 this.$refs.pre.disabled=false;
@@ -962,6 +1053,7 @@ export default {
                 this.offset <= 0? this.$refs.next.disabled = true: this.$refs.pre.disabled = true;
             }   
         },
+        // click the left button on timeline, disable it when the oldest task is shown
         previous: function () {
            
             if(this.$refs.timeline_lis.offsetWidth-this.offset > (this.map.getSize().x - 20)){
@@ -972,12 +1064,13 @@ export default {
             }else{
                 this.offset >= 0? this.$refs.pre.disabled = true : this.$refs.next.disabled = true;       
             }  
-        },  
+        },
+        // request new tokens, generate the dialog content HTML to show the new tokens
         postToken: function () {
 
             axios.post(this.address + '/token_sets?total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{            
                 let a = response.data;
-                
+                // generate the dialog content HTML to show the new tokens          
                 let str = '<h6>This view will be unaccesable after you close this modal!</h6><div class="myToken">' + '<div class="mycard-title">Name:</div><div class="mycard-content">'+ a.name + '</div>';
                 str += '<div class="mycard-title">Size:</div><div class="mycard-content">'+ a.available + '</div>';
                 str += '<div class="mycard-title">Expires Time:</div><div class="mycard-content">'+ new Date(a.expiresAt).toLocaleString() + '</div>';
@@ -998,9 +1091,9 @@ export default {
                 }
                 alert.empty().append("Get new tokens error:  " + message);
                 $('#myAlert').modal();
-
             })
         }, 
+        // remove the device from the target list(update device)
         removeDevice: function (name) {
              let childrens = $("#searchTarget2").children();
             for (var i = 0; i < this.targetDevices.length; i++) {
@@ -1015,6 +1108,7 @@ export default {
                 childrens.remove();
             }
         }, 
+        // refresh full device list and recalculate the success and failure
         refresh: function () {
             $('#searchTarget').empty(); 
             this.devices=[];
@@ -1025,11 +1119,10 @@ export default {
             this.markers.clearLayers();
             this.getTargets();
         },
+        // request the debug logs of one task(needed when 'debug' option was unchecked during a deployment creation)
         requestLogs:function(){
 
              let id= event.target.value;
-             // console.log(id);
-
              let alert = $('#mymodal-body'), message=$('#mymessage-body');
              alert.empty();
              message.empty();
@@ -1049,7 +1142,7 @@ export default {
                 $('#myAlert').css('z-index',2000).modal();
              })
         },
-        // All device -> search devices
+        // search devices under device list
         searchTarget: function () {
             var tagsNodes = document.getElementById("searchTarget").childNodes;
             //console.log(tagsNodes);
@@ -1067,7 +1160,7 @@ export default {
                 }
             })   
         },
-        //Update device -> search devices
+        // search devices under update device
         searchTarget2: function () {
             this.targetDevices=[];
             var tagsNodes = document.getElementById("searchTarget2").childNodes;
@@ -1087,18 +1180,21 @@ export default {
                 }
             }
         },
+        // click device name or tag in dropdown menu under device list
         selectItem: function (tag) {
             this.searchText="";
             var badge = this.createBadge(tag);
             document.getElementById("searchTarget").appendChild(badge);
             this.searchTarget();
         },
+        // click device name or tag in dropdown menu under update device
         selectItem2: function (tag) {
             this.searchText2="";
             var badge = this.createBadge(tag);
             document.getElementById("searchTarget2").appendChild(badge);
             this.searchTarget2();
         },
+        // show edit form
         showEditForm: function (device) {
             event.path[3].style.display = 'none';
             event.path[4].childNodes[2].style.display = 'inline';
@@ -1116,66 +1212,7 @@ export default {
             }
             event.path[4].childNodes[2].childNodes[0].childNodes[8].childNodes[0].value= [device.location.lon,device.location.lat];
         },
-        appendLogs: function(log,id){
-
-            let build = $("#collapsebuild"), install = $("#collapseinstall"), run = $("#collapserun");
-            build.empty().collapse('show');
-            install.empty().collapse('show');
-            run.empty().collapse('show');
-
-            let checksum = 0, count =0;
-            
-            let logs =  log.filter(el => el.task == id);
-            for(let i =1; i < logs.length;i++){
-                let c ='';
-                logs[i].error == true?  c = 'f':c= 's';
-
-                let line = logs[i].stage + '  ' + logs[i].command + '  ' + logs[i].output;
-                let l = new Date(logs[i].time).toLocaleString()+'  '+line;
-                let csm = CRC32.str(line);
-                if(checksum == csm){
-                    count++;
-                    switch(logs[i].stage){
-                    case 'build':
-                            build.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
-                            break;
-                    case 'install':
-                            install.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
-                            break;
-                    case 'run':
-                            run.children().last().html('<span class="badge badge-primary" style="margin-right:2.5px">'+count+'</span>'+l);
-                            break;
-                    }
-                }else{
-                    count = 0 ;
-                    let n = '<div class="myfont_'+c+'">' + l + '</div>';  
-                    switch(logs[i].stage){
-                        case 'build':
-                            if(logs[i].output == 'STAGE-END')   build.prev().children().remove();
-                            build.append(n);
-                            break;
-                        case 'install':
-                            if(logs[i].output == 'STAGE-END')   install.prev().children().remove();
-                            install.append(n);
-                            break;
-                        case 'run':
-                            if(logs[i].output == 'STAGE-END')   run.prev().children().remove();
-                            run.append(n);
-                            break;
-                    }
-                }
-                checksum = csm; 
-            }
-            if(build.children().length==0){
-                build.prev().children().remove();
-            }
-            if(install.children().length==0){
-                install.prev().children().remove();
-            }
-            if(run.children().length==0){
-                run.prev().children().remove();
-            }
-        },
+        // show logs dialog modal 
         showLog: function (log,id,name) {
 
             $("#logTitle").empty().append('Task: '+ id + '<br>Device: ' + name).next()[0].value = name;
@@ -1186,6 +1223,7 @@ export default {
 
             let protocol = '';
             this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';
+            // open socket to get new logs sending back when the deployment is running
             let ws =  new WebSocket(protocol + this.address.substring(7) + "/events?topics=logs&task=" + id + "target=" + name );
 
             ws.onopen = function () { console.log("Socket connected.") };
@@ -1199,6 +1237,7 @@ export default {
             };        
             $("#myLog").modal();
         },       
+        // show device card and markers of new discovered devices
         showNewDevices: function () {
             
             event.path[2].childNodes[0].style.background = '#ececec';
@@ -1215,6 +1254,7 @@ export default {
                 this.markers.addLayer(item.marker)
             })
         },
+        // show relationship lines on the map
         showRelationship: function (tag, device) {
             device.marker.openPopup();
             let latlngs = [];
@@ -1225,6 +1265,7 @@ export default {
                 }
             });
             let color;
+            // chose the line color based on the tag, the tags are hard-coded
             switch (tag) {
                     case 'amd64':
                         color = "#376b6d";
@@ -1272,7 +1313,8 @@ export default {
                                                  'weight': 2,     })
             this.polyline.addTo(this.map);
             this.map.fitBounds(this.polyline.getBounds());
-        }, 
+        },
+        // show terminal interface
         showTerminal: function (e) {
             e.path[3].style.display = 'none';
             e.path[4].childNodes[1].style.display = 'inline';
@@ -1283,10 +1325,12 @@ export default {
                 this.ws = new WebSocket(protocol + this.address.substring(7) + "/events?topics=logs&task=terminal");
             } 
         },
+        // submit the edit form of one device
         submitEdit: function (id) {
 
             let d = this.devices.find(i=> {return i.id == id});
-            let input= event.path[2].getElementsByTagName('input'); 
+            let input= event.path[2].getElementsByTagName('input');
+            // update settings 
             let myUpdate = {
                 id: input[0].value,
                 tags:[],
@@ -1307,7 +1351,6 @@ export default {
             
             event.path[4].childNodes[0].style.display = 'grid';
             event.path[4].childNodes[2].style.display = 'none';
-            //console.log(myUpdate)
             axios.put(this.address+"/targets/" +id, myUpdate).then(response=>{
 
                     let i = this.devices.findIndex(el =>el.id == id);
@@ -1319,7 +1362,6 @@ export default {
                     this.$set(this.devices[i], 'tags', myUpdate.tags);
                     this.$set(this.devices[i], 'location', myUpdate.location);
                     this.map.panTo(this.devices[i].marker.getLatLng());
-
                     $('#myMessage').modal();
                     message.append("Update target with " + id + "  " + response.statusText);
                 }
@@ -1331,33 +1373,12 @@ export default {
                     message = error;
                 }
                 alert.empty().append("Update target with " + id + "  " + message);
-                $('#myAlert').modal();
-               
+                $('#myAlert').modal();       
             }); 
-            //console.log(event.path)
         },
-        executeTerminal: function (id) {
-
-            this.crt += event.keyCode + ',';
-            //console.log(this.crt)
-            let element = $('#' + id);
-            let terminal = element.val();
-
-            if (this.crt.substring(this.crt.length - 6) == '17,67,') {
-                axios.delete(this.address + "/targets/" + id + "/command").then(response => {
-                    terminal += 'This Terminal disconnected!' + response.data + '\n$ ';
-                    element.val(terminal).scrollTop(element.prop('scrollHeight'));
-                }).catch(error => {
-                    terminal +='\n' +error + '\n$ ';
-                    element.val(terminal).scrollTop(element.prop('scrollHeight'));
-                })
-            } else if (this.crt.substring(this.crt.length - 3) == '13,') {
-                this.submitTerminal(id, terminal)
-            }
-        },
+        // PUT commands to backend
         submitTerminal: function (id,terminal) {
 
-            //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
             let commands = terminal.split("\n");
             let command = {
                 command: commands[commands.length - 1].substring(2)
@@ -1366,30 +1387,35 @@ export default {
             element.keypress(function (e) { // suppress enter keypress
                 if (e.keyCode == 13) e.preventDefault();
             });
+            // if there is commands
             if(command.command){
+                terminal += '\n';
                 axios.put(this.address + "/targets/" + id + "/command", command).then(response => {
-                    terminal += '\n'
+                    
                     element.val(terminal).scrollTop(element.prop('scrollHeight')); // wait for events
-                    //console.log("reponse", response);
+                
                 }).catch(error => {
                     terminal += '\n'+ error.response.data.error +'\n$ '
                     element.val(termina).scrollTop(element.prop('scrollHeight'));
                 })
+            // if user just press 'enter'
             } else {
                 element.val( terminal +'\n$ ');
             }
-            this.ws.onmessage = event => {    
-                //console.log(terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
+            // handle the output
+            this.ws.onmessage = event => {             
                 var obj = JSON.parse(event.data);
                 obj.payload.forEach(l => { 
                     if(l.target == id){
-                        if(l.output == "EXEC-END")
+                        if(l.output == "EXEC-END"){
                             terminal += '$ ';
-                        else if(l.output != "EXEC-START")
+                        }
+                        else if(l.output != "EXEC-START"){
                             terminal += l.output + '\n';
+                        }
                     } 
-                 });
-                //console.log('commands'+terminal.charCodeAt(terminal.length-3),terminal.charCodeAt(terminal.length-2),terminal.charCodeAt(terminal.length-1))
+                });
+                // update the terminal view
                 element.val(terminal).scrollTop(element.prop('scrollHeight'));
             };
         },
@@ -1437,6 +1463,8 @@ export default {
 
         let protocol = '';
         this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';
+
+        // open socket to get new discovered device information
         let ws = new WebSocket(protocol + this.address.substring(7) + "/events?topics=targetAdded");
         ws.onopen = function () { console.log("Socket connected.") };
         ws.onmessage = event => {
