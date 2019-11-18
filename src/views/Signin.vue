@@ -3,7 +3,7 @@
     <div></div>
     <div id="signin">
       <div style="grid-column:1/3; margin-top:150px;margin-bottom:50px">
-        <h1>Welcome to CPSwarm!</h1>
+        <h1>Welcome to CPSwarm Deployment UI!</h1>
       </div>
       <div class="form-group row">
         <label for="usrname" class="col-sm-3 col-form-label">User Name:</label>
