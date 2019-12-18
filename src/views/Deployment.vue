@@ -45,8 +45,14 @@
                                         </div>
                                         <!-- if type source is 'upload file' -->
                                         <div ref="custom_file" class="custom-file" style="height:26px; display:none">
+                                            
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
-                                            <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
+                                            <label id="mySourcelabel" style="width:180px" class="custom-file-label" for="customFile">Choose file</label>
+                                        
+                                            <button type="button" id="btSubmit" @click="openmessage" disabled class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">View</button>
+                                    
+                                            
+                                      
                                         </div>
                                     </div>
                                 </div>
@@ -307,10 +313,11 @@
                 <div id="mymodal-body" class="modal-body" style="text-align:left"></div>
             </div>
         </div>
+
     </div>
     <!-- successful response dialog -->
-    <div id="myMessage" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog alert alert-success" role="document" style="width:150%">
+    <div id="myMessage" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" >
+            <div class=" modal-dialog modal-dialog-scrollable modal-dialog alert alert-success modal-dialog modal-lg" role="document">
                 <div class="modal-content" >
                     <div class="modal-header">
                         <h5 class="modal-title">Message</h5>
@@ -417,6 +424,9 @@ import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
 import CRC32 from 'crc-32';
+let str="";
+let a;
+
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -461,6 +471,7 @@ export default {
             installError: '',  // deployment progress status diagram install error backgraound
             runError: '',   // deployment progress status diagram run error backgraound
             background:[]  // deployment progress status diagram backgraound
+            
         };
     },
     components: {
@@ -1049,20 +1060,55 @@ export default {
             }
         },
         // zipped the uploaded files and display their PATH
+        openmessage: function()
+        {
+          
+           
+                $('#mymessage-body').empty().append(str+'<br>');
+                $('#myMessage').modal();
+            
+
+        },
         handleFileSelect: function (event) {
 
             let files = event.target.files;
+             
             let archive = new jsZip();
-            for (let i = 0, f; (f = files[i]); i++) {
+                for (let i = 0, f; (f = files[i]); i++) {
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
+                
+                console.log(path);
                 archive.file(path, f);
+           
             }
+            
             this.source = archive.generateAsync({ type: "base64" });
             if (files){
-                document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
+               var bt = document.getElementById('btSubmit');
+               bt.disabled = false;
+                document.getElementById("mySourcelabel").innerHTML = 'Selected'+' '+files.length+' '+'files';
                 document.getElementById("mySourcepath").innerHTML = 'PATH: ' + files[0].webkitRelativePath;
+                str = '<h6>Selected files</h6><div class="">';
+
+                for (let i = 0, f; (f = files[i]); i++) {
+                let path = f.webkitRelativePath;
+                str+=path+'<br>';
+                
+                
+                }
+                
+                str+='</div>';
+                //$('#mymessage-body').empty().append(str);
+                //$('#myMessage').modal();
+                
             } 
+            else{
+                bt.disabled = true;
+            }
+            
         },
+        
+    
         // submit(POST) the deployment to backend service
         handleDeploy: function (taskDer) {
             let myYaml = yaml.safeDump(taskDer);
