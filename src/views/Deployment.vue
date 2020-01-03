@@ -45,8 +45,14 @@
                                         </div>
                                         <!-- if type source is 'upload file' -->
                                         <div ref="custom_file" class="custom-file" style="height:26px; display:none">
+                                            
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
-                                            <label id="mySourcelabel" class="custom-file-label" for="customFile">Choose file</label>
+                                            <label id="mySourcelabel" style="width:180px" class="custom-file-label" for="customFile">Choose file</label>
+                                        
+                                            <button type="button" id="btSubmit" disabled class="btn btn-primary" style="padding: 0 4px;" data-toggle="modal"  data-target="#myMessage">View</button>
+                                    
+                                            
+                                      
                                         </div>
                                     </div>
                                 </div>
@@ -307,13 +313,14 @@
                 <div id="mymodal-body" class="modal-body" style="text-align:left"></div>
             </div>
         </div>
+
     </div>
     <!-- successful response dialog -->
-    <div id="myMessage" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog alert alert-success" role="document" style="width:150%">
+    <div id="myMessage" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" >
+            <div class=" modal-dialog modal-dialog-scrollable modal-dialog alert alert-success modal-dialog modal-lg" role="document">
                 <div class="modal-content" >
                     <div class="modal-header">
-                        <h5 class="modal-title">Message</h5>
+                        <h5 class="modal-title">Selected Files</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -410,6 +417,7 @@
 </template>
 
 <script>
+
 import jsZip from "jszip";
 import axios from "axios";
 import yaml from "js-yaml";
@@ -417,6 +425,10 @@ import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
 import CRC32 from 'crc-32';
+
+
+
+
 
 // Generate fake latitude and logitude
 function rand(n) {
@@ -461,6 +473,7 @@ export default {
             installError: '',  // deployment progress status diagram install error backgraound
             runError: '',   // deployment progress status diagram run error backgraound
             background:[]  // deployment progress status diagram backgraound
+            
         };
     },
     components: {
@@ -1048,21 +1061,35 @@ export default {
                 this.duplicateOrder(order);
             }
         },
-        // zipped the uploaded files and display their PATH
-        handleFileSelect: function (event) {
-
+        
+        handleFileSelect: function (event) 
+        {
             let files = event.target.files;
+             
             let archive = new jsZip();
+            let paths = [];
             for (let i = 0, f; (f = files[i]); i++) {
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
+                paths.push(f.webkitRelativePath);
                 archive.file(path, f);
             }
+            
             this.source = archive.generateAsync({ type: "base64" });
             if (files){
-                document.getElementById("mySourcelabel").innerHTML = files[0].name + "...";
-                document.getElementById("mySourcepath").innerHTML = 'PATH: ' + files[0].webkitRelativePath;
+                var bt = document.getElementById('btSubmit');
+                bt.disabled = false;
+                document.getElementById("mySourcelabel").innerHTML = 'Selected'+' '+files.length+' '+'files';
+
+                $('#myMessage').on('show.bs.modal', function (event) {
+                    $('#mymessage-body').empty().append("<div>" + paths.join("<br>") + "</div>");               
+                })
             } 
+            else{
+                bt.disabled = true;
+            }
         },
+        
+    
         // submit(POST) the deployment to backend service
         handleDeploy: function (taskDer) {
             let myYaml = yaml.safeDump(taskDer);
