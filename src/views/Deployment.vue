@@ -49,7 +49,7 @@
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
                                             <label id="mySourcelabel" style="width:180px" class="custom-file-label" for="customFile">Choose file</label>
                                         
-                                            <button type="button" id="btSubmit" disabled class="btn btn-primary" data-toggle="modal"  data-target="#myMessage">View</button>
+                                            <button type="button" id="btSubmit" disabled class="btn btn-primary" style="padding: 0 4px;" data-toggle="modal"  data-target="#myMessage">View</button>
                                     
                                             
                                       
@@ -320,7 +320,7 @@
             <div class=" modal-dialog modal-dialog-scrollable modal-dialog alert alert-success modal-dialog modal-lg" role="document">
                 <div class="modal-content" >
                     <div class="modal-header">
-                        <h5 class="modal-title">Selected Files are:</h5>
+                        <h5 class="modal-title">Selected Files</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -1062,85 +1062,31 @@ export default {
             }
         },
         
-        // zipped the uploaded files and display their PATH
-        //openmessage: function()
-        //{
-          
-           
-               // $('#mymessage-body').empty().append(str+'<br>');
-                //$('#myMessage').modal();
-            
-
-        //},
-        
-        
-        
         handleFileSelect: function (event) 
         {
-            
-
             let files = event.target.files;
              
             let archive = new jsZip();
-                for (let i = 0, f; (f = files[i]); i++) {
+            let paths = [];
+            for (let i = 0, f; (f = files[i]); i++) {
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
-                //let paths = f.webkitRelativePath;
-                 //let str = '<h6></h6><div class="">';
-                //str+=paths+'<br>';
-                
-                
- //$('#myMessage').on('show.bs.modal', function (event) {
- // var button = $(event.relatedTarget)
-
-  //$('#mymessage-body').empty().append(str+'<br>');
-  
-               
-            //})
-                
-                
-                console.log(path);
+                paths.push(f.webkitRelativePath);
                 archive.file(path, f);
-           
             }
             
             this.source = archive.generateAsync({ type: "base64" });
             if (files){
-               var bt = document.getElementById('btSubmit');
-               bt.disabled = false;
+                var bt = document.getElementById('btSubmit');
+                bt.disabled = false;
                 document.getElementById("mySourcelabel").innerHTML = 'Selected'+' '+files.length+' '+'files';
-                document.getElementById("mySourcepath").innerHTML = 'PATH: ' + files[0].webkitRelativePath;
-               let str = '<h6></h6><div class="">';
 
-                for (let i = 0, f; (f = files[i]); i++) {
-                let path = f.webkitRelativePath;
-                str+=path+'<br>';
-                
-                
- $('#myMessage').on('show.bs.modal', function (event) {
- var button = $(event.relatedTarget)
-
- $('#mymessage-body').empty().append(str+'<br>');
-  
-               
-            })
-                 
-
-               
-  
-
-               }
-                str+='</div>';
-               
-                
-                
-  
-  
-                
+                $('#myMessage').on('show.bs.modal', function (event) {
+                    $('#mymessage-body').empty().append("<div>" + paths.join("<br>") + "</div>");               
+                })
             } 
             else{
                 bt.disabled = true;
             }
-            
         },
         
     
