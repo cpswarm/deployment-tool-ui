@@ -49,7 +49,7 @@
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
                                             <label id="mySourcelabel" style="width:180px" class="custom-file-label" for="customFile">Choose file</label>
                                         
-                                            <button type="button" id="btSubmit" @click="openmessage" disabled class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">View</button>
+                                            <button type="button" id="btSubmit" disabled class="btn btn-primary" data-toggle="modal"  data-target="#myMessage">View</button>
                                     
                                             
                                       
@@ -320,7 +320,7 @@
             <div class=" modal-dialog modal-dialog-scrollable modal-dialog alert alert-success modal-dialog modal-lg" role="document">
                 <div class="modal-content" >
                     <div class="modal-header">
-                        <h5 class="modal-title">Message</h5>
+                        <h5 class="modal-title">Selected Files are:</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -417,6 +417,7 @@
 </template>
 
 <script>
+
 import jsZip from "jszip";
 import axios from "axios";
 import yaml from "js-yaml";
@@ -424,8 +425,9 @@ import editor from "vue2-ace-editor";
 import $ from "jquery";
 import * as d3 from "d3";
 import CRC32 from 'crc-32';
-let str="";
-let a;
+
+
+
 
 
 // Generate fake latitude and logitude
@@ -1059,23 +1061,42 @@ export default {
                 this.duplicateOrder(order);
             }
         },
+        
         // zipped the uploaded files and display their PATH
-        openmessage: function()
-        {
+        //openmessage: function()
+        //{
           
            
-                $('#mymessage-body').empty().append(str+'<br>');
-                $('#myMessage').modal();
+               // $('#mymessage-body').empty().append(str+'<br>');
+                //$('#myMessage').modal();
             
 
-        },
-        handleFileSelect: function (event) {
+        //},
+        
+        
+        
+        handleFileSelect: function (event) 
+        {
+            
 
             let files = event.target.files;
              
             let archive = new jsZip();
                 for (let i = 0, f; (f = files[i]); i++) {
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
+                //let paths = f.webkitRelativePath;
+                 //let str = '<h6></h6><div class="">';
+                //str+=paths+'<br>';
+                
+                
+ //$('#myMessage').on('show.bs.modal', function (event) {
+ // var button = $(event.relatedTarget)
+
+  //$('#mymessage-body').empty().append(str+'<br>');
+  
+               
+            //})
+                
                 
                 console.log(path);
                 archive.file(path, f);
@@ -1088,18 +1109,32 @@ export default {
                bt.disabled = false;
                 document.getElementById("mySourcelabel").innerHTML = 'Selected'+' '+files.length+' '+'files';
                 document.getElementById("mySourcepath").innerHTML = 'PATH: ' + files[0].webkitRelativePath;
-                str = '<h6>Selected files</h6><div class="">';
+               let str = '<h6></h6><div class="">';
 
                 for (let i = 0, f; (f = files[i]); i++) {
                 let path = f.webkitRelativePath;
                 str+=path+'<br>';
                 
                 
-                }
-                
+ $('#myMessage').on('show.bs.modal', function (event) {
+ var button = $(event.relatedTarget)
+
+ $('#mymessage-body').empty().append(str+'<br>');
+  
+               
+            })
+                 
+
+               
+  
+
+               }
                 str+='</div>';
-                //$('#mymessage-body').empty().append(str);
-                //$('#myMessage').modal();
+               
+                
+                
+  
+  
                 
             } 
             else{
