@@ -49,10 +49,7 @@
                                             <input type="file" class="custom-file-input" id="customFile" multiple webkitdirectory @change="handleFileSelect">
                                             <label id="mySourcelabel" style="width:180px" class="custom-file-label" for="customFile">Choose file</label>
                                         
-                                            <button type="button" id="btSubmit" disabled class="btn btn-primary" style="padding: 0 4px;" data-toggle="modal"  data-target="#myMessage">View</button>
-                                    
-                                            
-                                      
+                                            <button type="button" id="btList" disabled class="btn btn-primary" style="padding: 0 4px;" data-toggle="modal"  data-target="#myList">List</button>
                                         </div>
                                     </div>
                                 </div>
@@ -316,19 +313,33 @@
 
     </div>
     <!-- successful response dialog -->
-    <div id="myMessage" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" >
-            <div class=" modal-dialog modal-dialog-scrollable modal-dialog alert alert-success modal-dialog modal-lg" role="document">
+    <div id="myMessage" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog alert alert-success" role="document" style="width:150%">
                 <div class="modal-content" >
                     <div class="modal-header">
-                        <h5 class="modal-title">Selected Files</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                    <h5 class="modal-title">Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div id="mymessage-body" class="modal-body" style="text-align:left"></div>
             </div>
         </div>
+    </div>
+    <!-- list dialog (e.g. uploaded files) -->
+    <div id="myList" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg alert alert-success" role="document" style="width:150%">
+                <div class="modal-content" >
+                    <div class="modal-header">
+                    <h5 class="modal-title">List</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="text-align:left"></div>
+            </div>
         </div>
+    </div>
     <!-- deployment progress status dialog modal -->
     <div id="myTree" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div id="myTree_dialog" class="modal-dialog" role="document" style="margin: 50px 100px;">
@@ -1070,18 +1081,19 @@ export default {
             let paths = [];
             for (let i = 0, f; (f = files[i]); i++) {
                 let path = f.webkitRelativePath.substring(f.webkitRelativePath.indexOf('/')+1)
-                paths.push(f.webkitRelativePath);
+                paths.push(path);
                 archive.file(path, f);
             }
             
             this.source = archive.generateAsync({ type: "base64" });
             if (files){
-                var bt = document.getElementById('btSubmit');
+                var bt = document.getElementById('btList');
                 bt.disabled = false;
                 document.getElementById("mySourcelabel").innerHTML = 'Selected'+' '+files.length+' '+'files';
 
-                $('#myMessage').on('show.bs.modal', function (event) {
-                    $('#mymessage-body').empty().append("<div>" + paths.join("<br>") + "</div>");               
+                $('#myList').on('show.bs.modal', function (event) {
+                    $('#myList .modal-title').text("List of Selected Files");
+                    $('#myList .modal-body').empty().append('<ul class="list-group"><li>' + paths.join('</li><li>') + '</li></ul>');
                 })
             } 
             else{
@@ -1839,6 +1851,14 @@ export default {
     font-size: 14px;
     border-radius: 0 .25rem .25rem 0;
 }
+
+#myList li {
+    list-style: none;
+}
+#myList li:nth-of-type(odd) {
+    background: #f5f5f5;
+}
+
 #mytree-body {
   display: grid;
   grid-template-columns: 3fr 6.5fr;
