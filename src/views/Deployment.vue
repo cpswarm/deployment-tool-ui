@@ -736,6 +736,7 @@ export default {
 
             let s = document.getElementById("searchTarget");
             if (order.deploy) {
+                s.innerHTML = "";
                 for (var i = 0; i < order.deploy.match.list.length; i++) {
                     let b = this.createBadge(order.deploy.match.list[i]);
                     s.appendChild(b);
