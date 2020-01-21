@@ -715,8 +715,13 @@ export default {
             document.getElementById("mySourcepath").innerHTML = "";
             document.getElementById("customFile").value = "";
 
-            this.sourceOrder = order.id;
-            this.typeSource = '1';
+            if (order.build.artifacts) {
+                this.sourceOrder = order.id;
+                this.typeSource = '1';
+            } else {
+                this.sourceOrder = '';
+                this.typeSource = '0';
+            }
             this.chooseSource();
 
             this.deployDebug = order.debug;
