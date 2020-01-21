@@ -226,7 +226,7 @@
                                             <div v-if="device.logs.tasks[0][1]!='none'">
                                                 <hr style="border: 1px solid #2c3e50;margin:10px 0"> 
                                                 <li v-for="task in device.logs.tasks.slice().reverse()" class="history_li" @click="showLog(device.logs.log, task[0],device.id)">    
-                                                    {{task[0].substring(0,2)}}  
+                                                    {{task[0].split("-")[0][0]+task[0].split("-")[1][0]}}  
                                                     <img v-if="task[1]==false" src="../assets/done.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" title="Click to check logs" >  
                                                     <img v-else src="../assets/error.png" style="position:relative; top:-39px;width:12px;background-color: #fff; border-radius: 50%" title="Click to check logs">                
                                                 </li>
