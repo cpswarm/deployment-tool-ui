@@ -515,7 +515,7 @@ export default {
     //methods are sorted alphabetically
     methods: {
         // append deployment logs when user click history tasks
-        appendLogs: function(log,id){
+        appendLogs: function(logs){
             let build = $("#collapsebuild"), install = $("#collapseinstall"), run = $("#collapserun");
             build.empty().collapse('show');
             install.empty().collapse('show');
@@ -523,7 +523,6 @@ export default {
 
             let checksum = 0, count =0;
             
-            let logs =  log.filter(el => el.task == id);
             for(let i =1; i < logs.length;i++){
                 let c ='';
                 logs[i].error == true?  c = 'f':c= 's';
@@ -642,10 +641,13 @@ export default {
             this.getTokens();
         },
         // request all logs on one device
-        checkLogs: function (target) {
+        checkLogs: function ({target, task, filter}) {
 
-            let des = "target=" + target;
-            return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+            target = target ? "&target=" + target : "";
+            filter = filter ? "&output=" + filter : "";
+            task = task ? "&task=" + task : "";
+            
+            return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc" + task + filter + target).then(function (response) {
 
                 if (response.data.items) { 
                     let fulltask = new Set();
@@ -817,7 +819,7 @@ export default {
         // check one task finished time and calculate how many devices succeed or failed, return [finish time, [success,fail]]
         getFinishnStatus: function (id, total) {
 
-            return axios.get(this.address+"/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+            return axios.get(this.address+"/logs?perPage=1000&sortOrder=desc&output=stage&task=" + id).then(response => {
 
                 let finishAt = response.data.items[0].time;
                 let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
@@ -919,7 +921,7 @@ export default {
                     })
                     a.marker = marker;
                     // check tasks status and decide the marker icon, add to success or fail list
-                    this.checkLogs(a.id).then(data => {
+                    this.checkLogs({target: a.id, filter:"stage"}).then(data => {
                         a.logs = data;                 
                         if(data.tasks[0][1] == true){
                             this.failed.push(a);
@@ -1219,7 +1221,11 @@ export default {
             
             $('#accordionLog button span').remove();
             $('#accordionLog button').append('<span class="spinner-border spinner-border-sm text-primary" role="status" style="margin-left:10px"><span class="sr-only"></span></span>');
-            this.appendLogs(log,id);
+            
+            this.checkLogs({target:name, task:id}).then(logs => {
+                this.appendLogs(logs.log);
+            }); 
+            
 
             let protocol = '';
             this.address.indexOf('https') > -1? protocol = 'wss://' : protocol = 'ws://';

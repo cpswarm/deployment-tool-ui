@@ -578,8 +578,7 @@ export default {
         },
         // request all logs on one device
         checkLogs: function (target) {
-            let des = "target=" + target;
-            return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc&" + des).then(function (response) {
+            return axios.get(this.address + "/logs?perPage=1&sortOrder=desc&output=stage&target=" + target).then(function (response) {
 
                 if (response.data.items) {
                     let fulltask = new Set();
@@ -956,7 +955,7 @@ export default {
         },
         // check one task finished time and calculate how many devices succeed or failed, return [finish time, [success,fail]]
         getFinishnStatus: function (id, total) {
-            return axios.get(this.address + "/logs?task=" + id + "&perPage=1000&sortOrder=desc").then(response => {
+            return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc&output=stage&task=" + id).then(response => {
                 if(response.data.items){
                      let finishAt = response.data.items[0].time;
                      let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
@@ -976,7 +975,7 @@ export default {
         // check one task finished time
         getFinishTime: function (id) {
             //Request the latest logs time
-            return axios.get(this.address + "/logs?task=" + id + "&perPage=1&sortOrder=desc").then(response => {
+            return axios.get(this.address + "/logs?perPage=1&sortOrder=desc&task=" + id).then(response => {
                 return response.data.items[0].time;
             }).catch(error => {
                 console.log(error);
@@ -1072,7 +1071,7 @@ export default {
         goBackDeployment: function () {
             // close the modal
             $("#myTree").modal('toggle');
-            let id = $('#treeTitle').text().substring(17);
+            let id = $('#treeTitle').text().substring(17); // get the order id from modal title!!
             if($('#editBtn').val() == 'nodeploy'){
                 let order = this.orders.find(e =>{ return e.id == id})
                 this.duplicateOrder(order);
@@ -1238,7 +1237,7 @@ export default {
 
             // if click the device status on deployment card (not submit a new deployment )
             if (!deploy) {
-                axios.get(this.address + "/logs?task=" + id + "&sortOrder=asc&perPage=1000").then(response => {
+                axios.get(this.address + "/logs?sortOrder=asc&perPage=1000&task=" + id).then(response => {
 
                     $('#editBtn').val('nodeploy');
                     targetNodes = this.generateTree3(response.data.items); 
