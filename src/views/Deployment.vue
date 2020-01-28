@@ -955,14 +955,25 @@ export default {
         },
         // check one task finished time and calculate how many devices succeed or failed, return [finish time, [success,fail]]
         getFinishnStatus: function (id, total) {
-            return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc&output=stage&task=" + id).then(response => {
+            return axios.get(this.address + "/logs?perPage=1000&sortOrder=desc&output=stage-end&task=" + id).then(response => {
                 if(response.data.items){
-                     let finishAt = response.data.items[0].time;
-                     let logs = response.data.items.filter(el => el.error && el.output == "STAGE-END")
-                    if (logs.length == 0) {
+                    let finishAt = response.data.items[0].time;
+                    // count targets with failed stage-end
+                    let targetMap = {}
+                    let failed = 0
+                    for(let i=0; i<response.data.items.length; i++){
+                        let el = response.data.items[i]
+                        if(!(el.target in targetMap)){
+                            targetMap[el.target] = el.error;
+                            if(el.error)
+                                failed++
+                        }
+                    }
+                    
+                    if (failed == 0) {
                         return [finishAt, [total, 0]];
                     } else {
-                        return logs[0].stage == "build" ?  [finishAt, [0, 1]] : [finishAt, [total - logs.length, logs.length]];
+                        return response.data.items[0].stage == "build" ?  [finishAt, [0, 1]] : [finishAt, [total - failed, failed]];
                     }
                 }else{
                     return [0,[0,0]];
