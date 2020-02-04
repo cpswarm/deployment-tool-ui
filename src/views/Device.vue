@@ -9,7 +9,7 @@
                    <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
                             aria-expanded="false" aria-controls="collapseTwo" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panle to batch update devices">
-                            <img src="../assets/edit.png" style="width:20px">Update Devices
+                            <img src="../assets/edit.png" style="width:20px"> Batch Update
                         </button>
                     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
                         <div class="card-body" ref="collapseTwo" style="text-align:left;padding:7.5px; overflow:auto">
@@ -124,36 +124,35 @@
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                             aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panel to manage tokens">
-                            <img src="../assets/key.svg" style="height:20px">
-                            Manage Tokens
+                            <img src="../assets/key.svg" style="height:20px"> Tokens
                         </button>  
                     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
-                        <div ref="collapseThree" style="overflow:auto">
-                        <div style="margin:10px 12.5px 5px;">
+                        <div ref="collapseThree" style="overflow:auto; font-size:14px; margin: 10px; text-align:left;">
+                        <div>
                            <!--  request for new tokens -->
+                           <p style="text-align: left;">Request new tokens for device registration:</p>
                             <form id="newToken" class="form-inline">
-                                <div class="mycard-title">
-                                    <h6 style="font-size:15px;margin:0">Token Set Name:</h6>
-                                </div>
+                                <div class="mycard-title">Token Set Name:</div>
                                 <div class="mycard-content">
                                     <input v-model ="tokenName" class="form-control form-control-sm" type="text" style="height: 26px;">
                                 </div>
-                                <div class="mycard-title">
-                                    <h6 style="font-size:15px;margin:0">#Tokens:</h6></div>
+                                <div class="mycard-title">Number of Tokens:</div>
                                 <div class="mycard-content">
                                     <input v-model ="tokenSize" class="form-control form-control-sm" type="text" style="height: 26px;">
-                                    <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px; margin-left:20px" @click="postToken">Get</button>
+                                    <button class="btn btn-primary btn-sm" type="button" style="padding: 0 5px; margin-left:20px" @click="postToken">Request</button>
                                 </div>
                             </form>
                         </div>
-                        <div style="padding:5px">
+                        
+                        <div style="margin-top: 10px;">
+                            <p>Existing Tokens:</p>
                             <!-- token sets table -->
-                            <table id="mytable" class="table" style="text-align:left;font-size:15px">
+                            <table id="mytable" class="table">
                                 <thead>
                                     <tr>
                                        <th scope="col">Name</th>
-                                        <th scope="col">#Available </th>
-                                        <th scope="col">Expires Time</th>
+                                        <th scope="col">Total Available</th>
+                                        <th scope="col">Expiry</th>
                                         <th scope="col"></th>
                                     </tr>
                                 </thead>
@@ -174,8 +173,7 @@
                 <div class="card">
                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open devices list">
-                            <img src="../assets/device.png" style="width:18px">
-                            Device List
+                            <img src="../assets/device.png" style="width:18px"> Devices
                         </button>
                     <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample"
                         ref="collapseOne">
@@ -1073,15 +1071,17 @@ export default {
             axios.post(this.address + '/token_sets?total=' + this.tokenSize + '&name='+this.tokenName).then(response=>{            
                 let a = response.data;
                 // generate the dialog content HTML to show the new tokens          
-                let str = '<h6>This view will be unaccesable after you close this modal!</h6><div class="myToken">' + '<div class="mycard-title">Name:</div><div class="mycard-content">'+ a.name + '</div>';
-                str += '<div class="mycard-title">Size:</div><div class="mycard-content">'+ a.available + '</div>';
-                str += '<div class="mycard-title">Expires Time:</div><div class="mycard-content">'+ new Date(a.expiresAt).toLocaleString() + '</div>';
+                let str = '<h6>Please copy the tokens. They will not be accessible after closing this window!</h6><div class="myToken">';
+                str += '<div class="mycard-title">Name:</div><div class="mycard-content">'+ a.name + '</div>';
+                str += '<div class="mycard-title">Total:</div><div class="mycard-content">'+ a.available + '</div>';
+                str += '<div class="mycard-title">Expiry:</div><div class="mycard-content">'+ new Date(a.expiresAt).toLocaleString() + '</div>';
                 str += '<div class="mycard-title">Tokens:</div><div class="mycard-content">';
                 a.tokens.forEach(t =>{
                     str += t + '<br>'
                 });
                 str += '</div></div>';
-                $('#mymessage-body').empty().append(str);
+                $('#myMessage .modal-title').text("Generated Tokens");
+                $('#myMessage .modal-body').empty().append(str);
                 $('#myMessage').modal();
             }).catch(error=>{
                 let message;

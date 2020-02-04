@@ -9,8 +9,7 @@
              <div class="card">
                     <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
                         aria-expanded="false" aria-controls="collapseThree" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open the panel to create new deployment task">
-                        <img src="../assets/add.png" style="height:20px">
-                        Add New Deployment
+                        <img src="../assets/add.png" style="height:20px"> Add New Deployment
                     </button>
                 <div id="collapseThree"  class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample" style="overflow:auto">
                     <div class="card-body" style="padding:7.5px" ref="collapseThree">
@@ -24,7 +23,7 @@
                         <form id="newDeployment">
                             <div class="mycard-title" >Description:</div>
                             <div class="mycard-content">
-                                <textarea v-model="deployDes" class="form-control form-control-sm" rows="3" style="padding:0 3px;"></textarea>
+                                <input v-model="deployDes" class="form-control form-control-sm" type="text" style="height: 26px;">
                             </div>
                             <div class="mycard-title" >Source:</div>
                             <div>
@@ -107,7 +106,7 @@
                             <div class="mycard-content" style="font-size:13px">
                                (CLICK cluster or DOUBLE CLICK marker to select Target.)
                             </div>
-                            <div class="mycard-content" style="grid-column: 1/3; border: 1px solid grey;border-style:dashed">
+                            <div class="mycard-content" style="grid-column: 2/3; border: 1px solid grey;border-style:dashed">
                                 <!-- search devices -->
                                 <form class="form-inline">
                                     <div class="input-group" style="width:100%;border: 1px solid #ced4da;border-radius:.25rem;">
@@ -164,8 +163,7 @@
             <div class="card">       
                   <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="false" aria-controls="collapseOne" style="padding:2.5px 7.5px;width:100%;text-align:left;font-weight:500" title="Open deployments list">
-                            <img src="../assets/device.png" style="width:18px">
-                            Deployment List
+                            <img src="../assets/device.png" style="width:18px"> Deployments
                     </button>        
                 <div id="collapseOne" class="collapse show" aria-labelledby="searchDevice" data-parent="#accordionExample" >
                     <div style="padding:5px;" >
@@ -1839,7 +1837,7 @@ export default {
 }
 #newDeployment {
   display: grid;
-  grid-template-columns: 1fr 4.5fr;
+  grid-template-columns: 1fr 6fr;
   grid-gap: 2.5px;
 }
 .myCommandCard{
