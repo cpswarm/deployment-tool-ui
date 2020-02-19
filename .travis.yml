@@ -1,7 +1,7 @@
 language: minimal
 
 script: 
-  - docker build -t linksmart/deployment-ui .
+  - docker build -t linksmart/deployment-ui --label "travis_buildNumber=$TRAVIS_BUILD_NUMBER" .
   
 before_deploy: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
 
