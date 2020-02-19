@@ -433,23 +433,23 @@
         </div>
         <!--  notification card -->
         <div class="notification"> 
-            <div class="mycard-title" style="color:#ffda44" >Discovered:
+            <div class="mycard-title" style="color:#e0bb18" >Discovered:
                 <img src="../assets/star.png">
             </div>
             <div class="mycard-content">
-                <button type="button" class="btn btn-light btn-sm" style="color:#ffda44" @click="showNewDevices" title="Click to check new discovered devices list">{{this.newDiscover.length}}</button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#e0bb18" @click="showNewDevices" title="Click to list newly discovered devices">{{this.newDiscover.length}}</button>
             </div> 
             <div class="mycard-title" style="color:#d80027">Failed:
                 <img src="../assets/error.png">
             </div>
             <div class="mycard-content">
-                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="filterDevices('failed')"  title="Click to check failed devices list">{{this.failed.length}}</button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#d80027" @click="filterDevices('failed')"  title="Click to list failed devices">{{this.failed.length}}</button>
             </div>
             <div class="mycard-title" style="color:#00ae31">Successful:
                  <img src="../assets/done.png">
             </div>
             <div class="mycard-content" >
-                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="filterDevices('success')" title="Click to check success devices list">{{this.success.length}} </button>
+                <button type="button" class="btn btn-light btn-sm" style="color:#00ae31" @click="filterDevices('success')" title="Click to list successful devices">{{this.success.length}} </button>
             </div>
         </div>
     </div>
