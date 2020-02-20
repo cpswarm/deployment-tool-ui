@@ -61,7 +61,7 @@
                                         <h6 class="mycard-content" style="margin-top:2.5px">Type:</h6>
                                         <div class="btn-group-toggle" data-toggle="buttons">
                                             <label class="btn btn-light">
-                                                <input type="checkbox" autocomplete="off" value="actuator"> actuator
+                                                <input type="checkbox" autocomplete="off" value="rover"> rover
                                             </label>
                                             <label class="btn btn-light">
                                                 <input type="checkbox" autocomplete="off" value="light" >light
@@ -281,7 +281,7 @@
                                                             <input type="checkbox" autocomplete="off" value="builder"> builder
                                                         </label>    
                                                         <label class="btn btn-light">
-                                                            <input type="checkbox"  autocomplete="off" value="actuator"> actuator
+                                                            <input type="checkbox"  autocomplete="off" value="rover"> rover
                                                         </label>
                                                         <label class="btn btn-light">
                                                             <input type="checkbox" autocomplete="off" value="light" >light
@@ -1294,7 +1294,7 @@ export default {
                     case 'arm32':
                         color = "#0d5661";
                         break;
-                    case 'actuator':
+                    case 'rover':
                         color = "#36563c";
                         break;
                     case 'sensor':
@@ -1668,7 +1668,7 @@ export default {
 .motion{
     background-color: #9f50d4;
 }
-.actuator{
+.rover{
     background-color: #36563c;
 }
 .arm32{
@@ -1692,12 +1692,12 @@ export default {
 .swarm{
     background-color: #06aa00;
 }
-.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .actuator,.sensor, .raspi2,.light,.motion,.drone,.swarm{
+.raspi0, .amd64, .darwin, .arm32, .builder, .linux, .rover,.sensor, .raspi2,.light,.motion,.drone,.swarm{
     color: #fff;
     border: 1px solid transparent;
     margin-right:2.5px;
 }
-.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .actuator:hover,.sensor:hover, .raspi2:hover, .light:hover,.motion:hover,.drone:hover,.swarm:hover{
+.raspi0:hover, .amd64:hover, .darwin:hover, .arm32:hover, .builder:hover, .linux:hover, .rover:hover,.sensor:hover, .raspi2:hover, .light:hover,.motion:hover,.drone:hover,.swarm:hover{
     cursor: pointer;
 }
 .myTerminal{
